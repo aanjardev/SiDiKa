@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('username');
             $table->string('password');
+            $table->string('email')->unique()->nullable();
+            $table->string('role'); // Menambahkan kolom role dengan default 'user'
+            $table->string('name')->nullable(); // Menambahkan kolom name
             $table->rememberToken();
             $table->timestamps();
         });

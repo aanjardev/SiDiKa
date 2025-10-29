@@ -11,20 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('produk', function (Blueprint $table) {
-            $table->id();
-            $table->string('kode_sku', 20);
-            $table->unsignedBigInteger('id_kategori');
-            $table->string('nama_produk', 200);
-            $table->integer('harga_jual')->nullable();
-            $table->integer('stok_produk');
-            $table->text('deskripsi_produk')->nullable();
-            $table->enum('status', ['Second', 'Baru']);
-            $table->enum('grade', ['Unggulan', 'Standar', 'Minus'])->default('Standar');
-            $table->timestamps();
+        // Schema::create('produk', function (Blueprint $table) {
+        //     $table->id();
+        //     $table->string('kode_sku', 20);
+        //     $table->unsignedBigInteger('id_kategori');
+        //     $table->string('nama_produk', 200);
+        //     $table->integer('harga_jual')->nullable();
+        //     $table->integer('stok_produk');
+        //     $table->text('deskripsi_produk')->nullable();
+        //     $table->enum('status', ['Second', 'Baru']);
+        //     $table->enum('grade', ['Unggulan', 'Standar', 'Minus'])->default('Standar');
+        //     $table->timestamps();
 
-            $table->foreign('id_kategori')->references('id')->on('kategori')->onDelete('cascade');
-        });
+        //     $table->foreign('id_kategori')->references('id')->on('kategori')->onDelete('cascade');
+        // });
     }
 
     /**
