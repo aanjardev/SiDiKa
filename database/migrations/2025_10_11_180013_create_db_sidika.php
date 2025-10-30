@@ -8,7 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * Membuat semua tabel yang dibutuhkan SiDiKa, termasuk yang diminta (users, kategori, detail_produk).
+     * VERSI HYBRID: Menggabungkan tabel admin baru dengan struktur tabel customer lama.
      */
     public function up(): void
     {
@@ -16,22 +16,22 @@ return new class extends Migration
         // 1. DATA MASTER & AKSES (users, kategori, perusahaan)
         // =================================================================
 
-        // 1.1 Tabel users (MODIFIKASI) - Asumsi sudah ada dari migrasi default Laravel
+        // 1.1 Tabel users (MODIFIKASI) - Tetap tambahkan 'role' untuk admin
         Schema::table('users', function (Blueprint $table) {
-            // Menambahkan kolom 'role' untuk kebutuhan RBAC
             if (!Schema::hasColumn('users', 'role')) {
                 $table->enum('role', ['manager', 'operasional'])->default('operasional')->after('password');
             }
         });
 
-        // 1.2 Tabel Kategori (BARU)
+        // 1.2 Tabel Kategori (DIKEMBALIKAN KE STRUKTUR LAMA)
+        // Menggunakan struktur sederhana dari migrasi lama agar customer tidak error.
         Schema::create('kategori', function (Blueprint $table) {
             $table->id();
             $table->string('nama_kategori', 50);
             $table->timestamps();
         });
 
-        // 1.3 Tabel Perusahaan/Cabang
+        // 1.3 Tabel Perusahaan/Cabang (BARU - DARI ADMIN)
         Schema::create('perusahaan_cabang', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 50);
@@ -40,7 +40,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 1.4 Tabel Customer (CRM)
+        // 1.4 Tabel Customer (BARU - DARI ADMIN)
         Schema::create('customer', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 50);
@@ -53,14 +53,14 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 1.5 Tabel Karyawan (SDM)
+        // 1.5 Tabel Karyawan (BARU - DARI ADMIN)
         Schema::create('karyawan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('nama_lengkap', 50);
             $table->string('nik', 20)->unique();
             $table->string('jabatan', 50);
-            $table->integer('gaji')->nullable(); // Gaji saat ini
+            $table->integer('gaji')->nullable();
             $table->date('tanggal_masuk');
             $table->date('tanggal_keluar')->nullable();
             $table->enum('status', ['aktif', 'non-aktif'])->default('aktif');
@@ -73,7 +73,7 @@ return new class extends Migration
         // 2. PRODUK, INVENTARIS & QC
         // =================================================================
 
-        // 2.1 Tabel Kondisi (QC Parameter)
+        // 2.1 Tabel Kondisi (BARU - DARI ADMIN)
         Schema::create('kondisi', function (Blueprint $table) {
             $table->id();
             $table->string('fisik', 100)->nullable();
@@ -97,46 +97,54 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 2.2 Tabel Produk (Master Data)
+        // 2.2 Tabel Produk (DIKEMBALIKAN KE STRUKTUR LAMA + Tambahan dari Admin)
+        // Ini adalah penggabungan: Kolom stok, deskripsi, status, grade dikembalikan
+        // agar sisi customer tidak error.
         Schema::create('produk', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_sku', 20)->unique();
-            $table->foreignId('kategori_id')->constrained('kategori')->onDelete('cascade');
+            $table->string('kode_sku', 20)->unique(); // Pakai unique() dari migrasi baru
+
+            // --- Kolom dari migrasi LAMA (untuk Customer) ---
+            $table->unsignedBigInteger('id_kategori'); // Pakai 'id_kategori' BUKAN 'kategori_id'
             $table->string('nama_produk', 200);
             $table->integer('harga_jual')->nullable();
+            $table->integer('stok_produk'); // INI YANG PENTING
+            $table->text('deskripsi_produk')->nullable(); // INI YANG PENTING
+            $table->enum('status', ['Second', 'Baru']); // INI YANG PENTING
+            $table->enum('grade', ['Unggulan', 'Standar', 'Minus'])->default('Standar'); // INI YANG PENTING
+
+            // --- Kolom Tambahan dari migrasi BARU (untuk Admin) ---
             $table->integer('harga_beli')->nullable();
             $table->integer('harga_servis')->nullable();
+
             $table->timestamps();
+
+            // Foreign key dari migrasi LAMA
+            $table->foreign('id_kategori')->references('id')->on('kategori')->onDelete('cascade');
         });
 
-        // 2.3 Tabel Detail Produk (INVENTARIS - DIKEMBALIKAN)
-        Schema::create('detail_produk', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
-            $table->foreignId('kondisi_id')->constrained('kondisi')->onDelete('restrict');
-            $table->string('serial_number', 30)->unique();
-            $table->integer('stok_produk')->default(0); // Stok per serial number (1 unit)
-            $table->text('deskripsi_produk')->nullable();
-            $table->enum('status', ['Second', 'Baru'])->default('Second');
-            $table->enum('grade', ['Unggulan', 'Standar', 'Minus'])->default('Standar');
-            $table->string('kelengkapan', 255)->nullable();
-            $table->timestamps();
-        });
+        // 2.3 Tabel Detail Produk (DIHAPUS)
+        // Schema::create('detail_produk', ...)
+        // Dihapus karena semua kolomnya sudah dikembalikan ke tabel 'produk'.
 
-        // 2.4 Tabel Gambar Produk Detail (Revisi Multi-Gambar)
-        Schema::create('gambar_produk_detail', function (Blueprint $table) {
+        // 2.4 Tabel Gambar Produk (DIKEMBALIKAN KE STRUKTUR LAMA)
+        // Nama tabel dan kolom disesuaikan dengan migrasi lama.
+        Schema::create('gambar_produk', function (Blueprint $table) { // Nama tabel lama
             $table->id();
-            $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
+            $table->unsignedBigInteger('id_produk'); // Nama kolom lama
             $table->string('path_gambar');
-            $table->integer('urutan')->nullable();
+            $table->boolean('is_main')->default(false); // Logika 'is_main' lama
             $table->timestamps();
+
+            $table->foreign('id_produk')->references('id')->on('produk')->onDelete('cascade'); // Foreign key lama
         });
 
+
         // =================================================================
-        // 3. TRANSAKSI
+        // 3. TRANSAKSI (BARU - DARI ADMIN)
         // =================================================================
 
-        // 3.1 Tabel Pembelian (Master Transaksi Beli dari Customer)
+        // 3.1 Tabel Pembelian
         Schema::create('pembelian', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customer')->onDelete('restrict');
@@ -152,7 +160,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('pembelian_id')->constrained('pembelian')->onDelete('cascade');
             $table->foreignId('produk_id')->constrained('produk')->onDelete('restrict');
-            // Kondisi Awal Pembelian sudah tercatat di tabel kondisi melalui detail_produk
             $table->string('serial_number', 30)->nullable();
             $table->integer('qty')->default(1);
             $table->integer('harga_tawaran')->nullable();
@@ -161,7 +168,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 3.3 Tabel Penjualan (Master Transaksi Jual)
+        // 3.3 Tabel Penjualan
         Schema::create('penjualan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customer')->onDelete('restrict');
@@ -182,7 +189,7 @@ return new class extends Migration
             $table->foreignId('produk_id')->constrained('produk')->onDelete('restrict');
             $table->string('serial_number', 30)->nullable();
             $table->integer('qty');
-            $table->integer('harga_jual_satuan'); // REVISI KRITIS: Harga jual saat transaksi
+            $table->integer('harga_jual_satuan');
             $table->double('harga_depresiasi')->nullable();
             $table->timestamps();
         });
@@ -197,8 +204,8 @@ return new class extends Migration
         Schema::dropIfExists('penjualan');
         Schema::dropIfExists('detail_pembelian');
         Schema::dropIfExists('pembelian');
-        Schema::dropIfExists('gambar_produk_detail');
-        Schema::dropIfExists('detail_produk');
+        Schema::dropIfExists('gambar_produk'); // Disesuaikan dengan nama tabel lama
+        // Schema::dropIfExists('detail_produk'); // Tidak perlu karena tidak dibuat di 'up'
         Schema::dropIfExists('produk');
         Schema::dropIfExists('kondisi');
         Schema::dropIfExists('karyawan');

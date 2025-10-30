@@ -1,485 +1,213 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.admin')  {{-- Menggunakan layout admin.blade.php --}}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin - Dinoyo Kamera</title>
-    <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
-        rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
-</head>
+@section('title', 'Dashboard') {{-- Mengatur judul halaman --}}
 
-<body>
-    @include('partials.headerAdmin')
+@section('content')
 
-    <main>
-        <div class="container">
-            <!-- Dashboard Header -->
-            <div class="dashboard-header mb-4">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <div class="d-flex align-items-center gap-3">
-                            <h1>Dashboard Admin</h1>
-                        </div>
-                        <p class="lead text-muted">Kelola produk anda, tambahkan item, dan update inventaris anda
-                            disini.</p>
-                    </div>
-                    <div class="col-md-4 text-md-end">
-                        <span class="badge bg-primary p-2">
-                            <i class="bi bi-clock me-1"></i>
-                            {{ now()->format('d M Y') }}
-                        </span>
+{{-- Bagian Tombol Aksi (Penjualan & Pembelian) --}}
+<div class="row mb-4">
+    <div class="col-12 d-flex justify-content-end gap-3">
+        {{-- Tombol Penjualan --}}
+        <button class="btn btn-primary d-flex align-items-center gap-2">
+            <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 4V20M20 12L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <span>Penjualan</span>
+        </button>
 
-                    </div>
+        {{-- Tombol Pembelian --}}
+        <button class="btn btn-success d-flex align-items-center gap-2" style="background-color: #198754; border-color: #198754;">
+            <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 4V20M20 12L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+            <span>Pembelian</span>
+        </button>
+    </div>
+</div>
+
+{{-- Baris Pertama: Card Ringkasan Pendapatan --}}
+<div class="row">
+    {{-- Card 1: Pendapatan Utama --}}
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <p class="mb-0 text-muted">Pendapatan</p>
+                    <span class="badge rounded-pill bg-primary fw-normal">July 2025</span>
+                </div>
+                <h3 class="mb-3 fw-bold">Rp300.000.000</h3>
+                <div class="d-flex justify-content-between text-sm">
+                    <span class="text-muted">HPP</span>
+                    <span class="fw-medium">Rp105.000.000</span>
+                    <span class="badge bg-light text-dark">35%</span>
+                </div>
+                <div class="d-flex justify-content-between text-sm mt-1">
+                    <span class="text-muted">Laba Kotor</span>
+                    <span class="fw-medium">Rp105.000.000</span>
+                    <span class="badge bg-light text-dark">35%</span>
                 </div>
             </div>
-
-            <!-- Quick Stats -->
-            <div class="row g-4 mb-4">
-                <div class="col-md-4 col-12">
-                    <div class="admin-card">
-                        <div class="card-body d-flex align-items-center">
-                            <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
-                                <i class="bi bi-box-seam text-primary fs-4"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-1">Total Produk</h6>
-                                <h3 class="mb-0">{{ $totalProduk }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-12">
-                    <div class="admin-card">
-                        <div class="card-body d-flex align-items-center">
-                            <div class="rounded-circle bg-warning bg-opacity-10 p-3 me-3">
-                                <i class="bi bi-exclamation-circle text-warning fs-4"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-1">Stok Menipis</h6>
-                                <h3 class="mb-0">{{ $stokMenipis }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-12">
-                    <div class="admin-card">
-                        <div class="card-body d-flex align-items-center">
-                            <div class="rounded-circle bg-danger bg-opacity-10 p-3 me-3">
-                                <i class="bi bi-x-circle text-danger fs-4"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-1">Produk Sold Out</h6>
-                                <h3 class="mb-0">{{ $soldOutProducts }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add/Edit Product Form -->
-            <section class="mb-4">
-                <div class="admin-card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h2 class="mb-0">
-                            <i class="bi bi-plus-circle me-2"></i>
-                            {{ isset($product) ? 'Edit Produk' : 'Tambah Produk' }}
-                        </h2>
-                    </div>
-                    <div class="card-body">
-                        @if (session('success'))
-                            <div class="alert alert-success">
-                                <i class="bi bi-check-circle me-2"></i>
-                                {{ session('success') }}
-                            </div>
-                        @endif
-                        <form method="POST" action="{{ isset($product) ? route('admin.update', $product->id) : route('store') }}"
-                            class="needs-validation" enctype="multipart/form-data" novalidate>
-                            @csrf
-                            @if(isset($product)) @method('PUT') @endif
-
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="kode_sku" class="form-label">Kode SKU</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-upc"></i></span>
-                                        <input type="text" class="form-control" id="kode_sku" name="kode_sku"
-                                            value="{{ old('kode_sku', isset($product) ? $product->kode_sku : '') }}" required>
-                                    </div>
-                                    @error('kode_sku')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="nama_produk" class="form-label">Nama Produk</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-camera"></i></span>
-                                        <input type="text" class="form-control" id="nama_produk" name="nama_produk"
-                                            value="{{ old('nama_produk', isset($product) ? $product->nama_produk : '') }}" required>
-                                    </div>
-                                    @error('nama_produk')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="harga_jual" class="form-label">Harga</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text">Rp</span>
-                                        <input type="number" class="form-control" id="harga_jual" name="harga_jual"
-                                            value="{{ old('harga_jual', isset($product) ? $product->harga_jual : '') }}" required>
-                                    </div>
-                                    @error('harga_jual')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="id_kategori" class="form-label">Kategori</label>
-                                    <select class="form-select" id="id_kategori" name="id_kategori" required>
-                                        <option value="">Pilih Kategori...</option>
-                                        @foreach($kategori as $kat)
-                                            <option value="{{ $kat->id }}"
-                                                {{ old('id_kategori', isset($product) ? $product->id_kategori : '') == $kat->id ? 'selected' : '' }}>
-                                                {{ $kat->nama_kategori }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    @error('id_kategori')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="stok_produk" class="form-label">Stok</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="bi bi-boxes"></i></span>
-                                        <input type="number" class="form-control" id="stok_produk" name="stok_produk"
-                                            value="{{ old('stok_produk', isset($product) ? $product->stok_produk : '') }}" required>
-                                    </div>
-                                    @error('stok_produk')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="status" class="form-label">Status</label>
-                                    <select class="form-select" id="status" name="status" required>
-                                        <option value="Second" {{ old('status', isset($product) ? $product->status : '') == 'Second' ? 'selected' : '' }}>Second</option>
-                                        <option value="Baru" {{ old('status', isset($product) ? $product->status : '') == 'Baru' ? 'selected' : '' }}>Baru</option>
-                                    </select>
-                                    @error('status')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="grade" class="form-label">Grade</label>
-                                    <select class="form-select" id="grade" name="grade" required>
-                                        <option value="Unggulan" {{ old('grade', isset($product) ? $product->grade : '') == 'Unggulan' ? 'selected' : '' }}>Unggulan</option>
-                                        <option value="Standar" {{ old('grade', isset($product) ? $product->grade : 'Standar') == 'Standar' ? 'selected' : '' }}>Standar</option>
-                                        <option value="Minus" {{ old('grade', isset($product) ? $product->grade : '') == 'Minus' ? 'selected' : '' }}>Minus</option>
-                                    </select>
-                                    @error('grade')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="gambar_produk" class="form-label">Gambar Produk</label>
-                                    <div class="input-group mb-2">
-                                        <span class="input-group-text"><i class="bi bi-images"></i></span>
-                                        <input type="file" class="form-control" id="gambar_produk" name="gambar_produk[]" multiple accept="image/*"
-                                            onchange="previewGambar(event)">
-                                    </div>
-                                    <div id="preview-container" class="row g-2">
-                                        @if(isset($product) && $product->gambar)
-                                            @foreach($product->gambar as $index => $gambar)
-                                                <div class="col-4 image-container" data-image-id="{{ $gambar->id }}">
-                                                    <div class="card">
-                                                        <img src="{{ asset('storage/' . $gambar->path_gambar) }}" class="card-img-top" style="height: 150px; object-fit: cover;">
-                                                        <div class="card-body text-center">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="radio" name="main_image_existing" value="{{ $gambar->id }}"
-                                                                    id="mainImage{{ $gambar->id }}" {{ $gambar->is_main ? 'checked' : '' }}>
-                                                                <label class="form-check-label" for="mainImage{{ $gambar->id }}">
-                                                                    Jadikan Gambar Utama
-                                                                </label>
-                                                            </div>
-                                                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-image" data-image-id="{{ $gambar->id }}">Hapus</button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        @endif
-                                    </div>
-                                    <small class="text-muted">Pilih salah satu gambar sebagai gambar utama.</small>
-                                </div>
-                                <div class="col-12">
-                                    <label for="deskripsi_produk" class="form-label">Deskripsi</label>
-                                    <textarea class="form-control" id="deskripsi_produk" name="deskripsi_produk" rows="3" required>{{ old('deskripsi_produk', isset($product) ? $product->deskripsi_produk : '') }}</textarea>
-                                    @error('deskripsi_produk')
-                                        <div class="text-danger">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                                <div class="col-12">
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="bi bi-plus-circle me-2"></i>
-                                        {{ isset($product) ? 'Update Produk' : 'Tambah Produk' }}
-                                    </button>
-                                    @if(isset($product))
-                                        <a href="{{ route('index') }}" class="btn btn-secondary">Batal</a>
-                                    @endif
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Product Management -->
-            <section>
-                <div class="admin-card">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h2 class="mb-0">
-                            <i class="bi bi-grid me-2"></i>
-                            Kelola Produk
-                        </h2>
-                        <div class="d-flex gap-2">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Cari produk..." id="searchProduct">
-                                <button class="btn btn-outline-secondary" type="button">
-                                    <i class="bi bi-search"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Thumbnail</th>
-                                        <th>Kode SKU</th>
-                                        <th>Nama Produk</th>
-                                        <th>Harga</th>
-                                        <th>Kategori</th>
-                                        <th>Stok</th>
-                                        <th>Status</th>
-                                        <th>Grade</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse ($products as $product)
-                                        <tr>
-                                            <td>
-                                                @php
-                                                    $mainImage = $product->gambarUtama ? $product->gambarUtama->path_gambar : ($product->gambar && count($product->gambar) > 0 ? $product->gambar[0]->path_gambar : null);
-                                                @endphp
-                                                @if($mainImage)
-                                                    <img src="{{ asset('storage/' . $mainImage) }}" alt="Thumbnail" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
-                                                @else
-                                                    <span class="text-muted">-</span>
-                                                @endif
-                                            </td>
-                                            <td>{{ $product->kode_sku }}</td>
-                                            <td>{{ $product->nama_produk }}</td>
-                                            <td>Rp {{ number_format($product->harga_jual, 0, ',', '.') }}</td>
-                                            <td>
-                                                <span class="badge bg-info">
-                                                    {{ $product->kategori->nama_kategori }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                @if ($product->stok_produk < 5)
-                                                    <span class="badge bg-danger">{{ $product->stok_produk }}</span>
-                                                @else
-                                                    <span class="badge bg-success">{{ $product->stok_produk }}</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if ($product->status == 'Baru')
-                                                    <span class="badge bg-success">Baru</span>
-                                                @elseif($product->status == 'Second')
-                                                    <span class="badge bg-secondary">Second</span>
-                                                @else
-                                                    <span class="badge bg-light text-dark">-</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                @if ($product->grade == 'Unggulan')
-                                                    <span class="badge bg-success">Unggulan</span>
-                                                @elseif($product->grade == 'Standar')
-                                                    <span class="badge bg-primary">Standar</span>
-                                                @elseif($product->grade == 'Minus')
-                                                    <span class="badge bg-warning text-dark">Minus</span>
-                                                @else
-                                                    <span class="badge bg-light text-dark">-</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <div class="d-flex gap-2">
-                                                    <a href="{{ route('index', ['edit' => $product->id]) }}"
-                                                        class="btn btn-warning btn-sm">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                    <form action="{{ route('destroy', $product->id) }}"
-                                                        method="POST" class="d-inline">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm"
-                                                            onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?')">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="8" class="text-center py-4">
-                                                <div class="text-muted">
-                                                    <i class="bi bi-inbox fs-1 d-block mb-2"></i>
-                                                    Belum ada produk
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </div>
-    </main>
+    </div>
 
-    @include('partials.footerAdmin')
+    {{-- Card 2: Pendapatan Cabang 1 --}}
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <p class="mb-0 text-muted">Pendapatan</p>
+                    <span class="badge rounded-pill bg-info fw-normal text-dark">Dinoyo Kamera 1</span>
+                </div>
+                <h3 class="mb-3 fw-bold">Rp300.000.000</h3>
+                <div class="d-flex justify-content-between text-sm">
+                    <span class="text-muted">HPP</span>
+                    <span class="fw-medium">Rp105.000.000</span>
+                </div>
+                <div class="d-flex justify-content-between text-sm mt-1">
+                    <span class="text-muted">Laba Kotor</span>
+                    <span class="fw-medium">Rp105.000.000</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Form validation
-        (function() {
-            'use strict'
-            var forms = document.querySelectorAll('.needs-validation')
-            Array.prototype.slice.call(forms).forEach(function(form) {
-                form.addEventListener('submit', function(event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-                    form.classList.add('was-validated')
-                }, false)
-            })
-        })()
+    {{-- Card 3: Pendapatan Cabang 2 --}}
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <p class="mb-0 text-muted">Pendapatan</p>
+                    <span class="badge rounded-pill bg-info fw-normal text-dark">Dinoyo Kamera 1</span>
+                </div>
+                <h3 class="mb-3 fw-bold">Rp300.000.000</h3>
+                <div class="d-flex justify-content-between text-sm">
+                    <span class="text-muted">HPP</span>
+                    <span class="fw-medium">Rp105.000.000</span>
+                </div>
+                <div class="d-flex justify-content-between text-sm mt-1">
+                    <span class="text-muted">Laba Kotor</span>
+                    <span class="fw-medium">Rp105.000.000</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        // Preview + pilih gambar utama
-        function previewGambar(event) {
-            const previewContainer = document.getElementById('preview-container');
-            const files = Array.from(event.target.files);
-            previewContainer.innerHTML = '';
-            files.forEach((file, i) => {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const col = document.createElement('div');
-                    col.className = 'col-4 image-container';
-                    col.innerHTML = `
-                        <div class="card">
-                            <img src="${e.target.result}" class="card-img-top" style="height: 150px; object-fit: cover;">
-                            <div class="card-body text-center">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="main_image_new" value="${i}"
-                                        id="mainImageNew${i}" ${i === 0 ? 'checked' : ''}>
-                                    <label class="form-check-label" for="mainImageNew${i}">
-                                        Jadikan Gambar Utama
-                                    </label>
-                                </div>
-                                <button type="button" class="btn btn-danger btn-sm mt-2 remove-image-new" data-index="${i}">Hapus</button>
-                            </div>
-                        </div>
-                    `;
-                    previewContainer.appendChild(col);
-                }
-                reader.readAsDataURL(file);
-            });
+    {{-- Card 4: Pendapatan Cabang 3 --}}
+    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <p class="mb-0 text-muted">Pendapatan</p>
+                    <span class="badge rounded-pill bg-info fw-normal text-dark">Dinoyo Kamera 1</span>
+                </div>
+                <h3 class="mb-3 fw-bold">Rp300.000.000</h3>
+                <div class="d-flex justify-content-between text-sm">
+                    <span class="text-muted">HPP</span>
+                    <span class="fw-medium">Rp105.000.000</span>
+                </div>
+                <div class="d-flex justify-content-between text-sm mt-1">
+                    <span class="text-muted">Laba Kotor</span>
+                    <span class="fw-medium">Rp105.000.000</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-            // Tambahkan event listener untuk hapus gambar baru
-            setTimeout(() => {
-                document.querySelectorAll('.remove-image-new').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const idx = parseInt(this.getAttribute('data-index'));
-                        files.splice(idx, 1);
-                        // Update input file agar sesuai dengan files yang tersisa
-                        const dataTransfer = new DataTransfer();
-                        files.forEach(f => dataTransfer.items.add(f));
-                        event.target.files = dataTransfer.files;
-                        previewGambar({ target: event.target });
-                    });
-                });
-            }, 100);
-        }
+{{-- Baris Kedua: Grafik (Chart) --}}
+<div class="row">
+    {{-- Card Grafik Pendapatan Bulanan --}}
+    <div class="col-lg-7">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0 fw-bold">Pendapatan Bulanan</h5>
+                    {{-- Ini bisa jadi filter dropdown --}}
+                    <select class="form-select form-select-sm" style="width: auto; border: none;">
+                        <option value="2025" selected>2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
 
-        document.getElementById('preview-container').addEventListener('click', function(event) {
-            // Cek apakah yang diklik adalah tombol dengan kelas 'remove-image'
-            if (event.target.classList.contains('remove-image')) {
-                const button = event.target;
-                const imageId = button.dataset.imageId;
-                const container = button.closest('.image-container');
+                {{--
+                  Area Grafik Batang (Bar Chart)
+                  Ini adalah placeholder. Anda perlu menggantinya dengan
+                  library chart seperti Chart.js, ApexCharts, atau ECharts
+                  untuk menampilkan data sesungguhnya.
+                --}}
+                <div id="monthlyRevenueChart" style="height: 300px;" class="d-flex align-items-center justify-content-center bg-light rounded text-muted">
+                    [Placeholder untuk Grafik Pendapatan Bulanan]
+                </div>
+            </div>
+        </div>
+    </div>
 
-                if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) { // Konfirmasi hapus
-                    // GUNAKAN NAMA RUTE YANG BENAR 'admin.delete.image'
-                    const url = '{{ route("admin.delete.image", ["id" => ":imageId"]) }}';
-                    const finalUrl = url.replace(':imageId', imageId);
+    {{-- Card Grafik Total Transaksi (Donut Chart) --}}
+    <div class="col-lg-5">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0 fw-bold">Total Transaksi</h5>
+                    <span class="badge rounded-pill bg-primary fw-normal">July 2025</span>
+                </div>
 
-                    fetch(finalUrl, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    }).then(response => response.json())
-                      .then(data => {
-                          if (data.success) {
-                              container.remove();
-                              // Opsional: Cek apakah gambar utama dihapus dan sesuaikan radio button
-                              const mainImageRadio = document.querySelector('input[name="main_image_existing"]:checked');
-                              if (!mainImageRadio && document.querySelectorAll('.image-container').length > 0) {
-                                  // Jika tidak ada gambar utama yang terpilih, pilih yang pertama jika ada
-                                  document.querySelector('.image-container input[type="radio"]').checked = true;
-                              }
-                              alert('Gambar berhasil dihapus');
-                          } else {
-                              alert('Gagal menghapus gambar: ' + (data.message || 'Unknown error'));
-                          }
-                      })
-                      .catch(error => {
-                          console.error('Error during fetch:', error);
-                          alert('Terjadi kesalahan jaringan atau server.');
-                      });
-                }
-            }
-            // Logic for main_image_index for existing images (radio button click)
-            if (event.target.name === 'main_image_existing') {
-                // Hapus checked dari radio button gambar baru jika ada
-                const newImageRadio = document.querySelector('input[name="main_image_new"]:checked');
-                if (newImageRadio) {
-                    newImageRadio.checked = false;
-                }
-            }
-        });
+                {{-- Area Grafik Donut (Donut Chart) --}}
+                <div id="transactionChart" style="height: 250px;" class="d-flex align-items-center justify-content-center bg-light rounded text-muted">
+                    [Placeholder untuk Grafik Total Transaksi]
+                </div>
 
-        // Search functionality
-        document.getElementById('searchProduct').addEventListener('keyup', function() {
-            let searchQuery = this.value.toLowerCase();
-            let tableRows = document.querySelectorAll('tbody tr');
+                {{-- Legenda Chart --}}
+                <div class="d-flex justify-content-around mt-3">
+                    <div class="text-center">
+                        <h6 class="mb-1 fw-bold">251</h6>
+                        <span class="text-muted">
+                            <i class="bi bi-circle-fill text-primary"></i> Penjualan
+                        </span>
+                    </div>
+                    <div class="text-center">
+                        <h6 class="mb-1 fw-bold">176</h6>
+                        <span class="text-muted">
+                            <i class="bi bi-circle-fill text-info"></i> Pembelian
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-            tableRows.forEach(row => {
-                let text = row.textContent.toLowerCase();
-                row.style.display = text.includes(searchQuery) ? '' : 'none';
-            });
-        });
-    </script>
-</body>
+@endsection
 
-</html>
+
+@push('scripts')
+{{--
+  Jika Anda menggunakan library chart, Anda perlu memuat JS-nya di sini.
+  Contoh jika menggunakan ApexCharts:
+
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script>
+      // Contoh kode untuk Bar Chart (Pendapatan Bulanan)
+      var optionsBar = {
+          chart: { type: 'bar', height: 300, toolbar: { show: false } },
+          series: [
+              { name: 'Laba', data: [30, 40, 45, 50, 49, 60, 70, 91, 125, 100, 80, 60] },
+              { name: 'HPP', data: [20, 30, 35, 40, 39, 50, 60, 81, 115, 90, 70, 50] }
+          ],
+          xaxis: { categories: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Aug', 'Sep', 'Okt', 'Nov', 'Des'] },
+          // ...opsi lainnya
+      };
+      var chartBar = new ApexCharts(document.querySelector("#monthlyRevenueChart"), optionsBar);
+      chartBar.render();
+
+      // Contoh kode untuk Donut Chart (Total Transaksi)
+      var optionsDonut = {
+          chart: { type: 'donut', height: 250 },
+          series: [251, 176], // Data Penjualan & Pembelian
+          labels: ['Penjualan', 'Pembelian'],
+          // ...opsi lainnya
+      };
+      var chartDonut = new ApexCharts(document.querySelector("#transactionChart"), optionsDonut);
+      chartDonut.render();
+  </script>
+--}}
+@endpush
