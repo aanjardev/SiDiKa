@@ -22,6 +22,9 @@ Route::get("/", [PageController::class,"index"]);
 Route::get("/about", [PageController::class,"about"]);
 Route::get("/contact", [PageController::class,"contact"]);
 Route::get("/admin", [PageController::class,"admin"]);
+Route::get('/admin/data_cabang/add', function() {
+    return view('admin.InputDataCabang');
+});
 Route::get("/katalog", [ProductController::class, "index"])->name('product.index');
 Route::get("/katalog/{id}", [ProductController::class, "show"])->name('product.show');
 Route::resource('admin', AdminProductController::class);
