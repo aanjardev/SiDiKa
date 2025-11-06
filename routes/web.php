@@ -22,7 +22,25 @@ Route::get("/", [PageController::class,"index"]);
 Route::get("/about", [PageController::class,"about"]);
 Route::get("/contact", [PageController::class,"contact"]);
 Route::get("/admin", [PageController::class,"admin"]);
-Route::get('/admin/data_cabang/add', function() {
+
+ <!-- Route::get('/admin/data-produk', function () {
+    return view('admin.dataProduk');
+});
+Route::get('/admin/data-pelanggan', function () {
+    return view('admin.dataPelanggan');
+});
+Route::get('/admin/data-karyawan', function () {
+    return view('admin.dataKaryawan');
+});
+Route::get('/admin/data-cabang', function () {
+    return view('admin.dataCabang');
+});
+Route::get('/admin/data-kategori', function () {
+    return view('admin.dataKategori');
+}); -->
+
+
+ <!-- Route::get('/admin/data_cabang/add', function() {
     return view('admin.InputDataCabang');
 });
 Route::get('/admin/data_produk/add', function() {
@@ -30,7 +48,8 @@ Route::get('/admin/data_produk/add', function() {
 });
 Route::get('/admin/data_kategori/add', function() {
     return view('admin.InputDataKategori');
-});
+}); -->
+
 Route::get("/katalog", [ProductController::class, "index"])->name('product.index');
 Route::get("/katalog/{id}", [ProductController::class, "show"])->name('product.show');
 Route::resource('admin', AdminProductController::class);

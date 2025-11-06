@@ -32,9 +32,30 @@
     <script src="https://kit.fontawesome.com/8794378048.js" crossorigin="anonymous"></script>
     
     @stack('styles')
-</head>
-<body>
-    <!-- Loader -->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <style>
+    .iq-navbar {
+        background: var(--bs-body-bg) !important;
+        box-shadow: none !important;
+    }
+
+    .iq-navbar .navbar-inner {
+        min-height: 60px !important;
+        padding-top: 0.5rem !important;
+        padding-bottom: 0.5rem !important;
+    }
+
+    .iq-navbar .navbar-inner h1 {
+        font-size: 1.75rem;
+    }
+</style>
+
+  </head>
+  <body class="  ">
+    <!-- loader Start -->
+    
     <div id="loading">
         <div class="loader"></div>
     </div>
