@@ -1164,6 +1164,8 @@ body {
 .list-group-item-action:not(.active):active {
   background-color: var(--bs-primary-tint-80);
 }
+
+
 .form-container {
     background-color: #ffffff; /* warna berbeda dari dunia luar */
     padding: 2rem;             /* jarak isi form dari border */
@@ -1171,7 +1173,13 @@ body {
     max-width: 1000px;           /* biar nggak terlalu lebar */
     margin: 1rem auto;          /* center horizontal + jarak atas bawah */
 }
-
+.form-container-lg {
+    background-color: #ffffff; /* warna berbeda dari dunia luar */
+    padding: 2rem;             /* jarak isi form dari border */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4); /* efek floating ringan */
+    max-width: 1400px;           /* biar nggak terlalu lebar */
+    margin: 1rem auto;          /* center horizontal + jarak atas bawah */
+}
 
 input.form-control::placeholder {
     color: rgba(0, 0, 0, 0.2); /* hitam dengan opacity 0.4 */
