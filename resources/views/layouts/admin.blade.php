@@ -17,20 +17,20 @@
 
 
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
-    
+
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    
+
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Admin CSS -->
     <link href="{{ asset('css/adminsidebar.css') }}" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/8794378048.js" crossorigin="anonymous"></script>
-    
+
     @stack('styles')
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -55,7 +55,7 @@
   </head>
   <body class="  ">
     <!-- loader Start -->
-    
+
     <div id="loading">
         <div class="loader"></div>
     </div>
@@ -77,7 +77,7 @@
             <div class="menu-section">
                 <h6 class="menu-section-title">Home</h6>
                 <div class="menu-item">
-                    <a href="{{ url('/admin/index') }}" class="menu-link active">
+                    <a href="{{ route('admin.dashboard') }}" class="menu-link active">
                         <i class="fas fa-th-large menu-icon"></i>
                         <span>Dashboard</span>
                     </a>
@@ -87,37 +87,37 @@
             <!-- Master Data Section -->
             <div class="menu-section">
                 <h6 class="menu-section-title">Master Data</h6>
-                
+
                 <div class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="{{ route('admin.products') }}" class="menu-link">
                         <i class="fas fa-box menu-icon"></i>
                         <span>Data Produk</span>
                     </a>
                 </div>
 
                 <div class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="{{ route('admin.customers') }}" class="menu-link">
                         <i class="fas fa-users menu-icon"></i>
                         <span>Data Pelanggan</span>
                     </a>
                 </div>
 
                 <div class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="{{ route('admin.employees') }}" class="menu-link">
                         <i class="fas fa-user-tie menu-icon"></i>
                         <span>Data Karyawan</span>
                     </a>
                 </div>
 
                 <div class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="{{ route('admin.categories') }}" class="menu-link">
                         <i class="fas fa-list menu-icon"></i>
                         <span>Daftar Kategori</span>
                     </a>
                 </div>
 
                 <div class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="{{ route('admin.branches') }}" class="menu-link">
                         <i class="fas fa-store menu-icon"></i>
                         <span>Data Cabang</span>
                     </a>
@@ -127,23 +127,23 @@
             <!-- Transaksi Section -->
             <div class="menu-section">
                 <h6 class="menu-section-title">Transaksi</h6>
-                
+
                 <div class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="{{ route('admin.sales') }}" class="menu-link">
                         <i class="fas fa-shopping-cart menu-icon"></i>
                         <span>Penjualan</span>
                     </a>
                 </div>
 
                 <div class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="{{ route('admin.purchases') }}" class="menu-link">
                         <i class="fas fa-shopping-bag menu-icon"></i>
                         <span>Pembelian</span>
                     </a>
                 </div>
 
                 <div class="menu-item">
-                    <a href="#" class="menu-link">
+                    <a href="{{ route('admin.quality-control') }}" class="menu-link">
                         <i class="fas fa-check-circle menu-icon"></i>
                         <span>Quality Control</span>
                     </a>
@@ -153,7 +153,7 @@
             <!-- Manajemen Section -->
             <div class="menu-section">
                 <h6 class="menu-section-title">Manajemen</h6>
-                
+
                 <div class="menu-item">
                     <a href="#" class="menu-link">
                         <i class="fas fa-cog menu-icon"></i>
@@ -189,7 +189,7 @@
                 </div>
                 <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
             </div>
-            
+
             <!-- Dropdown Menu -->
             <ul class="dropdown-menu dropdown-menu-end" style="width: calc(100% - 2rem); margin: 0.5rem 1rem;">
                 <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
@@ -231,7 +231,7 @@
             <div class="row">
                 <div class="col-12 text-center">
                     <p class="text-muted mb-0">
-                        &copy; <script>document.write(new Date().getFullYear())</script> 
+                        &copy; <script>document.write(new Date().getFullYear())</script>
                         <strong>Dinoyo Kamera</strong> - Sistem Informasi Digital Kamera
                     </p>
                 </div>
@@ -241,7 +241,7 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
         // Hide loader when page is loaded
         window.addEventListener('load', function() {
@@ -271,11 +271,11 @@
         document.addEventListener('DOMContentLoaded', function() {
             const currentUrl = window.location.href;
             const menuLinks = document.querySelectorAll('.menu-link, .submenu-link');
-            
+
             menuLinks.forEach(link => {
                 if (link.href === currentUrl) {
                     link.classList.add('active');
-                    
+
                     // If it's a submenu item, also expand the parent menu
                     const parentCollapse = link.closest('.collapse');
                     if (parentCollapse) {
