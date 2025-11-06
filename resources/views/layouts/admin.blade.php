@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>@yield('title', 'Admin Panel') | SiDiKa</title>
 
-    @vite([
+    {{-- @vite([
           'resources/admin_theme/css/core/libs.min.css',
           'resources/admin_theme/vendor/aos/dist/aos.css',
           'resources/admin_theme/css/hope-ui.min.css',
@@ -13,7 +13,7 @@
           'resources/admin_theme/css/dark.min.css',
           'resources/admin_theme/css/customizer.min.css',
           'resources/admin_theme/css/rtl.min.css'
-      ])
+      ]) --}}
 
 
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
@@ -34,24 +34,6 @@
     @stack('styles')
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-    <style>
-    .iq-navbar {
-        background: var(--bs-body-bg) !important;
-        box-shadow: none !important;
-    }
-
-    .iq-navbar .navbar-inner {
-        min-height: 60px !important;
-        padding-top: 0.5rem !important;
-        padding-bottom: 0.5rem !important;
-    }
-
-    .iq-navbar .navbar-inner h1 {
-        font-size: 1.75rem;
-    }
-</style>
-
   </head>
   <body class="  ">
     <!-- loader Start -->
@@ -213,26 +195,27 @@
     </button>
 
     <!-- Main Content -->
-    <main class="main-content">
-            <div class="d-flex justify-content-between align-items-center">
-                <h1 class="page-title">@yield('title', 'Dashboard')</h1>
+    <main class="main-content pt-3 mb-0 mt-0 d-flex flex-column pb-0">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="page-title mb-0">@yield('title', 'Dashboard')</h1>
                 <div class="d-flex align-items-center gap-3">
+                    @stack('page-actions')
                 </div>
             </div>
 
 
         <!-- Content -->
-        <div class="content-wrapper">
+        <div class="content-wrapper pt-0 pb-3">
             @yield('content')
         </div>
 
         <!-- Footer -->
-        <footer class="mt-5 pt-4 border-top">
+        <footer class="mt-auto p-2 border-top">
             <div class="row">
                 <div class="col-12 text-center">
                     <p class="text-muted mb-0">
                         &copy; <script>document.write(new Date().getFullYear())</script>
-                        <strong>Dinoyo Kamera</strong> - Sistem Informasi Digital Kamera
+                        <strong>Dinoyo Kamera</strong> - Sistem Informasi Dinoyo Kamera
                     </p>
                 </div>
             </div>
@@ -241,6 +224,8 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
     <script>
         // Hide loader when page is loaded

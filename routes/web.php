@@ -3,7 +3,7 @@
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\LoginController;
-use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -36,9 +36,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Routenya admin
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     // Dashboard Home
-    Route::get('/dashboard', function () {
-        return view('admin.index');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Master Data
     Route::get('/products', function () { return view('admin.dataProduk'); })->name('products');
