@@ -1166,7 +1166,7 @@ body {
 }
 
 .form-control {
-  font-size: var(--body-font-size);
+  font-size: var(--bsody-font-size);
 }
 .form-control:focus {
   border-color: var(--bs-primary-tint-40);
