@@ -2,10 +2,17 @@
 
 @section('title', 'Data Kategori')
 
+@push('page-actions')
+    <a href="{{ route('admin.categories.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+        <i class="fas fa-plus fa-fw"></i>
+        <span>Tambah Kategori</span>
+    </a>
+@endpush
+
 @section('content')
 
 {{-- Search & Button --}}
-<div class="card-body d-flex flex-wrap gap-3 align-items-center mb-4">
+<div class="card-body d-flex flex-wrap gap-3 align-items-center mb-4 p-0">
     <div class="flex-grow-1 ">
         <div class="input-group shadow-sm">
             <span class="input-group-text">
@@ -14,10 +21,6 @@
             <input type="text" class="form-control" placeholder="Cari kategori...">
         </div>
     </div>
-
-    <button class="btn btn-primary shadow-sm">
-        + Tambah Kategori
-    </button>
 </div>
 
 {{-- Table --}}

@@ -4,6 +4,11 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AdminProductController;
+use App\Http\Controllers\BranchController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\EmployeeController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -39,11 +44,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Master Data
-    Route::get('/products', function () { return view('admin.dataProduk'); })->name('products');
-    Route::get('/customers', function () { return view('admin.dataPelanggan'); })->name('customers');
-    Route::get('/employees', function () { return view('admin.dataKaryawan'); })->name('employees');
-    Route::get('/categories', function () { return view('admin.dataKategori'); })->name('categories');
-    Route::get('/branches', function () { return view('admin.dataCabang'); })->name('branches');
+    // Route::get('/products', function () { return view('admin.dataProduk'); })->name('products');
+    Route::resource('/products', AdminProductController::class)->names('products');
+    Route::resource('/customers', CustomerController::class)->names('customers');
+    Route::resource('/employees', EmployeeController::class)->names('employees');
+    Route::resource('/categories', CategoryController::class)->names('categories');
+    Route::resource('/branches', BranchController::class)->names('branches');
 
     // Transaksi
     Route::get('/sales', function () { return view('admin.dataPenjualan'); })->name('sales');

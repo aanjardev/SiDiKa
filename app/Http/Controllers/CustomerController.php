@@ -4,16 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
-class AdminProductController extends Controller
+class CustomerController extends Controller
 {
     public function index()
     {
-        return view('admin.dataProduk');
+        return view('admin.dataPelanggan');
     }
 
     public function create()
     {
 
-        return view('admin.inputDataProduk');
+        // return view('admin.inputDataPelanggan');
     }
 }

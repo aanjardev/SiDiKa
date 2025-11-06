@@ -2,24 +2,32 @@
 
 @section('title', 'Data Karyawan')
 
+@push('page-actions')
+    <a href="{{ route('admin.employees.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+        <i class="fas fa-plus fa-fw"></i>
+        <span>Tambah Karyawan</span>
+    </a>
+@endpush
+
 @section('content')
 
 {{-- Search & Filter --}}
-<div class="card-body d-flex flex-wrap gap-3 align-items-center mb-4">
+<div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
     <div class="flex-grow-1 ">
+
         <div class="input-group shadow-sm">
             <span class="input-group-text">
                 <i class="fa-solid fa-search"></i>
             </span>
-            <input type="text" class="form-control" placeholder="Cari nama karyawan...">
+            <input type="text" class="form-control" placeholder="Cari produk berdasarkan nama atau SKU...">
         </div>
     </div>
 
-    <select class="form-select w-auto shadow-sm">
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 8px);">>
         <option selected>Semua Jabatan</option>
     </select>
 
-    <select class="form-select w-auto shadow-sm">
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 8px);">
         <option selected>Status</option>
         <option>Aktif</option>
         <option>Non Aktif</option>

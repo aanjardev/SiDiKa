@@ -71,35 +71,35 @@
                 <h6 class="menu-section-title">Master Data</h6>
 
                 <div class="menu-item">
-                    <a href="{{ route('admin.products') }}" class="menu-link">
+                    <a href="{{ route('admin.products.index') }}" class="menu-link">
                         <i class="fas fa-box menu-icon"></i>
                         <span>Data Produk</span>
                     </a>
                 </div>
 
                 <div class="menu-item">
-                    <a href="{{ route('admin.customers') }}" class="menu-link">
+                    <a href="{{ route('admin.customers.index') }}" class="menu-link">
                         <i class="fas fa-users menu-icon"></i>
                         <span>Data Pelanggan</span>
                     </a>
                 </div>
 
                 <div class="menu-item">
-                    <a href="{{ route('admin.employees') }}" class="menu-link">
+                    <a href="{{ route('admin.employees.index') }}" class="menu-link">
                         <i class="fas fa-user-tie menu-icon"></i>
                         <span>Data Karyawan</span>
                     </a>
                 </div>
 
                 <div class="menu-item">
-                    <a href="{{ route('admin.categories') }}" class="menu-link">
+                    <a href="{{ route('admin.categories.index') }}" class="menu-link">
                         <i class="fas fa-list menu-icon"></i>
                         <span>Daftar Kategori</span>
                     </a>
                 </div>
 
                 <div class="menu-item">
-                    <a href="{{ route('admin.branches') }}" class="menu-link">
+                    <a href="{{ route('admin.branches.index') }}" class="menu-link">
                         <i class="fas fa-store menu-icon"></i>
                         <span>Data Cabang</span>
                     </a>

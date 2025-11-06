@@ -2,23 +2,18 @@
 
 @section('title', 'Data Produk') {{-- Judul Halaman --}}
 
-@section('content')
+@push('page-actions')
+    <a href="{{ route('admin.products.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+        <i class="fas fa-plus fa-fw"></i>
+        <span>Tambah Produk</span>
+    </a>
+@endpush
 
-<!-- <div class="row mb-4">
-    <div class="col-12 d-flex justify-content-end gap-3">
-        {{-- Tombol Penjualan --}}
-        <button class="btn btn-primary d-flex align-items-center gap-2">
-            <svg width="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 4V20M20 12L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
-            </svg>
-            <span>Produk</span>
-        </button>
-    </div>
-</div> -->
+@section('content')
 
 
 {{-- Search & Filter --}}
-<div class="card-body d-flex flex-wrap gap-3 align-items-center mb-4">
+<div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
     <div class="flex-grow-1 ">
 
         <div class="input-group shadow-sm">
@@ -29,11 +24,11 @@
         </div>
     </div>
 
-    <select class="form-select w-auto shadow-sm">
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 8px);">>
         <option selected>Semua Kategori</option>
     </select>
 
-    <select class="form-select w-auto shadow-sm">
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 8px);">
         <option selected>Terakhir diubah</option>
     </select>
 </div>
@@ -113,6 +108,6 @@
         transition: 0.2s;
     }
 
-    
+
 </style>
 @endpush
