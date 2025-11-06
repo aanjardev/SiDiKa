@@ -25,6 +25,15 @@ Route::get("/admin", [PageController::class,"admin"]);
 Route::get('/admin/data_cabang/add', function() {
     return view('admin.InputDataCabang');
 });
+Route::get('/admin/data-karyawan/add', function () {
+    return view('admin.inputDataKaryawan');
+});
+Route::get('/admin/profil', function () {
+    return view('admin.profilPengguna');
+})->name('admin.profil');
+Route::get('/admin/penjualan', function () {
+    return view('admin.penjualan'); 
+});
 Route::get("/katalog", [ProductController::class, "index"])->name('product.index');
 Route::get("/katalog/{id}", [ProductController::class, "show"])->name('product.show');
 Route::resource('admin', AdminProductController::class);

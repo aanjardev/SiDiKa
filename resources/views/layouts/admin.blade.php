@@ -17,6 +17,8 @@
       ])
 
     @stack('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
     <style>
     .iq-navbar {
         background: var(--bs-body-bg) !important;
@@ -130,7 +132,7 @@
 
 
 
-      <div class="conatiner-fluid content-inner mt-4 py-0">
+      <div class="container-fluid content-inner mt-4 py-0">
         @yield('content')
       </div>
 
