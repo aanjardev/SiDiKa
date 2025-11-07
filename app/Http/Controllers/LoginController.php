@@ -23,8 +23,8 @@ class LoginController extends Controller
         // Coba untuk login
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-
             return redirect()->intended(route('admin.dashboard'));
+
         }
 
         // Jika login gagal
