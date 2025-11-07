@@ -15,6 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+
+        $this->call([
+            AdminSeeder::class,
+            KategoriSeeder::class,
+            ProdukSeeder::class,
+        ]);
         // Nonaktifkan foreign key checks untuk operasi TRUNCATE
         // DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
