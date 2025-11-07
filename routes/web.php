@@ -40,11 +40,7 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Routenya admin
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
-    // Dashboard Home
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    // Master Data
-    // Route::get('/products', function () { return view('admin.dataProduk'); })->name('products');
     Route::resource('/products', AdminProductController::class)->names('products');
     Route::resource('/customers', CustomerController::class)->names('customers');
     Route::resource('/employees', EmployeeController::class)->names('employees');
