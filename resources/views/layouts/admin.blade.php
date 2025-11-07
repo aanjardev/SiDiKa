@@ -100,7 +100,7 @@
                 <h6 class="menu-section-title">Transaksi</h6>
 
                 <div class="menu-item">
-                    <a href="{{ route('admin.sales') }}" class="menu-link">
+                    <a href="{{ route('admin.sales.index') }}" class="menu-link">
                         <i class="fas fa-shopping-cart menu-icon"></i>
                         <span>Penjualan</span>
                     </a>

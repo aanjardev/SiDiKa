@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             KategoriSeeder::class,
             ProdukSeeder::class,
+            BranchSeeder::class,
         ]);
         // Nonaktifkan foreign key checks untuk operasi TRUNCATE
         // DB::statement('SET FOREIGN_KEY_CHECKS=0;');

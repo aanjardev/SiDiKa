@@ -23,11 +23,11 @@
         </div>
     </div>
 
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 8px);">>
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">>
         <option selected>Semua Jabatan</option>
     </select>
 
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 8px);">
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
         <option selected>Status</option>
         <option>Aktif</option>
         <option>Non Aktif</option>
