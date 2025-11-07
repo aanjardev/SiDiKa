@@ -5,17 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>@yield('title', 'Admin Panel') | SiDiKa</title>
 
-    {{-- @vite([
-          'resources/admin_theme/css/core/libs.min.css',
-          'resources/admin_theme/vendor/aos/dist/aos.css',
-          'resources/admin_theme/css/hope-ui.min.css',
-          'resources/admin_theme/css/custom.min.css',
-          'resources/admin_theme/css/dark.min.css',
-          'resources/admin_theme/css/customizer.min.css',
-          'resources/admin_theme/css/rtl.min.css'
-      ]) --}}
-
-
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
 
     <!-- Fonts -->
@@ -174,8 +163,8 @@
 
             <!-- Dropdown Menu -->
             <ul class="dropdown-menu dropdown-menu-end" style="width: calc(100% - 2rem); margin: 0.5rem 1rem;">
-                <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                <li><a class="dropdown-item" href="{{ route('admin.profile.index') }}"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
+                {{-- <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li> --}}
                 <li><hr class="dropdown-divider"></li>
                 <li>
                     <form action="{{ route('logout') }}" method="POST">
