@@ -25,14 +25,14 @@
             </div>
         </div>
 
-        <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 8px);">>
-            <option selected>Semua Kategori</option>
-        </select>
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">>
+        <option selected>Semua Kategori</option>
+    </select>
 
-        <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 8px);">
-            <option selected>Terakhir diubah</option>
-        </select>
-    </div>
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
+        <option selected>Terakhir diubah</option>
+    </select>
+</div>
 
     {{-- Table --}}
 <div class="card shadow-sm">

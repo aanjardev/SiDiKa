@@ -10,6 +10,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PenjualanController;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpKernel\Profiler\Profile;
 
@@ -49,7 +50,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('/branches', BranchController::class)->names('branches');
 
     // Transaksi
-    Route::get('/sales', function () { return view('admin.dataPenjualan'); })->name('sales');
+    Route::resource('/sales', PenjualanController::class)->names('sales');
     Route::get('/purchases', function () { return view('admin.dataPembelian'); })->name('purchases');
     Route::get('/quality-control', function () { return view('admin.dataQC'); })->name('quality-control');
 

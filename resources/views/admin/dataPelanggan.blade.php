@@ -17,80 +17,159 @@
         </div>
     </div>
 
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 8px);">>
-        <option selected>Semua Kategori</option>
-    </select>
-
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 8px);">
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
         <option selected>Terakhir diubah</option>
+        <option>Nama (A-Z)</option>
     </select>
 </div>
 
-{{-- Table --}}
+
+
 <div class="card shadow-sm">
-    <div class="card-body p-0">
-        <table class="table align-middle mb-0 table-product">
-            <thead class="table-light">
-                <tr>
-                    <th class="text-center" style="width: 60px;">No</th>
-                    <th>Nama</th>
-                    <th style="width:40%">Alamat</th>
-                    <th>No. Telepon</th>
-                    <th>NIK</th>
-                                        <!-- <th style="width: 50px;"></th> -->
-
-                </tr>
-            </thead>
-            <tbody>
-                @for ($i = 1; $i <= 4; $i++)
+    <div class="card-body p-0 table-wrapper">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0 table-product">
+                <thead class="table-light">
+                    {{-- ======================================================= --}}
+                    {{-- BAGIAN 4: Ganti Kolom Tabel (thead) --}}
+                    {{-- ======================================================= --}}
                     <tr>
-                    <td class="text-center">{{ $i }}</td>
-
-                    <td>Aan Anjar</td>
-                    <td>Jl. Lorem Ipsum</td>
-                    <td>0812345678</td>
-                    <td>24130123945850</td>
-
-                    <!-- <td class="text-end">
-                        <button class="btn btn-sm btn-light">
-                            <i class="bi bi-three-dots-vertical"></i>
-                        </button>
-                    </td> -->
+                        <th class="text-center" style="width: 60px;">No</th>
+                        <th>Nama</th>
+                        <th>No. Telepon</th>
+                        <th style="width:30%">Alamat</th>
+                        <th>NIK</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
-                    @endfor
-            </tbody>
-        </table>
-    </div>
-</div>
+                </thead>
+                <tbody>
+                    {{-- ======================================================= --}}
+                    {{-- BAGIAN 5: Ganti Isi Data (tbody) & @empty --}}
+                    {{-- ======================================================= --}}
 
-{{-- Pagination --}}
-<div class="d-flex justify-content-center mt-4">
-    <nav>
-        <ul class="pagination mb-0">
-            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">Next</a></li>
-        </ul>
-    </nav>
+                    {{--
+                      Kita gunakan @forelse dengan array kosong (empty array)
+                      untuk mensimulasikan "Tidak Ada Data" (karena Anda minta FE dulu)
+                    --}}
+                    @forelse ([] as $pelanggan) {{-- Ganti [] dengan $data_pelanggan nanti --}}
+                        <tr>
+                            <td class="text-center">{{ $loop->iteration }}</td>
+                            <td>{{ $pelanggan->nama }}</td>
+                            <td>{{ $pelanggan->no_telp }}</td>
+                            <td>{{ $pelanggan->alamat }}</td>
+                            <td>{{ $pelanggan->identitas }}</td> {{-- (Asumsi 'identitas' = NIK) --}}
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-2">
+                                    <a href="#" title="Lihat">
+                                        <i class="fa-solid fa-eye" style="color: black;"></i>
+                                    </a>
+                                    <a href="#" title="Edit">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <form action="" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-icon" title="Hapus">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+
+
+                    @empty
+                        <tr class="tr-empty">
+                            <td colspan="6" class="text-center">
+                                <div>
+                                    <i class="fa-solid fa-users fa-2x text-muted mb-3"></i>
+                                    <h5 class="mb-1">Tidak Ada Data Pelanggan</h5>
+                                    <p class="text-muted mb-0">Silakan <a href="#">tambah data pelanggan</a> baru.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+     {{-- @if ($data_pelanggan->hasPages())
+        <div class="card-footer bg-white">
+            {{ $data_pelanggan->links('pagination::bootstrap-5')
+        </div>
+    @endif --}}
+
 </div>
 
 @endsection
 
+
 @push('styles')
 <style>
-    /* Warna baris genap */
+    .table {
+        border-radius: 5px;
+        overflow: hidden;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
     .table-product tbody tr:nth-child(even) {
         background-color: #F8F9FC;
-        /* abu muda lembut */
     }
-
-    /* Hover biar smooth */
     .table-product tbody tr:hover {
         background-color: #EFF3F9;
         transition: 0.2s;
     }
 
+    /* Style untuk Tombol Hapus (btn-icon) */
+    button.btn-icon,
+    .table-product button.btn-icon,
+    form .btn-icon {
+        background: transparent !important; border: none !important;
+        padding: 0 !important; color: #dc3545 !important;
+        cursor: pointer !important; font-size: 16px !important;
+        line-height: 1 !important; appearance: none !important;
+        box-shadow: none !important; outline: none !important;
+    }
+    .btn-icon i, .btn-icon svg, .btn-icon .fa-solid {
+        color: inherit !important; fill: currentColor !important;
+        stroke: currentColor !important;
+    }
+    button.btn-icon:focus, button.btn-icon:active,
+    .btn-icon:focus, .btn-icon:active {
+        outline: none !important; box-shadow: none !important;
+    }
+    .btn-icon:hover { color: #bb2d3b !important; }
 
+    /* ======================================================= */
+    /* PERBAIKAN 5: CSS UNTUK TINGGI TABEL FIX & EMPTY STATE */
+    /* ======================================================= */
+    .table-wrapper {
+        min-height: 700px; /* Atur tinggi minimal */
+        display: flex;
+        flex-direction: column;
+    }
+    .table-responsive {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    .table-product {
+        flex-grow: 1;
+    }
+    .table-product tbody {
+        /* (PENTING) Hapus 'height: 100%' dari sini */
+    }
+    .table-product tr.tr-empty {
+        /* (PENTING) Ganti 'height: 100%' dengan ini */
+        /* Ini akan membuat <tr> mengisi sisa ruang */
+        flex-grow: 1;
+        display: table-row;
+    }
+    .table-product tr.tr-empty td {
+        vertical-align: middle;
+        padding-top: 0;
+        padding-bottom: 0;
+    }
 </style>
 @endpush
