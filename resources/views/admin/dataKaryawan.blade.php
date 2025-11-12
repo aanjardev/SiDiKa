@@ -3,10 +3,10 @@
 @section('title', 'Data Karyawan')
 
 @push('page-actions')
-    <a href="{{ route('admin.employees.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
-        <i class="fas fa-plus fa-fw"></i>
-        <span>Tambah Karyawan</span>
-    </a>
+<a href="{{ route('admin.employees.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <i class="fas fa-plus fa-fw"></i>
+    <span>Tambah Karyawan</span>
+</a>
 @endpush
 
 @section('content')
@@ -53,7 +53,7 @@
             </thead>
             <tbody>
                 @for ($i = 1; $i <= 7; $i++)
-                <tr>
+                    <tr>
                     <td>{{ $i }}</td>
                     <td>15702050600{{ $i }}</td>
 
@@ -65,9 +65,9 @@
 
                     <td>
                         @if ($i % 2 == 0)
-                            <span class="text-danger fw-semibold">Non Aktif</span>
+                        <span class="text-danger fw-semibold">Non Aktif</span>
                         @else
-                            <span class="text-success fw-semibold">Aktif</span>
+                        <span class="text-success fw-semibold">Aktif</span>
                         @endif
                     </td>
 
@@ -84,17 +84,17 @@
                                 <i class="fa-solid fa-pen-to-square" style="color:#0d6efd;"></i>
                             </a>
 
-                            <form action="" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                            <form action="{{ route('admin.employees.destroy', $karyawan->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn-icon" title="Hapus">
+                                <button type="button" class="btn-icon btn-delete" title="Hapus">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </form>
                         </div>
                     </td>
-                </tr>
-                @endfor
+                    </tr>
+                    @endfor
             </tbody>
         </table>
     </div>

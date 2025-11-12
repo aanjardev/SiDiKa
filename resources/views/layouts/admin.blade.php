@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en" dir="ltr">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -23,8 +24,18 @@
     @stack('styles')
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  </head>
-  <body class="  ">
+    @if (session('success'))
+    <meta name="flash-success" content="{{ session('success') }}">
+    @endif
+    @if (session('error'))
+    <meta name="flash-error" content="{{ session('error') }}">
+    @endif
+ </head>
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+ <script src="{{ asset('js/alert.js') }}"></script>
+
+
+<body class="  ">
     <!-- loader Start -->
 
     <div id="loading">
@@ -165,7 +176,9 @@
             <ul class="dropdown-menu dropdown-menu-end" style="width: calc(100% - 2rem); margin: 0.5rem 1rem;">
                 <li><a class="dropdown-item" href="{{ route('admin.profile.index') }}"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
                 {{-- <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li> --}}
-                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
                 <li>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
@@ -185,12 +198,12 @@
 
     <!-- Main Content -->
     <main class="main-content pt-3 mb-0 mt-0 d-flex flex-column pb-0">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="page-title mb-0">@yield('title', 'Dashboard')</h1>
-                <div class="d-flex align-items-center gap-3">
-                    @stack('page-actions')
-                </div>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="page-title mb-0">@yield('title', 'Dashboard')</h1>
+            <div class="d-flex align-items-center gap-3">
+                @stack('page-actions')
             </div>
+        </div>
 
 
         <!-- Content -->
@@ -203,7 +216,9 @@
             <div class="row">
                 <div class="col-12 text-center">
                     <p class="text-muted mb-0">
-                        &copy; <script>document.write(new Date().getFullYear())</script>
+                        &copy; <script>
+                            document.write(new Date().getFullYear())
+                        </script>
                         <strong>Dinoyo Kamera</strong> - Sistem Informasi Dinoyo Kamera
                     </p>
                 </div>
@@ -266,4 +281,5 @@
 
     @stack('scripts')
 </body>
+
 </html>
