@@ -15,7 +15,7 @@ class DashboardController extends Controller
         $selectedYear = now()->year;
 
         $labelBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-
+ 
         $pendapatanBulanan = Penjualan::selectRaw('MONTH(tanggal) as bulan, SUM(harga_total) as total')
             ->whereYear('tanggal', $selectedYear)
             ->groupBy('bulan')
