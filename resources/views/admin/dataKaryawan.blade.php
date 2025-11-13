@@ -38,63 +38,39 @@
 {{-- Table --}}
 <div class="card shadow-sm">
     <div class="card-body p-0">
-        <table class="table align-middle mb-0 table-product">
-            <thead class="table-light">
+        <table class="table table-bordered table-striped">
+            <thead>
                 <tr>
                     <th>No</th>
-                    <th>NIK</th>
-                    <th>Nama Lengkap</th>
-                    <th>Jabatan</th>
-                    <th>Status</th>
+                    <th>Nama</th>
                     <th>Email</th>
-                    <th>No. Telepon</th>
-                    <th class="text-center" style="width: 70px;">Aksi</th>
+                    <th>Nomor Telepon</th>
+                    <th>Jabatan</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                @for ($i = 1; $i <= 7; $i++)
+                @forelse ($karyawan as $index => $k)
                     <tr>
-                    <td>{{ $i }}</td>
-                    <td>15702050600{{ $i }}</td>
-
-                    <td class="fw-semibold text-primary" style="cursor:pointer;">
-                        Nama Karyawan {{ $i }}
-                    </td>
-
-                    <td>{{ $i % 3 == 0 ? 'Manager' : 'Staff Operasional' }}</td>
-
-                    <td>
-                        @if ($i % 2 == 0)
-                        <span class="text-danger fw-semibold">Non Aktif</span>
-                        @else
-                        <span class="text-success fw-semibold">Aktif</span>
-                        @endif
-                    </td>
-
-                    <td>karyawan{{ $i }}@gmail.com</td>
-                    <td>08526{{ rand(300000,900000) }}</td>
-
-                    <td class="text-center">
-                        <div class="d-flex justify-content-center gap-2">
-                            <a href="" title="Lihat">
-                                <i class="fa-solid fa-eye" style="color: black;"></i>
-                            </a>
-
-                            <a href="" title="Edit">
-                                <i class="fa-solid fa-pen-to-square" style="color:#0d6efd;"></i>
-                            </a>
-
-                            <form action="{{ route('admin.employees.destroy', $karyawan->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                        <td>{{ $karyawan->firstItem() + $index }}</td>
+                        <td>{{ $k->nama }}</td>
+                        <td>{{ $k->email }}</td>
+                        <td>{{ $k->nomor_telepon }}</td>
+                        <td>{{ $k->jabatan }}</td>
+                        <td>
+                            <a href="{{ route('admin.employees.edit', $k->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <form action="{{ route('admin.employees.destroy', $k->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="button" class="btn-icon btn-delete" title="Hapus">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="return confirm('Yakin hapus karyawan ini?')">Hapus</button>
                             </form>
-                        </div>
-                    </td>
+                        </td>
                     </tr>
-                    @endfor
+                @empty
+                    <tr>
+                        <td colspan="6" class="text-center">Tidak ada data karyawan</td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
