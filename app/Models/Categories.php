@@ -5,14 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Branch extends Model
+class Categories extends Model
 {
     use HasFactory;
-    protected $table = 'perusahaan_cabang';
+    protected $table = 'kategori';
     protected $fillable = [
-        'nama',
-        'alamat',
-        'nomor_telepon',
-        'link_maps',
+        'nama_kategori',
     ];
+        
 }

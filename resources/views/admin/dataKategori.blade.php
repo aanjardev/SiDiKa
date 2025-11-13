@@ -3,10 +3,10 @@
 @section('title', 'Data Kategori')
 
 @push('page-actions')
-    <a href="{{ route('admin.categories.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
-        <i class="fas fa-plus fa-fw"></i>
-        <span>Tambah Kategori</span>
-    </a>
+<a href="{{ route('admin.categories.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <i class="fas fa-plus fa-fw"></i>
+    <span>Tambah Kategori</span>
+</a>
 @endpush
 
 @section('content')
@@ -35,36 +35,32 @@
                 </tr>
             </thead>
             <tbody>
-                @php
-                    $dummyKategori = [
-                        ['nama' => 'kamera dslr'],
-                        ['nama' => 'kamera mirrorless'],
-                        ['nama' => 'kamera pocket/instan'],
-                        ['nama' => 'lensa dslr'],
-                        ['nama' => 'lensa mirrorless'],
-                        ['nama' => 'aksesoris'],
-                        ['nama' => 'lain'],
-                    ];
-                @endphp
-
-                @foreach ($dummyKategori as $i => $kat)
+                @forelse ($categories as $category)
                 <tr>
-                    <td class="text-center">{{ $i+1 }}</td>
-                    <td class="fw-semibold">{{ ucfirst($kat['nama']) }}</td>
+                    <td class="text-center">{{ $loop->iteration }}</td>
+                    <td class="fw-semibold">{{ $category->nama_kategori }}</td>
 
                     <td class="text-center">
                         <div class="d-flex justify-content-center gap-2">
-                            <a href="">
+                            <a href="{{ route('admin.categories.edit', $category->id) }}" title="Edit">
                                 <i class="fa-solid fa-pen-to-square" style="color:#0d6efd;"></i>
                             </a>
 
-                            <button class="btn-icon" onclick="alert('hapus dummy?')">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
+                            <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" class="d-inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="button" class="btn-icon btn-delete" title="Hapus">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="3" class="text-center text-muted">Belum ada kategori.</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -77,10 +73,12 @@
     .table-product tbody tr:nth-child(even) {
         background-color: #F8F9FC;
     }
+
     .table-product tbody tr:hover {
         background-color: #EFF3F9;
         transition: 0.2s;
     }
+
     .btn-icon {
         background: none;
         border: none;
@@ -89,6 +87,7 @@
         color: #dc3545;
         font-size: 16px;
     }
+
     .btn-icon:hover {
         color: #bb2d3b;
     }

@@ -5,14 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Branch extends Model
+class Employee extends Model
 {
     use HasFactory;
-    protected $table = 'perusahaan_cabang';
     protected $fillable = [
-        'nama',
-        'alamat',
+        'nama_lengkap',
+        'nik',
+        'jabatan',
+        'gaji',
+        'tanggal_masuk',
+        'tanggal_keluar',
+        'status',
         'nomor_telepon',
-        'link_maps',
+        'alamat'
     ];
 }
