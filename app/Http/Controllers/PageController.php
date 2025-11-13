@@ -36,9 +36,10 @@ class PageController extends Controller
         return view("product");
     }
 
-    // public function admin(){
-    //     return view("admin.index");
-    // }
+    public function admin()
+    {
+        return redirect()->route('admin.dashboard');
+    }
 
     public function edit(){
         return view("admin.edit");

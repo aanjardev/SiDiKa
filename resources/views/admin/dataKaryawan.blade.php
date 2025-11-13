@@ -84,10 +84,10 @@
                                 <i class="fa-solid fa-pen-to-square" style="color:#0d6efd;"></i>
                             </a>
 
-                            <form action="{{ route('admin.employees.destroy', $karyawan->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                            <form action="{{ route('admin.employees.destroy', $i) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button type="button" class="btn-icon btn-delete" title="Hapus">
+                                <button type="submit" class="btn-icon btn-delete" title="Hapus">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </form>

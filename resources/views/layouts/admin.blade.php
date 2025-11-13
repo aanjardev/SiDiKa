@@ -140,22 +140,13 @@
                     <i class="fas fa-chevron-right menu-arrow"></i>
                 </button>
 
-<<<<<<< HEAD
                 <div class="collapse submenu" id="transaksiMenu">
                     <div class="submenu-item">
-                        <a href="{{ route('admin.sales') }}" class="submenu-link">
+                        <a href="{{ route('admin.sales.index') }}" class="submenu-link">
                             <i class="fas fa-shopping-cart submenu-icon"></i>
                             <span>Penjualan</span>
                         </a>
                     </div>
-=======
-                <div class="menu-item">
-                    <a href="{{ route('admin.sales.index') }}" class="menu-link">
-                        <i class="fas fa-shopping-cart menu-icon"></i>
-                        <span>Penjualan</span>
-                    </a>
-                </div>
->>>>>>> 0f8f3e15fc1a87f9d2d2ff351fa5264ee6b84ff9
 
                     <div class="submenu-item">
                         <a href="{{ route('admin.purchases') }}" class="submenu-link">
@@ -221,17 +212,8 @@
 
             <!-- Dropdown Menu -->
             <ul class="dropdown-menu dropdown-menu-end" style="width: calc(100% - 2rem); margin: 0.5rem 1rem;">
-<<<<<<< HEAD
-                <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
-                <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-=======
                 <li><a class="dropdown-item" href="{{ route('admin.profile.index') }}"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
-                {{-- <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li> --}}
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
->>>>>>> 0f8f3e15fc1a87f9d2d2ff351fa5264ee6b84ff9
+                <li><hr class="dropdown-divider"></li>
                 <li>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
@@ -251,18 +233,10 @@
 
     <!-- Main Content -->
     <main class="main-content pt-3 mb-0 mt-0 d-flex flex-column pb-0">
-<<<<<<< HEAD
-            <div class="d-flex justify-content-between align-i  tems-center mb-4">
-                <h1 class="page-title mb-0">@yield('title', 'Dashboard')</h1>
-                <div class="d-flex align-items-center gap-3">
-                    @stack('page-actions')
-                </div>
-=======
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="page-title mb-0">@yield('title', 'Dashboard')</h1>
             <div class="d-flex align-items-center gap-3">
                 @stack('page-actions')
->>>>>>> 0f8f3e15fc1a87f9d2d2ff351fa5264ee6b84ff9
             </div>
         </div>
 
