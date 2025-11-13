@@ -91,7 +91,7 @@
 
                     {{-- Tombol Aksi --}}
                     <div class="text-end mt-4">
-                        <a href="{{ url('admin/data-karyawan') }}" class="btn btn-light me-2">Batal</a>
+                        <a href="{{ url('admin/employees') }}" class="btn btn-light me-2">Batal</a>
                         <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>

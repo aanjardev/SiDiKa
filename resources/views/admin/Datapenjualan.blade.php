@@ -4,48 +4,34 @@
 
 @section('content')
 
-{{-- ======= Header ======= --}}
-<h3 class="fw-bold mb-4">Penjualan</h3>
+{{-- ======= Search & Filter (Style Baru) ======= --}}
+<div class="d-flex flex-wrap gap-2 align-items-center mb-4">
 
-{{-- ======= Toolbar ======= --}}
-<div class="bg-white shadow-sm rounded-3 p-3 px-4 mb-4 d-flex flex-wrap align-items-center justify-content-between gap-3">
-
-    {{-- Search Bar --}}
-    <div class="d-flex align-items-center flex-grow-1" style="max-width: 400px;">
-        <div class="input-group">
-            <span class="input-group-text bg-transparent border-0">
+    {{-- Search Bar (Dari style baru Anda) --}}
+    <div class="flex-grow-1">
+        <div class="input-group shadow-sm">
+            <span class="input-group-text" id="search-addon" style="background: #fff; border-right: 0;">
                 <i class="fa-solid fa-search text-muted"></i>
             </span>
-            <input type="text" class="form-control border-0" placeholder="Cari Produk" 
-                style="box-shadow: none; background-color: transparent;">
+            <input type="text" class="form-control" placeholder="Cari produk berdasarkan nama atau SKU..." aria-label="Cari produk" aria-describedby="search-addon" style="border-left: 0; box-shadow: none;">
         </div>
     </div>
 
-    {{-- Filter Controls --}}
-    <div class="d-flex flex-wrap align-items-center gap-3 text-muted fw-medium">
-        <div class="d-flex align-items-center gap-1">
-            <span>Sort By :</span>
-            <select class="form-select form-select-sm border-0 text-muted" style="width: 120px;">
-                <option>Default</option>
-                <option>Nama (A-Z)</option>
-                <option>Harga (Murah)</option>
-                <option>Harga (Mahal)</option>
-            </select>
-        </div>
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
+        <option selected>Semua Kategori</option>
+          @foreach ($kategori as $kat)
+              <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
+          @endforeach
+    </select>
 
-        <div class="d-flex align-items-center gap-1">
-            <span>Group By :</span>
-            <select class="form-select form-select-sm border-0 text-muted" style="width: 120px;">
-                <option>Status</option>
-                <option>Tersedia</option>
-                <option>Habis</option>
-            </select>
-        </div>
+    {{-- Filter Sort By (Gabungan dari style lama dan baru) --}}
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
+        <option value="terbaru" selected>Terakhir diubah</option>
+        <option value="nama_asc">Nama (A-Z)</option>
+        <option value="harga_asc">Harga Termurah</option>
+        <option value="harga_desc">Harga Termahal</option>
+    </select>
 
-        <button class="btn btn-sm btn-light border-0 shadow-sm">
-            <i class="fa-solid fa-filter me-1"></i> Filter
-        </button>
-    </div>
 </div>
 
 {{-- ======= Grid Produk ======= --}}

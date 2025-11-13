@@ -126,6 +126,28 @@ body { background-color: #f8f9fa; overflow-x: hidden; }
     --gray-700: #495057;
     --gray-800: #343a40;
     --gray-900: #212529;
+    --bs-gray: #6c757d;
+    --bs-gray-shade-80: #161719;
+    --bs-gray-shade-60: #2b2f32;
+    --bs-gray-shade-40: #41464b;
+    --bs-gray-shade-20: #565e64;
+    --bs-gray-tint-90: #f0f1f2;
+    --bs-gray-tint-80: #e2e3e5;
+    --bs-gray-tint-60: #c4c8cb;
+    --bs-gray-tint-40: #a7acb1;
+    --bs-gray-tint-20: #899197;
+    --bs-gray-rgb: 108, 117, 125;
+    --bs-heading-color: #0a0c0d;
+    --bs-gray-dark: #343a40;
+    --bs-gray-dark-shade-80: #0a0c0d;
+    --bs-gray-dark-shade-60: #15171a;
+    --bs-gray-dark-shade-40: #1f2326;
+    --bs-gray-dark-shade-20: #2a2e33;
+    --bs-gray-dark-tint-90: #ebebec;
+    --bs-gray-dark-tint-80: #d6d8d9;
+    --bs-gray-dark-tint-60: #aeb0b3;
+    --bs-gray-dark-tint-40: #85898c;
+    --bs-gray-dark-tint-20: #5d6166;
     --danger: #dc3545;
     --success: #198754;
     --warning: #ffc107;
@@ -145,7 +167,7 @@ body { background-color: #f8f9fa; overflow-x: hidden; }
 }
 
 body {
-    background-color: var(--gray-100);
+    background-color: var(--bs-gray-dark-tint-90);
     color: var(--text-color);
     line-height: 1.6;
 }

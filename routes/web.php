@@ -10,6 +10,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PenjualanController;
 use Illuminate\Support\Facades\Route;
 use Symfony\Component\HttpKernel\Profiler\Profile;
 
@@ -46,10 +47,18 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('/customers', CustomerController::class)->names('customers');
     Route::resource('/employees', EmployeeController::class)->names('employees');
     Route::resource('/categories', CategoryController::class)->names('categories');
+    Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
+    Route::post('/categories/store', [CategoryController::class, 'store'])->name('categories.store');
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+    Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
     Route::resource('/branches', BranchController::class)->names('branches');
+    Route::get('/branches/create', [BranchController::class, 'create'])->name('branches.create');
+    Route::post('/branches/store', [BranchController::class, 'store'])->name('branches.store');
+    Route::delete('/branches/{id}', [BranchController::class, 'destroy'])->name('branches.destroy');
+    Route::put('/branches/{id}', [BranchController::class, 'update'])->name('branches.update');
 
     // Transaksi
-    Route::get('/sales', function () { return view('admin.dataPenjualan'); })->name('sales');
+    Route::resource('/sales', PenjualanController::class)->names('sales');
     Route::get('/purchases', function () { return view('admin.dataPembelian'); })->name('purchases');
     Route::get('/quality-control', function () { return view('admin.dataQC'); })->name('quality-control');
 
