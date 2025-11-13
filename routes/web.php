@@ -67,7 +67,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Manajemen
     Route::get('/catalog-settings', function () { return view('admin.catalog-settings'); })->name('catalog-settings.index');
-    Route::get('/promotions', function () { return view('admin.promotions'); })->name('promotions.index');
+    Route::get('/promotions', function () { return view('admin.promotions'); })->name('promotions');
     Route::get('/permissions', [PermissionsController::class, 'index'])->name('permissions');
+    Route::get('/permissions/create', [PermissionsController::class, 'create'])->name('permissions.create');
     Route::resource('/profile', ProfileController::class)->names('profile');
 });

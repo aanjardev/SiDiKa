@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Manajemen Hak Akses Pengguna')
+@section('title', 'Manajemen Hak Akses')
 
 @push('page-actions')
-<a href="{{ route('admin.employees.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+<a href="{{ route('admin.permissions.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
     <i class="fas fa-plus fa-fw"></i>
-    <span>Tambah Karyawan</span>
+    <span>Tambah User</span>
 </a>
 @endpush
 
@@ -58,9 +58,6 @@
                         Nama Karyawan {{ $i }}
                     </td>
 
-                    
-
-                    
 
                     <td>karyawan{{ $i }}@gmail.com</td>
                     <td>{{ $i % 3 == 0 ? 'Manager' : 'Staff Operasional' }}</td>

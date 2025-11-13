@@ -10,4 +10,9 @@ class PermissionsController extends Controller
     {
         return view('admin.permissions');
     }
+
+    public function create()
+    {
+        return view('admin.inputPermissions');
+    }
 }
