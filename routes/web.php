@@ -11,7 +11,10 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PenjualanController;
+use App\Http\Controllers\PermissionsController;
+
 use Illuminate\Support\Facades\Route;
+
 use Symfony\Component\HttpKernel\Profiler\Profile;
 
 /*
@@ -65,6 +68,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Manajemen
     Route::get('/catalog-settings', function () { return view('admin.catalog-settings'); })->name('catalog-settings.index');
     Route::get('/promotions', function () { return view('admin.promotions'); })->name('promotions.index');
-    Route::get('/permissions', function () { return view('admin.permissions'); })->name('permissions.index');
+    Route::get('/permissions', [PermissionsController::class, 'index'])->name('permissions');
     Route::resource('/profile', ProfileController::class)->names('profile');
 });
