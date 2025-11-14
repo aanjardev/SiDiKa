@@ -188,7 +188,7 @@
                     </div>
 
                     <div class="submenu-item">
-                        <a href="#" class="submenu-link">
+                        <a href="{{ route('admin.permissions') }}" class="submenu-link">
                             <i class="fas fa-user-shield submenu-icon"></i>
                             <span>Manajemen Hak Akses</span>
                         </a>
