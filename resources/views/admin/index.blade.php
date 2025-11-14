@@ -3,10 +3,10 @@
 @section('title', 'Dashboard')
 
 @push('page-actions')
-    <button class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <a href="{{ route('admin.sales.index') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
         <i class="fas fa-plus fa-fw"></i>
         <span>Penjualan</span>
-    </button>
+</a>
     <button class="btn btn-success btn-sm d-flex align-items-center gap-2" style="background-color: #198754; border-color: #198754;">
         <i class="fas fa-plus fa-fw"></i>
         <span>Pembelian</span>
