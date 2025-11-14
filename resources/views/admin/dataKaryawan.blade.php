@@ -57,8 +57,10 @@
                         <td>{{ $employees->firstItem() + $index }}</td>
                         <td>{{ $employee->nik }}</td>
 
-                        <td class="fw-semibold text-primary" style="cursor:pointer;">
-                            {{ $employee->nama_lengkap }}
+                        <td>
+                            <a href="{{ route('admin.employees.show', $employee->id) }}" class="fw-semibold text-primary text-decoration-none" style="cursor:pointer;">
+                                {{ $employee->nama_lengkap }}
+                            </a>
                         </td>
 
                         <td>{{ $employee->jabatan }}</td>

@@ -45,7 +45,7 @@ class EmployeeController extends Controller
                 'regex:/^(?:\+62|62|0)[0-9]{8,15}$/'
             ],
             'tanggal_masuk' => 'required|date',
-            'gaji' => 'nullable|integer|min:0',
+            'gaji' => 'required|integer|min:0',
             'status' => 'required|in:aktif,non-aktif',
             'alamat' => 'required|string|max:100',
         ], [
@@ -73,13 +73,19 @@ class EmployeeController extends Controller
             'jabatan' => $validated['jabatan'],
             'nomor_telepon' => $validated['nomor_telepon'],
             'tanggal_masuk' => $validated['tanggal_masuk'],
-            'gaji' => $validated['gaji'] ?? null,
+            'gaji' => $validated['gaji'],
             'status' => $validated['status'],
             'alamat' => $validated['alamat'],
         ]);
 
         return redirect()->route('admin.employees.index')
                          ->with('success', 'Karyawan berhasil ditambahkan.');
+    }
+
+    public function show($id)
+    {
+        $employee = Employee::with('user')->findOrFail($id);
+        return view('admin.inputDataKaryawan', compact('employee'))->with('readOnly', true);
     }
 
     public function edit($id)
@@ -114,7 +120,7 @@ class EmployeeController extends Controller
                 'regex:/^(?:\+62|62|0)[0-9]{8,15}$/'
             ],
             'tanggal_masuk' => 'required|date',
-            'gaji' => 'nullable|integer|min:0',
+            'gaji' => 'required|integer|min:0',
             'status' => 'required|in:aktif,non-aktif',
             'alamat' => 'required|string|max:100',
         ], [
@@ -139,7 +145,7 @@ class EmployeeController extends Controller
             'jabatan' => $validated['jabatan'],
             'nomor_telepon' => $validated['nomor_telepon'],
             'tanggal_masuk' => $validated['tanggal_masuk'],
-            'gaji' => $validated['gaji'] ?? null,
+            'gaji' => $validated['gaji'],
             'status' => $validated['status'],
             'alamat' => $validated['alamat'],
         ]);
