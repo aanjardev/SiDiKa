@@ -6,6 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>@yield('title', 'Admin Panel') | SiDiKa</title>
 
+    {{-- @vite([
+          'resources/admin_theme/css/core/libs.min.css',
+          'resources/admin_theme/vendor/aos/dist/aos.css',
+          'resources/admin_theme/css/hope-ui.min.css',
+          'resources/admin_theme/css/custom.min.css',
+          'resources/admin_theme/css/dark.min.css',
+          'resources/admin_theme/css/customizer.min.css',
+          'resources/admin_theme/css/rtl.min.css'
+      ]) --}}
+
+
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
 
     <!-- Fonts -->
@@ -42,6 +53,9 @@
         <div class="loader"></div>
     </div>
 
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
         <!-- Sidebar Header -->
@@ -54,107 +68,131 @@
         </div>
 
         <!-- Sidebar Menu -->
-        <div class="sidebar-menu">
+        <div class="sidebar-menu" id="sidebarMenu">
             <!-- Home Section -->
             <div class="menu-section">
-                <h6 class="menu-section-title">Home</h6>
-                <div class="menu-item">
-                    <a href="{{ route('admin.dashboard') }}" class="menu-link active">
-                        <i class="fas fa-th-large menu-icon"></i>
-                        <span>Dashboard</span>
-                    </a>
+                <button class="menu-link menu-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#homeMenu" aria-expanded="false" aria-controls="homeMenu">
+                    <i class="fas fa-house menu-icon"></i>
+                    <span>Home</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </button>
+                <div class="collapse submenu" id="homeMenu">
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.dashboard') }}" class="submenu-link">
+                            <i class="fas fa-th-large submenu-icon"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <!-- Master Data Section -->
             <div class="menu-section">
-                <h6 class="menu-section-title">Master Data</h6>
+                <button class="menu-link menu-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#masterDataMenu" aria-expanded="false" aria-controls="masterDataMenu">
+                    <i class="fas fa-database menu-icon"></i>
+                    <span>Master Data</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </button>
 
-                <div class="menu-item">
-                    <a href="{{ route('admin.products.index') }}" class="menu-link">
-                        <i class="fas fa-box menu-icon"></i>
-                        <span>Data Produk</span>
-                    </a>
-                </div>
+                <div class="collapse submenu" id="masterDataMenu">
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.products.index') }}" class="submenu-link">
+                            <i class="fas fa-box submenu-icon"></i>
+                            <span>Data Produk</span>
+                        </a>
+                    </div>
 
-                <div class="menu-item">
-                    <a href="{{ route('admin.customers.index') }}" class="menu-link">
-                        <i class="fas fa-users menu-icon"></i>
-                        <span>Data Pelanggan</span>
-                    </a>
-                </div>
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.customers.index') }}" class="submenu-link">
+                            <i class="fas fa-users submenu-icon"></i>
+                            <span>Data Pelanggan</span>
+                        </a>
+                    </div>
 
-                <div class="menu-item">
-                    <a href="{{ route('admin.employees.index') }}" class="menu-link">
-                        <i class="fas fa-user-tie menu-icon"></i>
-                        <span>Data Karyawan</span>
-                    </a>
-                </div>
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.employees.index') }}" class="submenu-link">
+                            <i class="fas fa-user-tie submenu-icon"></i>
+                            <span>Data Karyawan</span>
+                        </a>
+                    </div>
 
-                <div class="menu-item">
-                    <a href="{{ route('admin.categories.index') }}" class="menu-link">
-                        <i class="fas fa-list menu-icon"></i>
-                        <span>Daftar Kategori</span>
-                    </a>
-                </div>
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.categories.index') }}" class="submenu-link">
+                            <i class="fas fa-list submenu-icon"></i>
+                            <span>Daftar Kategori</span>
+                        </a>
+                    </div>
 
-                <div class="menu-item">
-                    <a href="{{ route('admin.branches.index') }}" class="menu-link">
-                        <i class="fas fa-store menu-icon"></i>
-                        <span>Data Cabang</span>
-                    </a>
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.branches.index') }}" class="submenu-link">
+                            <i class="fas fa-store submenu-icon"></i>
+                            <span>Data Cabang</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <!-- Transaksi Section -->
             <div class="menu-section">
-                <h6 class="menu-section-title">Transaksi</h6>
+                <button class="menu-link menu-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#transaksiMenu" aria-expanded="false" aria-controls="transaksiMenu">
+                    <i class="fas fa-exchange-alt menu-icon"></i>
+                    <span>Transaksi</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </button>
 
-                <div class="menu-item">
-                    <a href="{{ route('admin.sales.index') }}" class="menu-link">
-                        <i class="fas fa-shopping-cart menu-icon"></i>
-                        <span>Penjualan</span>
-                    </a>
-                </div>
+                <div class="collapse submenu" id="transaksiMenu">
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.sales.index') }}" class="submenu-link">
+                            <i class="fas fa-shopping-cart submenu-icon"></i>
+                            <span>Penjualan</span>
+                        </a>
+                    </div>
 
-                <div class="menu-item">
-                    <a href="{{ route('admin.purchases') }}" class="menu-link">
-                        <i class="fas fa-shopping-bag menu-icon"></i>
-                        <span>Pembelian</span>
-                    </a>
-                </div>
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.purchases') }}" class="submenu-link">
+                            <i class="fas fa-shopping-bag submenu-icon"></i>
+                            <span>Pembelian</span>
+                        </a>
+                    </div>
 
-                <div class="menu-item">
-                    <a href="{{ route('admin.quality-control') }}" class="menu-link">
-                        <i class="fas fa-check-circle menu-icon"></i>
-                        <span>Quality Control</span>
-                    </a>
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.quality-control') }}" class="submenu-link">
+                            <i class="fas fa-check-circle submenu-icon"></i>
+                            <span>Quality Control</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <!-- Manajemen Section -->
             <div class="menu-section">
-                <h6 class="menu-section-title">Manajemen</h6>
+                <button class="menu-link menu-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#manajemenMenu" aria-expanded="false" aria-controls="manajemenMenu">
+                    <i class="fas fa-briefcase menu-icon"></i>
+                    <span>Manajemen</span>
+                    <i class="fas fa-chevron-right menu-arrow"></i>
+                </button>
 
-                <div class="menu-item">
-                    <a href="#" class="menu-link">
-                        <i class="fas fa-cog menu-icon"></i>
-                        <span>Setting Web Katalog</span>
-                    </a>
-                </div>
+                <div class="collapse submenu" id="manajemenMenu">
+                    <div class="submenu-item">
+                        <a href="#" class="submenu-link">
+                            <i class="fas fa-cog submenu-icon"></i>
+                            <span>Setting Web Katalog</span>
+                        </a>
+                    </div>
 
-                <div class="menu-item">
-                    <a href="#" class="menu-link">
-                        <i class="fas fa-bullhorn menu-icon"></i>
-                        <span>Manajemen Promosi</span>
-                    </a>
-                </div>
+                    <div class="submenu-item">
+                        <a href="#" class="submenu-link">
+                            <i class="fas fa-bullhorn submenu-icon"></i>
+                            <span>Manajemen Promosi</span>
+                        </a>
+                    </div>
 
-                <div class="menu-item">
-                    <a href="#" class="menu-link">
-                        <i class="fas fa-user-shield menu-icon"></i>
-                        <span>Manajemen Hak Akses</span>
-                    </a>
+                    <div class="submenu-item">
+                        <a href="#" class="submenu-link">
+                            <i class="fas fa-user-shield submenu-icon"></i>
+                            <span>Manajemen Hak Akses</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -175,10 +213,7 @@
             <!-- Dropdown Menu -->
             <ul class="dropdown-menu dropdown-menu-end" style="width: calc(100% - 2rem); margin: 0.5rem 1rem;">
                 <li><a class="dropdown-item" href="{{ route('admin.profile.index') }}"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
-                {{-- <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li> --}}
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
+                <li><hr class="dropdown-divider"></li>
                 <li>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
@@ -192,7 +227,7 @@
     </aside>
 
     <!-- Mobile Toggle Button -->
-    <button class="sidebar-toggle-mobile" id="sidebarToggle">
+    <button class="sidebar-toggle-mobile" id="sidebarToggle" aria-label="Toggle Sidebar">
         <i class="fas fa-bars"></i>
     </button>
 
@@ -237,44 +272,128 @@
             document.getElementById('loading').style.display = 'none';
         });
 
-        // Mobile sidebar toggle
+        // Mobile sidebar toggle with overlay
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+            sidebarOverlay.classList.toggle('show');
+            // Toggle icon
+            const icon = sidebarToggle.querySelector('i');
+            if (sidebar.classList.contains('show')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-times');
+                document.body.style.overflow = 'hidden';
+            } else {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function closeSidebar() {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+            document.body.style.overflow = '';
+            // Reset icon
+            const icon = sidebarToggle.querySelector('i');
+            if (icon) {
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-bars');
+            }
+        }
 
         if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', function() {
-                sidebar.classList.toggle('show');
+            sidebarToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleSidebar();
             });
         }
 
-        // Close sidebar when clicking outside on mobile
+        // Close sidebar when clicking overlay
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                closeSidebar();
+            });
+        }
+
+        // Close sidebar when clicking outside on mobile/tablet
         document.addEventListener('click', function(event) {
             if (window.innerWidth <= 991) {
-                if (!sidebar.contains(event.target) && !sidebarToggle.contains(event.target)) {
-                    sidebar.classList.remove('show');
+                if (sidebar.classList.contains('show') && 
+                    !sidebar.contains(event.target) && 
+                    !sidebarToggle.contains(event.target)) {
+                    closeSidebar();
                 }
+            }
+        });
+
+        // Close sidebar on window resize if switching to desktop
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 991) {
+                closeSidebar();
             }
         });
 
         // Set active menu based on current URL
         document.addEventListener('DOMContentLoaded', function() {
-            const currentUrl = window.location.href;
-            const menuLinks = document.querySelectorAll('.menu-link, .submenu-link');
+            // Close sidebar when clicking on menu links (mobile)
+            if (window.innerWidth <= 991) {
+                const menuLinks = document.querySelectorAll('.submenu-link, .menu-link[href]');
+                menuLinks.forEach(link => {
+                    link.addEventListener('click', function() {
+                        setTimeout(() => {
+                            closeSidebar();
+                        }, 300);
+                    });
+                });
+            }
+            const currentUrl = window.location.href.split(/[?#]/)[0];
+            const navLinks = document.querySelectorAll('.submenu-link, .menu-link[href]');
 
-            menuLinks.forEach(link => {
-                if (link.href === currentUrl) {
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (!href) {
+                    return;
+                }
+
+                const normalizedHref = href.split(/[?#]/)[0];
+                if (normalizedHref === currentUrl) {
                     link.classList.add('active');
 
-                    // If it's a submenu item, also expand the parent menu
                     const parentCollapse = link.closest('.collapse');
                     if (parentCollapse) {
                         parentCollapse.classList.add('show');
-                        const parentLink = document.querySelector('[data-bs-target="#' + parentCollapse.id + '"]');
-                        if (parentLink) {
-                            parentLink.classList.remove('collapsed');
+                        const parentToggle = parentCollapse.previousElementSibling;
+                        if (parentToggle && parentToggle.classList.contains('menu-toggle')) {
+                            parentToggle.classList.add('active');
+                            parentToggle.classList.remove('collapsed');
+                            parentToggle.setAttribute('aria-expanded', 'true');
                         }
                     }
                 }
+            });
+
+            const collapses = document.querySelectorAll('#sidebarMenu .collapse');
+            collapses.forEach(collapse => {
+                const toggle = collapse.previousElementSibling;
+                if (!toggle) {
+                    return;
+                }
+
+                collapse.addEventListener('shown.bs.collapse', function() {
+                    toggle.classList.add('active');
+                    toggle.classList.remove('collapsed');
+                });
+
+                collapse.addEventListener('hidden.bs.collapse', function() {
+                    toggle.classList.add('collapsed');
+                    if (!collapse.querySelector('.submenu-link.active')) {
+                        toggle.classList.remove('active');
+                    }
+                });
             });
         });
     </script>

@@ -52,49 +52,51 @@
                 </tr>
             </thead>
             <tbody>
-                @for ($i = 1; $i <= 7; $i++)
+                @forelse ($employees as $index => $employee)
                     <tr>
-                    <td>{{ $i }}</td>
-                    <td>15702050600{{ $i }}</td>
+                        <td>{{ $employees->firstItem() + $index }}</td>
+                        <td>{{ $employee->nik }}</td>
 
-                    <td class="fw-semibold text-primary" style="cursor:pointer;">
-                        Nama Karyawan {{ $i }}
-                    </td>
+                        <td class="fw-semibold text-primary" style="cursor:pointer;">
+                            {{ $employee->nama_lengkap }}
+                        </td>
 
-                    <td>{{ $i % 3 == 0 ? 'Manager' : 'Staff Operasional' }}</td>
+                        <td>{{ $employee->jabatan }}</td>
 
-                    <td>
-                        @if ($i % 2 == 0)
-                        <span class="text-danger fw-semibold">Non Aktif</span>
-                        @else
-                        <span class="text-success fw-semibold">Aktif</span>
-                        @endif
-                    </td>
+                        <td>
+                            @if ($employee->status === 'aktif')
+                                <span class="text-success fw-semibold">Aktif</span>
+                            @else
+                                <span class="text-danger fw-semibold">Non Aktif</span>
+                            @endif
+                        </td>
 
-                    <td>karyawan{{ $i }}@gmail.com</td>
-                    <td>08526{{ rand(300000,900000) }}</td>
+                        <td>{{ $employee->user->email ?? '-' }}</td>
+                        <td>{{ $employee->nomor_telepon }}</td>
 
-                    <td class="text-center">
-                        <div class="d-flex justify-content-center gap-2">
-                            <a href="" title="Lihat">
-                                <i class="fa-solid fa-eye" style="color: black;"></i>
-                            </a>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ route('admin.employees.edit', $employee->id) }}" title="Edit">
+                                    <i class="fa-solid fa-pen-to-square" style="color:#0d6efd;"></i>
+                                </a>
 
-                            <a href="" title="Edit">
-                                <i class="fa-solid fa-pen-to-square" style="color:#0d6efd;"></i>
-                            </a>
-
-                            <form action="{{ route('admin.employees.destroy', $karyawan->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="button" class="btn-icon btn-delete" title="Hapus">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
+                                <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn-icon btn-delete" title="Hapus">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
-                    @endfor
+                @empty
+                    <tr>
+                        <td colspan="8" class="text-center py-4">
+                            <p class="text-muted mb-0">Tidak ada data karyawan.</p>
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -102,16 +104,13 @@
 
 
 {{-- Pagination --}}
+@if ($employees->hasPages())
 <div class="d-flex justify-content-center mt-4">
     <nav>
-        <ul class="pagination mb-0">
-            <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item"><a class="page-link" href="#">2</a></li>
-            <li class="page-item"><a class="page-link" href="#">Next</a></li>
-        </ul>
+        {{ $employees->links() }}
     </nav>
 </div>
+@endif
 
 @endsection
 

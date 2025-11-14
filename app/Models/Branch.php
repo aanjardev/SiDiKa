@@ -15,4 +15,9 @@ class Branch extends Model
         'nomor_telepon',
         'link_maps',
     ];
+
+    public function sales()
+    {
+        return $this->hasMany(Penjualan::class, 'perusahaan_cabang_id');
+    }
 }
