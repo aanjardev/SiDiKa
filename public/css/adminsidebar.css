@@ -58,7 +58,7 @@ body { background-color: #f8f9fa; overflow-x: hidden; }
 .submenu-link:hover .submenu-icon { color:#fff; }
 
 /* Footer */
-.sidebar-footer { position:sticky; bottom:0; left:0; width:100%; padding:1rem; background:var(--sidebar-bg); border-top:1px solid var(--border-color); margin-top:auto; }
+.sidebar-footer { position:sticky; bottom:0; left:0; width:100%; padding:1rem; background:var(--sidebar-bg); border-top:1px solid var(--border-color); margin-top:200px; }
 .user-profile { display:flex; align-items:center; gap:.75rem; padding:.75rem; border-radius:8px; background:var(--sidebar-hover); cursor:pointer; transition: all .3s ease; }
 .user-profile:hover { background:#e9ecef; }
 .user-avatar { width:36px; height:36px; border-radius:50%; background:var(--brand-blue); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.95rem; }
