@@ -146,11 +146,8 @@
     }
     .btn-icon:hover { color: #bb2d3b !important; }
 
-    /* ======================================================= */
-    /* PERBAIKAN 5: CSS UNTUK TINGGI TABEL FIX & EMPTY STATE */
-    /* ======================================================= */
     .table-wrapper {
-        min-height: 700px; /* Atur tinggi minimal */
+        min-height: 700px;
         display: flex;
         flex-direction: column;
     }
@@ -162,12 +159,8 @@
     .table-product {
         flex-grow: 1;
     }
-    .table-product tbody {
-        /* (PENTING) Hapus 'height: 100%' dari sini */
-    }
+   
     .table-product tr.tr-empty {
-        /* (PENTING) Ganti 'height: 100%' dengan ini */
-        /* Ini akan membuat <tr> mengisi sisa ruang */
         flex-grow: 1;
         display: table-row;
     }
