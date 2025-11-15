@@ -30,12 +30,10 @@
         <div class="table-responsive">
             <table class="table align-middle mb-0 table-product">
                 <thead class="table-light">
-                    {{-- ======================================================= --}}
-                    {{-- BAGIAN 4: Ganti Kolom Tabel (thead) --}}
-                    {{-- ======================================================= --}}
                     <tr>
                         <th class="text-center" style="width: 60px;">No</th>
                         <th>Nama</th>
+                        <th>Jenis Kelamin</th>
                         <th>No. Telepon</th>
                         <th style="width:30%">Alamat</th>
                         <th>NIK</th>
@@ -43,21 +41,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- ======================================================= --}}
-                    {{-- BAGIAN 5: Ganti Isi Data (tbody) & @empty --}}
-                    {{-- ======================================================= --}}
-
-                    {{--
-                      Kita gunakan @forelse dengan array kosong (empty array)
-                      untuk mensimulasikan "Tidak Ada Data" (karena Anda minta FE dulu)
-                    --}}
-                    @forelse ([] as $pelanggan) {{-- Ganti [] dengan $data_pelanggan nanti --}}
+                    @forelse ($data_pelanggan as $pelanggan)
                         <tr>
                             <td class="text-center">{{ $loop->iteration }}</td>
                             <td>{{ $pelanggan->nama }}</td>
+                            <td>{{ $pelanggan->jenis_kelamin }}</td>
                             <td>{{ $pelanggan->no_telp }}</td>
                             <td>{{ $pelanggan->alamat }}</td>
-                            <td>{{ $pelanggan->identitas }}</td> {{-- (Asumsi 'identitas' = NIK) --}}
+                            <td>{{ $pelanggan->identitas }}</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <a href="#" title="Lihat">
@@ -80,11 +71,10 @@
 
                     @empty
                         <tr class="tr-empty">
-                            <td colspan="6" class="text-center">
+                            <td colspan="7" class="text-center">
                                 <div>
                                     <i class="fa-solid fa-users fa-2x text-muted mb-3"></i>
                                     <h5 class="mb-1">Tidak Ada Data Pelanggan</h5>
-                                    <p class="text-muted mb-0">Silakan <a href="#">tambah data pelanggan</a> baru.</p>
                                 </div>
                             </td>
                         </tr>
@@ -94,14 +84,10 @@
         </div>
     </div>
 
-    {{-- Pagination (Dinamis dari Controller) --}}
-    {{-- ======================================================= --}}
-    {{-- BAGIAN 6: Pagination (Jika Perlu) --}}
-    {{-- ======================================================= --}}
-    @if (false) {{-- Ganti false dengan $data_pelanggan->hasPages() nanti --}}
+
+    @if ($data_pelanggan->hasPages())
         <div class="card-footer bg-white">
-            {{-- Ini akan otomatis menampilkan link pagination (1, 2, 3, Next, Prev) --}}
-            {{ '' /* $data_pelanggan->links('pagination::bootstrap-5') */ }}
+            {{  $data_pelanggan->links('pagination::bootstrap-5')  }}
         </div>
     @endif
 
@@ -146,9 +132,7 @@
     }
     .btn-icon:hover { color: #bb2d3b !important; }
 
-    /* ======================================================= */
-    /* PERBAIKAN 5: CSS UNTUK TINGGI TABEL FIX & EMPTY STATE */
-    /* ======================================================= */
+    /* CSS UNTUK TINGGI TABEL FIX & EMPTY STATE */
     .table-wrapper {
         min-height: 700px; /* Atur tinggi minimal */
         display: flex;
@@ -162,12 +146,7 @@
     .table-product {
         flex-grow: 1;
     }
-    .table-product tbody {
-        /* (PENTING) Hapus 'height: 100%' dari sini */
-    }
     .table-product tr.tr-empty {
-        /* (PENTING) Ganti 'height: 100%' dengan ini */
-        /* Ini akan membuat <tr> mengisi sisa ruang */
         flex-grow: 1;
         display: table-row;
     }
