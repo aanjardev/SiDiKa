@@ -149,14 +149,14 @@
                     </div>
 
                     <div class="submenu-item">
-                        <a href="{{ route('admin.purchases') }}" class="submenu-link">
+                        <a href="{{ route('admin.purchases.index') }}" class="submenu-link">
                             <i class="fas fa-shopping-bag submenu-icon"></i>
                             <span>Pembelian</span>
                         </a>
                     </div>
 
                     <div class="submenu-item">
-                        <a href="{{ route('admin.quality-control') }}" class="submenu-link">
+                        <a href="{{ route('admin.quality-control.index') }}" class="submenu-link">
                             <i class="fas fa-check-circle submenu-icon"></i>
                             <span>Quality Control</span>
                         </a>
@@ -322,8 +322,8 @@
         // Close sidebar when clicking outside on mobile/tablet
         document.addEventListener('click', function(event) {
             if (window.innerWidth <= 991) {
-                if (sidebar.classList.contains('show') && 
-                    !sidebar.contains(event.target) && 
+                if (sidebar.classList.contains('show') &&
+                    !sidebar.contains(event.target) &&
                     !sidebarToggle.contains(event.target)) {
                     closeSidebar();
                 }

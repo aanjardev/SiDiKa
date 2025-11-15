@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Penjualan;
+use App\Models\Produk;
 
 class DetailPenjualan extends Model
 {
@@ -20,7 +22,7 @@ class DetailPenjualan extends Model
 
     public function product()
     {
-        return $this->belongsTo(AdminProduct::class, 'produk_id');
+        return $this->belongsTo(Produk::class, 'produk_id');
     }
 }
 
