@@ -73,42 +73,20 @@ return new class extends Migration
         // 2. PRODUK, INVENTARIS & QC
         // =================================================================
 
-        // 2.1 Tabel Kondisi (BARU - DARI ADMIN)
-        Schema::create('kondisi', function (Blueprint $table) {
-            $table->id();
-            $table->string('fisik', 100)->nullable();
-            $table->string('baut', 50)->nullable();
-            $table->string('tutup_usb', 50)->nullable();
-            $table->string('grip', 50)->nullable();
-            $table->string('jamur_lensa', 100)->nullable();
-            $table->string('view_finder', 50)->nullable();
-            $table->string('mounting', 50)->nullable();
-            $table->string('slot_memori', 50)->nullable();
-            $table->string('jamur_sensor', 100)->nullable();
-            $table->string('lcd', 100)->nullable();
-            $table->string('tombol', 50)->nullable();
-            $table->string('zoom_lensa', 50)->nullable();
-            $table->string('af_lensa', 50)->nullable();
-            $table->string('diafragma_lensa', 50)->nullable();
-            $table->string('kalibrasi_fokus', 50)->nullable();
-            $table->string('flash', 100)->nullable();
-            $table->string('sound_mic', 50)->nullable();
-            $table->string('lain_lain', 255)->nullable();
-            $table->timestamps();
-        });
 
         // 2.2 Tabel Produk (DIKEMBALIKAN KE STRUKTUR LAMA + Tambahan dari Admin)
         // Ini adalah penggabungan: Kolom stok, deskripsi, status, grade dikembalikan
         // agar sisi customer tidak error.
         Schema::create('produk', function (Blueprint $table) {
             $table->id();
-            $table->string('kode_sku', 20)->unique(); // Pakai unique() dari migrasi baru
+            $table->string('kode_sku', 20)->unique();
 
-            // --- Kolom dari migrasi LAMA (untuk Customer) ---
+
+
             $table->unsignedBigInteger('id_kategori'); // Pakai 'id_kategori' BUKAN 'kategori_id'
             $table->string('nama_produk', 200);
             $table->integer('harga_jual')->nullable();
-            $table->integer('stok_produk'); // INI YANG PENTING
+            $table->integer('stok_produk')->nullable(); // INI YANG PENTING
             $table->text('deskripsi_produk')->nullable(); // INI YANG PENTING
             $table->enum('status', ['Second', 'Baru']); // INI YANG PENTING
             $table->enum('grade', ['Unggulan', 'Standar', 'Minus'])->default('Standar'); // INI YANG PENTING
@@ -118,17 +96,10 @@ return new class extends Migration
             $table->integer('harga_servis')->nullable();
 
             $table->timestamps();
-
-            // Foreign key dari migrasi LAMA
             $table->foreign('id_kategori')->references('id')->on('kategori')->onDelete('cascade');
         });
 
-        // 2.3 Tabel Detail Produk (DIHAPUS)
-        // Schema::create('detail_produk', ...)
-        // Dihapus karena semua kolomnya sudah dikembalikan ke tabel 'produk'.
 
-        // 2.4 Tabel Gambar Produk (DIKEMBALIKAN KE STRUKTUR LAMA)
-        // Nama tabel dan kolom disesuaikan dengan migrasi lama.
         Schema::create('gambar_produk', function (Blueprint $table) { // Nama tabel lama
             $table->id();
             $table->unsignedBigInteger('id_produk'); // Nama kolom lama
@@ -144,27 +115,64 @@ return new class extends Migration
         // 3. TRANSAKSI (BARU - DARI ADMIN)
         // =================================================================
 
-        // 3.1 Tabel Pembelian
         Schema::create('pembelian', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customer')->onDelete('restrict');
             $table->foreignId('perusahaan_cabang_id')->constrained('perusahaan_cabang')->onDelete('restrict');
             $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
-            $table->date('tanggal');
             $table->enum('kas', ['transfer', 'cash']);
+
+            $table->string('keterangan', 200)->nullable();
+            $table->integer('harga_tawaran_customer')->nullable();
+            $table->integer('harga_tawaran_toko')->nullable();
+            $table->integer('harga_deal')->nullable();
+
+            $table->enum('status_pembelian', ['draft', 'deal', 'tidak_deal'])->default('draft');
+
             $table->timestamps();
         });
 
-        // 3.2 Tabel Detail Pembelian
-        Schema::create('detail_pembelian', function (Blueprint $table) {
+        Schema::create('item_pembelian_draft', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pembelian_id')->constrained('pembelian')->onDelete('cascade');
-            $table->foreignId('produk_id')->constrained('produk')->onDelete('restrict');
-            $table->string('serial_number', 30)->nullable();
+            $table->string('kode_sku', 20);
+
+            $table->string('nama_item', 200); // Misal: "Canon 60D Body Only"
+            $table->foreignId('kategori_id')->constrained('kategori')->onDelete('restrict');
+            $table->string('serial_number', 50)->nullable();
+            $table->string('serial_lens', 50)->nullable();
+            $table->string('kondisi_fisik', 100)->nullable();
+            $table->string('kondisi_baut', 50)->nullable();
+            $table->string('kondisi_tutup_usb', 50)->nullable();
+            $table->string('kondisi_grip', 50)->nullable();
+            $table->string('kondisi_jamur_lensa', 100)->nullable();
+            $table->string('kondisi_view_finder', 50)->nullable();
+            $table->string('kondisi_mounting', 50)->nullable();
+            $table->string('kondisi_slot_memori', 50)->nullable();
+            $table->string('kondisi_jamur_sensor', 100)->nullable();
+            $table->string('kondisi_lcd', 100)->nullable();
+            $table->string('kondisi_tombol', 50)->nullable();
+            $table->string('kondisi_zoom_lensa', 50)->nullable();
+            $table->string('kondisi_af_lensa', 50)->nullable();
+            $table->string('kondisi_diafragma_lensa', 50)->nullable();
+            $table->string('kondisi_kalibrasi_fokus', 50)->nullable();
+            $table->string('kondisi_flash', 100)->nullable();
+            $table->string('kondisi_sound_mic', 50)->nullable();
+            $table->string('kondisi_lain_lain', 255)->nullable();
+
+            $table->text('kelengkapan')->nullable(); // Misal: "Box, Baterai, Charger"
             $table->integer('qty')->default(1);
-            $table->integer('harga_tawaran')->nullable();
-            $table->integer('harga_terakhir')->nullable();
-            $table->enum('status_pembelian', ['deal', 'tidak'])->default('tidak');
+
+            $table->integer('harga_jual')->nullable();
+            $table->integer('harga_beli')->nullable();
+            $table->integer('harga_servis')->nullable();
+            $table->enum('grade', ['Unggulan', 'Standar', 'Minus'])->default('Standar');
+            $table->enum('status', ['Second', 'Baru'])->default('Second');
+            $table->text('deskripsi_produk')->nullable();
+
+            // --- Status Alur QC (Quality Control) ---
+            $table->enum('status_qc', ['menunggu_qc', 'lolos_qc', 'gagal_qc', 'diarsipkan'])->default('menunggu_qc');
+            $table->text('catatan_qc')->nullable(); // Catatan dari tim QC
             $table->timestamps();
         });
 
@@ -202,12 +210,10 @@ return new class extends Migration
     {
         Schema::dropIfExists('detail_penjualan');
         Schema::dropIfExists('penjualan');
-        Schema::dropIfExists('detail_pembelian');
+        Schema::dropIfExists('item_pembelian_draft');
         Schema::dropIfExists('pembelian');
-        Schema::dropIfExists('gambar_produk'); // Disesuaikan dengan nama tabel lama
-        // Schema::dropIfExists('detail_produk'); // Tidak perlu karena tidak dibuat di 'up'
+        Schema::dropIfExists('gambar_produk'); 
         Schema::dropIfExists('produk');
-        Schema::dropIfExists('kondisi');
         Schema::dropIfExists('karyawan');
         Schema::dropIfExists('customer');
         Schema::dropIfExists('perusahaan_cabang');
