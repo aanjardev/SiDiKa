@@ -73,7 +73,7 @@
                     </div>
 
                     <div class="text-end mt-4">
-                        <a href="{{ route('admin.branches') }}" class="btn btn-light me-2">Batal</a>
+                        <a href="{{ route('admin.branches.index') }}" class="btn btn-light me-2">Batal</a>
                         <button type="submit" class="btn btn-primary">
                             {{ isset($branch) ? 'Perbarui' : 'Simpan' }}
                         </button>

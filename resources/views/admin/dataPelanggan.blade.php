@@ -94,11 +94,16 @@
         </div>
     </div>
 
-     {{-- @if ($data_pelanggan->hasPages())
+    {{-- Pagination (Dinamis dari Controller) --}}
+    {{-- ======================================================= --}}
+    {{-- BAGIAN 6: Pagination (Jika Perlu) --}}
+    {{-- ======================================================= --}}
+    @if (false) {{-- Ganti false dengan $data_pelanggan->hasPages() nanti --}}
         <div class="card-footer bg-white">
-            {{ $data_pelanggan->links('pagination::bootstrap-5')
+            {{-- Ini akan otomatis menampilkan link pagination (1, 2, 3, Next, Prev) --}}
+            {{ '' /* $data_pelanggan->links('pagination::bootstrap-5') */ }}
         </div>
-    @endif --}}
+    @endif
 
 </div>
 

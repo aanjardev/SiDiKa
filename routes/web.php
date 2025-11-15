@@ -11,7 +11,11 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PenjualanController;
+use App\Http\Controllers\PermissionsController;
+use App\Http\Controllers\PembelianController;
+use App\Http\Controllers\QCController;
 use Illuminate\Support\Facades\Route;
+
 use Symfony\Component\HttpKernel\Profiler\Profile;
 
 /*
@@ -59,12 +63,13 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Transaksi
     Route::resource('/sales', PenjualanController::class)->names('sales');
-    Route::get('/purchases', function () { return view('admin.dataPembelian'); })->name('purchases');
-    Route::get('/quality-control', function () { return view('admin.dataQC'); })->name('quality-control');
+    Route::resource('/purchases', PembelianController::class)->names('purchases');
+    Route::resource('/quality-control', QCController::class)->names('quality-control');
 
     // Manajemen
     Route::get('/catalog-settings', function () { return view('admin.catalog-settings'); })->name('catalog-settings.index');
-    Route::get('/promotions', function () { return view('admin.promotions'); })->name('promotions.index');
-    Route::get('/permissions', function () { return view('admin.permissions'); })->name('permissions.index');
+    Route::get('/promotions', function () { return view('admin.promotions'); })->name('promotions');
+    Route::get('/permissions', [PermissionsController::class, 'index'])->name('permissions');
+    Route::get('/permissions/create', [PermissionsController::class, 'create'])->name('permissions.create');
     Route::resource('/profile', ProfileController::class)->names('profile');
 });

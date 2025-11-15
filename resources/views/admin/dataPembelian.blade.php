@@ -1,11 +1,11 @@
 @extends('layouts.admin')
 
-@section('title', 'Data Penjualan')
+@section('title', 'Data Pembelian')
 
 @push('page-actions')
-    <a href="#" {{-- Nanti: route('admin.sales.create') --}} class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <a href="#" {{-- Nanti: route('admin.purchases.create') --}} class="btn btn-primary btn-sm d-flex align-items-center gap-2">
         <i class="fas fa-plus fa-fw"></i>
-        <span>Tambah Penjualan</span>
+        <span>Tambah Pembelian</span>
     </a>
 @endpush
 
@@ -19,18 +19,16 @@
             <span class="input-group-text" style="background: #fff; border-right: 0;">
                 <i class="fa-solid fa-search text-muted"></i>
             </span>
-            <input type="text" class="form-control" placeholder="Cari Kode Penjualan (ID) atau Nama Customer..." style="border-left: 0; box-shadow: none;">
+            <input type="text" class="form-control" placeholder="Cari Kode Pembelian (ID) atau Nama Customer..." style="border-left: 0; box-shadow: none;">
         </div>
     </div>
-
-    {{-- Filter Kategori (Dinamis dari Controller) --}}
+    {{-- Filter Status (Sesuai migrasi baru) --}}
     <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
-        <option value="" selected>Semua Kategori</option>
-        @foreach ($semua_kategori as $kat)
-            <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
-        @endforeach
+        <option value="" selected>Semua Status</option>
+        <option value="draft">Draft</option>
+        <option value="deal">Deal</option>
+        <option value="tidak_deal">Tidak Deal</option>
     </select>
-
     {{-- Filter Urutkan --}}
     <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
         <option selected>Terbaru</option>
@@ -44,51 +42,58 @@
         <div class="table-responsive">
             <table class="table align-middle mb-0 table-product">
                 <thead class="table-light">
-                    {{-- ======================================================= --}}
-                    {{-- PERUBAHAN: Kolom Tabel (thead) untuk Penjualan --}}
-                    {{-- ======================================================= --}}
+                    {{-- Kolom Tabel (thead) --}}
                     <tr>
                         <th class="text-center" style="width: 60px;">ID</th>
                         <th>Customer</th>
                         <th>Tanggal</th>
-                        <th style="width: 25%">Item Terjual</th> {{-- <-- KOLOM BARU --}}
                         <th>Cabang</th>
-                        <th>Total</th>
+                        <th style="width: 25%">Item Dibeli</th>
+                        <th>Status</th>
+                        <th>Harga Deal</th>
                         <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {{-- ======================================================= --}}
-                    {{-- PERUBAHAN: Menggunakan data $data_penjualan --}}
-                    {{-- ======================================================= --}}
-                    @forelse ($data_penjualan as $penjualan)
+                    {{--
+                      Gunakan @forelse dengan array kosong [] untuk simulasi "Tidak Ada Data"
+                      Nanti, ganti [] dengan $data_pembelian (dari Controller)
+                    --}}
+                    @forelse ($data_pembelian as $pembelian)
                         <tr>
-                            <td class="text-center">#{{ $penjualan->id }}</td>
-                            <td>{{ $penjualan->customer->nama ?? 'N/A' }}</td>
-                            <td>{{ $penjualan->created_at->format('d M Y') }}</td>
-
-                            {{-- Kolom Item Terjual --}}
+                            <td class="text-center">#{{ $pembelian->id }}</td>
+                            <td>{{ $pembelian->customer->nama ?? 'N/A' }}</td>
+                            <td>{{ $pembelian->created_at->format('d M Y, H:i') }}</td>
+                            <td>{{ $pembelian->perusahaan_cabang->nama ?? 'N/A' }}</td>
                             <td>
                                 @php
-                                    // 1. Ambil semua nama produk dari relasi yg sudah di-load
-                                    $itemNames = $penjualan->detail_penjualan->pluck('produk.nama_produk')->implode(', ');
+                                    // 1. Ambil semua nama item dari relasi yg sudah di-load
+                                    $itemNames = $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ');
 
                                     // 2. Batasi panjangnya ke 40 karakter
                                     echo \Illuminate\Support\Str::limit($itemNames, 40, '...');
                                 @endphp
                             </td>
-
-                            <td>{{ $penjualan->perusahaan_cabang->nama ?? 'N/A' }}</td>
-                            <td>Rp {{ number_format($penjualan->harga_total, 0, ',', '.') }}</td>
+                            <td>
+                                {{-- Logika Status --}}
+                                @if($pembelian->status_pembelian == 'deal')
+                                    <span class="badge bg-success-subtle text-success-emphasis">Deal</span>
+                                @elseif($pembelian->status_pembelian == 'tidak_deal')
+                                    <span class="badge bg-danger-subtle text-danger-emphasis">Tidak Deal</span>
+                                @else
+                                    <span class="badge bg-secondary-subtle text-secondary-emphasis">Draft</span>
+                                @endif
+                            </td>
+                            <td>Rp {{ number_format($pembelian->harga_deal, 0, ',', '.') }}</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="#" {{-- route('admin.sales.show', $penjualan->id) --}} title="Lihat Detail Transaksi">
+                                    <a href="#" {{-- route('admin.purchases.show', $pembelian->id) --}} title="Lihat Detail Transaksi">
                                         <i class="fa-solid fa-eye" style="color: black;"></i>
                                     </a>
-                                    <a href="#" {{-- route('admin.sales.edit', $penjualan->id) --}} title="Edit Transaksi">
+                                    <a href="#" {{-- route('admin.purchases.edit', $pembelian->id) --}} title="Edit Transaksi">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="#" {{-- route('admin.sales.destroy', $penjualan->id) --}} method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                                    <form action="#" {{-- route('admin.purchases.destroy', $pembelian->id) --}} method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn-icon" title="Hapus">
@@ -99,14 +104,14 @@
                             </td>
                         </tr>
 
-                    {{-- Bagian @empty state --}}
+                    {{-- Ini bagian @empty yang akan muncul jika $data_pembelian kosong --}}
                     @empty
                         <tr class="tr-empty">
-                            <td colspan="7" class="text-center"> {{-- Colspan 7 (sesuai jumlah <th>) --}}
+                            <td colspan="8" class="text-center"> {{-- Colspan 8 --}}
                                 <div>
-                                    <i class="fa-solid fa-receipt fa-2x text-muted mb-3"></i>
-                                    <h5 class="mb-1">Tidak Ada Data Penjualan</h5>
-                                    <p class="text-muted mb-0">Belum ada transaksi penjualan yang tercatat.</p>
+                                    <i class="fa-solid fa-shopping-bag fa-2x text-muted mb-3"></i>
+                                    <h5 class="mb-1">Tidak Ada Data Pembelian</h5>
+                                    <p class="text-muted mb-0">Silakan <a href="#">tambah transaksi pembelian</a> baru.</p>
                                 </div>
                             </td>
                         </tr>
@@ -116,14 +121,15 @@
         </div>
     </div>
 
-    {{-- Pagination (Dinamis dari Controller) --}}
-    @if ($data_penjualan->hasPages())
+    @if ($data_pembelian->hasPages())
         <div class="card-footer bg-white">
-            {{ $data_penjualan->links('pagination::bootstrap-5') }}
+            {{-- Ini akan otomatis menampilkan link pagination (1, 2, 3, Next, Prev) --}}
+            {{ $data_pembelian->links('pagination::bootstrap-5') }}
         </div>
     @endif
 
 </div>
+
 @endsection
 
 {{-- PENTING: Salin SEMUA style dari master template --}}
@@ -178,6 +184,7 @@
         flex-grow: 1;
     }
     .table-product tr.tr-empty {
+        /* Ini akan membuat <tr> mengisi sisa ruang */
         flex-grow: 1;
         display: table-row;
     }
