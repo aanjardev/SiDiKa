@@ -132,9 +132,8 @@
     }
     .btn-icon:hover { color: #bb2d3b !important; }
 
-    /* CSS UNTUK TINGGI TABEL FIX & EMPTY STATE */
     .table-wrapper {
-        min-height: 700px; /* Atur tinggi minimal */
+        min-height: 700px;
         display: flex;
         flex-direction: column;
     }
@@ -146,6 +145,7 @@
     .table-product {
         flex-grow: 1;
     }
+
     .table-product tr.tr-empty {
         flex-grow: 1;
         display: table-row;

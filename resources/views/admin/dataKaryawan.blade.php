@@ -38,20 +38,19 @@
 {{-- Table --}}
 <div class="card shadow-sm">
     <div class="card-body p-0">
-        <table class="table align-middle mb-0 table-product">
-            <thead class="table-light">
+        <table class="table table-bordered table-striped">
+            <thead>
                 <tr>
                     <th>No</th>
-                    <th>NIK</th>
-                    <th>Nama Lengkap</th>
-                    <th>Jabatan</th>
-                    <th>Status</th>
+                    <th>Nama</th>
                     <th>Email</th>
-                    <th>No. Telepon</th>
-                    <th class="text-center" style="width: 70px;">Aksi</th>
+                    <th>Nomor Telepon</th>
+                    <th>Jabatan</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
+
                 @forelse ($employees as $index => $employee)
                     <tr>
                         <td>{{ $employees->firstItem() + $index }}</td>
