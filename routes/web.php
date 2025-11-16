@@ -50,7 +50,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('/products', AdminProductController::class)->names('products');
     Route::resource('/customers', CustomerController::class)->names('customers');
-    Route::resource('/employees', EmployeeController::class)->names('employees');
+    // Route::resource('/employees', EmployeeController::class)->names('employees');
     Route::resource('/categories', CategoryController::class)->names('categories');
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
     Route::post('/categories/store', [CategoryController::class, 'store'])->name('categories.store');
@@ -72,12 +72,15 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/catalog-settings', [CatalogSettingsController::class, 'update'])->name('catalog-settings.update');
     Route::get('/promotions', function () { return view('admin.promotions'); })->name('promotions');
 
-    Route::get('/permissions', [PermissionsController::class, 'index'])->name('permissions');
-    Route::get('/permissions/create', [PermissionsController::class, 'create'])->name('permissions.create');
-    Route::post('/permissions', [PermissionsController::class, 'store'])->name('permissions.store');
-    Route::get('/permissions/{id}/edit', [PermissionsController::class, 'edit'])->name('permissions.edit');
-    Route::put('/permissions/{id}', [PermissionsController::class, 'update'])->name('permissions.update');
-    Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy'])->name('permissions.destroy');
+    Route::middleware('role:manager')->group(function () {
+        Route::resource('/employees', EmployeeController::class)->names('employees');
+        Route::get('/permissions', [PermissionsController::class, 'index'])->name('permissions');
+        Route::get('/permissions/create', [PermissionsController::class, 'create'])->name('permissions.create');
+        Route::post('/permissions', [PermissionsController::class, 'store'])->name('permissions.store');
+        Route::get('/permissions/{id}/edit', [PermissionsController::class, 'edit'])->name('permissions.edit');
+        Route::put('/permissions/{id}', [PermissionsController::class, 'update'])->name('permissions.update');
+        Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy'])->name('permissions.destroy');
+    });
 
     Route::resource('/profile', ProfileController::class)->names('profile');
 });
