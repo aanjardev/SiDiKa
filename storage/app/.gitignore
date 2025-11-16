@@ -1,3 +1,8 @@
+# Abaikan semua file
 *
-!public/
+
+# KECUALI file .gitignore ini
 !.gitignore
+
+# DAN KECUALI folder public (agar Git mau membaca .gitignore di dalamnya)
+!public
