@@ -24,19 +24,22 @@ class BranchSeeder extends Seeder
         Branch::create([
             'nama' => 'Dinoyo Kamera 1',
             'alamat' => 'Jl. MT Haryono No. 123, Dinoyo, Malang',
-            'nomor_telepon' => '081234567891'
+            'nomor_telepon' => '081234567891',
+            'link_maps' => 'https://maps.google.com/?q=-7.966620,112.632632'
         ]);
 
         Branch::create([
             'nama' => 'Dinoyo Kamera 2',
             'alamat' => 'Jl. Gajayana No. 45, Dinoyo, Malang',
-            'nomor_telepon' => '081234567892'
+            'nomor_telepon' => '081234567892',
+            'link_maps' => 'https://maps.google.com/?q=-7.970000,112.630000'
         ]);
 
         Branch::create([
             'nama' => 'Dinoyo Kamera 3',
             'alamat' => 'Jl. Raya Tlogomas No. 67, Malang',
-            'nomor_telepon' => '081234567893'
+            'nomor_telepon' => '081234567893',
+            'link_maps' => 'https://maps.google.com/?q=-7.955000,112.640000'
         ]);
     }
 }
