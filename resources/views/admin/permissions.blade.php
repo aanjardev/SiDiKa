@@ -13,8 +13,7 @@
 
 {{-- Search & Filter --}}
 <div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
-    <div class="flex-grow-1 ">
-
+    <div class="flex-grow-1">
         <div class="input-group shadow-sm">
             <span class="input-group-text">
                 <i class="fa-solid fa-search"></i>
@@ -23,7 +22,7 @@
         </div>
     </div>
 
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">>
+    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
         <option selected>Semua Jabatan</option>
     </select>
 
@@ -42,7 +41,7 @@
             <thead class="table-light">
                 <tr>
                     <th>No</th>
-                    <th>Nama Langkap</th>
+                    <th>Nama Lengkap</th>
                     <th>Email</th>
                     <th>Jenis Akses</th>
                     <th>Status</th>
@@ -50,36 +49,31 @@
                 </tr>
             </thead>
             <tbody>
-                @for ($i = 1; $i <= 7; $i++)
-                    <tr>
-                    <td>{{ $i }}</td>
+                @foreach ($user_data as $k)
+                <tr>
+                    <td>{{ $k->id }}</td>
 
                     <td class="fw-semibold text-primary" style="cursor:pointer;">
-                        Nama Karyawan {{ $i }}
+                        {{ $k->name }}
                     </td>
 
-
-                    <td>karyawan{{ $i }}@gmail.com</td>
-                    <td>{{ $i % 3 == 0 ? 'Manager' : 'Staff Operasional' }}</td>
+                    <td>{{ $k->email }}</td>
+                    <td>{{ $k->role }}</td>
                     <td>
-                        @if ($i % 2 == 0)
-                        <span class="text-danger fw-semibold">Non Aktif</span>
-                        @else
-                        <span class="text-success fw-semibold">Aktif</span>
-                        @endif
+                        <span class="{{ $k->status == 'aktif' ? 'text-success' : 'text-danger' }} fw-semibold">
+                            {{ ucfirst($k->status) }}
+                        </span>
                     </td>
 
                     <td class="text-center">
                         <div class="d-flex justify-content-center gap-2">
-                            <a href="" title="Lihat">
-                                <i class="fa-solid fa-eye" style="color: black;"></i>
-                            </a>
-
-                            <a href="" title="Edit">
+                            <!-- Edit -->
+                            <a href="{{ route('admin.permissions.edit', $k->id) }}" title="Edit">
                                 <i class="fa-solid fa-pen-to-square" style="color:#0d6efd;"></i>
                             </a>
 
-                            <form action="{{ route('admin.employees.destroy', $i) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                            <!-- Delete -->
+                            <form action="{{ route('admin.permissions.destroy', $k->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-icon btn-delete" title="Hapus">
@@ -88,8 +82,9 @@
                             </form>
                         </div>
                     </td>
-                    </tr>
-                    @endfor
+
+                </tr>
+                @endforeach
             </tbody>
         </table>
     </div>

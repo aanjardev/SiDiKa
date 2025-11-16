@@ -53,21 +53,7 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 1.5 Tabel Karyawan (BARU - DARI ADMIN)
-        Schema::create('karyawan', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->string('nama_lengkap', 50);
-            $table->string('nik', 20)->unique();
-            $table->string('jabatan', 50);
-            $table->integer('gaji')->nullable();
-            $table->date('tanggal_masuk');
-            $table->date('tanggal_keluar')->nullable();
-            $table->enum('status', ['aktif', 'non-aktif'])->default('aktif');
-            $table->string('nomor_telepon', 15);
-            $table->string('alamat', 100);
-            $table->timestamps();
-        });
+        
 
         // =================================================================
         // 2. PRODUK, INVENTARIS & QC
@@ -214,7 +200,7 @@ return new class extends Migration
         Schema::dropIfExists('pembelian');
         Schema::dropIfExists('gambar_produk');
         Schema::dropIfExists('produk');
-        Schema::dropIfExists('karyawan');
+        
         Schema::dropIfExists('customer');
         Schema::dropIfExists('perusahaan_cabang');
         Schema::dropIfExists('kategori');

@@ -14,6 +14,7 @@ use App\Http\Controllers\PenjualanController;
 use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\QCController;
+use App\Http\Controllers\CatalogSettingsController;
 use Illuminate\Support\Facades\Route;
 
 use Symfony\Component\HttpKernel\Profiler\Profile;
@@ -67,12 +68,19 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('/quality-control', QCController::class)->names('quality-control');
 
     // Manajemen
-    Route::get('/catalog-settings', function () { return view('admin.catalog-settings'); })->name('catalog-settings.index');
+    Route::get('/catalog-settings', [CatalogSettingsController::class, 'edit'])->name('catalog-settings.index');
+    Route::post('/catalog-settings', [CatalogSettingsController::class, 'update'])->name('catalog-settings.update');
     Route::get('/promotions', function () { return view('admin.promotions'); })->name('promotions');
+
     Route::middleware('role:manager')->group(function () {
         Route::resource('/employees', EmployeeController::class)->names('employees');
         Route::get('/permissions', [PermissionsController::class, 'index'])->name('permissions');
         Route::get('/permissions/create', [PermissionsController::class, 'create'])->name('permissions.create');
+        Route::post('/permissions', [PermissionsController::class, 'store'])->name('permissions.store');
+        Route::get('/permissions/{id}/edit', [PermissionsController::class, 'edit'])->name('permissions.edit');
+        Route::put('/permissions/{id}', [PermissionsController::class, 'update'])->name('permissions.update');
+        Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy'])->name('permissions.destroy');
     });
+
     Route::resource('/profile', ProfileController::class)->names('profile');
 });
