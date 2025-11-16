@@ -174,7 +174,7 @@
 
                 <div class="collapse submenu" id="manajemenMenu">
                     <div class="submenu-item">
-                        <a href="#" class="submenu-link">
+                        <a href="{{ route('admin.catalog-settings.index') }}" class="submenu-link">
                             <i class="fas fa-cog submenu-icon"></i>
                             <span>Setting Web Katalog</span>
                         </a>
