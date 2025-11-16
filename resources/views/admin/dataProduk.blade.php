@@ -55,8 +55,16 @@
                         <td class="text-center">{{ $index + 1 }}</td>
                         <td>
                             <div class="d-flex align-items-center gap-3">
-                                <img src="{{ $product->gambar_produk ?? 'https://via.placeholder.com/60' }}" 
-                                     class="rounded" style="width:60px; height:60px; object-fit:cover;">
+                                @if ($product->gambarUtama)
+                                    <img src="/storage{{ asset($product->gambarUtama->path_gambar) }}"
+                                            alt="{{ $product->nama_produk }}"
+                                            class="rounded" style="width:60px; height:60px; object-fit:cover;"
+                                            loading="lazy">
+                                @else
+                                    <img src="{{ asset('images/placeholder.jpg') }}"
+                                            alt=" No Image"
+                                            class="product-image" style="width:60px; height:60px; font-size:10px; object-fit:cover;">
+                                @endif
                                 <div>
                                     <div class="fw-semibold">{{ $product->nama_produk }}</div>
                                     <small class="text-muted">{{ $product->kategori_produk }}</small>
