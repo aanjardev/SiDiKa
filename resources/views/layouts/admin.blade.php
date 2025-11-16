@@ -109,12 +109,14 @@
                         </a>
                     </div>
 
+                    @if (Auth::user()->role == 'manager')
                     <div class="submenu-item">
                         <a href="{{ route('admin.employees.index') }}" class="submenu-link">
                             <i class="fas fa-user-tie submenu-icon"></i>
                             <span>Data Karyawan</span>
                         </a>
                     </div>
+                    @endif
 
                     <div class="submenu-item">
                         <a href="{{ route('admin.categories.index') }}" class="submenu-link">
@@ -187,12 +189,14 @@
                         </a>
                     </div>
 
+                    @if (Auth::user()->role == 'manager')
                     <div class="submenu-item">
                         <a href="{{ route('admin.permissions') }}" class="submenu-link">
                             <i class="fas fa-user-shield submenu-icon"></i>
                             <span>Manajemen Hak Akses</span>
                         </a>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>
