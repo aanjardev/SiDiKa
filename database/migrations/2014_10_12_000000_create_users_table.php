@@ -11,13 +11,27 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        // 1.5 Tabel Karyawan (BARU - DARI ADMIN)
+        Schema::create('karyawan', function (Blueprint $table) {
             $table->id();
-            $table->string('username');
+            $table->string('nama_lengkap', 50);
+            $table->string('nik', 20)->unique();
+            $table->string('jabatan', 50);
+            $table->integer('gaji')->nullable();
+            $table->date('tanggal_masuk');
+            $table->date('tanggal_keluar')->nullable();
+            $table->enum('status', ['aktif', 'non-aktif'])->default('aktif');
+            $table->string('nomor_telepon', 15);
+            $table->string('alamat', 100);
+            $table->timestamps();
+        });
+
+        Schema::create('users', function (Blueprint $table) {
+            $table->foreignId('id')->constrained('karyawan')->onDelete('cascade');
+            $table->string('name')->nullable(); // Menambahkan kolom name
             $table->string('password');
             $table->string('email')->unique()->nullable();
             $table->string('role'); // Menambahkan kolom role dengan default 'user'
-            $table->string('name')->nullable(); // Menambahkan kolom name
             $table->rememberToken();
             $table->timestamps();
         });
@@ -29,5 +43,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('users');
+        Schema::dropIfExists('karyawan');
     }
 };
