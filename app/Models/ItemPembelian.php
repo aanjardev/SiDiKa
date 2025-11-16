@@ -12,7 +12,7 @@ class ItemPembelian extends Model
 
     protected $fillable = [
         'pembelian_id',
-        'kode_sku',
+        'kode_sku', // Diisi QC
         'nama_item',
         'kategori_id',
         'serial_number',
@@ -36,16 +36,15 @@ class ItemPembelian extends Model
         'kondisi_sound_mic',
         'kondisi_lain_lain',
         'kelengkapan',
-        'qty',
-        'harga_jual',
-        'harga_beli',
-        'harga_servis',
-        'grade',
-        'status',
-        'deskripsi_produk',
-        'status_qc',
-        'catatan_qc',
-        'produk_id_final',
+        'qty', // Diisi QC
+        'harga_jual', // Diisi QC
+        'harga_beli', // Diisi QC
+        'harga_servis', // Diisi QC
+        'grade', // Diisi QC
+        'status', // (Status 'Baru'/'Second')
+        'deskripsi_produk', // Diisi QC
+        'status_qc', // Default 'menunggu_qc'
+        'catatan_qc', // Diisi QC
     ];
 
     public function kategori()

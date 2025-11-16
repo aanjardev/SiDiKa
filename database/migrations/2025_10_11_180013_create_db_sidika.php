@@ -121,7 +121,7 @@ return new class extends Migration
         Schema::create('item_pembelian_draft', function (Blueprint $table) {
             $table->id();
             $table->foreignId('pembelian_id')->constrained('pembelian')->onDelete('cascade');
-            $table->string('kode_sku', 20);
+            $table->string('kode_sku', 20)->nullable();
 
             $table->string('nama_item', 200); // Misal: "Canon 60D Body Only"
             $table->foreignId('kategori_id')->constrained('kategori')->onDelete('restrict');
@@ -152,7 +152,7 @@ return new class extends Migration
             $table->integer('harga_jual')->nullable();
             $table->integer('harga_beli')->nullable();
             $table->integer('harga_servis')->nullable();
-            $table->enum('grade', ['Unggulan', 'Standar', 'Minus'])->default('Standar');
+            $table->enum('grade', ['Unggulan', 'Standar', 'Minus'])->default('Standar')->nullable();
             $table->enum('status', ['Second', 'Baru'])->default('Second');
             $table->text('deskripsi_produk')->nullable();
 
@@ -198,7 +198,7 @@ return new class extends Migration
         Schema::dropIfExists('penjualan');
         Schema::dropIfExists('item_pembelian_draft');
         Schema::dropIfExists('pembelian');
-        Schema::dropIfExists('gambar_produk'); 
+        Schema::dropIfExists('gambar_produk');
         Schema::dropIfExists('produk');
         
         Schema::dropIfExists('customer');
