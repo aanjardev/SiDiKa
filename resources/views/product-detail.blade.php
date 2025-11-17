@@ -33,6 +33,9 @@
         
         // Combine main image with other images for gallery
         $galleryImages = $mainImage ? collect([$mainImage])->concat($otherImages) : collect();
+        $galleryImages = $galleryImages->values();
+        $galleryImageUrls = $galleryImages->map(fn($g) => $g->url);
+        $mainImageUrl = $galleryImageUrls->first();
     @endphp
 
 </head>
@@ -65,13 +68,17 @@
             <!-- KIRI: Gambar Carousel -->
             <div class="col-lg-6 mb-3">
                 <div class="product-image-preview text-center mb-3" id="galleryPreview" style="position:relative;">
-                    <img id="mainProductImage" src="{{ asset('storage/' . $galleryImages[0]->path_gambar) }}" alt="{{ $produk->nama_produk }}" class="main-image fade-image img-fluid" style="max-width: 400px; max-height: 400px; aspect-ratio: 1/1; object-fit: contain; border-radius: 12px; background: #fff;">
+                    <img id="mainProductImage"
+                         src="{{ $mainImageUrl ?? asset('images/placeholder.jpg') }}"
+                         alt="{{ $produk->nama_produk }}"
+                         class="main-image fade-image img-fluid"
+                         style="max-width: 400px; max-height: 400px; aspect-ratio: 1/1; object-fit: contain; border-radius: 12px; background: #fff;">
                 </div>
                 <div class="d-flex align-items-center justify-content-center gap-2 mt-2" style="position:relative;">
                     <button type="button" class="gallery-nav-btn left me-2" aria-label="Sebelumnya" onclick="switchThumb(-1)" id="galleryPrevBtn"><i class="bi bi-chevron-left"></i></button>
                     <div class="d-flex flex-wrap gap-2 justify-content-center thumbnails-container mb-0" id="thumbsRow">
                         @foreach ($galleryImages as $index => $gambar)
-                            <img src="{{ asset('storage/' . $gambar->path_gambar) }}"
+                            <img src="{{ $gambar->url }}"
                                 alt="{{ $produk->nama_produk }}"
                                 class="img-fluid thumbnail{{ $index === 0 ? ' active' : '' }}"
                                 style="width: 80px; height: 80px; object-fit: cover; cursor: pointer; border-radius: 8px; border: 2px solid transparent; background: white;"
@@ -130,13 +137,13 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        window.galleryImages = @json($galleryImages->map(function($g) { return asset('storage/' . $g->path_gambar); })->toArray());
+        window.galleryImages = @json($galleryImageUrls->toArray());
     </script>
     <script src="{{ asset('js/productDetailGallery.js') }}"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         let currentGalleryIndex = 0;
-        const galleryImages = @json($galleryImages->map(function($g) { return asset('storage/' . $g->path_gambar); })->toArray());
+        const galleryImages = @json($galleryImageUrls->toArray());
         const mainImg = document.getElementById('mainProductImage');
         const thumbs = document.querySelectorAll('.thumbnail');
         const prevBtn = document.getElementById('galleryPrevBtn');

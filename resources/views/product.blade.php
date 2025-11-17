@@ -113,7 +113,7 @@
                                                 <span class="sold-out-badge">SOLD OUT</span>
                                         @endif
                                         @if ($product->gambarUtama)
-                                            <img src="/storage{{ asset($product->gambarUtama->path_gambar) }}"
+                                            <img src="{{ $product->gambarUtama->url }}"
                                                  alt="{{ $product->nama_produk }}"
                                                  class="product-image"
                                                  loading="lazy">
