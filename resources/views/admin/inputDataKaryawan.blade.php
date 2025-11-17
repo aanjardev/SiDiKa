@@ -59,9 +59,14 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
+                                <!-- <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $employee->user->email ?? '') }}" placeholder="Contoh: @dinoyokamera.com" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
                                 @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror -->
+                                <label for="nomor_telepon" class="form-label">No. Telepon</label>
+                                <input type="text" class="form-control @error('nomor_telepon') is-invalid @enderror" id="nomor_telepon" name="nomor_telepon" value="{{ old('nomor_telepon', $employee->nomor_telepon ?? '') }}" placeholder="Masukkan nomor telepon aktif" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
+                                @error('nomor_telepon')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -72,9 +77,9 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="nomor_telepon" class="form-label">No. Telepon</label>
-                                <input type="text" class="form-control @error('nomor_telepon') is-invalid @enderror" id="nomor_telepon" name="nomor_telepon" value="{{ old('nomor_telepon', $employee->nomor_telepon ?? '') }}" placeholder="Masukkan nomor telepon aktif" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
-                                @error('nomor_telepon')
+                                <label for="gaji" class="form-label">Gaji Pokok</label>
+                                <input type="number" class="form-control @error('gaji') is-invalid @enderror" id="gaji" name="gaji" value="{{ old('gaji', $employee->gaji ?? '') }}" placeholder="Masukkan nominal gaji (misal: 5000000)" min="0" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
+                                @error('gaji')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -94,15 +99,6 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="gaji" class="form-label">Gaji Pokok</label>
-                                <input type="number" class="form-control @error('gaji') is-invalid @enderror" id="gaji" name="gaji" value="{{ old('gaji', $employee->gaji ?? '') }}" placeholder="Masukkan nominal gaji (misal: 5000000)" min="0" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
-                                @error('gaji')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
                                 <label for="status" class="form-label">Status</label>
                                 <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" {{ isset($readOnly) && $readOnly ? 'disabled' : 'required' }}>
                                     <option value="" selected disabled>Pilih Status</option>
@@ -112,6 +108,11 @@
                                 @error('status')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                
                             </div>
                         </div>
                     </div>
