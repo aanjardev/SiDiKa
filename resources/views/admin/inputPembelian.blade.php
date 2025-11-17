@@ -27,6 +27,7 @@
     @csrf
 
     <input type="hidden" name="user_id" value="{{ Auth::id() ?? 1 }}">
+    <input type="hidden" id="pembelian_id_hidden" name="pembelian_id" value="">
 
     <div class="row">
         {{-- KOLOM KIRI (70%): Form Utama --}}
@@ -74,7 +75,7 @@
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="card-title fw-bold mb-0">Item yang Dibeli</h5>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalTambahItem">
+                        <button type="button" class="btn btn-primary" id="btnBukaModalItem">
                             <i class="fas fa-plus fa-fw me-1"></i> Tambah Item
                         </button>
                     </div>
@@ -379,61 +380,68 @@
 
 @push('scripts')
 <script>
-    // =======================================================
-    // PERBAIKAN 1: Ambil data 'old' dari Laravel jika validasi gagal
-    // =======================================================
-    let initialItems = @json(old('items') ?? []);
+    // Array ini sekarang hanya untuk TAMPILAN di tabel
     let itemsPembelian = [];
-    let itemCounter = 0;
-
-    // Jika ada data 'old', kita rebuild array JS kita
-    if (initialItems.length > 0) {
-        itemsPembelian = initialItems.map(item => {
-            // (Kita perlu juga 'kategori_nama' yang tidak ada di 'old')
-            // (Untuk sementara, kita biarkan kosong saat reload)
-            item.id = itemCounter++; // Beri ID unik baru (client-side)
-            item.kategori_nama = item.kategori_nama || 'Kategori (Reloaded)'; // fallback
-            return item;
-        });
-    }
-
+    // ID pembelian (induk) yang sedang aktif
+    let currentPembelianId = null;
 
     document.addEventListener("DOMContentLoaded", function() {
 
-        // =======================================================
-        // PERBAIKAN 2: Ganti selector ke ID form #formPembelian
-        // =======================================================
         const mainForm = document.getElementById('formPembelian');
         if (!mainForm) {
             console.error('Form utama #formPembelian tidak ditemukan!');
-            return; // Hentikan script jika form utama tidak ada
+            return;
         }
 
+        const btnBukaModalItem = document.getElementById('btnBukaModalItem');
         const btnSimpanItem = document.getElementById('btnSimpanItem');
         const itemListWrapper = document.getElementById('item-list-wrapper');
         const modalTambahItem = new bootstrap.Modal(document.getElementById('modalTambahItem'));
+        const hiddenPembelianIdInput = document.getElementById('pembelian_id_hidden');
+        const customerSelect = document.getElementById('customer_id');
+        const cabangSelect = document.getElementById('perusahaan_cabang_id');
 
-        // Panggil renderItemList() saat halaman dimuat
-        // Ini akan otomatis menampilkan pesan 'kosong' ATAU data 'old'
+        // Render tabel (awalnya akan kosong)
         renderItemList();
 
-        // Saat tombol "Simpan Item" di Modal diklik
+        // TAMBAHKAN EVENT LISTENER INI
+        btnBukaModalItem.addEventListener('click', function() {
+            const customerId = customerSelect.value;
+            const cabangId = cabangSelect.value;
+
+            if (!customerId || !cabangId) {
+                alert('Harap pilih Customer dan Lokasi Transaksi (Cabang) terlebih dahulu sebelum menambah item.');
+                return; // Hentikan aksi
+            }
+
+            // Jika customer & cabang sudah dipilih, baru buka modalnya
+            modalTambahItem.show();
+        });
+
+        // =======================================================
+        // PERUBAHAN UTAMA 1: Simpan Item (AJAX)
+        // =======================================================
         btnSimpanItem.addEventListener('click', function() {
             const namaItem = document.getElementById('item_nama_item').value;
             const kategoriSelect = document.getElementById('item_kategori_id');
             const kategoriId = kategoriSelect.value;
-            const kategoriNama = kategoriId ? kategoriSelect.options[kategoriSelect.selectedIndex].text : 'N/A';
 
             if (!namaItem || !kategoriId) {
                 alert('Nama Item dan Kategori wajib diisi.');
                 return;
             }
 
-            const newItem = {
-                id: itemCounter++,
+            // Kumpulkan semua data item dari modal
+            const newItemData = {
+                // Data parent (dibutuhkan HANYA untuk item pertama)
+                pembelian_id: currentPembelianId,
+                customer_id: document.getElementById('customer_id').value,
+                perusahaan_cabang_id: document.getElementById('perusahaan_cabang_id').value,
+                user_id: mainForm.querySelector('input[name="user_id"]').value,
+
+                // Data item
                 nama_item: namaItem,
                 kategori_id: kategoriId,
-                kategori_nama: kategoriNama, // Kita simpan nama kategori di JS
                 serial_number: document.getElementById('item_serial_number').value,
                 serial_lens: document.getElementById('item_serial_lens').value,
                 kondisi_fisik: document.getElementById('item_kondisi_fisik').value,
@@ -456,33 +464,111 @@
                 kondisi_lain_lain: document.getElementById('item_kondisi_lain_lain').value,
                 kelengkapan_awal: document.getElementById('item_kelengkapan').value
             };
-            itemsPembelian.push(newItem);
-            renderItemList();
-            document.getElementById('formTambahItem').querySelectorAll('input, textarea, select').forEach(input => {
-                if(input.type === 'select-one') input.selectedIndex = 0;
-                else input.value = '';
+
+            // Tampilkan loading
+            btnSimpanItem.disabled = true;
+            btnSimpanItem.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
+
+            // Kirim data ke Controller via AJAX (Fetch)
+            fetch("{{ route('admin.purchases.ajaxStoreItemDraft') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(newItemData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw err; }); // Tangani error validasi
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result.success) {
+                    // 1. Simpan ID Pembelian (Induk)
+                    currentPembelianId = result.pembelian_id;
+                    hiddenPembelianIdInput.value = result.pembelian_id;
+
+                    // 2. Tambahkan item baru (dari server) ke array JS
+                    itemsPembelian.push(result.item);
+
+                    // 3. Render ulang tabel
+                    renderItemList();
+
+                    // 4. Reset & tutup modal
+                    document.getElementById('formTambahItem').querySelectorAll('input, textarea, select').forEach(input => {
+                        if(input.type === 'select-one') input.selectedIndex = 0;
+                        else input.value = '';
+                    });
+                    document.querySelectorAll('#accordionKondisi .accordion-collapse').forEach(collapse => {
+                        new bootstrap.Collapse(collapse, { toggle: false }).hide();
+                    });
+                    modalTambahItem.hide();
+                } else {
+                    alert('Gagal: ' + (result.message || 'Error tidak diketahui.'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
+                if (error.errors) {
+                    // Tampilkan error validasi pertama
+                    errorMsg = Object.values(error.errors)[0][0];
+                } else if (error.message) {
+                    errorMsg = error.message;
+                }
+                alert(errorMsg);
+            })
+            .finally(() => {
+                btnSimpanItem.disabled = false;
+                btnSimpanItem.innerHTML = 'Simpan Item';
             });
-            document.querySelectorAll('#accordionKondisi .accordion-collapse').forEach(collapse => {
-                new bootstrap.Collapse(collapse, { toggle: false }).hide();
-            });
-            modalTambahItem.hide();
         });
 
-        // Fungsi untuk menghapus item
+        // =======================================================
+        // PERUBAHAN UTAMA 2: Hapus Item (AJAX)
+        // =======================================================
+        // 'id' di sini adalah ID dari database (item.id)
         window.hapusItem = function(id) {
-            if (confirm('Yakin ingin menghapus item ini?')) {
-                itemsPembelian = itemsPembelian.filter(item => item.id !== id);
-                renderItemList();
+            if (confirm('Yakin ingin menghapus item ini dari database?')) {
+
+                fetch(`/admin/purchases/delete-item-draft/${id}`, { // Gunakan route baru
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        // Hapus item dari array JS
+                        itemsPembelian = itemsPembelian.filter(item => item.id !== id);
+                        // Render ulang tabel
+                        renderItemList();
+                    } else {
+                        alert('Gagal menghapus: ' + result.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Gagal menghapus item.');
+                });
             }
         }
 
-        // Fungsi untuk menggambar ulang tabel item
+        // =======================================================
+        // PERUBAHAN UTAMA 3: Render Tabel
+        // =======================================================
         function renderItemList() {
-            if (!itemListWrapper || !mainForm) return; // Penjaga error
+            if (!itemListWrapper || !mainForm) return;
 
             itemListWrapper.innerHTML = '';
 
-            // Hapus semua input 'items[]' yang lama
+            // HAPUS SEMUA INPUT HIDDEN YANG LAMA
+            // (Kita tidak membutuhkannya lagi, karena data sudah di DB)
             mainForm.querySelectorAll('input[name^="items["]').forEach(input => input.remove());
             mainForm.querySelectorAll('textarea[name^="items["]').forEach(input => input.remove());
 
@@ -501,21 +587,15 @@
                     let shortKondisi = item.kondisi_fisik || 'N/A';
                     if(shortKondisi && shortKondisi.length > 30) shortKondisi = shortKondisi.substring(0, 30) + '...';
 
-                    // PERBAIKAN: Pastikan kategori_nama ada (ambil dari 'old' atau item baru)
-                    let kategoriNama = item.kategori_nama;
-                    if (!kategoriNama) {
-                        // Jika ini dari 'old()' dan kita tidak menyimpan nama, cari di dropdown
-                        const katSelect = document.getElementById('item_kategori_id');
-                        const opt = katSelect.querySelector(`option[value="${item.kategori_id}"]`);
-                        if(opt) kategoriNama = opt.text;
-                    }
+                    // Ambil nama kategori dari data relasi (hasil load 'kategori' di controller)
+                    let kategoriNama = (item.kategori && item.kategori.nama_kategori) ? item.kategori.nama_kategori : 'N/A';
 
                     tr.innerHTML = `
                         <td>
                             <h6 class="mb-0">${item.nama_item}</h6>
                             <small class="text-muted">Kondisi: ${shortKondisi}</small>
                         </td>
-                        <td>${kategoriNama || 'N/A'}</td>
+                        <td>${kategoriNama}</td>
                         <td>${item.serial_number || 'N/A'}</td>
                         <td class="text-end">
                             <button type="button" class="btn-icon text-danger" title="Hapus" onclick="hapusItem(${item.id})">
@@ -525,45 +605,28 @@
                     `;
                     itemListWrapper.appendChild(tr);
 
-                    // PENTING: Tambahkan semua data item sebagai Input Tersembunyi (Hidden)
-                    Object.keys(item).forEach(key => {
-                        // Kita tidak perlu submit 'id'
-                        if(key === 'id') return;
 
-                        const inputName = `items[${index}][${key}]`;
-                        const inputValue = item[key] || ''; // Pastikan tidak 'null'
-
-                        // Gunakan textarea untuk semua agar aman dari karakter aneh
-                        const textarea = document.createElement('textarea');
-                        textarea.name = inputName;
-                        textarea.value = inputValue;
-                        textarea.style.display = 'none';
-                        mainForm.appendChild(textarea);
-                    });
                 });
             }
         }
 
-        // --- (SCRIPT UNTUK MODAL CUSTOMER) ---
+        // --- (SCRIPT MODAL CUSTOMER ANDA - TETAP SAMA) ---
         const btnSimpanCustomer = document.getElementById('btnSimpanCustomer');
         const modalTambahCustomer = new bootstrap.Modal(document.getElementById('modalTambahCustomer'));
         const formTambahCustomer = document.getElementById('formTambahCustomer');
 
         btnSimpanCustomer.addEventListener('click', function() {
+            // ... (Logika simpan customer Anda tidak perlu diubah) ...
             const nama = document.getElementById('customer_nama_modal').value;
             const no_telp = document.getElementById('customer_no_telp_modal').value;
-
             if(!nama || !no_telp) {
                 alert('Nama dan No. Telepon customer wajib diisi.');
-                return; // Stop di sini
+                return;
             }
-
             const formData = new FormData(formTambahCustomer);
             const data = Object.fromEntries(formData.entries());
-
             btnSimpanCustomer.disabled = true;
             btnSimpanCustomer.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
-
             fetch("{{ route('admin.customers.store') }}", {
                 method: 'POST',
                 headers: {
@@ -574,9 +637,7 @@
                 body: JSON.stringify(data)
             })
             .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw err; });
-                }
+                if (!response.ok) { return response.json().then(err => { throw err; }); }
                 return response.json();
             })
             .then(result => {
@@ -593,9 +654,7 @@
             .catch(error => {
                 console.error('Error:', error);
                 let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
-                if(error.errors) {
-                    errorMsg = Object.values(error.errors)[0][0];
-                }
+                if(error.errors) { errorMsg = Object.values(error.errors)[0][0]; }
                 alert(errorMsg);
             })
             .finally(() => {
@@ -604,6 +663,7 @@
             });
         });
 
+        // --- (Script copy-paste link Anda - TETAP SAMA) ---
         window.copyToClipboard = function() {
             const linkInput = document.getElementById('shareable-link');
             linkInput.select();
