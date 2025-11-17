@@ -56,7 +56,7 @@
                         <td>
                             <div class="d-flex align-items-center gap-3">
                                 @if ($product->gambarUtama)
-                                    <img src="/storage{{ asset($product->gambarUtama->path_gambar) }}"
+                                    <img src="{{ $product->gambarUtama->url }}"
                                             alt="{{ $product->nama_produk }}"
                                             class="rounded" style="width:60px; height:60px; object-fit:cover;"
                                             loading="lazy">

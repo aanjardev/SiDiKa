@@ -20,6 +20,8 @@ class Produk extends Model
         'deskripsi_produk',
         'status',
         'grade',
+        'harga_beli',
+        'harga_servis',
     ];
 
     public function kategori()
