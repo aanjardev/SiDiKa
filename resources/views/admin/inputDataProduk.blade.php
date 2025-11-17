@@ -1,6 +1,7 @@
 @extends('layouts.admin')
+@php $isEdit = isset($product); @endphp
 
-@section('title', 'Tambah Data Produk')
+@section('title', $isEdit ? 'Edit Data Produk' : 'Tambah Data Produk')
 
 @section('content')
 <div class="row">
@@ -17,8 +18,11 @@
                     </div>
                 @endif
 
-                <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
+                <form action="{{ $isEdit ? route('admin.products.update', $product->id) : route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
+                    @if($isEdit)
+                        @method('PUT')
+                    @endif
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <h5>DATA PRODUK</h5>
@@ -28,7 +32,7 @@
                                    class="form-control"
                                    id="nama_produk"
                                    name="nama_produk"
-                                   value="{{ old('nama_produk') }}"
+                                   value="{{ old('nama_produk', $isEdit ? $product->nama_produk : '') }}"
                                    placeholder="Masukkan nama produk">
                         </div>
                         <div class="col-md-6">
@@ -39,7 +43,7 @@
                                    class="form-control"
                                    id="harga_jual"
                                    name="harga_jual"
-                                   value="{{ old('harga_jual') }}"
+                                   value="{{ old('harga_jual', $isEdit ? $product->harga_jual : '') }}"
                                    placeholder="Masukkan harga jual">
                         </div>
                     </div>
@@ -48,9 +52,9 @@
                         <div class="col-md-6">
                             <label for="id_kategori" class="form-label">Kategori</label>
                             <select class="form-select" id="id_kategori" name="id_kategori">
-                                <option value="" disabled {{ old('id_kategori') ? '' : 'selected' }}>Pilih kategori</option>
+                                <option value="" disabled {{ old('id_kategori', $isEdit ? $product->id_kategori : '') ? '' : 'selected' }}>Pilih kategori</option>
                                 @foreach ($semua_kategori as $kategori)
-                                    <option value="{{ $kategori->id }}" {{ old('id_kategori') == $kategori->id ? 'selected' : '' }}>
+                                    <option value="{{ $kategori->id }}" {{ old('id_kategori', $isEdit ? $product->id_kategori : '') == $kategori->id ? 'selected' : '' }}>
                                         {{ $kategori->nama_kategori }}
                                     </option>
                                 @endforeach
@@ -62,7 +66,7 @@
                                    class="form-control"
                                    id="harga_beli"
                                    name="harga_beli"
-                                   value="{{ old('harga_beli') }}"
+                                   value="{{ old('harga_beli', $isEdit ? $product->harga_beli : '') }}"
                                    placeholder="Masukkan harga beli">
                         </div>
                     </div>
@@ -73,7 +77,7 @@
                                    class="form-control"
                                    id="kode_sku"
                                    name="kode_sku"
-                                   value="{{ old('kode_sku') }}"
+                                   value="{{ old('kode_sku', $isEdit ? $product->kode_sku : '') }}"
                                    placeholder="Masukkan kode SKU">
                         </div>
                         <div class="col-md-6">
@@ -82,7 +86,7 @@
                                    class="form-control"
                                    id="harga_servis"
                                    name="harga_servis"
-                                   value="{{ old('harga_servis') }}"
+                                   value="{{ old('harga_servis', $isEdit ? $product->harga_servis : '') }}"
                                    placeholder="Masukkan harga servis">
                         </div>
                     </div>
@@ -94,15 +98,15 @@
                                    class="form-control"
                                    id="stok_produk"
                                    name="stok_produk"
-                                   value="{{ old('stok_produk') }}"
+                                   value="{{ old('stok_produk', $isEdit ? $product->stok_produk : '') }}"
                                    placeholder="Masukkan stok produk">
                         </div>
                         <div class="col-md-6">
                             <label for="status" class="form-label">Status</label>
                             <select class="form-select" id="status" name="status">
-                                <option value="" disabled {{ old('status') ? '' : 'selected' }}>Pilih status</option>
-                                <option value="Second" {{ old('status') === 'Second' ? 'selected' : '' }}>Second</option>
-                                <option value="Baru" {{ old('status') === 'Baru' ? 'selected' : '' }}>Baru</option>
+                                <option value="" disabled {{ old('status', $isEdit ? $product->status : '') ? '' : 'selected' }}>Pilih status</option>
+                                <option value="Second" {{ old('status', $isEdit ? $product->status : '') === 'Second' ? 'selected' : '' }}>Second</option>
+                                <option value="Baru" {{ old('status', $isEdit ? $product->status : '') === 'Baru' ? 'selected' : '' }}>Baru</option>
                             </select>
                         </div>
                     </div>
@@ -111,33 +115,34 @@
                         <div class="col-md-6">
                             <label for="grade" class="form-label">Grade</label>
                             <select class="form-select" id="grade" name="grade">
-                                <option value="" disabled {{ old('grade') ? '' : 'selected' }}>Pilih grade</option>
-                                <option value="Unggulan" {{ old('grade') === 'Unggulan' ? 'selected' : '' }}>Unggulan</option>
-                                <option value="Standar" {{ old('grade') === 'Standar' ? 'selected' : '' }}>Standar</option>
-                                <option value="Minus" {{ old('grade') === 'Minus' ? 'selected' : '' }}>Minus</option>
+                                <option value="" disabled {{ old('grade', $isEdit ? $product->grade : '') ? '' : 'selected' }}>Pilih grade</option>
+                                <option value="Unggulan" {{ old('grade', $isEdit ? $product->grade : '') === 'Unggulan' ? 'selected' : '' }}>Unggulan</option>
+                                <option value="Standar" {{ old('grade', $isEdit ? $product->grade : '') === 'Standar' ? 'selected' : '' }}>Standar</option>
+                                <option value="Minus" {{ old('grade', $isEdit ? $product->grade : '') === 'Minus' ? 'selected' : '' }}>Minus</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label for="deskripsi_produk" class="form-label">Deskripsi Produk</label>
-                            <textarea class="form-control" id="deskripsi_produk" name="deskripsi_produk" rows="4" placeholder="Masukkan deskripsi produk">{{ old('deskripsi_produk') }}</textarea>
+                            <textarea class="form-control" id="deskripsi_produk" name="deskripsi_produk" rows="4" placeholder="Masukkan deskripsi produk">{{ old('deskripsi_produk', $isEdit ? $product->deskripsi_produk : '') }}</textarea>
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label for="images" class="form-label">Gambar Produk</label>
-                            <input type="file"
+                           <input type="file"
                                    class="form-control"
                                    id="images"
                                    name="images[]"
                                    accept="image/*"
-                                   multiple>
-                            <small class="text-muted">Gambar pertama akan menjadi gambar utama. Maksimal 5 MB per file.</small>
+                                   multiple
+                                   {{ $isEdit ? '' : 'required' }}>
+                           <small class="text-muted">Gambar pertama akan menjadi gambar utama. Maksimal 5 MB per file.</small>
                         </div>
                         <div class="col-md-6 d-flex align-items-end justify-content-end">
                             <div class="text-end w-100">
                                 <a href="{{ route('admin.products.index') }}" class="btn btn-light me-2">Batal</a>
-                                <button type="submit" class="btn btn-primary">Simpan</button>
+                                <button type="submit" class="btn btn-primary">{{ $isEdit ? 'Update' : 'Simpan' }}</button>
                             </div>
                         </div>
                     </div>

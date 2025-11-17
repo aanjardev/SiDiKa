@@ -21,6 +21,15 @@ class GambarProduk extends Model
         return $this->belongsTo(Produk::class, 'id_produk', 'id');
     }
 
+    protected static function booted(): void
+    {
+        static::deleting(function (GambarProduk $gambar) {
+            if ($gambar->path_gambar) {
+                Storage::disk('r2')->delete($gambar->path_gambar);
+            }
+        });
+    }
+
     public function getUrlAttribute(): string
     {
         return Storage::disk('r2')->url($this->path_gambar);

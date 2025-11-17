@@ -46,13 +46,13 @@
                     <th>Harga</th>
                     <th>Stok</th>
                     <th>Terakhir diubah</th>
-                    <th style="width: 50px;"></th>
+                    <th class="text-center" style="width: 80px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($products as $index => $product)
+                @forelse($products as $index => $product)
                     <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
+                        <td class="text-center">{{ ($products->firstItem() ?? 0) + $index }}</td>
                         <td>
                             <div class="d-flex align-items-center gap-3">
                                 @if ($product->gambarUtama)
@@ -75,29 +75,42 @@
                         <td>Rp{{ number_format($product->harga_jual, 0, ',', '.') }}</td>
                         <td>{{ $product->stok_produk }} Unit</td>
                         <td>{{ $product->updated_at->format('d/m/Y H:i') }}</td>
-                        <td class="text-end">
-                            <button class="btn btn-sm btn-light">
-                                <i class="bi bi-three-dots-vertical"></i>
-                            </button>
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ route('admin.products.edit', $product->id) }}" title="Edit">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+                                <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn-icon btn-delete" title="Hapus" onclick="this.form.submit();">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
-                @endforeach
+                @empty
+                    <tr class="tr-empty">
+                        <td colspan="7" class="text-center py-5">
+                            <div>
+                                <i class="fa-solid fa-box-open fa-2x text-muted mb-3"></i>
+                                <h5 class="mb-1">Tidak Ada Data Produk</h5>
+                                <p class="text-muted mb-0">Silakan <a href="{{ route('admin.products.create') }}">tambah data produk</a> baru.</p>
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
-</div>
-
     {{-- Pagination --}}
-    <div class="d-flex justify-content-center mt-4">
-        <nav>
-            <ul class="pagination mb-0">
-                <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">Next</a></li>
-            </ul>
-        </nav>
+    @if ($products->hasPages())
+    <div class="card-footer bg-white d-flex justify-content-center">
+        {{ $products->links('pagination::bootstrap-5') }}
     </div>
+    @endif
+</div>
 
     @endsection
 
@@ -113,6 +126,43 @@
         .table-product tbody tr:hover {
             background-color: #EFF3F9;
             transition: 0.2s;
+        }
+
+        button.btn-icon,
+        .table-product button.btn-icon,
+        form .btn-icon {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            color: #dc3545 !important;
+            cursor: pointer !important;
+            font-size: 16px !important;
+            line-height: 1 !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        .btn-icon i,
+        .btn-icon svg,
+        .btn-icon .fa-solid {
+            color: inherit !important;
+            fill: currentColor !important;
+            stroke: currentColor !important;
+        }
+
+        button.btn-icon:focus,
+        button.btn-icon:active,
+        .btn-icon:focus,
+        .btn-icon:active {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-icon:hover {
+            color: #bb2d3b;
         }
 
 
