@@ -2,7 +2,7 @@
 
 @extends('layouts.admin')
 
-ad@section('title', isset($readOnly) && $readOnly ? 'Detail Data Karyawan' : (isset($employee) ? 'Edit Data Karyawan' : 'Tambah Data Karyawan'))
+@section('title', isset($readOnly) && $readOnly ? 'Detail Data Karyawan' : (isset($employee) ? 'Edit Data Karyawan' : 'Tambah Data Karyawan'))
 
 @section('content')
 <div class="row">
