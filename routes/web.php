@@ -65,6 +65,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Transaksi
     Route::resource('/sales', PenjualanController::class)->names('sales');
     Route::resource('/purchases', PembelianController::class)->names('purchases');
+    Route::post('/purchases/store-item-draft', [PembelianController::class, 'ajaxStoreItemDraft'])->name('purchases.ajaxStoreItemDraft');
+    Route::delete('/purchases/delete-item-draft/{item_id}', [PembelianController::class, 'ajaxDeleteItemDraft'])->name('purchases.ajaxDeleteItemDraft');
     Route::resource('/quality-control', QCController::class)->names('quality-control');
 
     // Manajemen
