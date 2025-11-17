@@ -58,18 +58,8 @@ class EmployeeController extends Controller
             'jabatan.in' => 'Jabatan harus dipilih dari opsi yang tersedia.',
         ]);
 
-        // Buat user terlebih dahulu
-        $user = User::create([
-            'username' => Str::slug($validated['nama_lengkap']) . '_' . Str::random(4),
-            'email' => $validated['email'],
-            'password' => Hash::make('password123'), // Default password, bisa diganti
-            'name' => $validated['nama_lengkap'],
-            'role' => $validated['jabatan'] === 'Manager' ? 'manager' : 'operasional',
-        ]);
-
         // Simpan data karyawan
         Employee::create([
-            'user_id' => $user->id,
             'nama_lengkap' => $validated['nama_lengkap'],
             'nik' => $validated['nik'],
             'jabatan' => $validated['jabatan'],
@@ -86,19 +76,19 @@ class EmployeeController extends Controller
 
     public function show($id)
     {
-        $employee = Employee::with('user')->findOrFail($id);
+        $employee = Employee::findOrFail($id);
         return view('admin.inputDataKaryawan', compact('employee'))->with('readOnly', true);
     }
 
     public function edit($id)
     {
-        $employee = Employee::with('user')->findOrFail($id);
+        $employee = Employee::findOrFail($id);
         return view('admin.inputDataKaryawan', compact('employee'));
     }
 
     public function update(Request $request, $id)
     {
-        $employee = Employee::with('user')->findOrFail($id);
+        $employee = Employee::findOrFail($id);
 
         $validated = $request->validate([
             'nama_lengkap' => [
@@ -114,7 +104,7 @@ class EmployeeController extends Controller
                 'unique:karyawan,nik,' . $id
             ],
             'jabatan' => 'required|in:Manager,Staff Operasional',
-            'email' => 'required|email|unique:users,email,' . $employee->user_id,
+            'email' => 'required|email|unique:users,email,',
             'nomor_telepon' => [
                 'required',
                 'string',
@@ -134,11 +124,11 @@ class EmployeeController extends Controller
         ]);
 
         // Update user
-        $employee->user->update([
-            'email' => $validated['email'],
-            'name' => $validated['nama_lengkap'],
-            'role' => $validated['jabatan'] === 'Manager' ? 'manager' : 'operasional',
-        ]);
+        // $employee->update([
+        //     'email' => $validated['email'],
+        //     'name' => $validated['nama_lengkap'],
+        //     'role' => $validated['jabatan'] === 'Manager' ? 'manager' : 'operasional',
+        // ]);
 
         // Update karyawan
         $employee->update([
