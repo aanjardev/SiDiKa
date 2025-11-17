@@ -43,9 +43,9 @@
                 <tr>
                     <th>No</th>
                     <th>Nama</th>
-                    <th>Email</th>
                     <th>Nomor Telepon</th>
                     <th>Jabatan</th>
+                    <th>Status</th>
                     <th>Aksi</th>
                 </tr>
             </thead>
@@ -54,7 +54,8 @@
                 @forelse ($employees as $index => $employee)
                     <tr>
                         <td>{{ $employees->firstItem() + $index }}</td>
-                        <td>{{ $employee->nik }}</td>
+                        
+                        
 
                         <td>
                             <a href="{{ route('admin.employees.show', $employee->id) }}" class="fw-semibold text-primary text-decoration-none" style="cursor:pointer;">
@@ -62,6 +63,7 @@
                             </a>
                         </td>
 
+                        <td>{{ $employee->nomor_telepon }}</td>
                         <td>{{ $employee->jabatan }}</td>
 
                         <td>
@@ -71,9 +73,6 @@
                                 <span class="text-danger fw-semibold">Non Aktif</span>
                             @endif
                         </td>
-
-                        <td>{{ $employee->user->email ?? '-' }}</td>
-                        <td>{{ $employee->nomor_telepon }}</td>
 
                         <td class="text-center">
                             <div class="d-flex justify-content-center gap-2">
