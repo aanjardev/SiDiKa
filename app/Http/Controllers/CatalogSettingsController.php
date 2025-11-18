@@ -2,84 +2,124 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\CatalogSetting;
+use App\Models\CatalogSettings;
+use App\Models\CatalogBanners;
+use App\Models\CatalogPartnerLogo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class CatalogSettingsController extends Controller
 {
     public function edit()
     {
-        $setting = CatalogSetting::first();
-
-        if (!$setting) {
-            $setting = CatalogSetting::create([]);
-        }
-
-        return view('admin.catalog-settings', compact('setting'));
+        $cat_setting = CatalogSettings::first();
+        $cat_banners = CatalogBanners::all();
+        $cat_partner = CatalogPartnerLogo::all();
+        return view('admin.catalog-settings', [
+            'cat_setting' => $cat_setting,
+            'cat_banners' => $cat_banners,
+            'cat_partner' => $cat_partner,
+        ]);
     }
-
     public function update(Request $request)
     {
-        $setting = CatalogSetting::first();
+        $cat_setting = CatalogSettings::first();
+        $cat_partner = CatalogPartnerLogo::all();
+        $cat_banners = CatalogBanners::all();
 
-        if (!$setting) {
-            $setting = CatalogSetting::create([]);
-        }
-
-        $validated = $request->validate([
-            'site_name'         => 'nullable|string|max:100',
-            'logo'              => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
-            'banner'            => 'nullable|image|mimes:jpeg,png,jpg,svg|max:4096',
-            'brand_logo_1'      => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
-            'brand_logo_2'      => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
-            'brand_logo_3'      => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
-            'brand_logo_4'      => 'nullable|image|mimes:jpeg,png,jpg,svg|max:2048',
-            'social_facebook'   => 'nullable|string|max:255',
-            'social_instagram'  => 'nullable|string|max:255',
-            'social_whatsapp'   => 'nullable|string|max:255',
-            'social_tiktok'     => 'nullable|string|max:255',
-            'social_youtube'    => 'nullable|string|max:255',
-            'contact_phone'     => 'nullable|string|max:50',
-            'contact_email'     => 'nullable|email|max:100',
-            'address_text'      => 'nullable|string',
+        // Validasi
+        $request->validate([
+            'site_name' => 'required|string|max:255',
+            'logo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'brand_logos' => 'nullable|image|max:2048',
+            'social_facebook' => 'nullable|url',
+            'social_instagram' => 'nullable|url',
+            'social_tiktok' => 'nullable|url',
+            'social_youtube' => 'nullable|url',
+            'social_tokopedia' => 'nullable|url',
+            'social_shopee' => 'nullable|url',
+            'contact_phone' => 'nullable|string|max:20',
+            'description_text' => 'nullable|string',
         ]);
 
-        $setting->site_name = $validated['site_name'] ?? $setting->site_name;
-        $setting->social_facebook = $validated['social_facebook'] ?? null;
-        $setting->social_instagram = $validated['social_instagram'] ?? null;
-        $setting->social_whatsapp = $validated['social_whatsapp'] ?? null;
-        $setting->social_tiktok = $validated['social_tiktok'] ?? null;
-        $setting->social_youtube = $validated['social_youtube'] ?? null;
-        $setting->contact_phone = $validated['contact_phone'] ?? null;
-        $setting->contact_email = $validated['contact_email'] ?? null;
-        $setting->address_text = $validated['address_text'] ?? null;
+        // Update text fields
+        $cat_setting->update([
+            'nama_website' => $request->site_name,
+            'nomor_telfon' => $request->contact_phone,
+            'description' => $request->description_text,
+            'facebook_link' => $request->social_facebook,
+            'instagram_link' => $request->social_instagram,
+            'tiktok_link' => $request->social_tiktok,
+            'youtube_link' => $request->social_youtube,
+            'tokopedia_link' => $request->social_tokopedia,
+            'shopee_link' => $request->social_shopee,
+        ]);
+        // hapus logo partner yang ditandai user
+        if ($request->filled('deleted_partners')) {
+            $ids = json_decode($request->deleted_partners, true);
 
-        $uploadImage = function (Request $request, CatalogSetting $setting, string $field, string $column) {
-            if ($request->hasFile($field)) {
-                $file = $request->file($field);
+            // ambil record dulu
+            $partners = CatalogPartnerLogo::whereIn('id', $ids)->get();
 
-                if ($setting->$column) {
-                    Storage::disk('public')->delete($setting->$column);
+            foreach ($partners as $partner) {
+                // hapus file jika ada di storage/photos
+                if ($partner->logo_path && Str::startsWith($partner->logo_path, 'photos/')) {
+                    Storage::disk('public')->delete($partner->logo_path);
                 }
-
-                $path = $file->store('catalog', 'public');
-                $setting->$column = $path;
             }
-        };
 
-        $uploadImage($request, $setting, 'logo', 'logo_path');
-        $uploadImage($request, $setting, 'banner', 'banner_path');
-        $uploadImage($request, $setting, 'brand_logo_1', 'brand_logo_1_path');
-        $uploadImage($request, $setting, 'brand_logo_2', 'brand_logo_2_path');
-        $uploadImage($request, $setting, 'brand_logo_3', 'brand_logo_3_path');
-        $uploadImage($request, $setting, 'brand_logo_4', 'brand_logo_4_path');
+            // hapus record dari database
+            CatalogPartnerLogo::whereIn('id', $ids)->delete();
+        }
 
-        $setting->save();
+        // hapus banner yang ditandai user
+        if ($request->filled('deleted_banners')) {
+            $ids = json_decode($request->deleted_banners, true);
 
-        return redirect()
-            ->route('admin.catalog-settings.index')
-            ->with('success', 'Pengaturan katalog berhasil disimpan.');
+            $banners = CatalogBanners::whereIn('id', $ids)->get();
+
+            foreach ($banners as $banner) {
+                if ($banner->banner_path && Str::startsWith($banner->banner_path, 'photos/')) {
+                    Storage::disk('public')->delete($banner->banner_path);
+                }
+            }
+
+            CatalogBanners::whereIn('id', $ids)->delete();
+        }
+
+        $path = null;
+        if ($request->hasFile('banner')) {
+            $path = $request->file('banner')->store('photos', 'public');
+            CatalogBanners::create([
+                'banner_path' => $path,
+                'catalog_setting_id' => 1,
+            ]);
+        }
+        if ($request->hasFile('brand_logos')) {
+            $path = $request->file('brand_logos')->store('photos', 'public');
+            CatalogPartnerLogo::create([
+                'logo_path' => $path,
+                'catalog_setting_id' => 1,
+            ]);
+        }
+        if ($request->hasFile('photo_logo')) {
+
+            // jangan dinyalain dulu sebelum siap  !!
+            // if ($cat_setting->logo_path && Storage::disk('public')->exists($cat_setting->logo_path)) {
+            //     Storage::disk('public')->delete($cat_setting->logo_path);
+            // }
+            $path = $request->file('photo_logo')->store('photos', 'public');
+
+            // Update record dengan id 1
+            CatalogSettings::where('id', 1)->update([
+                'logo_path' => $path,
+            ]);
+        }
+
+        $cat_setting->save();
+        return redirect()->route('admin.catalog-settings.index')->with('success', 'Pengaturan katalog berhasil diperbarui.');
     }
+
 }
 

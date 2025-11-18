@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tentang Kami - Dinoyo Kamera</title>
+    <title>Tentang Kami - {{ $cat_setting->nama_website}}</title>
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
 
 
@@ -29,7 +29,7 @@
             <div class="row align-items-center">
                 <div class="col-lg-6" data-aos="fade-right">
                     <h1 class="hero-title">
-                        Dinoyo Kamera
+                        {{ $cat_setting->nama_website}}
                         Passion Fotografi Anda
                     </h1>
                     <p class="hero-description">Kami adalah destinasi terpercaya untuk semua kebutuhan fotografi Anda. Dengan pengalaman lebih dari 10 tahun, kami menyediakan peralatan berkualitas dan layanan profesional untuk membantu mewujudkan visi kreatif Anda.</p>
@@ -64,7 +64,7 @@
                                 <div class="col-lg-7">
                                     <div class="card-body">
                                         <h3 class="h4">Reputasi Terpercaya</h3>
-                                        <p class="text-muted">Dinoyo Kamera telah menjadi komunitas penggemar kamera, menawarkan keaslian dan akurasi dalam setiap produk dan layanan.</p>
+                                        <p class="text-muted">{{ $cat_setting->nama_website}} telah menjadi komunitas penggemar kamera, menawarkan keaslian dan akurasi dalam setiap produk dan layanan.</p>
                                     </div>
                                 </div>
                             </div>
@@ -170,7 +170,7 @@
                         <div class="testimonial-card text-center">
                             <img src="https://images.pexels.com/photos/21852309/pexels-photo-21852309/free-photo-of-pria-laki-laki-lelaki-kedudukan.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" alt="Customer" class="testimonial-img rounded-circle mx-auto">
                             <h4 class="h5 mb-3">Ferdiansyah</h4>
-                            <p class="text-muted">"Pelayanan di Dinoyo Kamera sangat memuaskan! Tim mereka sangat membantu dalam memilih peralatan yang tepat."</p>
+                            <p class="text-muted">"Pelayanan di {{ $cat_setting->nama_website}} sangat memuaskan! Tim mereka sangat membantu dalam memilih peralatan yang tepat."</p>
                         </div>
                     </div>
                     <div class="col-md-4" data-aos="fade-up">
@@ -184,7 +184,7 @@
                         <div class="testimonial-card text-center">
                             <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDLcaoMqauKXsMZwJOio8tds2bjfB3WK3HnQ&s" alt="Customer" class="testimonial-img rounded-circle mx-auto">
                             <h4 class="h5 mb-3">Imtiaz Hussain</h4>
-                            <p class="text-muted">"Dinoyo Kamera adalah tempat terbaik untuk servis kamera di Malang. Kamera saya yang bermasalah jadi seperti baru lagi setelah diperbaiki di sini."</p>
+                            <p class="text-muted">"{{ $cat_setting->nama_website}} adalah tempat terbaik untuk servis kamera di Malang. Kamera saya yang bermasalah jadi seperti baru lagi setelah diperbaiki di sini."</p>
                         </div>
                     </div>
                 </div>

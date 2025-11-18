@@ -1,9 +1,16 @@
 <!-- Navigation -->
+    @php
+        $setting = \App\Models\CatalogSettings::first();
+    @endphp
 <nav id="main-header" class="navbar navbar-expand-lg">
     <div class="container">
         <a class="navbar-brand d-flex align-items-center" href="/">
-            <img src="{{ asset('mainIMG/logoDinoyo.png') }}" alt="Dinoyo Camera Logo" class="img-fluid">
-            <span class="brand-text ms-3">Dinoyo Kamera</span>
+            @php
+                $path = $setting->logo_path;
+                $url = Str::startsWith($path, 'photos/') ? asset('storage/' . $path) : asset($path);
+            @endphp
+            <img src="{{ $url }}" alt="{{ $setting->nama_website}} Logo" class="img-fluid">
+            <span class="brand-text ms-3">{{ $setting->nama_website}}</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>

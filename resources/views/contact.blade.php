@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hubungi Kami - Dinoyo Kamera</title>
+    <title>Hubungi Kami - {{ $cat_setting->nama_website}}</title>
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -23,7 +23,7 @@
             <!-- Header Section -->
             <div class="text-center mb-5">
                 <h1 class="section-title">Hubungi Kami</h1>
-                <p class="section-subtitle">Dinoyo Kamera dengan senang hati menerima dukungan dan pertanyaan Anda. Kami akan berusaha untuk menjawab pertanyaan Anda segera setelah kami menerimanya.</p>
+                <p class="section-subtitle">{{ $cat_setting->nama_website}} dengan senang hati menerima dukungan dan pertanyaan Anda. Kami akan berusaha untuk menjawab pertanyaan Anda segera setelah kami menerimanya.</p>
             </div>
 
             <!-- Store Locations -->

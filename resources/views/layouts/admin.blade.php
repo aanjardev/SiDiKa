@@ -1,3 +1,7 @@
+
+@php
+    $setting = \App\Models\CatalogSettings::first();
+@endphp
 <!doctype html>
 <html lang="en" dir="ltr">
 
@@ -60,9 +64,13 @@
     <aside class="sidebar" id="sidebar">
         <!-- Sidebar Header -->
         <div class="sidebar-header">
-            <img src="{{ asset('mainIMG/logoDinoyo.png') }}" alt="Logo" class="sidebar-logo">
+            @php
+                $path = $setting->logo_path;
+                $url = Str::startsWith($path, 'photos/') ? asset('storage/' . $path) : asset($path);
+            @endphp
+            <img src="{{ $url }}" alt="{{ $setting->nama_website}} Logo" class="sidebar-logo">
             <div class="sidebar-brand">
-                <h4 class="sidebar-brand-text">Dinoyo Kamera</h4>
+                <h4 class="sidebar-brand-text">{{ $setting->nama_website}}</h4>
                 <span class="sidebar-brand-subtitle">Admin Panel</span>
             </div>
         </div>
