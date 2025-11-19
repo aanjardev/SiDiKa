@@ -26,37 +26,45 @@
 <body>
     @include('partials.header')
 
-    <!-- Promotion Carousel -->
-    <section id="promotion" class="py-4" data-aos="fade-up">
-        <div class="container">
-            <div id="demo" class="carousel slide" data-bs-ride="carousel">
-                <div class="carousel-indicators">
-                    <button type="button" data-bs-target="#demo" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                    <button type="button" data-bs-target="#demo" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                    <button type="button" data-bs-target="#demo" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        <!-- Promotion Carousel -->
+        <section id="promotion" class="py-4" data-aos="fade-up">
+            <div class="container">
+                <div id="demo" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-indicators">
+                        @foreach ($cat_banners as $index => $banner)
+                            <button type="button" data-bs-target="#demo" data-bs-slide-to="{{ $index }}" 
+                                class="{{ $index == 0 ? 'active' : '' }}" 
+                                aria-current="{{ $index == 0 ? 'true' : 'false' }}" 
+                                aria-label="Slide {{ $index + 1 }}"></button>
+                        @endforeach
+                    </div>
+                    <div class="carousel-inner">
+                        @foreach ($cat_banners as $index => $banner)
+                            @php
+                                $path = $banner->banner_path;
+                                if (Str::startsWith($path, 'photos/')) {
+                                    $url = asset('storage/' . $path); // dari storage
+                                } else {
+                                    $url = asset($path); // misal mainIMG/...
+                                }
+                                $alt = basename($path);
+                            @endphp
+                            <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
+                                <img src="{{ $url }}" alt="{{ $alt }}" class="d-block w-100">
+                            </div>
+                        @endforeach
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
                 </div>
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img src="{{ asset('mainIMG/sample1.png') }}" alt="Promotion 1" class="d-block w-100">
-                    </div>
-                    <div class="carousel-item">
-                        <img src="{{ asset('mainIMG/sample2.png') }}" alt="Promotion 2" class="d-block w-100">
-                    </div>
-                    <div class="carousel-item">
-                        <img src="{{ asset('mainIMG/sample3.png') }}" alt="Promotion 3" class="d-block w-100">
-                    </div>
-                </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
             </div>
-        </div>
-    </section>
+        </section>
 
     <!-- Categories -->
     <section id="Kategori" class="py-4" data-aos="fade-up" data-aos-delay="100">
@@ -245,8 +253,23 @@
     <section id="Kategori-Display-Brand" class="py-4" data-aos="fade-up" data-aos-delay="300">
         <div class="container">
             <div class="row row-cols-2 row-cols-md-4 row-cols-lg-8 g-3">
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__sony.jpg" alt="Sony" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__canon_1.jpg" alt="Canon" class="img-fluid"></div>
+            @foreach ($cat_partner as $index => $partner)
+                @php
+                    $path = $partner->logo_path;
+
+                    if (Str::startsWith($path, 'http')) {
+                        $url = $path;
+                    } else {
+                        $url = asset('storage/' . $path);
+                    }
+
+                    $alt = basename($path);
+                @endphp
+                <div class="col">
+                    <img src="{{ $url }}" alt="{{ $alt }}" class="img-fluid">
+                </div>
+            @endforeach
+                <!-- <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__canon_1.jpg" alt="Canon" class="img-fluid"></div>
                 <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__fujifilm.jpg" alt="Fujifilm" class="img-fluid"></div>
                 <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__nikon.jpg" alt="Nikon" class="img-fluid"></div>
                 <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__lumix.jpg" alt="Lumix" class="img-fluid"></div>
@@ -260,7 +283,7 @@
                 <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__samyang.jpg" alt="Samyang" class="img-fluid"></div>
                 <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__saramonic.jpg" alt="Saramonic" class="img-fluid"></div>
                 <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__insta360.jpg" alt="Insta360" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__sigma.jpg" alt="Sigma" class="img-fluid"></div>
+                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__sigma.jpg" alt="Sigma" class="img-fluid"></div> -->
             </div>
         </div>
     </section>
@@ -269,8 +292,8 @@
     <section class="youtube-section" data-aos="fade-up" data-aos-delay="350">
         <div class="container">
             <div class="youtube-title">
-                <h2>Dinoyo Kamera Channel</h2>
-                <p>Temukan tips dan review produk terbaru dari tim kami di channel YouTube Dinoyo Kamera</p>
+                <h2>{{$cat_setting->nama_website}} Channel</h2>
+                <p>Temukan tips dan review produk terbaru dari tim kami di channel YouTube {{$cat_setting->nama_website}}</p>
             </div>
             <div class="row">
                 <div class="col-lg-8 mx-auto">

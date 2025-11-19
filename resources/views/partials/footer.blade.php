@@ -1,25 +1,28 @@
 <!-- Footer -->
 <footer id="main-footer" class="footer-area">
+    @php
+        $setting = \App\Models\CatalogSettings::first();
+    @endphp
     <div class="container">
         <div class="row">
             <!-- Company Description -->
             <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
                 <div class="footer-widget">
-                    <h4 class="widget-title">Dinoyo Kamera</h4>
-                    <p class="company-desc">Toko kamera terpercaya di Malang dan Pasuruan. Menyediakan berbagai kebutuhan fotografi dan videografi dengan kualitas terjamin.</p>
+                    <h4 class="widget-title">{{$setting->nama_website}}</h4>
+                    <p class="company-desc">{{$setting->description}}</p>
                     <div class="social-links mt-3">
-                        <a href="https://web.facebook.com/jualkameramalang/?locale=id_ID&_rdc=1&_rdr" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://www.instagram.com/dinoyokamera/?hl=id" class="social-link"><i class="fab fa-instagram"></i></a>
-                        <a href="https://www.youtube.com/@DINOYOKAMERA_OFFICIAL" class="social-link"><i class="fab fa-youtube"></i></a>
-                        <a href="https://www.tiktok.com/@dinoyokamera" class="social-link"><i class="fab fa-tiktok"></i></a>
+                        <a href="{{$setting->facebook_link}}" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="{{$setting->instagram_link}}" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="{{$setting->youtube_link}}" class="social-link"><i class="fab fa-youtube"></i></a>
+                        <a href="{{$setting->tiktok_link}}" class="social-link"><i class="fab fa-tiktok"></i></a>
                     </div>
                     <div class="d-flex justify-content-start gap-3 mt-3">
                         <!-- Tokopedia -->
-                        <a href="https://www.tokopedia.com/dinoyo-kamera" target="_blank" rel="noopener" class="social-link" title="Tokopedia">
+                        <a href="{{$setting->tokopedia_link}}" target="_blank" rel="noopener" class="social-link" title="Tokopedia">
                             <img src="https://i0.wp.com/x-mos.com/wp-content/uploads/2020/11/logo-tokopedia-icon-mascot-400x400-copy.png?fit=400%2C400&ssl=1&w=640" alt="Tokopedia" style="width:28px;height:28px;object-fit:contain;">
                         </a>
                         <!-- Shopee -->
-                        <a href="https://shopee.co.id/dinoyokamera" target="_blank" rel="noopener" class="social-link" title="Shopee">
+                        <a href="{{$setting->shopee_link}}" target="_blank" rel="noopener" class="social-link" title="Shopee">
                             <img src="https://pngmax.com/_next/image?url=https%3A%2F%2Fpng-max.s3.ap-south-1.amazonaws.com%2Flow%2Fc7f66c3b-d50f-4afa-9090-052a98e8a27a.png&w=1200&q=75" alt="Shopee" style="width:28px;height:28px;object-fit:contain;">
                         </a>
                     </div>
