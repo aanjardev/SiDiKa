@@ -81,7 +81,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/permissions/{id}/edit', [PermissionsController::class, 'edit'])->name('permissions.edit');
         Route::put('/permissions/{id}', [PermissionsController::class, 'update'])->name('permissions.update');
         Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy'])->name('permissions.destroy');
+        Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('purchases.print');
     });
 
     Route::resource('/profile', ProfileController::class)->names('profile');
+    // Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('admin.purchases.print');
 });

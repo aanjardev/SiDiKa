@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 
 
@@ -184,6 +185,34 @@ class PembelianController extends Controller
         // Buat file view baru ini (Langkah 3)
         return view('admin.reviewPembelian', ['pembelian' => $pembelian]);
     }
+
+    public function printNota($id)
+        {
+            // 1. Ambil data pembelian dengan semua relasi yang dibutuhkan
+            $pembelian = Pembelian::with([
+                                'customer',
+                                'perusahaan_cabang',
+                                'user',
+                                'item_pembelian_draft.kategori'
+                            ])->findOrFail($id);
+
+            // Pastikan transaksi sudah 'deal' sebelum mencetak nota resmi (opsional)
+            if ($pembelian->status_pembelian !== 'deal') {
+                return back()->with('error', 'Nota hanya bisa dicetak untuk transaksi yang statusnya "Deal".');
+            }
+
+            $data = [
+                'pembelian' => $pembelian,
+                'title' => 'Nota Pembelian #' . $pembelian->id
+            ];
+
+            // 2. Load view template PDF
+            // Asumsi template ada di resources/views/admin/notaPembelian.blade.php
+            $pdf = Pdf::loadView('admin.notaPembelian', $data);
+
+            // 3. Kembalikan PDF untuk di-stream di browser
+            return $pdf->stream('Nota_Pembelian_' . $pembelian->id . '.pdf');
+        }
 
     public function ajaxStoreItemDraft(Request $request)
     {
