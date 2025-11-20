@@ -17,10 +17,11 @@
         </td>
     </tr>
 @empty
-    <tr>
-        <td colspan="7" class="text-center py-5">
-            <div>
-                <h5 class="mb-1">Tidak ada produk yang perlu foto</h5>
+    <tr class="tr-empty">
+        <td colspan="7" class="p-0">
+            <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
+                <i class="fa-solid fa-image fa-2x text-muted mb-3"></i>
+                <h5 class="mb-1">Tidak Ada Produk</h5>
                 <p class="text-muted mb-0">Semua produk sudah memiliki foto atau belum ada produk tanpa gambar.</p>
             </div>
         </td>

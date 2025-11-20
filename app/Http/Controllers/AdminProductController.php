@@ -298,7 +298,7 @@ class AdminProductController extends Controller
 
         return redirect()
             ->route('admin.products.index')
-            ->with('success', 'Produk berhasil ditambahkan dan gambar tersimpan di Cloudflare R2.');
+            ->with('success', 'Produk berhasil ditambahkan');
     }
 
     public function edit(Produk $product)

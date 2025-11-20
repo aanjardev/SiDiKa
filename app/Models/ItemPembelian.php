@@ -60,4 +60,42 @@ class ItemPembelian extends Model
     {
         return $this->belongsTo(Pembelian::class, 'pembelian_id');
     }
+
+    /**
+     * Accessor untuk menghitung persentase kelengkapan berdasarkan:
+     * 1. kode_sku
+     * 2. harga_beli (harga modal)
+     * 3. harga_jual
+     * 4. deskripsi_produk
+     *
+     * Setiap kolom yang terisi (tidak null dan tidak kosong) = 25%
+     */
+    public function getPersentaseLengkapAttribute()
+    {
+        $totalFields = 4;
+        $completedFields = 0;
+
+        // Cek kode_sku
+        if (!empty($this->kode_sku)) {
+            $completedFields++;
+        }
+
+        // Cek harga_beli (harga modal)
+        if (!empty($this->harga_beli) && $this->harga_beli > 0) {
+            $completedFields++;
+        }
+
+        // Cek harga_jual
+        if (!empty($this->harga_jual) && $this->harga_jual > 0) {
+            $completedFields++;
+        }
+
+        // Cek deskripsi_produk
+        if (!empty($this->deskripsi_produk) && trim($this->deskripsi_produk) !== '') {
+            $completedFields++;
+        }
+
+        // Hitung persentase (0-100)
+        return ($completedFields / $totalFields) * 100;
+    }
 }

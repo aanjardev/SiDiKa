@@ -132,7 +132,7 @@
             <div class="menu-section">
                 <button class="menu-link menu-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#transaksiMenu" aria-expanded="false" aria-controls="transaksiMenu">
                     <i class="fas fa-exchange-alt menu-icon"></i>
-                    <span>Transaksi</span>
+                    <span>Operasional</span>
                     <i class="fas fa-chevron-right menu-arrow"></i>
                 </button>
 
@@ -350,7 +350,7 @@
                     });
                 });
             }
-            const currentUrl = window.location.href.split(/[?#]/)[0];
+            const currentPath = window.location.pathname;
             const navLinks = document.querySelectorAll('.submenu-link, .menu-link[href]');
 
             navLinks.forEach(link => {
@@ -359,22 +359,49 @@
                     return;
                 }
 
-                const normalizedHref = href.split(/[?#]/)[0];
-                if (normalizedHref === currentUrl) {
-                    link.classList.add('active');
+                let linkPath;
+                try {
+                    // Get the pathname from href (handle both relative and absolute URLs)
+                    const linkUrl = new URL(href, window.location.origin);
+                    linkPath = linkUrl.pathname;
+                } catch (e) {
+                    // Fallback: if URL parsing fails, use href as-is (shouldn't happen with Laravel routes)
+                    linkPath = href.split(/[?#]/)[0];
+                }
 
-                    const parentCollapse = link.closest('.collapse');
-                    if (parentCollapse) {
-                        parentCollapse.classList.add('show');
-                        const parentToggle = parentCollapse.previousElementSibling;
-                        if (parentToggle && parentToggle.classList.contains('menu-toggle')) {
-                            parentToggle.classList.add('active');
-                            parentToggle.classList.remove('collapsed');
-                            parentToggle.setAttribute('aria-expanded', 'true');
-                        }
+                // Check for exact match
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                    activateParentMenu(link);
+                }
+                // Check if current path is a child route of this menu link
+                // e.g., /admin/purchases/create is a child of /admin/purchases
+                // Exception: /admin/products/photos should NOT be considered a child of /admin/products
+                else if (currentPath.startsWith(linkPath + '/') && linkPath !== currentPath && linkPath !== '/') {
+                    // Exclude /admin/products/photos and its child routes from being treated as child of /admin/products
+                    // This ensures "Foto Produk" menu stays separate from "Produk" menu
+                    if (linkPath === '/admin/products' && currentPath.startsWith('/admin/products/photos')) {
+                        // Skip - Foto Produk is a separate menu under Operasional, not under Produk
+                        return;
                     }
+                    link.classList.add('active');
+                    activateParentMenu(link);
                 }
             });
+
+            // Helper function to activate parent menu and expand collapse
+            function activateParentMenu(link) {
+                const parentCollapse = link.closest('.collapse');
+                if (parentCollapse) {
+                    parentCollapse.classList.add('show');
+                    const parentToggle = parentCollapse.previousElementSibling;
+                    if (parentToggle && parentToggle.classList.contains('menu-toggle')) {
+                        parentToggle.classList.add('active');
+                        parentToggle.classList.remove('collapsed');
+                        parentToggle.setAttribute('aria-expanded', 'true');
+                    }
+                }
+            }
 
             const collapses = document.querySelectorAll('#sidebarMenu .collapse');
             collapses.forEach(collapse => {

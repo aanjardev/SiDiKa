@@ -230,28 +230,46 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     .btn-icon:hover { color: #bb2d3b !important; }
 
-    /* CSS UNTUK TINGGI TABEL FIX & EMPTY STATE */
+    /* CSS UNTUK EMPTY STATE */
+    .card.shadow-sm {
+        min-height: 700px;
+        display: flex;
+        flex-direction: column;
+    }
+    .card.shadow-sm .card-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
     .table-wrapper {
-        min-height: 700px; /* Atur tinggi minimal */
+        /* Tabel mengambil tinggi natural sesuai konten */
+        flex: 1;
         display: flex;
         flex-direction: column;
     }
     .table-responsive {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
+        /* Normal table responsive behavior */
+        flex: 1;
     }
     .table-product {
-        flex-grow: 1;
+        /* Normal table behavior */
+        margin-bottom: 0;
     }
     .table-product tr.tr-empty {
-        flex-grow: 1;
+        /* Empty state row */
         display: table-row;
     }
     .table-product tr.tr-empty td {
         vertical-align: middle;
         padding-top: 0;
         padding-bottom: 0;
+    }
+    .table-product tr.tr-empty td .empty-message {
+        min-height: 400px;
+        width: 100%;
+    }
+    .tr-empty td {
+        border: none;
     }
 </style>
 @endpush
