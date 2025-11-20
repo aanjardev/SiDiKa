@@ -3,111 +3,189 @@
 @section('title', 'Quality Control (QC)')
 
 @push('page-actions')
-    {{-- Halaman QC tidak perlu tombol "Tambah" --}}
+    {{-- Tombol untuk melihat arsip produk (tidak layak jual) --}}
+    <a href="{{ url('admin/quality-control/archived') }}" class="btn btn-secondary btn-sm d-flex align-items-center gap-2">
+        <i class="fas fa-archive fa-fw"></i>
+        <span>Arsip Produk</span>
+    </a>
+@endpush
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('qc-list-container');
+    const tableBody = document.getElementById('qc-table-body');
+    const paginationContainer = document.getElementById('qc-pagination-links-container');
+    const form = document.getElementById('filterFormQc');
+    const searchInput = form.querySelector('input[name="search"]');
+    const kategoriFilter = form.querySelector('select[name="kategori"]');
+    const sortFilter = form.querySelector('select[name="sort"]');
+    const urlIndex = '{{ route('admin.quality-control.index') }}';
+
+    let isFetching = false;
+    let searchTimeout;
+
+    // No delete actions on QC list (archiving handled in process page)
+
+    // Fetch function: try to accept JSON, otherwise fallback to HTML
+    async function fetchQc(url) {
+        if (!url) return;
+        isFetching = true;
+        try {
+            const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json, text/html' } });
+            if (!res.ok) throw new Error('Network response was not ok. Status: ' + res.status);
+
+            const ct = res.headers.get('content-type') || '';
+            if (ct.indexOf('application/json') !== -1) {
+                const data = await res.json();
+                if (data.table_html !== undefined) {
+                    tableBody.innerHTML = data.table_html;
+                } else {
+                    // maybe returned an array of items rendered server-side
+                    tableBody.innerHTML = data;
+                }
+                if (data.pagination_html !== undefined && paginationContainer) {
+                    paginationContainer.innerHTML = data.pagination_html;
+                }
+            } else {
+                // treat as HTML fragment returned (replace tbody or entire container)
+                const text = await res.text();
+                // try to extract tbody and pagination if server returns full HTML
+                // simple fallback: replace tbody innerHTML with returned text
+                tableBody.innerHTML = text;
+            }
+
+            // re-attach handlers for pagination links
+            attachPaginationHandler();
+
+        } catch (err) {
+            console.error('Gagal memuat data:', err);
+            // if error, optionally render empty row
+            tableBody.innerHTML = `\n                <tr class="tr-empty">\n                    <td colspan="7" class="p-0">\n                        <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">\n                            <i class="fa-solid fa-check-circle fa-2x text-muted mb-3"></i>\n                            <h5 class="mb-1">Gagal memuat data</h5>\n                            <p class="text-muted mb-0">Silakan coba lagi atau cek log server.</p>\n                        </div>\n                    </td>\n                </tr>\n            `;
+        } finally {
+            isFetching = false;
+        }
+    }
+
+    function buildUrl(overrideUrl) {
+        if (overrideUrl) return overrideUrl;
+        const params = new URLSearchParams();
+        if (searchInput && searchInput.value.trim() !== '') params.set('search', searchInput.value.trim());
+        if (kategoriFilter && kategoriFilter.value !== '') params.set('kategori', kategoriFilter.value);
+        if (sortFilter && sortFilter.value !== '') params.set('sort', sortFilter.value);
+        const qs = params.toString();
+        return urlIndex + (qs ? ('?' + qs) : '');
+    }
+
+    // Pagination links: intercept clicks
+    function attachPaginationHandler() {
+        if (!paginationContainer) return;
+        paginationContainer.querySelectorAll('a').forEach(a => {
+            a.removeEventListener && a.removeEventListener('click', handlePaginationClick);
+            a.addEventListener('click', handlePaginationClick);
+        });
+    }
+
+    function handlePaginationClick(e) {
+        const href = this.getAttribute('href');
+        if (!href) return;
+        e.preventDefault();
+        fetchQc(href);
+    }
+
+    // --- Event Listeners ---
+    // search input with debounce
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                fetchQc(buildUrl());
+            }, 450);
+        });
+    }
+
+    if (kategoriFilter) {
+        kategoriFilter.addEventListener('change', function() { fetchQc(buildUrl()); });
+    }
+    if (sortFilter) {
+        sortFilter.addEventListener('change', function() { fetchQc(buildUrl()); });
+    }
+
+    // initial attach
+    attachPaginationHandler();
+
+});
+</script>
 @endpush
 
 @section('content')
 
-{{-- Search & Filter --}}
-<div class="d-flex flex-wrap gap-2 align-items-center mb-4">
-    {{-- Search Bar --}}
-    <div class="flex-grow-1">
-        <div class="input-group shadow-sm">
-            <span class="input-group-text" style="background: #fff; border-right: 0;">
-                <i class="fa-solid fa-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control" placeholder="Cari nama item atau Serial Number..." style="border-left: 0; box-shadow: none;">
+{{-- Search & Filter (mirip dataPembelian) --}}
+<form action="{{ route('admin.quality-control.index') }}" method="GET" id="filterFormQc">
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
+        {{-- Search Bar --}}
+        <div class="flex-grow-1">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text" style="background: #fff; border-right: 0;">
+                    <i class="fa-solid fa-search text-muted"></i>
+                </span>
+                {{-- Tambahkan ID & name untuk JS --}}
+                <input type="text" name="search" id="search-input-qc" class="form-control" placeholder="Cari nama item, serial number atau kode pembelian..." style="border-left: 0; box-shadow: none;" value="{{ $search_term ?? '' }}">
+            </div>
         </div>
+
+        {{-- Filter Kategori (Nanti diisi dari controller) --}}
+        <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" name="kategori" id="filter-kategori">
+            <option value="">Semua Kategori</option>
+            @foreach ($semua_kategori as $kat)
+                <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
+            @endforeach
+        </select>
+
+        {{-- Filter Urutkan --}}
+        <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" name="sort" id="filter-sort-qc">
+            <option value="terbaru" {{ ($sort_filter ?? 'terbaru') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+            <option value="terlama" {{ ($sort_filter ?? '') == 'terlama' ? 'selected' : '' }}>Terlama</option>
+        </select>
     </div>
-
-    {{-- Filter Kategori (Nanti diisi dari controller) --}}
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
-        <option value="" selected>Semua Kategori</option>
-        {{-- @foreach ($semua_kategori as $kat)
-            <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
-        @endforeach --}}
-    </select>
-
-    {{-- Filter Urutkan --}}
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
-        <option selected>Terbaru</option>
-        <option>Terlama</option>
-    </select>
-</div>
+</form>
 
 
-<div class="card shadow-sm">
-    <div class="card-body p-0 table-wrapper">
-        <div class="table-responsive">
-            <table class="table align-middle mb-0 table-product">
-
-                {{-- ======================================================= --}}
-                {{-- PERUBAHAN: Head Tabel (thead) sesuai permintaan --}}
-                {{-- ======================================================= --}}
-                <thead class="table-light">
-                    <tr>
-                        <th class="text-center" style="width: 100px;">ID Beli</th>
-                        <th style="width: 30%;">Nama Item</th>
-                        <th>Serial Number</th>
-                        <th>Serial Number Lensa</th>
-                        <th>Kategori</th>
-                        <th style="width: 15%">Persentase</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse ($data_qc as $item)
+<div id="qc-list-container">
+    <div class="card shadow-sm">
+        <div class="card-body p-0 table-wrapper">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0 table-product table-md">
+                    <thead class="table-light">
                         <tr>
-                            <td class="text-center">#{{ $item->pembelian_id }}</td>
-                            <td>{{ $item->nama_item }}</td>
-                            <td>{{ $item->serial_number ?? 'N/A' }}</td>
-                            <td>{{ $item->serial_lens ?? 'N/A' }}</td>
-                            <td>{{ $item->kategori->nama_kategori ?? 'N/A' }}</td>
-                            <td>
-                                {{--
-                                  PERUBAHAN: Menampilkan "Persentase"
-                                  (Menggunakan accessor 'persentase_lengkap' dari Model)
-                                --}}
-                                @php $persen = round($item->persentase_lengkap); @endphp
-                                <div class="progress" role="progressbar" style="height: 12px;" aria-valuenow="{{ $persen }}" aria-valuemin="0" aria-valuemax="100">
-                                    <div class="progress-bar bg-primary" style="width: {{ $persen }}%"></div>
-                                </div>
-                                <span class="small text-muted">{{ $persen }}% Lengkap</span>
-                            </td>
-                            <td class="text-center">
-                                {{-- Tombol Aksi "Proses QC" (Link ke route 'edit') --}}
-                                <a href="{{ route('admin.qc.edit', $item->id) }}" class="btn btn-warning btn-sm d-flex align-items-center gap-1 px-2 mx-auto" style="width: fit-content;">
-                                    <i class="fa-solid fa-clipboard-check fa-fw"></i>
-                                    <span>Proses</span>
-                                </a>
-                            </td>
+                            <th class="text-center" style="width: 60px;">No</th>
+                            <th>Kode Beli</th>
+                            <th>Nama Item</th>
+                            <th>SN/SNL</th>
+                            <th>Kategori</th>
+                            <th style="width: 15%">Persentase</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
-
-                    {{-- Bagian @empty state --}}
-                    @empty
-                        <tr class="tr-empty">
-                            <td colspan="7" class="text-center"> {{-- Colspan 7 (sesuai jumlah <th>) --}}
-                                <div>
-                                    <i class="fa-solid fa-check-circle fa-2x text-muted mb-3"></i>
-                                    <h5 class="mb-1">Tidak Ada Item Menunggu QC</h5>
-                                    <p class="text-muted mb-0">Semua item dari transaksi 'Deal' akan muncul di sini.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody id="qc-table-body">
+                        {{-- Use partial to render rows so controller and AJAX can reuse the same HTML --}}
+                        @include('admin.partials.qc_table_rows', ['data_qc' => $data_qc])
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    {{-- Pagination (Dinamis dari Controller) --}}
-    @if ($data_qc->hasPages())
-        <div class="card-footer bg-white">
-            {{ $data_qc->links('pagination::bootstrap-5') }}
-        </div>
-    @endif
-
+    <div id="qc-pagination-links-container">
+        @if ($data_qc->hasPages())
+            <div class="card-footer bg-white">
+                {{ $data_qc->links('pagination::bootstrap-5') }}
+            </div>
+        @endif
+    </div>
 </div>
+
+{{-- Tidak ada modal hapus di halaman QC; arsip/hapus dikelola di halaman proses --}}
 @endsection
 
 {{-- PENTING: Salin SEMUA style dari master template --}}
@@ -125,6 +203,11 @@
     .table-product tbody tr:hover {
         background-color: #EFF3F9;
         transition: 0.2s;
+    }
+
+    /* Letak isi sel di atas (top) seperti tabel normal */
+    .table-product td {
+        vertical-align: top !important;
     }
 
     /* Style untuk Tombol Hapus (btn-icon) */
