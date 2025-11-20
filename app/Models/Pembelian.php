@@ -14,6 +14,19 @@ class Pembelian extends Model
     use HasFactory;
     protected $table = 'pembelian';
 
+    protected $fillable = [
+        'kode_transaksi', // TAMBAH INI
+        'customer_id',
+        'perusahaan_cabang_id',
+        'user_id',
+        'kas',
+        'keterangan',
+        'harga_tawaran_customer',
+        'harga_tawaran_toko',
+        'harga_deal',
+        'status_pembelian',
+    ];
+
     // Izinkan 'created_at' diformat sebagai objek Carbon (Tanggal)
     protected $casts = [
         'created_at' => 'datetime',
@@ -51,5 +64,32 @@ class Pembelian extends Model
     public function item_pembelian_draft()
     {
         return $this->hasMany(ItemPembelianDraft::class, 'pembelian_id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($pembelian) {
+            // Prefix: PB (Pembelian)
+            $prefix = 'PB' . date('Ym'); // Contoh: PB202511
+
+            // Mencari kode terakhir berdasarkan prefix hari/bulan/tahun
+            $latestCode = static::where('kode_transaksi', 'like', $prefix . '%')
+                                ->latest('kode_transaksi')
+                                ->pluck('kode_transaksi')
+                                ->first();
+
+            $number = 1;
+
+            if ($latestCode) {
+                // Ambil angka dari kode terakhir
+                $number = (int) substr($latestCode, -4);
+                $number++;
+            }
+
+            // Format kode transaksi: PB[YYYYMM][000X]
+            $pembelian->kode_transaksi = $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
+        });
     }
 }

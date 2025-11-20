@@ -1,10 +1,10 @@
 @forelse ($data_pembelian as $pembelian)
         <tr>
             {{-- ... baris data Anda yang normal ... --}}
-            <td class="text-center">#{{ $pembelian->id }}</td>
-            <td>{{ $pembelian->customer->nama ?? 'N/A' }}</td>
+            <td>{{ $pembelian->kode_transaksi }}</td>
+            <td>{{ $pembelian->customer->nama ?? '-' }}</td>
             <td>{{ $pembelian->created_at->format('d M Y, H:i') }}</td>
-            <td>{{ $pembelian->perusahaan_cabang->nama ?? 'N/A' }}</td>
+            <td>{{ $pembelian->perusahaan_cabang->nama ?? '-' }}</td>
             <td>
                 @php
                     $itemNames = $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ');
