@@ -3,7 +3,16 @@
 @section('title', 'Transaksi Pembelian')
 
 @push('page-actions')
-    {{-- Halaman form tidak perlu tombol aksi di header --}}
+    @php
+        $backRoute = route('admin.purchases.index');
+        if(isset($pembelian)) {
+            $backRoute = route('admin.purchases.show', $pembelian->id);
+        }
+    @endphp
+
+    <a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
+        <i class="fas fa-arrow-left me-1"></i> Kembali
+    </a>
 @endpush
 
 @section('content')
@@ -187,20 +196,20 @@
 
                     {{-- TOMBOL AKSI (Sejajar Satu Baris) --}}
                     <div class="d-flex gap-2">
-                        {{-- Tombol Draft (Saya ubah jadi outline agar tidak terlalu dominan, tapi tetap sejajar) --}}
-                        <button type="submit" name="status_pembelian" value="draft" class="btn btn-outline-primary w-100" title="Simpan sebagai Draft">
-                            <i class="fas fa-save d-block d-md-none"></i> {{-- Icon only di layar kecil --}}
+                        {{-- Tombol Draft --}}
+                        <button type="submit" name="status_pembelian" value="draft" id="btnDraft" class="btn btn-outline-primary w-100" title="Simpan sebagai Draft">
+                            <i class="fas fa-save d-block d-md-none"></i>
                             <span class="d-none d-md-inline"><i class="fas fa-save me-1"></i> Draft</span>
                         </button>
 
                         {{-- Tombol Tidak Deal --}}
-                        <button type="submit" name="status_pembelian" value="tidak_deal" class="btn btn-danger w-100" title="Batalkan Transaksi">
+                        <button type="submit" name="status_pembelian" value="tidak_deal" id="btnNoDeal" class="btn btn-danger w-100" title="Batalkan Transaksi">
                             <i class="fas fa-times d-block d-md-none"></i>
                             <span class="d-none d-md-inline"><i class="fas fa-times me-1"></i> No Deal</span>
                         </button>
 
                         {{-- Tombol Deal --}}
-                        <button type="submit" name="status_pembelian" value="deal" class="btn btn-success w-100" title="Sepakat / Deal">
+                        <button type="submit" name="status_pembelian" value="deal" id="btnDeal" class="btn btn-success w-100" title="Sepakat / Deal">
                             <i class="fas fa-check d-block d-md-none"></i>
                             <span class="d-none d-md-inline"><i class="fas fa-check me-1"></i> Deal</span>
                         </button>
@@ -435,33 +444,41 @@
 
 @push('scripts')
 <script>
+    // 1. Variabel Global PHP -> JS (Perbaikan Kategori dan Data Awal)
+    let kategoriMap = {};
+    @foreach($semua_kategori as $kat)
+        kategoriMap[{{ $kat->id }}] = '{{ $kat->nama_kategori }}';
+    @endforeach
 
     let currentPembelianId = '{{ $pembelian->id ?? '' }}';
-    let initialItems = @json(old('items') ?? ($pembelian->item_pembelian_draft ?? []));
+    let initialItems = @json($pembelian->item_pembelian_draft ?? []);
 
-    // Array ini sekarang hanya untuk TAMPILAN di tabel
     let itemsPembelian = [];
     let itemCounter = 0;
 
     if (initialItems.length > 0) {
         itemsPembelian = initialItems.map(item => {
-            // Ambil nama kategori jika sudah ada (dari relasi di model)
-            if (item.kategori && item.kategori.nama_kategori) {
-                item.kategori_nama = item.kategori.nama_kategori;
-            }
-            // Jika tidak ada (misal dari old() atau bug), gunakan fallback display
-            else {
-                item.kategori_nama = item.kategori_nama || 'Kategori (Reloaded)';
-            }
-
             // Pastikan ID ada (ID ini adalah ID DB item)
             if(typeof item.id === 'undefined') {
                 item.id = itemCounter++;
             }
-
             return item;
         });
     }
+
+    // Variabel dan Fungsi untuk Deteksi Perubahan (global scope)
+    const form = document.getElementById('formPembelian');
+    const btnKembali = document.getElementById('btnKembali');
+    let isFormDirty = false;
+
+    function markFormAsDirty() {
+        if (!isFormDirty) {
+            isFormDirty = true;
+        }
+    }
+
+    // Inisialisasi variabel tombol aksi (diakses di DOMContentLoaded)
+    let hiddenHargaDeal, btnDraft, btnNoDeal, btnDeal;
 
     document.addEventListener("DOMContentLoaded", function() {
 
@@ -479,10 +496,18 @@
         const customerSelect = document.getElementById('customer_id');
         const cabangSelect = document.getElementById('perusahaan_cabang_id');
 
+        // Inisialisasi Tombol Aksi dan Harga Deal
+        hiddenHargaDeal = document.getElementById('harga_deal');
+        btnDraft = document.getElementById('btnDraft');
+        btnNoDeal = document.getElementById('btnNoDeal');
+        btnDeal = document.getElementById('btnDeal');
+
+
         if (currentPembelianId) {
             hiddenPembelianIdInput.value = currentPembelianId;
         }
-        // Render tabel (awalnya akan kosong)
+
+        // Render tabel (awalnya akan kosong) - INI MEMANGGIL controlActionButtons()
         renderItemList();
 
         // TAMBAHKAN EVENT LISTENER INI
@@ -499,6 +524,73 @@
             modalTambahItem.show();
         });
 
+
+        // ********** FUNGSI KONTROL TOMBOL AKSI **********
+
+        // Fungsi untuk mengecek dan men-disable/enable tombol Deal (berdasarkan harga)
+        function checkDealButtonStatus() {
+            const hasItems = itemsPembelian.length > 0;
+            if (!hasItems) return; // Kontrol utama ada di controlActionButtons()
+
+            if (!btnDeal || !hiddenHargaDeal) return;
+
+            const dealValue = parseInt(hiddenHargaDeal.value) || 0;
+
+            if (dealValue <= 0) {
+                btnDeal.disabled = true;
+                btnDeal.setAttribute('data-bs-toggle', 'tooltip');
+                btnDeal.setAttribute('data-bs-placement', 'top');
+                btnDeal.setAttribute('title', 'Harap isi Harga Deal (Final) sebelum klik Deal.');
+            } else {
+                btnDeal.disabled = false;
+                btnDeal.removeAttribute('data-bs-toggle');
+                btnDeal.removeAttribute('data-bs-placement');
+                btnDeal.removeAttribute('title');
+                const tooltip = bootstrap.Tooltip.getInstance(btnDeal);
+                if (tooltip) tooltip.dispose();
+            }
+        }
+
+        // FUNGSI UTAMA UNTUK KONTROL SEMUA TOMBOL SIMPAN (berdasarkan item)
+        function controlActionButtons() {
+            const hasItems = itemsPembelian.length > 0;
+            const isDisabled = !hasItems;
+            const disableTitle = 'Tambahkan Item terlebih dahulu';
+
+            // 1. Kontrol Draft dan No Deal
+            [btnDraft, btnNoDeal].forEach(btn => {
+                if (btn) {
+                    btn.disabled = isDisabled;
+                    btn.title = isDisabled ? disableTitle : btn.title;
+                    if(isDisabled) btn.removeAttribute('data-bs-toggle'); // Hapus tooltip jika disabled
+                }
+            });
+
+            // 2. Kontrol Deal (Kondisi Ganda: Item ADA dan Harga ADA)
+            if (btnDeal) {
+                if (isDisabled) {
+                    btnDeal.disabled = true;
+                    btnDeal.title = disableTitle;
+                    btnDeal.removeAttribute('data-bs-toggle');
+                } else {
+                    // Jika ada item, baru cek status harga
+                    checkDealButtonStatus();
+                }
+            }
+
+            // Re-initialize tooltips if needed (for title attribute change)
+            if(window.bootstrap) {
+                document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(tooltipEl => {
+                    if (tooltipEl.title) {
+                        let tooltip = bootstrap.Tooltip.getInstance(tooltipEl);
+                        if (tooltip) tooltip.dispose();
+                        new bootstrap.Tooltip(tooltipEl);
+                    }
+                });
+            }
+        }
+
+        // ********** END FUNGSI KONTROL TOMBOL AKSI **********
 
 
         // =======================================================
@@ -523,8 +615,7 @@
                 user_id: mainForm.querySelector('input[name="user_id"]').value,
 
                 // Data item
-                nama_item: namaItem,
-                kategori_id: kategoriId,
+                nama_item: namaItem, kategori_id: kategoriId,
                 serial_number: document.getElementById('item_serial_number').value,
                 serial_lens: document.getElementById('item_serial_lens').value,
                 kondisi_fisik: document.getElementById('item_kondisi_fisik').value,
@@ -577,7 +668,7 @@
                     // 2. Tambahkan item baru (dari server) ke array JS
                     itemsPembelian.push(result.item);
 
-                    // 3. Render ulang tabel
+                    // 3. Render ulang tabel & kontrol tombol
                     renderItemList();
 
                     // 4. Reset & tutup modal
@@ -597,7 +688,6 @@
                 console.error('Error:', error);
                 let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
                 if (error.errors) {
-                    // Tampilkan error validasi pertama
                     errorMsg = Object.values(error.errors)[0][0];
                 } else if (error.message) {
                     errorMsg = error.message;
@@ -613,11 +703,10 @@
         // =======================================================
         // PERUBAHAN UTAMA 2: Hapus Item (AJAX)
         // =======================================================
-        // 'id' di sini adalah ID dari database (item.id)
         window.hapusItem = function(id) {
             if (confirm('Yakin ingin menghapus item ini dari database?')) {
 
-                fetch(`/admin/purchases/delete-item-draft/${id}`, { // Gunakan route baru
+                fetch(`/admin/purchases/delete-item-draft/${id}`, {
                     method: 'DELETE',
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -629,7 +718,7 @@
                     if (result.success) {
                         // Hapus item dari array JS
                         itemsPembelian = itemsPembelian.filter(item => item.id !== id);
-                        // Render ulang tabel
+                        // Render ulang tabel & kontrol tombol
                         renderItemList();
                     } else {
                         alert('Gagal menghapus: ' + result.message);
@@ -643,7 +732,7 @@
         }
 
         // =======================================================
-        // PERUBAHAN UTAMA 3: Render Tabel
+        // PERUBAHAN UTAMA 3: Render Tabel (Termasuk Perbaikan Kategori & Kontrol Tombol)
         // =======================================================
         function renderItemList() {
             if (!itemListWrapper || !mainForm) return;
@@ -651,7 +740,6 @@
             itemListWrapper.innerHTML = '';
 
             // HAPUS SEMUA INPUT HIDDEN YANG LAMA
-            // (Kita tidak membutuhkannya lagi, karena data sudah di DB)
             mainForm.querySelectorAll('input[name^="items["]').forEach(input => input.remove());
             mainForm.querySelectorAll('textarea[name^="items["]').forEach(input => input.remove());
 
@@ -670,8 +758,15 @@
                     let shortKondisi = item.kondisi_fisik || 'N/A';
                     if(shortKondisi && shortKondisi.length > 30) shortKondisi = shortKondisi.substring(0, 30) + '...';
 
-                    // Ambil nama kategori dari data relasi (hasil load 'kategori' di controller)
-                    let kategoriNama = (item.kategori && item.kategori.nama_kategori) ? item.kategori.nama_kategori : 'N/A';
+                    // Logika Perbaikan Kategori: Cek relasi, fallback ke map, atau N/A
+                    let kategoriNama = 'N/A';
+                    if (item.kategori && item.kategori.nama_kategori) {
+                        kategoriNama = item.kategori.nama_kategori;
+                    } else if (item.kategori_id && kategoriMap[item.kategori_id]) {
+                        kategoriNama = kategoriMap[item.kategori_id];
+                    } else {
+                        kategoriNama = 'Kategori: N/A';
+                    }
 
                     tr.innerHTML = `
                         <td>
@@ -687,42 +782,30 @@
                         </td>
                     `;
                     itemListWrapper.appendChild(tr);
-
-
                 });
             }
+
+            // PENTING: Panggil fungsi kontrol setelah rendering selesai
+            controlActionButtons();
         }
 
-        // --- (SCRIPT MODAL CUSTOMER ANDA - TETAP SAMA) ---
+        // --- (SCRIPT MODAL CUSTOMER ANDA) ---
         const btnSimpanCustomer = document.getElementById('btnSimpanCustomer');
         const modalTambahCustomer = new bootstrap.Modal(document.getElementById('modalTambahCustomer'));
         const formTambahCustomer = document.getElementById('formTambahCustomer');
 
         btnSimpanCustomer.addEventListener('click', function() {
-            // ... (Logika simpan customer Anda tidak perlu diubah) ...
             const nama = document.getElementById('customer_nama_modal').value;
             const no_telp = document.getElementById('customer_no_telp_modal').value;
-            if(!nama || !no_telp) {
-                alert('Nama dan No. Telepon customer wajib diisi.');
-                return;
-            }
+            if(!nama || !no_telp) { alert('Nama dan No. Telepon customer wajib diisi.'); return; }
             const formData = new FormData(formTambahCustomer);
             const data = Object.fromEntries(formData.entries());
             btnSimpanCustomer.disabled = true;
             btnSimpanCustomer.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
             fetch("{{ route('admin.customers.store') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(data)
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }, body: JSON.stringify(data)
             })
-            .then(response => {
-                if (!response.ok) { return response.json().then(err => { throw err; }); }
-                return response.json();
-            })
+            .then(response => { if (!response.ok) { return response.json().then(err => { throw err; }); } return response.json(); })
             .then(result => {
                 if(result.success) {
                     const customerSelect = document.getElementById('customer_id');
@@ -730,9 +813,7 @@
                     customerSelect.appendChild(newOption);
                     formTambahCustomer.reset();
                     modalTambahCustomer.hide();
-                } else {
-                    alert('Gagal menyimpan customer: ' + (result.message || 'Error tidak diketahui.'));
-                }
+                } else { alert('Gagal menyimpan customer: ' + (result.message || 'Error tidak diketahui.')); }
             })
             .catch(error => {
                 console.error('Error:', error);
@@ -746,52 +827,91 @@
             });
         });
 
-        // --- (Script copy-paste link Anda - TETAP SAMA) ---
+        // --- (Script copy-paste link Anda - DIHAPUS ALERT-NYA) ---
         window.copyToClipboard = function() {
             const linkInput = document.getElementById('shareable-link');
             linkInput.select();
             linkInput.setSelectionRange(0, 99999);
             document.execCommand('copy');
-            alert('Link tinjauan telah disalin ke clipboard!');
         }
 
         const rupiahInputs = document.querySelectorAll('.rupiah-mask');
 
-    rupiahInputs.forEach(input => {
-        // 1. Format awal saat halaman diload (jika ada value dari old/database)
-        if (input.value) {
-            const cleanValue = input.value.replace(/\D/g, ''); // Hapus karakter non-angka
-            input.value = formatRupiah(cleanValue); // Tampilkan format
+        rupiahInputs.forEach(input => {
+            const isDealInput = input.id === 'display_harga_deal';
+
+            // 1. Format awal
+            if (input.value) {
+                const cleanValue = input.value.replace(/\D/g, '');
+                input.value = formatRupiah(cleanValue);
+                const hiddenInputId = input.id.replace('display_', '');
+                const hiddenInput = document.getElementById(hiddenInputId);
+                if (hiddenInput) { hiddenInput.value = cleanValue; }
+            }
+
+            // 2. Event listener saat mengetik
+            input.addEventListener('keyup', function(e) {
+                let cleanValue = this.value.replace(/\D/g, '');
+                this.value = formatRupiah(cleanValue);
+                const hiddenInputId = this.id.replace('display_', '');
+                const hiddenInput = document.getElementById(hiddenInputId);
+                if(hiddenInput) { hiddenInput.value = cleanValue; }
+                if (isDealInput) { checkDealButtonStatus(); }
+                markFormAsDirty(); // Mark form dirty on price change
+            });
+
+            // 3. Event listener change
+            input.addEventListener('change', function() {
+                const hiddenInputId = this.id.replace('display_', '');
+                const hiddenInput = document.getElementById(hiddenInputId);
+                if (hiddenInput) { hiddenInput.value = this.value.replace(/\D/g, ''); }
+                if (isDealInput) { checkDealButtonStatus(); }
+                markFormAsDirty(); // Mark form dirty on price change
+            });
+        });
+
+        function formatRupiah(angka) {
+            if (!angka) return '';
+            return new Intl.NumberFormat('id-ID').format(angka);
         }
 
-        // 2. Event listener saat mengetik
-        input.addEventListener('keyup', function(e) {
-            // Ambil value tanpa karakter non-angka
-            let cleanValue = this.value.replace(/\D/g, '');
+        // Inisialisasi Tooltip di akhir DOMContentLoaded
+        if (window.bootstrap) {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(tooltipEl => {
+                if (tooltipEl.title) {
+                    new bootstrap.Tooltip(tooltipEl);
+                }
+            });
+        }
 
-            // Update tampilan ke format Rupiah
-            this.value = formatRupiah(cleanValue);
+        // ********** LOGIKA PERINGATAN PERUBAHAN BELUM TERSIMPAN (Cont.) **********
 
-            // Update input HIDDEN yang berteman dengan input ini
-            // Kita cari input hidden yang ID-nya mirip (tanpa prefix 'display_')
-            const hiddenInputId = this.id.replace('display_', '');
-            const hiddenInput = document.getElementById(hiddenInputId);
+        if (form) {
+            // 1. Tambahkan event listener ke semua input/select/textarea di formulir utama (diulang untuk field non-price)
+            form.querySelectorAll('input:not([type="hidden"]):not(.rupiah-mask), select, textarea').forEach(element => {
+                element.addEventListener('input', markFormAsDirty);
+                element.addEventListener('change', markFormAsDirty);
+            });
 
-            if(hiddenInput) {
-                hiddenInput.value = cleanValue;
+            // 2. Event listener untuk tombol Kembali
+            if (btnKembali) {
+                btnKembali.addEventListener('click', function(e) {
+                    if (isFormDirty) {
+                        e.preventDefault();
+                        const confirmation = confirm("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?");
+                        if (confirmation) {
+                            window.location.href = btnKembali.href;
+                        }
+                    }
+                });
             }
-        });
+
+            // 3. Reset status dirty saat formulir utama berhasil disubmit
+            form.addEventListener('submit', function() {
+                isFormDirty = false;
+            });
+        }
     });
 
-    function formatRupiah(angka) {
-        if (!angka) return '';
-
-        // Menggunakan fungsi bawaan Intl untuk format Indonesia
-        return new Intl.NumberFormat('id-ID').format(angka);
-
-        // ATAU jika ingin manual regex titik:
-        // return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
-    });
 </script>
 @endpush
