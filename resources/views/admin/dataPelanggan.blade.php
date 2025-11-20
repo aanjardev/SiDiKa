@@ -97,63 +97,91 @@
 
 
 @push('styles')
-<style>
-    .table {
-        border-radius: 5px;
-        overflow: hidden;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-    .table-product tbody tr:nth-child(even) {
-        background-color: #F8F9FC;
-    }
-    .table-product tbody tr:hover {
-        background-color: #EFF3F9;
-        transition: 0.2s;
-    }
+    <style>
+        .table {
+            border-radius: 5px;
+            overflow: hidden;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
 
-    /* Style untuk Tombol Hapus (btn-icon) */
-    button.btn-icon,
-    .table-product button.btn-icon,
-    form .btn-icon {
-        background: transparent !important; border: none !important;
-        padding: 0 !important; color: #dc3545 !important;
-        cursor: pointer !important; font-size: 16px !important;
-        line-height: 1 !important; appearance: none !important;
-        box-shadow: none !important; outline: none !important;
-    }
-    .btn-icon i, .btn-icon svg, .btn-icon .fa-solid {
-        color: inherit !important; fill: currentColor !important;
-        stroke: currentColor !important;
-    }
-    button.btn-icon:focus, button.btn-icon:active,
-    .btn-icon:focus, .btn-icon:active {
-        outline: none !important; box-shadow: none !important;
-    }
-    .btn-icon:hover { color: #bb2d3b !important; }
+        .table-product tbody tr:nth-child(even) {
+            background-color: #F8F9FC;
+        }
 
-    .table-wrapper {
-        min-height: 700px;
-        display: flex;
-        flex-direction: column;
-    }
-    .table-responsive {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    .table-product {
-        flex-grow: 1;
-    }
+        .table-product tbody tr:hover {
+            background-color: #EFF3F9;
+            transition: 0.2s;
+        }
 
-    .table-product tr.tr-empty {
-        flex-grow: 1;
-        display: table-row;
-    }
-    .table-product tr.tr-empty td {
-        vertical-align: middle;
-        padding-top: 0;
-        padding-bottom: 0;
-    }
-</style>
-@endpush
+        button.btn-icon,
+        .table-product button.btn-icon,
+        form .btn-icon {
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            color: #dc3545 !important;
+            /* merah */
+            cursor: pointer !important;
+            font-size: 16px !important;
+            line-height: 1 !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            appearance: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        /* Pastikan ikon mewarisi warna, dan svg FA menggunakan fill:currentColor */
+        .btn-icon i,
+        .btn-icon svg,
+        .btn-icon .fa-solid {
+            color: inherit !important;
+            fill: currentColor !important;
+            stroke: currentColor !important;
+        }
+
+        /* Hilangkan efek fokus/active yang mungkin ditambahkan global */
+        button.btn-icon:focus,
+        button.btn-icon:active,
+        .btn-icon:focus,
+        .btn-icon:active {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-icon:hover {
+            color: #bb2d3b;
+        }
+
+        .table-wrapper {
+            min-height: 700px;
+            /* display: flex;
+            flex-direction: column; */
+        }
+
+        .table-responsive {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-product {
+            flex-grow: 1;
+        }
+
+        .table-product tbody {
+            height: 100%;
+        }
+
+        .table-product tr.tr-empty {
+            height: 100%;
+        }
+
+        .table-product tr.tr-empty td {
+            vertical-align: middle;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+    </style>
+    @endpush
