@@ -16,10 +16,12 @@
     </a>
 
     {{-- Tombol Cetak PDF (Tetap Biru Outline) --}}
-    <a href="#" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2">
-        <i class="fas fa-print fa-fw"></i>
-        <span>Cetak Nota</span>
-    </a>
+    @if ($pembelian->status_pembelian == 'deal')
+        <a href="{{ route('admin.purchases.print', $pembelian->id) }}" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2" target="_blank">
+            <i class="fas fa-print fa-fw"></i>
+            <span>Cetak Nota</span>
+        </a>
+    @endif
 @endpush
 
 @section('content')
@@ -44,17 +46,17 @@
                         <small class="text-muted">{{ $pembelian->customer->no_telp ?? '' }}</small>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label text-muted small">Lokasi Transaksi (Cabang)</label>
+                        <label class="form-label text-muted small">Cabang</label>
                         <p class="fw-bold mb-0">{{ $pembelian->perusahaan_cabang->nama ?? '-' }}</p>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label text-muted small">Petugas (Karyawan)</label>
+                        <label class="form-label text-muted small">Kasir</label>
                         <p class="fw-bold mb-0">{{ $pembelian->user->name ?? '-' }}</p>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label text-muted small">Tanggal Dibuat</label>
+                        <label class="form-label text-muted small">Tanggal Transaksi</label>
                         <p class="fw-bold mb-0">{{ $pembelian->created_at->format('d M Y, H:i') }}</p>
                     </div>
                 </div>
@@ -64,7 +66,7 @@
         {{-- CARD 2: DAFTAR ITEM DRAFT --}}
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body p-4">
-                <h5 class="card-title fw-bold mb-3">Item yang Ditawarkan ({{ $pembelian->item_pembelian_draft->count() }} item)</h5>
+                <h5 class="card-title fw-bold mb-3">Daftar Item ({{ $pembelian->item_pembelian_draft->count() }} item)</h5>
 
                 {{-- Kita gunakan accordion untuk menampilkan semua 20+ data kondisi --}}
                 <div class="accordion" id="accordionItemReview">
@@ -194,7 +196,7 @@
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body p-3">
                 <h6 class="card-title fw-bold mb-2"><i class="fas fa-share-alt me-1"></i> Bagikan Tinjauan</h6>
-                <p class="text-muted small mt-0 mb-2">Link ini dapat dibagikan untuk persetujuan (read-only).</p>
+                <p class="text-muted small mt-0 mb-2">Link ini dapat dibagikan (read-only).</p>
                 <div class="input-group">
                     {{-- Ganti value di sini agar menggunakan fungsi route Laravel --}}
                     <input type="text" class="form-control form-control-sm" id="shareable-link" value="{{ route('admin.purchases.show', $pembelian->id) }}" readonly>
