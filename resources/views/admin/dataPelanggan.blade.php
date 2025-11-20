@@ -1,159 +1,132 @@
-@extends('layouts.admin') {{-- Menggunakan layout admin.blade.php --}}
+@extends('layouts.admin') 
 
-@section('title', 'Data Pelanggan') {{-- Judul Halaman --}}
+@section('title', 'Data Pelanggan') 
 
 @section('content')
 
-
-{{-- Search & Filter --}}
-<div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
-    <div class="flex-grow-1 ">
-
-        <div class="input-group shadow-sm">
-            <span class="input-group-text">
-                <i class="fa-solid fa-search"></i>
+{{-- Filter dan Pencarian (Style: Satu Card Putih Clean) --}}
+<div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+    <div class="card-body p-2 d-flex align-items-center flex-wrap">
+        {{-- Bagian Kiri: Ikon Filter & Input Search --}}
+        <div class="d-flex align-items-center flex-grow-1 ps-2">
+            <span class="text-muted ms-2 me-3">
+                <i class="fa-solid fa-search text-muted"></i> 
             </span>
-            <input type="text" class="form-control" placeholder="Cari pelanggan berdasarkan nama atau nomor telepon...">
+            <input type="text" class="form-control border-0 shadow-none bg-transparent" 
+                   placeholder="Cari pelanggan berdasarkan nama atau nomor telepon..."
+                   style="font-size: 0.95rem;">
+        </div>
+
+        {{-- Bagian Kanan: Dropdown Filter --}}
+        <div class="d-flex align-items-center gap-2 pe-2">
+            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
+                <option selected>Urutkan: Terakhir diubah</option>
+                <option value="az">Nama (A-Z)</option>
+                <option value="za">Nama (Z-A)</option>
+            </select>
         </div>
     </div>
-
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
-        <option selected>Terakhir diubah</option>
-        <option>Nama (A-Z)</option>
-    </select>
 </div>
 
+{{-- Table Card --}}
+<div class="card shadow-sm border-0" style="border-radius: 10px; overflow: hidden;">
+    <div class="card-body p-0">
+        <table class="table align-middle mb-0 table-hover">
+            {{-- Header Abu-abu Terang --}}
+            <thead class="bg-light"> 
+                <tr class="text-dark fw-bold" style="border-bottom: 2px solid #eee;">
+                    <th class="text-center py-3" style="width: 5%;">No</th>
+                    <th class="py-3">Nama Pelanggan</th>
+                    <th class="py-3">Jenis Kelamin</th>
+                    <th class="py-3">No. Telepon</th>
+                    <th class="py-3" style="width: 25%;">Alamat</th>
+                    <th class="py-3">NIK</th>
+                    <th class="text-center py-3" style="width: 140px;">Aksi</th> 
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($data_pelanggan as $pelanggan)
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td class="text-center">{{ $loop->iteration }}</td>
+                        
+                        <td>
+                            <span class="fw-bold text-dark" style="font-size: 0.95rem;">
+                                {{ $pelanggan->nama }}
+                            </span>
+                        </td>
 
+                        <td>
+                            {{-- Opsional: Badge sederhana untuk JK --}}
+                            @if(in_array(strtolower($pelanggan->jenis_kelamin), ['laki-laki', 'l']))
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill">Laki-laki</span>
+                            @elseif(in_array(strtolower($pelanggan->jenis_kelamin), ['perempuan', 'p']))
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle rounded-pill">Perempuan</span>
+                            @else
+                                <span class="text-secondary">{{ $pelanggan->jenis_kelamin }}</span>
+                            @endif
+                        </td>
 
-<div class="card shadow-sm">
-    <div class="card-body p-0 table-wrapper">
-        <div class="table-responsive">
-            <table class="table align-middle mb-0 table-product">
-                <thead class="table-light">
-                    <tr>
-                        <th class="text-center" style="width: 60px;">No</th>
-                        <th>Nama</th>
-                        <th>Jenis Kelamin</th>
-                        <th>No. Telepon</th>
-                        <th style="width:30%">Alamat</th>
-                        <th>NIK</th>
-                        <th class="text-center">Aksi</th>
+                        <td class="text-muted">{{ $pelanggan->no_telp }}</td>
+                        
+                        <td class="text-muted small text-wrap" style="line-height: 1.4;">
+                            {{ $pelanggan->alamat }}
+                        </td>
+                        
+                        <td class="text-dark fw-medium">{{ $pelanggan->identitas }}</td>
+
+                        {{-- Aksi Buttons --}}
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                {{-- Tombol Lihat --}}
+                                <a href="#" 
+                                   class="btn btn-sm btn-light text-dark border shadow-sm d-flex align-items-center justify-content-center rounded-3"
+                                   style="width: 32px; height: 32px;"
+                                   title="Lihat Detail">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+
+                                {{-- Tombol Edit --}}
+                                <a href="#" 
+                                   class="btn btn-sm btn-light text-primary border shadow-sm d-flex align-items-center justify-content-center rounded-3"
+                                   style="width: 32px; height: 32px;"
+                                   title="Edit">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+
+                                {{-- Tombol Hapus --}}
+                                <form action="" method="POST" class="d-inline" onsubmit="return confirm('Yakin mau hapus data ini?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" 
+                                            class="btn btn-sm btn-light text-danger border shadow-sm d-flex align-items-center justify-content-center rounded-3"
+                                            style="width: 32px; height: 32px;" 
+                                            title="Hapus">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
                     </tr>
-                </thead>
-                <tbody>
-                    @forelse ($data_pelanggan as $pelanggan)
-                        <tr>
-                            <td class="text-center">{{ $loop->iteration }}</td>
-                            <td>{{ $pelanggan->nama }}</td>
-                            <td>{{ $pelanggan->jenis_kelamin }}</td>
-                            <td>{{ $pelanggan->no_telp }}</td>
-                            <td>{{ $pelanggan->alamat }}</td>
-                            <td>{{ $pelanggan->identitas }}</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="#" title="Lihat">
-                                        <i class="fa-solid fa-eye" style="color: black;"></i>
-                                    </a>
-                                    <a href="#" title="Edit">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </a>
-                                    <form action="" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-icon" title="Hapus">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-
-
-                    @empty
-                        <tr class="tr-empty">
-                            <td colspan="7" class="text-center">
-                                <div>
-                                    <i class="fa-solid fa-users fa-2x text-muted mb-3"></i>
-                                    <h5 class="mb-1">Tidak Ada Data Pelanggan</h5>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
+                @empty
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fa-solid fa-users fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Tidak Ada Data Pelanggan</h5>
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-
-
+    
+    {{-- Pagination --}}
     @if ($data_pelanggan->hasPages())
-        <div class="card-footer bg-white">
-            {{  $data_pelanggan->links('pagination::bootstrap-5')  }}
+        <div class="card-footer bg-white border-0 d-flex justify-content-end py-3">
+            {{ $data_pelanggan->links('pagination::bootstrap-5') }}
         </div>
     @endif
-
 </div>
 
 @endsection
-
-
-@push('styles')
-<style>
-    .table {
-        border-radius: 5px;
-        overflow: hidden;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-    .table-product tbody tr:nth-child(even) {
-        background-color: #F8F9FC;
-    }
-    .table-product tbody tr:hover {
-        background-color: #EFF3F9;
-        transition: 0.2s;
-    }
-
-    /* Style untuk Tombol Hapus (btn-icon) */
-    button.btn-icon,
-    .table-product button.btn-icon,
-    form .btn-icon {
-        background: transparent !important; border: none !important;
-        padding: 0 !important; color: #dc3545 !important;
-        cursor: pointer !important; font-size: 16px !important;
-        line-height: 1 !important; appearance: none !important;
-        box-shadow: none !important; outline: none !important;
-    }
-    .btn-icon i, .btn-icon svg, .btn-icon .fa-solid {
-        color: inherit !important; fill: currentColor !important;
-        stroke: currentColor !important;
-    }
-    button.btn-icon:focus, button.btn-icon:active,
-    .btn-icon:focus, .btn-icon:active {
-        outline: none !important; box-shadow: none !important;
-    }
-    .btn-icon:hover { color: #bb2d3b !important; }
-
-    .table-wrapper {
-        min-height: 700px;
-        display: flex;
-        flex-direction: column;
-    }
-    .table-responsive {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    .table-product {
-        flex-grow: 1;
-    }
-
-    .table-product tr.tr-empty {
-        flex-grow: 1;
-        display: table-row;
-    }
-    .table-product tr.tr-empty td {
-        vertical-align: middle;
-        padding-top: 0;
-        padding-bottom: 0;
-    }
-</style>
-@endpush

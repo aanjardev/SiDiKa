@@ -1,191 +1,142 @@
-    @extends('layouts.admin')
+@extends('layouts.admin')
 
-    @section('title', 'Data Cabang')
+@section('title', 'Data Cabang')
 
-    @push('page-actions')
+@push('page-actions')
     <a href="{{ route('admin.branches.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
         <i class="fas fa-plus fa-fw"></i>
         <span>Tambah Cabang</span>
     </a>
-    @endpush
+@endpush
 
-    @section('content')
+@section('content')
 
-    {{-- Search & Filter --}}
-    <div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
-        <div class="flex-grow-1 ">
-            <div class="input-group shadow-sm">
-                <span class="input-group-text">
-                    <i class="fa-solid fa-search"></i>
-                </span>
-                <input type="text" class="form-control" placeholder="Cari produk berdasarkan nama atau SKU...">
-            </div>
+{{-- Filter dan Pencarian (Style: Satu Card Putih Clean) --}}
+<div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+    <div class="card-body p-2 d-flex align-items-center flex-wrap">
+        {{-- Bagian Kiri: Ikon Filter & Input Search --}}
+        <div class="d-flex align-items-center flex-grow-1 ps-2">
+            <span class="text-muted ms-2 me-3">
+                <i class="fa-solid fa-search text-muted"></i> 
+            </span>
+            <input type="text" class="form-control border-0 shadow-none bg-transparent" 
+                   placeholder="Cari cabang berdasarkan nama atau alamat..."
+                   style="font-size: 0.95rem;">
+        </div>
+
+        {{-- Bagian Kanan: Dropdown (Opsional, untuk konsistensi layout) --}}
+        <div class="d-flex align-items-center gap-2 pe-2">
+            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
+                <option selected>Urutkan: Terbaru</option>
+                <option value="az">Nama (A-Z)</option>
+                <option value="za">Nama (Z-A)</option>
+            </select>
         </div>
     </div>
+</div>
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0 table-wrapper">
-            <div class="table-responsive">
-                <table class="table align-middle mb-0 table-product">
-                    <thead class="table-light">
-                        <tr>
-                            <th class="text-center" style="width: 60px;">No</th>
-                            <th>Nama Cabang</th>
-                            <th style="width:40%">Alamat</th>
-                            <th>No. Telepon</th>
-                            <th class="text-center">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($data_cabang as $cabang)
-                        <tr>
-                            <td class="text-center">{{ $loop->iteration }}</td>
-                            <td>{{ $cabang->nama }}</td>
-                            <td>
-                                @if ($cabang->link_maps)
-                                <a href="{{ $cabang->link_maps }}"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    title="Lihat di Google Maps">
-                                    {{ $cabang->alamat }}
-                                    <i class="fa-solid fa-location-dot ms-1 text-danger"></i>
+{{-- Table Card --}}
+<div class="card shadow-sm border-0" style="border-radius: 10px; overflow: hidden;">
+    <div class="card-body p-0">
+        <table class="table align-middle mb-0 table-hover">
+            {{-- Header Abu-abu Terang --}}
+            <thead class="bg-light"> 
+                <tr class="text-dark fw-bold" style="border-bottom: 2px solid #eee;">
+                    <th class="text-center py-3" style="width: 5%;">No</th>
+                    <th class="py-3">Nama Cabang</th>
+                    <th class="py-3" style="width: 40%;">Alamat</th>
+                    <th class="py-3">Nomor Telepon</th>
+                    <th class="text-center py-3" style="width: 120px;">Aksi</th> 
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($data_cabang as $cabang)
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td class="text-center">{{ $loop->iteration }}</td>
+                        
+                        {{-- Nama Cabang --}}
+                        <td>
+                            <span class="fw-bold text-dark" style="font-size: 0.95rem;">
+                                {{ $cabang->nama }}
+                            </span>
+                        </td>
+
+                        {{-- Alamat dengan Link Maps --}}
+                        <td>
+                            @if ($cabang->link_maps)
+                                <a href="{{ $cabang->link_maps }}" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   class="text-decoration-none text-secondary d-flex align-items-start gap-2"
+                                   title="Lihat di Google Maps">
+                                    <i class="fa-solid fa-location-dot text-danger mt-1"></i>
+                                    <span>{{ $cabang->alamat }}</span>
                                 </a>
-                                @else
-                                {{ $cabang->alamat }}
-                                @endif
-                            </td>
-
-                            <td>{{ $cabang->nomor_telepon }}</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center gap-2">
-                                    <!-- <a href="#" title="Lihat">
-                                        <i class="fa-solid fa-eye" style="color: black;"></i>
-                                    </a> -->
-                                    <a href="{{ route('admin.branches.edit', $cabang->id) }}" title="Edit">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </a>
-                                    <form action="{{ route('admin.branches.destroy', $cabang->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                            <button type="button" class="btn-icon btn-delete" title="Hapus">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </form>
+                            @else
+                                <div class="text-secondary d-flex align-items-start gap-2">
+                                    <i class="fa-solid fa-map-pin text-muted mt-1"></i>
+                                    <span>{{ $cabang->alamat }}</span>
                                 </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="5" class="text-center">
-                                <div>
-                                    <i class="fa-solid fa-store fa-2x text-muted mb-3"></i>
-                                    <h5 class="mb-1">Tidak Ada Data Cabang</h5>
-                                    <p class="text-muted mb-0">Silakan <a href="{{ route('admin.branches.create') }}">tambah data cabang</a> baru.</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                            @endif
+                        </td>
 
-        @if ($data_cabang->hasPages())
-        <div class="card-footer bg-white">
+                        <td class="text-muted">{{ $cabang->nomor_telepon }}</td>
+
+                        {{-- Aksi Buttons --}}
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ route('admin.branches.edit', $cabang->id) }}" 
+                                   class="btn btn-sm btn-light text-primary border shadow-sm d-flex align-items-center justify-content-center rounded-3"
+                                   style="width: 32px; height: 32px;"
+                                   title="Edit">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
+
+                                <form action="{{ route('admin.branches.destroy', $cabang->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" 
+                                            class="btn btn-sm btn-light text-danger border shadow-sm d-flex align-items-center justify-content-center rounded-3"
+                                            style="width: 32px; height: 32px;" 
+                                            title="Hapus"
+                                            onclick="confirmDelete(this)">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center">
+                                <i class="fa-solid fa-store fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">Tidak Ada Data Cabang</h5>
+                                <p class="text-muted small mb-0">Silakan tambah cabang baru untuk memulai.</p>
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+    
+    {{-- Pagination --}}
+    @if ($data_cabang->hasPages())
+        <div class="card-footer bg-white border-0 d-flex justify-content-end py-3">
             {{ $data_cabang->links('pagination::bootstrap-5') }}
         </div>
-        @endif
+    @endif
+</div>
 
-    </div>
+@endsection
 
-    @endsection
-
-    @push('styles')
-    <style>
-        .table {
-            border-radius: 5px;
-            overflow: hidden;
-            border-collapse: separate;
-            border-spacing: 0;
+@push('scripts')
+<script>
+    function confirmDelete(button) {
+        if (confirm('Apakah Anda yakin ingin menghapus data cabang ini?')) {
+            button.form.submit();
         }
-
-        .table-product tbody tr:nth-child(even) {
-            background-color: #F8F9FC;
-        }
-
-        .table-product tbody tr:hover {
-            background-color: #EFF3F9;
-            transition: 0.2s;
-        }
-
-        button.btn-icon,
-        .table-product button.btn-icon,
-        form .btn-icon {
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-            color: #dc3545 !important;
-            /* merah */
-            cursor: pointer !important;
-            font-size: 16px !important;
-            line-height: 1 !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            appearance: none !important;
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        /* Pastikan ikon mewarisi warna, dan svg FA menggunakan fill:currentColor */
-        .btn-icon i,
-        .btn-icon svg,
-        .btn-icon .fa-solid {
-            color: inherit !important;
-            fill: currentColor !important;
-            stroke: currentColor !important;
-        }
-
-        /* Hilangkan efek fokus/active yang mungkin ditambahkan global */
-        button.btn-icon:focus,
-        button.btn-icon:active,
-        .btn-icon:focus,
-        .btn-icon:active {
-            outline: none !important;
-            box-shadow: none !important;
-        }
-
-        .btn-icon:hover {
-            color: #bb2d3b;
-        }
-
-        .table-wrapper {
-            min-height: 700px;
-            /* display: flex;
-            flex-direction: column; */
-        }
-
-        .table-responsive {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-product {
-            flex-grow: 1;
-        }
-
-        .table-product tbody {
-            height: 100%;
-        }
-
-        .table-product tr.tr-empty {
-            height: 100%;
-        }
-
-        .table-product tr.tr-empty td {
-            vertical-align: middle;
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-    </style>
-    @endpush
+    }
+</script>
+@endpush
