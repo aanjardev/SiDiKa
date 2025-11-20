@@ -72,21 +72,12 @@
 
         <!-- Sidebar Menu -->
         <div class="sidebar-menu" id="sidebarMenu">
-            <!-- Home Section -->
+            <!-- Dashboard (direct link) -->
             <div class="menu-section">
-                <button class="menu-link menu-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#homeMenu" aria-expanded="false" aria-controls="homeMenu">
-                    <i class="fas fa-house menu-icon"></i>
-                    <span>Home</span>
-                    <i class="fas fa-chevron-right menu-arrow"></i>
-                </button>
-                <div class="collapse submenu" id="homeMenu">
-                    <div class="submenu-item">
-                        <a href="{{ route('admin.dashboard') }}" class="submenu-link">
-                            <i class="fas fa-th-large submenu-icon"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </div>
-                </div>
+                <a href="{{ route('admin.dashboard') }}" class="menu-link d-flex align-items-center">
+                    <i class="fas fa-th-large menu-icon"></i>
+                    <span>Dashboard</span>
+                </a>
             </div>
 
             <!-- Master Data Section -->
@@ -166,6 +157,13 @@
                             <span>Quality Control</span>
                         </a>
                     </div>
+
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.products.photos') }}" class="submenu-link">
+                            <i class="fas fa-image submenu-icon"></i>
+                            <span>Foto Produk</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -185,12 +183,7 @@
                         </a>
                     </div>
 
-                    <div class="submenu-item">
-                        <a href="#" class="submenu-link">
-                            <i class="fas fa-bullhorn submenu-icon"></i>
-                            <span>Manajemen Promosi</span>
-                        </a>
-                    </div>
+                    {{-- Manajemen Promosi removed per request --}}
 
                     @if (Auth::user()->role == 'manager')
                     <div class="submenu-item">
@@ -211,8 +204,8 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="user-info">
-                    <p class="user-name">Syaiful Budiyanto</p>
-                    <p class="user-role">Manager</p>
+                    <p class="user-name">{{ Auth::user()->name ?? 'User' }}</p>
+                    <p class="user-role">{{ isset(Auth::user()->role) ? ucfirst(Auth::user()->role) : '' }}</p>
                 </div>
                 <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
             </div>

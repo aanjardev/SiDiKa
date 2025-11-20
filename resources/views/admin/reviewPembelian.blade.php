@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Detail Pembelian ' . $pembelian->kode_transaksi)
+@section('title', 'Detail Pembelian #' . $pembelian->kode_transaksi)
 
 @push('page-actions')
     {{-- Tombol Kembali ke Daftar --}}

@@ -273,7 +273,7 @@
 
         .table-product tbody tr:not(.tr-empty) td {
             vertical-align: top !important;
-            padding: 0.75rem 0.5rem !important;
+            padding: 0.75rem 0.75rem !important;
         }
     </style>
 @endpush
