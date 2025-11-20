@@ -96,7 +96,6 @@
                             <div>
                                 <i class="fa-solid fa-box-open fa-2x text-muted mb-3"></i>
                                 <h5 class="mb-1">Tidak Ada Data Produk</h5>
-                                <p class="text-muted mb-0">Silakan <a href="{{ route('admin.products.create') }}">tambah data produk</a> baru.</p>
                             </div>
                         </td>
                     </tr>

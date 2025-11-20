@@ -109,10 +109,9 @@
                     @empty
                         <tr class="tr-empty">
                             <td colspan="9" class="p-0">
-                                <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 700px; width: 100%;">
+                                <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
                                     <i class="fa-solid fa-shopping-bag fa-2x text-muted mb-3"></i>
                                     <h5 class="mb-1">Tidak Ada Data Pembelian</h5>
-                                    {{-- <p class="text-muted mb-0">Silakan <a href="{{ route('admin.purchases.create') }}">tambah transaksi pembelian</a> baru.</p> --}}
                                 </div>
                             </td>
                         </tr>
@@ -221,54 +220,53 @@
             color: #bb2d3b;
         }
 
-        .table-wrapper {
+        .card.shadow-sm {
             min-height: 700px;
             display: flex;
             flex-direction: column;
-            position: relative;
+        }
+
+        .card.shadow-sm .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-wrapper {
+            /* Tabel mengambil tinggi natural sesuai konten */
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         .table-responsive {
-            flex-grow: 1;
-            position: relative;
+            /* Normal table responsive behavior */
+            flex: 1;
         }
 
         .table-product {
-            width: 100%;
-            margin-bottom: 0 !important;
-        }
-
-        .table-product tbody {
-            position: relative;
-            min-height: 700px;
+            /* Normal table behavior */
+            margin-bottom: 0;
         }
 
         .table-product tr.tr-empty {
-            position: relative;
-            background-color: #fff;
+            /* Empty state row */
+            display: table-row;
         }
 
         .table-product tr.tr-empty td {
-            height: auto;
-            padding: 0 !important;
+            vertical-align: middle;
+            padding-top: 0;
+            padding-bottom: 0;
         }
 
-        /* .table-product tr.tr-empty td .empty-content {
-            height: 100%; /
-        } */
-
         .table-product tr.tr-empty td .empty-message {
-            height: 100%;
-            text-align: center;
+            min-height: 400px;
+            width: 100%;
         }
 
         .tr-empty td {
-            border: none
-        }
-
-        .empty-message {
-            min-height: 700px;
-            width: 100%;
+            border: none;
         }
 
         .table-product tbody tr:not(.tr-empty) td {
@@ -334,9 +332,9 @@
                 }
                 return response.json(); // Ambil respons sebagai JSON
             })
-            .then data => {
+            .then(data => {
                 // Hapus konten <tbody> dan pagination lama
-                tableBody.innerHTML = data.table_html;
+                tableBody.innerHTML = data.table_html || '';
 
                 // Pastikan paginationContainer diperbarui dengan benar
                 paginationContainer.innerHTML = data.pagination_html ?
@@ -345,10 +343,23 @@
                 // Perbarui URL browser (tanpa reload)
                 window.history.pushState(null, null, url);
 
+                // Re-attach pagination listeners
+                attachPaginationListeners();
             })
             .catch(error => {
                 console.error('Fetch error:', error);
-                alert('Gagal memuat data: ' + error.message);
+                // Render empty message dengan style yang sama
+                tableBody.innerHTML = `
+                    <tr class="tr-empty">
+                        <td colspan="9" class="p-0">
+                            <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
+                                <i class="fa-solid fa-exclamation-triangle fa-2x text-muted mb-3"></i>
+                                <h5 class="mb-1">Gagal memuat data</h5>
+                                <p class="text-muted mb-0">Silakan coba lagi atau cek log server.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             })
             .finally(() => {
                 isFetching = false;

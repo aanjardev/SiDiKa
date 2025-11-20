@@ -53,7 +53,6 @@
                 <div class="d-flex flex-column align-items-center justify-content-center h-100 p-5 empty-message">
                     <i class="fa-solid fa-shopping-bag fa-2x text-muted mb-3"></i>
                     <h5 class="mb-1">Tidak Ada Data Pembelian</h5>
-                    <p class="text-muted mb-0">Silakan <a href="{{ route('admin.purchases.create') }}">tambah transaksi pembelian</a> baru.</p>
                 </div>
             </td>
         </tr>

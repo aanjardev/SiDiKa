@@ -102,8 +102,8 @@
                     {{-- Bagian @empty state --}}
                     @empty
                         <tr class="tr-empty">
-                            <td colspan="7" class="text-center"> {{-- Colspan 7 (sesuai jumlah <th>) --}}
-                                <div>
+                            <td colspan="7" class="p-0">
+                                <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
                                     <i class="fa-solid fa-receipt fa-2x text-muted mb-3"></i>
                                     <h5 class="mb-1">Tidak Ada Data Penjualan</h5>
                                     <p class="text-muted mb-0">Belum ada transaksi penjualan yang tercatat.</p>
@@ -185,6 +185,13 @@
         vertical-align: middle;
         padding-top: 0;
         padding-bottom: 0;
+    }
+    .table-product tr.tr-empty td .empty-message {
+        min-height: 250px;
+        width: 100%;
+    }
+    .tr-empty td {
+        border: none;
     }
 </style>
 @endpush

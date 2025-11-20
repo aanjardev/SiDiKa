@@ -130,11 +130,25 @@ class QCController extends Controller
             'catatan_qc' => 'nullable|string',
         ];
 
+        // If the user clicked the draft button, make validation more lenient
+        $action = $request->input('action', 'save');
+        if ($action === 'draft') {
+            // For draft, only nama_item and kategori_id are required
+            $rules['nama_item'] = 'required|string|max:200';
+            $rules['kategori_id'] = 'required|exists:kategori,id';
+            // Other fields are optional for draft
+        }
+
         $data = $request->validate($rules);
 
         // If the user clicked the archive button, force status to diarsipkan
-        if ($request->input('action') === 'archive') {
+        if ($action === 'archive') {
             $data['status_qc'] = 'diarsipkan';
+        }
+
+        // If the user clicked the draft button, keep status as menunggu_qc
+        if ($action === 'draft') {
+            $data['status_qc'] = 'menunggu_qc';
         }
 
         // Handle different QC outcomes
@@ -208,7 +222,11 @@ class QCController extends Controller
         $item->fill($data);
         $item->save();
 
-        return redirect()->route('admin.quality-control.index')->with('success', 'Item QC berhasil diperbarui.');
+        $message = $action === 'draft'
+            ? 'Item QC berhasil disimpan sebagai draft.'
+            : 'Item QC berhasil diperbarui.';
+
+        return redirect()->route('admin.quality-control.index')->with('success', $message);
     }
 
     /**

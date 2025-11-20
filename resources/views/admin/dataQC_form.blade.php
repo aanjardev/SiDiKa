@@ -260,8 +260,9 @@
                     </div>
 
                     <div class="d-flex gap-2">
-                        <button type="submit" name="action" value="save" class="btn btn-primary w-100">Simpan</button>
-                        <button type="submit" name="action" value="archive" class="btn btn-danger w-100">Arsipkan</button>
+                        <button type="submit" name="action" value="draft" class="btn btn-outline-secondary w-100 btn-slim">Draft</button>
+                        <button type="submit" name="action" value="save" class="btn btn-primary w-100 btn-slim">Simpan</button>
+                        <button type="submit" name="action" value="archive" class="btn btn-danger w-100 btn-slim">Arsipkan</button>
                     </div>
 
                 </div>
@@ -271,9 +272,91 @@
 
 </form>
 
+@push('styles')
+<style>
+    .btn-slim {
+        height: 40px;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form[action*="quality-control"]') || document.querySelector('form');
+    const btnKembali = document.querySelector('a[href*="quality-control"]');
+    let isFormDirty = false;
+
+    function markFormAsDirty() {
+        if (!isFormDirty) {
+            isFormDirty = true;
+        }
+    }
+
+    // Deteksi perubahan pada semua input
+    if (form) {
+        form.querySelectorAll('input, select, textarea').forEach(element => {
+            // Skip hidden inputs dan submit buttons
+            if (element.type === 'hidden' || element.type === 'submit') return;
+
+            element.addEventListener('input', markFormAsDirty);
+            element.addEventListener('change', markFormAsDirty);
+        });
+
+        // Reset status dirty saat form berhasil disubmit
+        form.addEventListener('submit', function() {
+            isFormDirty = false;
+        });
+    }
+
+    // Konfirmasi saat klik tombol kembali
+    if (btnKembali) {
+        btnKembali.addEventListener('click', function(e) {
+            if (isFormDirty) {
+                e.preventDefault();
+                const confirmation = confirm("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?");
+                if (confirmation) {
+                    isFormDirty = false; // Reset flag sebelum redirect
+                    window.location.href = btnKembali.href;
+                }
+            }
+        });
+    }
+
+    // Konfirmasi saat pindah route (back button atau menu lain)
+    window.addEventListener('beforeunload', function(e) {
+        if (isFormDirty) {
+            e.preventDefault();
+            e.returnValue = 'Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?';
+            return e.returnValue;
+        }
+    });
+
+    // Intercept link di sidebar/menu (hanya yang ada di sidebar)
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+        sidebar.querySelectorAll('a[href]').forEach(link => {
+            // Skip link yang ada di dalam form
+            if (link.closest('form')) return;
+
+            link.addEventListener('click', function(e) {
+                if (isFormDirty) {
+                    e.preventDefault();
+                    const confirmation = confirm("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?");
+                    if (confirmation) {
+                        isFormDirty = false; // Reset flag sebelum redirect
+                        window.location.href = link.href;
+                    }
+                }
+            });
+        });
+    }
+
     const rupiahInputs = document.querySelectorAll('.rupiah-mask');
 
     function formatRupiah(angka) {
@@ -299,7 +382,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    const form = document.querySelector('form[action*="quality-control"]') || document.querySelector('form');
     if (!form) return;
 
     form.addEventListener('submit', function(e){
@@ -308,30 +390,34 @@ document.addEventListener('DOMContentLoaded', function() {
             input.value = input.value ? input.value.replace(/\./g, '') : '';
         });
 
-        // basic client-side validation
-        const errors = [];
-        const nama = form.querySelector('[name="nama_item"]')?.value.trim() || '';
-        const kategori = form.querySelector('[name="kategori_id"]')?.value || '';
-        const hargaBeli = form.querySelector('[name="harga_beli"]')?.value.trim() || '';
-        const hargaJual = form.querySelector('[name="harga_jual"]')?.value.trim() || '';
+        // basic client-side validation (skip validation for draft)
+        const action = e.submitter?.value || form.querySelector('button[type="submit"][name="action"]:focus')?.value || 'save';
 
-        if (!nama) errors.push('Nama Item wajib diisi.');
-        if (!kategori) errors.push('Kategori wajib dipilih.');
-        if (!hargaBeli || !/^\d+$/.test(hargaBeli) || parseInt(hargaBeli) <= 0) errors.push('Harga Modal harus berupa angka lebih dari 0.');
-        if (!hargaJual || !/^\d+$/.test(hargaJual) || parseInt(hargaJual) <= 0) errors.push('Harga Jual harus berupa angka lebih dari 0.');
+        if (action !== 'draft') {
+            const errors = [];
+            const nama = form.querySelector('[name="nama_item"]')?.value.trim() || '';
+            const kategori = form.querySelector('[name="kategori_id"]')?.value || '';
+            const hargaBeli = form.querySelector('[name="harga_beli"]')?.value.trim() || '';
+            const hargaJual = form.querySelector('[name="harga_jual"]')?.value.trim() || '';
 
-        if (errors.length) {
-            e.preventDefault();
-            let alertBlock = document.getElementById('qc-client-errors');
-            if (!alertBlock) {
-                alertBlock = document.createElement('div');
-                alertBlock.id = 'qc-client-errors';
-                alertBlock.className = 'alert alert-danger mb-4';
-                form.parentNode.insertBefore(alertBlock, form);
+            if (!nama) errors.push('Nama Item wajib diisi.');
+            if (!kategori) errors.push('Kategori wajib dipilih.');
+            if (!hargaBeli || !/^\d+$/.test(hargaBeli) || parseInt(hargaBeli) <= 0) errors.push('Harga Modal harus berupa angka lebih dari 0.');
+            if (!hargaJual || !/^\d+$/.test(hargaJual) || parseInt(hargaJual) <= 0) errors.push('Harga Jual harus berupa angka lebih dari 0.');
+
+            if (errors.length) {
+                e.preventDefault();
+                let alertBlock = document.getElementById('qc-client-errors');
+                if (!alertBlock) {
+                    alertBlock = document.createElement('div');
+                    alertBlock.id = 'qc-client-errors';
+                    alertBlock.className = 'alert alert-danger mb-4';
+                    form.parentNode.insertBefore(alertBlock, form);
+                }
+                alertBlock.innerHTML = '<h5 class="alert-heading">Perbaiki kesalahan berikut:</h5><ul class="mb-0">' + errors.map(err => '<li>'+err+'</li>').join('') + '</ul>';
+                window.scrollTo({top: 0, behavior: 'smooth'});
+                return false;
             }
-            alertBlock.innerHTML = '<h5 class="alert-heading">Perbaiki kesalahan berikut:</h5><ul class="mb-0">' + errors.map(err => '<li>'+err+'</li>').join('') + '</ul>';
-            window.scrollTo({top: 0, behavior: 'smooth'});
-            return false;
         }
     });
 });
