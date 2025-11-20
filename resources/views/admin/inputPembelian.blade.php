@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Buat Transaksi Pembelian')
+@section('title', 'Transaksi Pembelian')
 
 @push('page-actions')
     {{-- Halaman form tidak perlu tombol aksi di header --}}
@@ -23,11 +23,14 @@
 {{-- ======================================================= --}}
 {{-- PERBAIKAN 1: Tambahkan id="formPembelian" --}}
 {{-- ======================================================= --}}
-<form action="{{ route('admin.purchases.store') }}" method="POST" id="formPembelian">
+<form action="{{ isset($pembelian) ? route('admin.purchases.update', $pembelian->id) : route('admin.purchases.store') }}" method="POST" id="formPembelian">
     @csrf
+    @if(isset($pembelian))
+        @method('PUT') {{-- Spoofing method PUT untuk update --}}
+    @endif
 
     <input type="hidden" name="user_id" value="{{ Auth::id() ?? 1 }}">
-    <input type="hidden" id="pembelian_id_hidden" name="pembelian_id" value="">
+    <input type="hidden" id="pembelian_id_hidden" name="pembelian_id" value="{{ $pembelian->id ?? '' }}">
 
     <div class="row">
         {{-- KOLOM KIRI (70%): Form Utama --}}
@@ -44,7 +47,10 @@
                             <select class="form-select @error('customer_id') is-invalid @enderror" id="customer_id" name="customer_id" required>
                                 <option value="" selected disabled>Pilih customer...</option>
                                 @foreach($semua_customer as $customer)
-                                <option value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
+                                <option value="{{ $customer->id }}"
+                                    {{-- Logika: Pilih yang dari old() atau yang tersimpan di $pembelian --}}
+                                    {{ (old('customer_id') == $customer->id) || (isset($pembelian) && $pembelian->customer_id == $customer->id) ? 'selected' : '' }}
+                                >
                                     {{ $customer->nama }} ({{ $customer->no_telp }})
                                 </option>
                                 @endforeach
@@ -59,7 +65,14 @@
                             <label for="perusahaan_cabang_id" class="form-label">Lokasi Transaksi (Cabang)</label>
                             <select class="form-select @error('perusahaan_cabang_id') is-invalid @enderror" id="perusahaan_cabang_id" name="perusahaan_cabang_id" required>
                                 @foreach($semua_cabang as $cabang)
-                                <option value="{{ $cabang->id }}" {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}>
+                                <option value="{{ $cabang->id }}"
+                                    {{-- Logika: Pilih yang tersimpan di $pembelian, atau default untuk mode Create --}}
+                                    @if(isset($pembelian))
+                                        {{ $pembelian->perusahaan_cabang_id == $cabang->id ? 'selected' : '' }}
+                                    @else
+                                        {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}
+                                    @endif
+                                >
                                     {{ $cabang->nama }}
                                 </option>
                                 @endforeach
@@ -106,67 +119,109 @@
 
         </div>
 
-        {{-- KOLOM KANAN (30%): Aksi & Harga --}}
+ {{-- KOLOM KANAN (30%): Aksi & Harga --}}
         <div class="col-lg-4">
             <div class="card shadow-sm border-0 mb-4 position-sticky" style="top: 20px;">
                 <div class="card-body p-4">
-                    <h5 class="card-title fw-bold mb-3">Aksi & Status</h5>
+                    <h5 class="card-title fw-bold mb-3">Status & Harga</h5>
 
-                    <div class="d-grid mb-2">
-                        <button type="submit" name="status_pembelian" value="draft" class="btn btn-primary btn-lg">
-                            <i class="fas fa-save me-1"></i> Simpan Draft & Tinjau
-                        </button>
-                    </div>
+                    {{-- INPUT 1: TAWARAN CUSTOMER --}}
+            <div class="mb-3">
+                <label for="display_harga_tawaran_customer" class="form-label">Tawaran Customer</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Rp</span>
+                    {{-- Input TAMPILAN (User mengetik di sini) --}}
+                    <input type="text" class="form-control rupiah-mask"
+                        id="display_harga_tawaran_customer" style="height: 40px"
+                        placeholder="0"
+                        value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
 
-                    <p class="text-muted small text-center">Simpan untuk mendapatkan link "Read-Only" yang bisa dibagikan ke atasan.</p>
-
-                    <hr class="my-3">
-
-                    <div class="mb-3">
-                        <label for="harga_tawaran_customer" class="form-label">Tawaran Customer (Total)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">Rp</span>
-                            <input type="number" class="form-control @error('harga_tawaran_customer') is-invalid @enderror" id="harga_tawaran_customer" name="harga_tawaran_customer" placeholder="Mis: 5000000" value="{{ old('harga_tawaran_customer') }}">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="harga_tawaran_toko" class="form-label">Tawaran Toko (Total)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">Rp</span>
-                            <input type="number" class="form-control @error('harga_tawaran_toko') is-invalid @enderror" id="harga_tawaran_toko" name="harga_tawaran_toko" placeholder="Mis: 4500000" value="{{ old('harga_tawaran_toko') }}">
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="harga_deal" class="form-label fw-bold text-success">Harga Deal (Final)</label>
-                        <div class="input-group">
-                            <span class="input-group-text fw-bold text-success">Rp</span>
-                            <input type="number" class="form-control @error('harga_deal') is-invalid @enderror" id="harga_deal" name="harga_deal" placeholder="0" value="{{ old('harga_deal') }}">
-                        </div>
-                        <div class="form-text">Isi ini jika sudah ada kesepakatan harga.</div>
-                    </div>
-
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" name="status_pembelian" value="deal" class="btn btn-success w-100">
-                            <i class="fas fa-check me-1"></i> Deal
-                        </button>
-                        <button type="submit" name="status_pembelian" value="tidak_deal" class="btn btn-danger w-100">
-                            <i class="fas fa-times me-1"></i> Tidak Deal
-                        </button>
-                    </div>
+                    {{-- Input ASLI (Dikirim ke Database) --}}
+                    <input type="hidden"
+                        name="harga_tawaran_customer"
+                        id="harga_tawaran_customer"
+                        value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
                 </div>
             </div>
 
-            {{-- Card Salin Link (Contoh, muncul saat halaman 'edit') --}}
+            {{-- INPUT 2: TAWARAN TOKO --}}
+            <div class="mb-3">
+                <label for="display_harga_tawaran_toko" class="form-label">Tawaran Toko</label>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">Rp</span>
+                    {{-- Input TAMPILAN --}}
+                    <input type="text" class="form-control rupiah-mask"
+                        id="display_harga_tawaran_toko"
+                        placeholder="0" style="height: 40px"
+                        value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
+
+                    {{-- Input ASLI --}}
+                    <input type="hidden"
+                        name="harga_tawaran_toko"
+                        id="harga_tawaran_toko"
+                        value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
+                </div>
+            </div>
+
+            {{-- INPUT 3: HARGA DEAL --}}
+            <div class="mb-3">
+                <label for="display_harga_deal" class="form-label fw-bold text-success">Harga Deal (Final)</label>
+                <div class="input-group">
+                    <span class="input-group-text fw-bold text-success">Rp</span>
+                    {{-- Input TAMPILAN --}}
+                    <input type="text" class="form-control fw-bold text-success rupiah-mask"
+                        id="display_harga_deal"
+                        placeholder="0"
+                        value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
+
+                    {{-- Input ASLI --}}
+                    <input type="hidden"
+                        name="harga_deal"
+                        id="harga_deal"
+                        value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
+                </div>
+                <div class="form-text small">Isi jika sudah sepakat.</div>
+            </div>
+
+                    <hr class="my-4">
+
+                    {{-- TOMBOL AKSI (Sejajar Satu Baris) --}}
+                    <div class="d-flex gap-2">
+                        {{-- Tombol Draft (Saya ubah jadi outline agar tidak terlalu dominan, tapi tetap sejajar) --}}
+                        <button type="submit" name="status_pembelian" value="draft" class="btn btn-outline-primary w-100" title="Simpan sebagai Draft">
+                            <i class="fas fa-save d-block d-md-none"></i> {{-- Icon only di layar kecil --}}
+                            <span class="d-none d-md-inline"><i class="fas fa-save me-1"></i> Draft</span>
+                        </button>
+
+                        {{-- Tombol Tidak Deal --}}
+                        <button type="submit" name="status_pembelian" value="tidak_deal" class="btn btn-danger w-100" title="Batalkan Transaksi">
+                            <i class="fas fa-times d-block d-md-none"></i>
+                            <span class="d-none d-md-inline"><i class="fas fa-times me-1"></i> No Deal</span>
+                        </button>
+
+                        {{-- Tombol Deal --}}
+                        <button type="submit" name="status_pembelian" value="deal" class="btn btn-success w-100" title="Sepakat / Deal">
+                            <i class="fas fa-check d-block d-md-none"></i>
+                            <span class="d-none d-md-inline"><i class="fas fa-check me-1"></i> Deal</span>
+                        </button>
+                    </div>
+
+                    <p class="text-muted small text-center mt-2 mb-0" style="font-size: 0.75rem;">
+                        Pastikan harga sudah sesuai sebelum klik Deal.
+                    </p>
+
+                </div>
+            </div>
+
+            {{-- Card Salin Link (Tetap dimunculkan jika mode edit) --}}
             @if(isset($pembelian))
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-body p-3">
                     <h6 class="card-title fw-bold mb-2">Bagikan Tinjauan</h6>
-                    <p class="text-muted small mt-0 mb-2">Gunakan link ini untuk diskusi dengan atasan.</p>
                     <div class="input-group">
                         <input type="text" class="form-control form-control-sm" id="shareable-link" value="{{ route('admin.purchases.show', $pembelian->id) }}" readonly>
                         <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyToClipboard()">
-                            <i class="fas fa-copy me-1"></i> Salin
+                            <i class="fas fa-copy"></i>
                         </button>
                     </div>
                 </div>
@@ -211,7 +266,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="customer_jenis_kelamin_modal">Jenis Kelamin</label>
-                            <select class="form-select" id="customer_jenis_kelamin_modal" name="jenis_kelamin">
+                            <select class="form-select" id="customer_jenis_kelamin_modal" name="jenis_kelamin" style="height: calc(2.5rem + 9px);">
                                 <option value="L">Laki-laki</option>
                                 <option value="P">Perempuan</option>
                             </select>
@@ -380,10 +435,33 @@
 
 @push('scripts')
 <script>
+
+    let currentPembelianId = '{{ $pembelian->id ?? '' }}';
+    let initialItems = @json(old('items') ?? ($pembelian->item_pembelian_draft ?? []));
+
     // Array ini sekarang hanya untuk TAMPILAN di tabel
     let itemsPembelian = [];
-    // ID pembelian (induk) yang sedang aktif
-    let currentPembelianId = null;
+    let itemCounter = 0;
+
+    if (initialItems.length > 0) {
+        itemsPembelian = initialItems.map(item => {
+            // Ambil nama kategori jika sudah ada (dari relasi di model)
+            if (item.kategori && item.kategori.nama_kategori) {
+                item.kategori_nama = item.kategori.nama_kategori;
+            }
+            // Jika tidak ada (misal dari old() atau bug), gunakan fallback display
+            else {
+                item.kategori_nama = item.kategori_nama || 'Kategori (Reloaded)';
+            }
+
+            // Pastikan ID ada (ID ini adalah ID DB item)
+            if(typeof item.id === 'undefined') {
+                item.id = itemCounter++;
+            }
+
+            return item;
+        });
+    }
 
     document.addEventListener("DOMContentLoaded", function() {
 
@@ -401,6 +479,9 @@
         const customerSelect = document.getElementById('customer_id');
         const cabangSelect = document.getElementById('perusahaan_cabang_id');
 
+        if (currentPembelianId) {
+            hiddenPembelianIdInput.value = currentPembelianId;
+        }
         // Render tabel (awalnya akan kosong)
         renderItemList();
 
@@ -417,6 +498,8 @@
             // Jika customer & cabang sudah dipilih, baru buka modalnya
             modalTambahItem.show();
         });
+
+
 
         // =======================================================
         // PERUBAHAN UTAMA 1: Simpan Item (AJAX)
@@ -671,6 +754,44 @@
             document.execCommand('copy');
             alert('Link tinjauan telah disalin ke clipboard!');
         }
+
+        const rupiahInputs = document.querySelectorAll('.rupiah-mask');
+
+    rupiahInputs.forEach(input => {
+        // 1. Format awal saat halaman diload (jika ada value dari old/database)
+        if (input.value) {
+            const cleanValue = input.value.replace(/\D/g, ''); // Hapus karakter non-angka
+            input.value = formatRupiah(cleanValue); // Tampilkan format
+        }
+
+        // 2. Event listener saat mengetik
+        input.addEventListener('keyup', function(e) {
+            // Ambil value tanpa karakter non-angka
+            let cleanValue = this.value.replace(/\D/g, '');
+
+            // Update tampilan ke format Rupiah
+            this.value = formatRupiah(cleanValue);
+
+            // Update input HIDDEN yang berteman dengan input ini
+            // Kita cari input hidden yang ID-nya mirip (tanpa prefix 'display_')
+            const hiddenInputId = this.id.replace('display_', '');
+            const hiddenInput = document.getElementById(hiddenInputId);
+
+            if(hiddenInput) {
+                hiddenInput.value = cleanValue;
+            }
+        });
+    });
+
+    function formatRupiah(angka) {
+        if (!angka) return '';
+
+        // Menggunakan fungsi bawaan Intl untuk format Indonesia
+        return new Intl.NumberFormat('id-ID').format(angka);
+
+        // ATAU jika ingin manual regex titik:
+        // return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
     });
 </script>
 @endpush

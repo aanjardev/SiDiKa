@@ -75,7 +75,7 @@ class AdminProductController extends Controller
             foreach ($validated['images'] as $index => $image) {
                 $extension = $image->getClientOriginalExtension();
                 $filename = Str::uuid()->toString() . ($extension ? '.' . $extension : '');
-                $path = Storage::disk('r2')->putFileAs('product-images', $image, $filename, [
+                $path = Storage::disk('r2')->putFileAs('product', $image, $filename, [
                     'visibility' => 'public',
                 ]);
 
@@ -151,7 +151,7 @@ class AdminProductController extends Controller
                 foreach ($images as $index => $image) {
                     $extension = $image->getClientOriginalExtension();
                     $filename = Str::uuid()->toString() . ($extension ? '.' . $extension : '');
-                    $path = Storage::disk('r2')->putFileAs('product-images', $image, $filename, [
+                    $path = Storage::disk('r2')->putFileAs('product', $image, $filename, [
                         'visibility' => 'public',
                     ]);
 

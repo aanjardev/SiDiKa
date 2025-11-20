@@ -860,7 +860,7 @@ Kode Barang : #1298_DK'
         $remoteName = Str::uuid() . ($extension ? '.' . $extension : '');
 
         return Storage::disk('r2')->putFileAs(
-            'product-images',
+            'product',
             new File($source),
             $remoteName,
             ['visibility' => 'public']

@@ -13,17 +13,58 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 
+
 class PembelianController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data_pembelian = Pembelian::with(['customer', 'perusahaan_cabang', 'user', 'item_pembelian_draft'])
-                                    ->latest()
-                                    ->paginate(10);
+        // Ambil parameter dari request
+        $search = $request->query('search');
+        $status = $request->query('status');
+        $sort = $request->query('sort', 'terbaru');
 
-        return view('admin.dataPembelian', [
-            'data_pembelian' => $data_pembelian
-        ]);
+        $query = Pembelian::with(['customer', 'perusahaan_cabang', 'user', 'item_pembelian_draft']);
+
+        // Filter Search (Berdasarkan ID Pembelian atau Nama Customer)
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', '%' . $search . '%')
+                  ->orWhereHas('customer', function ($qC) use ($search) {
+                      $qC->where('nama', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        // Filter Status
+        if ($status && $status != 'semua') {
+            $query->where('status_pembelian', $status);
+        }
+
+        // Sortir
+        if ($sort == 'terlama') {
+            $query->oldest();
+        } else {
+            $query->latest();
+        }
+
+        // Ambil data dengan pagination, pastikan query string dipertahankan untuk link pagination
+        $data_pembelian = $query->paginate(10)->withQueryString();
+
+        $data = [
+            'data_pembelian' => $data_pembelian,
+            'search_term' => $search,
+            'status_filter' => $status,
+            'sort_filter' => $sort,
+        ];
+
+        // LOGIKA BARU UNTUK AJAX
+        if ($request->ajax()) {
+            // Jika request adalah AJAX, kembalikan hanya konten tabel yang dirender
+            return view('admin.partials.purchase_table_content', $data)->render();
+        }
+
+        // Jika bukan AJAX, kembalikan tampilan halaman penuh
+        return view('admin.dataPembelian', $data);
     }
 
     public function create()
@@ -217,6 +258,100 @@ class PembelianController extends Controller
         }
     }
 
+    public function edit($id)
+    {
+        // 1. Ambil data pembelian beserta item draft-nya
+        $pembelian = Pembelian::with('item_pembelian_draft')->findOrFail($id);
+
+        // 2. Ambil semua data yang dibutuhkan untuk dropdown di form
+        $data_customer = Customer::orderBy('nama', 'asc')->get();
+        $data_cabang = Branch::orderBy('nama', 'asc')->get();
+        $data_kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
+
+        // 3. Kirim semua data itu ke view yang SAMA (inputPembelian)
+        // Note: Anda perlu membuat file inputPembelian.blade.php bisa mode 'edit'
+        return view('admin.inputPembelian', [
+            'pembelian' => $pembelian, // Kirim data pembelian yang akan diedit
+            'semua_customer' => $data_customer,
+            'semua_cabang' => $data_cabang,
+            'semua_kategori' => $data_kategori
+        ]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $status = $request->input('status_pembelian', 'draft');
+
+        // Validasi
+        // Perhatikan: Kita sekarang menggunakan $id dari URL route, bukan dari hidden input request
+        $validator = Validator::make($request->all(), [
+            'customer_id' => 'required|exists:customer,id',
+            'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
+            'user_id' => 'required|exists:users,id',
+            'status_pembelian' => 'required|in:draft,deal,tidak_deal',
+            'harga_tawaran_customer' => 'nullable|numeric|min:0',
+            'harga_tawaran_toko' => 'nullable|numeric|min:0',
+            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0',
+        ], [
+            'harga_deal.required' => 'Harga Deal wajib diisi jika status "Deal".',
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        // Mulai Transaksi Database
+        DB::beginTransaction();
+        try {
+            // Temukan data Pembelian berdasarkan ID dari URL ($id)
+            $pembelian = Pembelian::findOrFail($id);
+
+            // Update data Induk
+            $pembelian->customer_id = $request->customer_id;
+            $pembelian->perusahaan_cabang_id = $request->perusahaan_cabang_id;
+            // $pembelian->user_id tidak perlu diupdate karena harusnya tetap
+            $pembelian->harga_tawaran_customer = $request->harga_tawaran_customer;
+            $pembelian->harga_tawaran_toko = $request->harga_tawaran_toko;
+            $pembelian->harga_deal = $request->harga_deal;
+            $pembelian->status_pembelian = $status;
+            $pembelian->save();
+
+            // Item-item draft sudah diurus oleh AJAX Store/Delete Item
+
+            DB::commit();
+
+            if ($status == 'draft') {
+                return redirect()->route('admin.purchases.show', $pembelian->id)
+                                 ->with('success', 'Draft berhasil diupdate. Link tinjauan telah disalin ke clipboard!')
+                                 ->with('auto_copy_link', true);
+            } else {
+                return redirect()->route('admin.purchases.index')
+                                 ->with('success', 'Transaksi pembelian telah diupdate dan difinalisasi.');
+            }
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Gagal mengupdate transaksi: ' . $e->getMessage())->withInput();
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            // Cari data Pembelian (Induk)
+            $pembelian = Pembelian::findOrFail($id);
+
+            // Hapus data Pembelian. Jika foreign key item_pembelian_draft
+            // diatur dengan onDelete('cascade'), semua item draft akan ikut terhapus.
+            $pembelian->delete();
+
+            return redirect()->route('admin.purchases.index')
+                             ->with('success', 'Transaksi Pembelian #' . $id . ' berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Gagal menghapus transaksi: ' . $e->getMessage());
+        }
+    }
 
     /**
      * =======================================================
