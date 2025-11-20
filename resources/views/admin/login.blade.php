@@ -146,6 +146,7 @@
     </style>
 </head>
 <body>
+    @include('partials.alerts')
 
     <div class="container-fluid g-0">
         <div class="row g-0">

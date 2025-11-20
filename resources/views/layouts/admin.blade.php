@@ -39,18 +39,13 @@
     @stack('styles')
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    @if (session('success'))
-    <meta name="flash-success" content="{{ session('success') }}">
-    @endif
-    @if (session('error'))
-    <meta name="flash-error" content="{{ session('error') }}">
-    @endif
  </head>
  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
  <script src="{{ asset('js/alert.js') }}"></script>
 
 
 <body class="  ">
+    @include('partials.alerts')
     <!-- loader Start -->
 
     <div id="loading">
