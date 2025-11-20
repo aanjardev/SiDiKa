@@ -36,18 +36,15 @@
             <option value="terbaru" {{ ($sort_filter ?? 'terbaru') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
             <option value="terlama" {{ ($sort_filter ?? '') == 'terlama' ? 'selected' : '' }}>Terlama</option>
         </select>
-        {{-- Hilangkan tombol submit tersembunyi, JS akan menangani submit --}}
     </div>
 </form>
 
 
-{{-- CONTAINER UTAMA YANG AKAN DI-UPDATE AJAX --}}
 <div id="purchase-list-container">
     <div class="card shadow-sm">
         <div class="card-body p-0 table-wrapper">
             <div class="table-responsive">
-                {{-- Tambahkan CLASS table-sm (bukan table-md) untuk font kecil --}}
-                <table class="table align-middle mb-0 table-product table-sm">
+                <table class="table align-middle mb-0 table-product table-md">
                     <thead class="table-light">
                     <tr>
                         <th class="text-center" style="width: 60px;">ID</th>
@@ -61,76 +58,12 @@
                     </tr>
                 </thead>
                 <tbody id="purchase-table-body">
-                    {{-- Ganti dengan include partial view yang HANYA berisi rows <tr> --}}
-                    @forelse ($data_pembelian as $pembelian)
-                        <tr>
-                            <td class="text-center">#{{ $pembelian->id }}</td>
-                            <td>{{ $pembelian->customer->nama ?? 'N/A' }}</td>
-                            <td>{{ $pembelian->created_at->format('d M Y, H:i') }}</td>
-                            <td>{{ $pembelian->perusahaan_cabang->nama ?? 'N/A' }}</td>
-                            <td>
-                                @php
-                                    $itemNames = $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ');
-                                    echo \Illuminate\Support\Str::limit($itemNames, 40, '...');
-                                @endphp
-                            </td>
-                            <td>
-                                @if($pembelian->status_pembelian == 'deal')
-                                    <span class="badge bg-success-subtle text-success-emphasis">Deal</span>
-                                @elseif($pembelian->status_pembelian == 'tidak_deal')
-                                    <span class="badge bg-danger-subtle text-danger-emphasis">Tidak Deal</span>
-                                @else
-                                    <span class="badge bg-secondary-subtle text-secondary-emphasis">Draft</span>
-                                @endif
-                            </td>
-                            <td>
-                                @if($pembelian->harga_deal)
-                                    Rp {{ number_format($pembelian->harga_deal, 0, ',', '.') }}
-                                @else
-                                    -
-                                @endif
-                            </td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center gap-2">
-                                    {{-- AKTIFKAN TOMBOL DETAIL (SHOW) --}}
-                                    <a href="{{ route('admin.purchases.show', $pembelian->id) }}" title="Lihat Detail Transaksi">
-                                        <i class="fa-solid fa-eye" style="color: black;"></i>
-                                    </a>
-                                    {{-- AKTIFKAN TOMBOL EDIT --}}
-                                    <a href="{{ route('admin.purchases.edit', $pembelian->id) }}" title="Edit Transaksi">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </a>
-                                    {{-- AKTIFKAN TOMBOL DELETE --}}
-                                    <form action="{{ route('admin.purchases.destroy', $pembelian->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-icon" title="Hapus">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr class="tr-empty">
-                            {{-- Gunakan Flexbox di <td> untuk perataan vertikal dan horizontal. --}}
-                            <td colspan="8" class="text-center">
-                                {{-- Tambahkan d-flex, align-items-center, dan justify-content-center di sini. Min-height akan diatur di CSS. --}}
-                                <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-content">
-                                    <i class="fa-solid fa-shopping-bag fa-2x text-muted mb-3"></i>
-                                    <h5 class="mb-1">Tidak Ada Data Pembelian</h5>
-                                    <p class="text-muted mb-0">Silakan <a href="{{ route('admin.purchases.create') }}">tambah transaksi pembelian</a> baru.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
+                    @include('admin.partials.purchase_table_content', $data_pembelian)
             </table>
             </div>
         </div>
     </div>
 
-    {{-- KONTEN PAGINATION (Di luar card jika menggunakan partial view terpisah) --}}
     @if ($data_pembelian->hasPages())
         <div class="card-footer bg-white">
             {{ $data_pembelian->links('pagination::bootstrap-5') }}
@@ -152,7 +85,7 @@
 
         /* Tambahkan style untuk table-sm agar lebih kecil lagi */
         .table-sm th, .table-sm td {
-            padding: 0.3rem 0.5rem; /* Kurangi padding */
+            padding: 0.75rem 0.75rem; /* Kurangi padding */
             font-size: 0.85rem; /* Kecilkan ukuran font */
         }
 
@@ -166,6 +99,7 @@
         }
         .table-md > :not(caption) > * > * {
             padding: 0.75rem 0.75rem !important;
+            font-size: 0.95rem;
         }
 
         button.btn-icon,
@@ -210,26 +144,34 @@
 
         .table-wrapper {
             min-height: 700px;
-            display: flex; /* Tambahkan display flex di sini */
-            flex-direction: column; /* Atur arah flex */
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
 
         .table-responsive {
             flex-grow: 1;
-            display: flex;
-            flex-direction: column;
+            position: relative;
         }
 
         .table-product {
-            flex-grow: 1;
+            width: 100%;
+            margin-bottom: 0 !important;
         }
 
         .table-product tbody {
-            height: 100%;
+            position: relative;
         }
 
         .table-product tr.tr-empty {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
             height: 100%;
+            width: 100%;
+            background-color: #fff;
         }
 
         .table-product tr.tr-empty td {
@@ -237,8 +179,18 @@
             padding: 0 !important;
         }
 
-        .table-product tr.tr-empty td .empty-content {
-            height: 100%; /* Pastikan div mengisi penuh tinggi td */
+        /* .table-product tr.tr-empty td .empty-content {
+            height: 100%; /
+        } */
+
+        .table-product tr.tr-empty td .empty-message {
+            height: 100%;
+            text-align: center;
+        }
+
+        .table-product tbody tr:not(.tr-empty) td {
+            vertical-align: top !important;
+            padding: 0.75rem 0.5rem !important;
         }
     </style>
 @endpush

@@ -3,16 +3,22 @@
 @section('title', 'Detail Pembelian #' . $pembelian->id)
 
 @push('page-actions')
-    {{-- Tombol Edit untuk kembali ke form --}}
-    {{-- GANTI href="#" dengan route('admin.purchases.edit', $pembelian->id) --}}
-    <a href="{{ route('admin.purchases.edit', $pembelian->id) }}" class="btn btn-warning btn-sm d-flex align-items-center gap-2">
-        <i class="fas fa-pen-to-square fa-fw"></i>
-        <span>Edit Transaksi Ini</span>
+    {{-- Tombol Kembali ke Daftar --}}
+    <a href="{{ route('admin.purchases.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+        <i class="fas fa-arrow-left me-1"></i>
+        <span>Kembali</span>
     </a>
-    {{-- Tombol Cetak PDF (Placeholder) --}}
-    <a href="#" class="btn btn-secondary btn-sm d-flex align-items-center gap-2">
+
+    {{-- Tombol Edit Transaksi Ini (Diubah ke Dark Gold Outline) --}}
+    <a href="{{ route('admin.purchases.edit', $pembelian->id) }}" class="btn btn-outline-dark-gold btn-sm d-flex align-items-center gap-2">
+        <i class="fas fa-pen-to-square fa-fw"></i>
+        <span>Edit Transaksi</span>
+    </a>
+
+    {{-- Tombol Cetak PDF (Tetap Biru Outline) --}}
+    <a href="#" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2">
         <i class="fas fa-print fa-fw"></i>
-        <span>Cetak</span>
+        <span>Cetak Nota</span>
     </a>
 @endpush
 
@@ -205,13 +211,27 @@
 
 @push('styles')
 <style>
-    /* ... (CSS styles Anda tetap sama) ... */
+
     .accordion-button:not(.collapsed) {
         color: var(--bs-primary);
         background-color: var(--bs-primary-bg-subtle);
     }
     .accordion-button:focus {
         box-shadow: 0 0 0 0.25rem rgba(78, 107, 255, 0.25);
+    }
+    .btn-outline-dark-gold {
+        /* Warna teks dan border saat normal (Dark Gold) */
+        color: #CC9900 !important; /* Warna Emas Pekat */
+        border-color: #CC9900 !important;
+    }
+
+    /* Warna saat di-hover/focus */
+    .btn-outline-dark-gold:hover,
+    .btn-outline-dark-gold:focus,
+    .btn-outline-dark-gold:active {
+        color: #000 !important; /* Warna teks diubah menjadi hitam agar kontras */
+        background-color: #D4A017 !important; /* Warna latar belakang saat hover (Sedikit lebih gelap dari normal) */
+        border-color: #D4A017 !important;
     }
 </style>
 @endpush
@@ -230,18 +250,21 @@
         // Coba salin ke clipboard
         try {
             document.execCommand('copy');
-            alert('Link tinjauan berhasil disalin ke clipboard!');
+
+            // Karena UI Feedback sudah ada di sistem Anda, kita tidak perlu alert() lagi.
+            // Jika ada fungsi global untuk menampilkan notifikasi sukses (misalnya showSuccessToast), panggil di sini.
+
         } catch (err) {
             console.error('Gagal menyalin:', err);
-            alert('Gagal menyalin link.');
+            // Anda bisa menambahkan feedback gagal kustom di sini jika diperlukan.
         }
     }
 
     @if(session('auto_copy_link'))
     // Script ini dijalankan jika ada flash session 'auto_copy_link' (dari method store)
     document.addEventListener("DOMContentLoaded", function() {
-        // Panggil fungsi salin
-        copyToClipboard();
+        // Panggil fungsi salin yang kini tidak memiliki alert()
+        window.copyToClipboard();
     });
     @endif
 </script>

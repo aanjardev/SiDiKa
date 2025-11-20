@@ -106,7 +106,32 @@ class PembelianController extends Controller
             'pembelian_id.required' => 'Terjadi kesalahan. Coba muat ulang halaman. (ID Pembelian tidak ditemukan)'
         ]);
 
-        if ($validator->fails()) {
+       if ($validator->fails()) {
+            // PERBAIKAN 2: Jika validasi gagal, muat ulang data LENGKAP
+            if ($request->pembelian_id) {
+                try {
+                    // Muat ulang data Pembelian DENGAN item draft dan relasi kategori
+                    $pembelian = Pembelian::with('item_pembelian_draft.kategori')
+                                            ->findOrFail($request->pembelian_id);
+
+                    // Muat ulang data dropdown
+                    $data_customer = Customer::orderBy('nama', 'asc')->get();
+                    $data_cabang = Branch::orderBy('nama', 'asc')->get();
+                    $data_kategori = Kategori::orderBy('nama_kategori', 'asc')->get(); // Pastikan Kategori di-load
+
+                    // Kembalikan ke view dengan data LENGKAP dan error
+                    return view('admin.inputPembelian', [
+                        'pembelian' => $pembelian, // Gantikan input default
+                        'semua_customer' => $data_customer,
+                        'semua_cabang' => $data_cabang,
+                        'semua_kategori' => $data_kategori
+                    ])->withErrors($validator)
+                      ->withInput(); // Tetap sertakan old input untuk field utama (misal harga)
+
+                } catch (\Exception $e) {
+                    // Jika ada error saat fetch, kembali ke mode normal
+                }
+            }
             return back()->withErrors($validator)->withInput();
         }
 
@@ -132,7 +157,7 @@ class PembelianController extends Controller
             // Logika Redirect Anda sudah benar
             if ($status == 'draft') {
                 return redirect()->route('admin.purchases.show', $pembelian->id)
-                                 ->with('success', 'Draft berhasil disimpan. Link tinjauan telah disalin ke clipboard!')
+                                 ->with('success', 'Draft berhasil disimpan')
                                  ->with('auto_copy_link', true);
             } else {
                 return redirect()->route('admin.purchases.index')
@@ -261,8 +286,7 @@ class PembelianController extends Controller
     public function edit($id)
     {
         // 1. Ambil data pembelian beserta item draft-nya
-        $pembelian = Pembelian::with('item_pembelian_draft')->findOrFail($id);
-
+        $pembelian = Pembelian::with('item_pembelian_draft.kategori')->findOrFail($id);
         // 2. Ambil semua data yang dibutuhkan untuk dropdown di form
         $data_customer = Customer::orderBy('nama', 'asc')->get();
         $data_cabang = Branch::orderBy('nama', 'asc')->get();
@@ -297,7 +321,28 @@ class PembelianController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
+            // PERBAIKAN 3: Jika validasi gagal di mode update, re-fetch dan kirim ulang data lengkap
+            try {
+                // Muat ulang data Pembelian DENGAN item draft dan kategori
+                $pembelian = Pembelian::with('item_pembelian_draft.kategori')
+                                        ->findOrFail($id);
+
+                // Muat ulang data dropdown
+                $data_customer = Customer::orderBy('nama', 'asc')->get();
+                $data_cabang = Branch::orderBy('nama', 'asc')->get();
+                $data_kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
+
+                // Kembalikan ke view dengan data lengkap dan error
+                return view('admin.inputPembelian', [
+                    'pembelian' => $pembelian,
+                    'semua_customer' => $data_customer,
+                    'semua_cabang' => $data_cabang,
+                    'semua_kategori' => $data_kategori
+                ])->withErrors($validator)
+                  ->withInput();
+            } catch (\Exception $e) {
+                return back()->withErrors($validator)->withInput();
+            }
         }
 
         // Mulai Transaksi Database
@@ -322,7 +367,7 @@ class PembelianController extends Controller
 
             if ($status == 'draft') {
                 return redirect()->route('admin.purchases.show', $pembelian->id)
-                                 ->with('success', 'Draft berhasil diupdate. Link tinjauan telah disalin ke clipboard!')
+                                 ->with('success', 'Draft berhasil diupdate')
                                  ->with('auto_copy_link', true);
             } else {
                 return redirect()->route('admin.purchases.index')
