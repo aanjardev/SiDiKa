@@ -83,7 +83,7 @@
                                 <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" class="btn-icon btn-delete" title="Hapus" onclick="this.form.submit();">
+                                    <button type="button" class="btn-icon btn-delete" title="Hapus">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>

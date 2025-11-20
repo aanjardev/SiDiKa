@@ -16,8 +16,8 @@ class AdminProductController extends Controller
     public function index()
     {
         $products = Produk::with(['gambar', 'gambarUtama', 'kategori'])
-                        ->orderBy('updated_at', 'desc')
-                        ->paginate(10); // 10 item per page
+            ->orderBy('updated_at', 'desc')
+            ->paginate(10); // 10 item per page
 
         // 5. Ambil data kategori untuk filter
         $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
@@ -52,13 +52,14 @@ class AdminProductController extends Controller
             'deskripsi_produk' => ['nullable', 'string'],
             'status' => ['required', 'in:Second,Baru'],
             'grade' => ['required', 'in:Unggulan,Standar,Minus'],
-            'images' => ['required', 'array', 'min:1'],
+            'images' => ['nullable', 'array', 'min:1'],
             'images.*' => ['image', 'max:5120'],
         ]);
 
         DB::beginTransaction();
 
         try {
+            // 1. Create product
             $produk = Produk::create([
                 'nama_produk' => $validated['nama_produk'],
                 'kode_sku' => $validated['kode_sku'],
@@ -72,11 +73,17 @@ class AdminProductController extends Controller
                 'grade' => $validated['grade'],
             ]);
 
+            // Prefix folder per product
+            $prefix = 'product/' . $produk->id;
+
+            // 2. Upload & save images
             foreach ($validated['images'] as $index => $image) {
-                $extension = $image->getClientOriginalExtension();
-                $filename = Str::uuid()->toString() . ($extension ? '.' . $extension : '');
-                $path = Storage::disk('r2')->putFileAs('product', $image, $filename, [
-                    'visibility' => 'public',
+
+                $ext = $image->getClientOriginalExtension();
+                $filename = Str::uuid() . '.' . $ext;
+
+                $path = Storage::disk('r2')->putFileAs($prefix, $image, $filename, [
+                    'visibility' => 'public'
                 ]);
 
                 GambarProduk::create([
@@ -88,6 +95,7 @@ class AdminProductController extends Controller
 
             DB::commit();
         } catch (\Throwable $th) {
+
             DB::rollBack();
             return back()
                 ->withInput()
@@ -98,6 +106,7 @@ class AdminProductController extends Controller
             ->route('admin.products.index')
             ->with('success', 'Produk berhasil ditambahkan dan gambar tersimpan di Cloudflare R2.');
     }
+
 
     public function edit(Produk $product)
     {
@@ -110,71 +119,107 @@ class AdminProductController extends Controller
         ]);
     }
 
-    public function update(Request $request, Produk $product)
-    {
-        $validated = $request->validate([
-            'nama_produk' => ['required', 'string', 'max:200'],
-            'kode_sku' => ['required', 'string', 'max:20', Rule::unique('produk', 'kode_sku')->ignore($product->id)],
-            'id_kategori' => ['required', 'exists:kategori,id'],
-            'harga_jual' => ['nullable', 'integer', 'min:0'],
-            'harga_beli' => ['nullable', 'integer', 'min:0'],
-            'harga_servis' => ['nullable', 'integer', 'min:0'],
-            'stok_produk' => ['nullable', 'integer', 'min:0'],
-            'deskripsi_produk' => ['nullable', 'string'],
-            'status' => ['required', 'in:Second,Baru'],
-            'grade' => ['required', 'in:Unggulan,Standar,Minus'],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'max:5120'],
+public function update(Request $request, Produk $product)
+{
+    $validated = $request->validate([
+        'nama_produk'      => ['required', 'string', 'max:200'],
+        'kode_sku'         => ['required', 'string', 'max:20', Rule::unique('produk', 'kode_sku')->ignore($product->id)],
+        'id_kategori'      => ['required', 'exists:kategori,id'],
+        'harga_jual'       => ['nullable', 'integer', 'min:0'],
+        'harga_beli'       => ['nullable', 'integer', 'min:0'],
+        'harga_servis'     => ['nullable', 'integer', 'min:0'],
+        'stok_produk'      => ['nullable', 'integer', 'min:0'],
+        'deskripsi_produk' => ['nullable', 'string'],
+        'status'           => ['required', 'in:Second,Baru'],
+        'grade'            => ['required', 'in:Unggulan,Standar,Minus'],
+
+        // file baru
+        'images'   => ['nullable', 'array'],
+        'images.*' => ['image', 'max:5120'],
+
+        // hidden input dari gambar lama
+        'remove_images'   => ['array'],
+        'remove_images.*' => ['nullable', 'integer'],
+    ]);
+
+    DB::beginTransaction();
+
+    try {
+        $product->update([
+            'nama_produk'      => $validated['nama_produk'],
+            'kode_sku'         => $validated['kode_sku'],
+            'id_kategori'      => $validated['id_kategori'],
+            'harga_jual'       => $validated['harga_jual'] ?? null,
+            'harga_beli'       => $validated['harga_beli'] ?? null,
+            'harga_servis'     => $validated['harga_servis'] ?? null,
+            'stok_produk'      => $validated['stok_produk'] ?? null,
+            'deskripsi_produk' => $validated['deskripsi_produk'] ?? null,
+            'status'           => $validated['status'],
+            'grade'            => $validated['grade'],
         ]);
 
-        DB::beginTransaction();
+        $removeIds = array_filter($request->remove_images ?? [], fn($v) => !empty($v));
 
-        try {
-            $product->update([
-                'nama_produk' => $validated['nama_produk'],
-                'kode_sku' => $validated['kode_sku'],
-                'id_kategori' => $validated['id_kategori'],
-                'harga_jual' => $validated['harga_jual'] ?? null,
-                'harga_beli' => $validated['harga_beli'] ?? null,
-                'harga_servis' => $validated['harga_servis'] ?? null,
-                'stok_produk' => $validated['stok_produk'] ?? null,
-                'deskripsi_produk' => $validated['deskripsi_produk'] ?? null,
-                'status' => $validated['status'],
-                'grade' => $validated['grade'],
-            ]);
+        if (!empty($removeIds)) {
 
-            $images = $request->file('images', []);
+            $imagesToDelete = GambarProduk::whereIn('id', $removeIds)
+                ->where('id_produk', $product->id)
+                ->get();
 
-            if (!empty($images)) {
-                $hasMain = $product->gambarUtama()->exists();
+            foreach ($imagesToDelete as $img) {
 
-                foreach ($images as $index => $image) {
-                    $extension = $image->getClientOriginalExtension();
-                    $filename = Str::uuid()->toString() . ($extension ? '.' . $extension : '');
-                    $path = Storage::disk('r2')->putFileAs('product', $image, $filename, [
-                        'visibility' => 'public',
-                    ]);
-
-                    GambarProduk::create([
-                        'id_produk' => $product->id,
-                        'path_gambar' => $path,
-                        'is_main' => $hasMain ? false : $index === 0,
-                    ]);
+                // hapus file di Cloudflare R2
+                if (Storage::disk('r2')->exists($img->path_gambar)) {
+                    Storage::disk('r2')->delete($img->path_gambar);
                 }
-            }
 
-            DB::commit();
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'Terjadi kesalahan saat memperbarui produk: ' . $th->getMessage()]);
+                // hapus database entry
+                $img->delete();
+            }
         }
 
-        return redirect()
-            ->route('admin.products.index')
-            ->with('success', 'Produk berhasil diperbarui.');
+        $newImages = $request->file('images', []);
+        $hasMain = $product->gambarUtama()->exists();
+
+        // folder milik produk ini
+        $prefix = 'product/' . $product->id;
+
+        foreach ($newImages as $index => $image) {
+
+            $ext = $image->getClientOriginalExtension();
+            $filename = Str::uuid() . '.' . $ext;
+
+            $path = Storage::disk('r2')->putFileAs($prefix, $image, $filename, [
+                'visibility' => 'public'
+            ]);
+
+            GambarProduk::create([
+                'id_produk'   => $product->id,
+                'path_gambar' => $path,
+                'is_main'     => $hasMain ? false : $index === 0,
+            ]);
+        }
+        if (!$product->gambarUtama()->exists()) {
+            $first = $product->gambar()->first();
+            if ($first) {
+                $first->update(['is_main' => true]);
+            }
+        }
+        DB::commit();
+
+    } catch (\Throwable $th) {
+
+        DB::rollBack();
+
+        return back()
+            ->withInput()
+            ->withErrors(['error' => 'Terjadi kesalahan: ' . $th->getMessage()]);
     }
+
+    return redirect()
+        ->route('admin.products.index')
+        ->with('success', 'Produk berhasil diperbarui.');
+}
 
     public function destroy(Produk $product)
     {
@@ -184,6 +229,9 @@ class AdminProductController extends Controller
             $product->load('gambar');
 
             foreach ($product->gambar as $gambar) {
+                if (Storage::disk('r2')->exists($gambar->path_gambar)) {
+                    Storage::disk('r2')->delete($gambar->path_gambar);
+                }
                 $gambar->delete();
             }
 
@@ -197,6 +245,6 @@ class AdminProductController extends Controller
 
         return redirect()
             ->route('admin.products.index')
-            ->with('success', 'Produk berhasil dihapus beserta gambar di R2.');
+            ->with('success', 'Produk berhasil dihapus.');
     }
 }

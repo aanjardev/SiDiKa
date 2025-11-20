@@ -48,6 +48,10 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('/products', AdminProductController::class)->names('products');
+    Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create');
+    Route::post('/products/store', [AdminProductController::class, 'store'])->name('products.store');
+    Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('products.destroy');
+    Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('products.update');
     Route::resource('/customers', CustomerController::class)->names('customers');
     // Route::resource('/employees', EmployeeController::class)->names('employees');
     Route::resource('/categories', CategoryController::class)->names('categories');
