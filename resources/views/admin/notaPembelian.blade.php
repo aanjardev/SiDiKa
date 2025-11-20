@@ -91,7 +91,7 @@
 
         {{-- DETAIL TRANSAKSI --}}
         <div style="float: left; width: 70%;">
-            <p style="margin: 5px;"><strong>No. Transaksi:</strong> #{{ $pembelian->id }}</p>
+            <p style="margin: 5px;"><strong>No. Transaksi:</strong> {{ $pembelian->kode_transaksi }}</p>
             <p style="margin: 5px;"><strong>Tanggal:</strong> {{ $pembelian->created_at->format('d M Y, H:i') }}</p>
         </div>
         <div style="float: right; width: 30%; text-align: left;">

@@ -32,5 +32,30 @@ class Penjualan extends Model
     {
         return $this->hasMany(DetailPenjualan::class, 'penjualan_id');
     }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($penjualan) {
+            // Prefix: PJ (Penjualan)
+            $prefix = 'PJ' . date('Ym'); // Contoh: PJ202511
+
+            $latestCode = static::where('kode_transaksi', 'like', $prefix . '%')
+                                ->latest('kode_transaksi')
+                                ->pluck('kode_transaksi')
+                                ->first();
+
+            $number = 1;
+
+            if ($latestCode) {
+                $number = (int) substr($latestCode, -4);
+                $number++;
+            }
+
+            // Format kode transaksi: PJ[YYYYMM][000X]
+            $penjualan->kode_transaksi = $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
+        });
+    }
 }
 

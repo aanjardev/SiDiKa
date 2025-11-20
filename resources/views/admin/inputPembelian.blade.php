@@ -255,9 +255,6 @@
             <div class="modal-body">
                 {{-- PERBAIKAN: Semua input di sini HARUS punya atribut 'name' --}}
                 <form id="formTambahCustomer">
-                    <div class="alert alert-info small">
-                        Customer yang ditambahkan di sini akan otomatis tersimpan di database.
-                    </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="customer_nama_modal">Nama Customer*</label>
