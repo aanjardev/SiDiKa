@@ -64,10 +64,10 @@
                                     <a href="{{ route('admin.customers.edit', $pelanggan->id) }}" title="Edit">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="{{ route('admin.customers.destroy', $pelanggan->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                                    <form action="{{ route('admin.customers.destroy', $pelanggan->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-icon" title="Hapus">
+                                        <button type="button" class="btn-icon btn-delete" title="Hapus">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
@@ -217,6 +217,40 @@
                     }
                 });
             }
+
+            // Custom alert untuk delete pelanggan dengan informasi nama
+            // Menggunakan event delegation untuk menghindari konflik dengan alert.js
+            document.addEventListener('click', function(e) {
+                // Cek apakah klik pada button delete di dalam form customers
+                const deleteBtn = e.target.closest('.btn-delete');
+                if (!deleteBtn) return;
+                
+                const form = deleteBtn.closest('form');
+                if (!form || !form.action || !form.action.includes('customers')) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Ambil nama pelanggan dari baris tabel (kolom ke-2 adalah nama)
+                const row = form.closest('tr');
+                const namaPelanggan = row ? row.querySelector('td:nth-child(2)')?.textContent?.trim() || 'pelanggan ini' : 'pelanggan ini';
+
+                Swal.fire({
+                    title: 'Yakin ingin menghapus?',
+                    html: `Data pelanggan <strong>${namaPelanggan}</strong> akan dihapus secara permanen!<br><small class="text-muted">Tindakan ini tidak dapat dibatalkan.</small>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="fa-solid fa-trash me-1"></i> Ya, hapus!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            }, true); // Menggunakan capture phase untuk dijalankan sebelum alert.js
         });
     </script>
     @endpush

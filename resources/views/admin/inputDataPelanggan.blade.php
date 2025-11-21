@@ -134,4 +134,6 @@
 </style>
 @endif
 @endpush
+@push('scripts')
+<script>
 
