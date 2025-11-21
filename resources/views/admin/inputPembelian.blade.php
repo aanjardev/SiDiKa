@@ -2,102 +2,230 @@
 
 @section('title', 'Buat Transaksi Pembelian')
 
-@push('page-actions')
-    {{-- Halaman form tidak perlu tombol aksi di header --}}
-@endpush
-
 @section('content')
 
-{{-- Tampilkan Error Validasi (dari Backend) --}}
+{{-- Custom CSS untuk Halaman Ini --}}
+@push('styles')
+<style>
+    /* Modern Card Style */
+    .card-modern {
+        border: 1px solid #f0f0f0;
+        border-radius: 16px;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+        transition: all 0.3s ease;
+    }
+    
+    .card-header-modern {
+        background-color: #fff;
+        border-bottom: 1px solid #f0f0f0;
+        padding: 20px 24px;
+        border-radius: 16px 16px 0 0 !important;
+    }
+
+    /* Input Group Styling */
+    .input-group-modern .input-group-text {
+        background-color: #fff;
+        border-right: none;
+        color: #6c757d;
+        border-color: #dee2e6;
+        border-radius: 10px 0 0 10px;
+    }
+
+    .input-group-modern .form-control, 
+    .input-group-modern .form-select {
+        border-left: none;
+        border-color: #dee2e6;
+        border-radius: 0 10px 10px 0;
+        padding: 10px 15px;
+    }
+
+    .input-group-modern .form-control:focus,
+    .input-group-modern .form-select:focus {
+        box-shadow: none;
+        border-color: #86b7fe; 
+        border-left: 1px solid #86b7fe; /* Kembalikan border saat fokus */
+    }
+
+    /* Labels */
+    .form-label-modern {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #344767;
+        margin-bottom: 6px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Action Buttons in Table */
+    .btn-action-icon {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+    }
+    
+    .btn-action-icon:hover {
+        background-color: #fee2e2;
+        color: #dc2626;
+        border-color: #fecaca;
+    }
+
+    /* Accordion Styling */
+    .accordion-modern .accordion-button {
+        background-color: #f8f9fa;
+        border-radius: 8px !important;
+        color: #495057;
+        font-weight: 600;
+        box-shadow: none;
+    }
+    
+    .accordion-modern .accordion-button:not(.collapsed) {
+        background-color: #e7f1ff;
+        color: #0d6efd;
+    }
+    
+    .accordion-modern .accordion-item {
+        border: 1px solid #eee;
+        border-radius: 8px !important;
+        margin-bottom: 10px;
+        overflow: hidden;
+    }
+</style>
+@endpush
+
+{{-- Tampilkan Error Validasi --}}
 @if ($errors->any())
-    <div class="alert alert-danger mb-4">
-        <h5 class="alert-heading">Ada Kesalahan Input!</h5>
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
+<div class="alert alert-danger alert-dismissible fade show mb-4 rounded-3 border-0 shadow-sm" role="alert" style="background-color: #fff5f5; border-left: 5px solid #dc3545 !important;">
+    <div class="d-flex align-items-center gap-3">
+        <div class="bg-danger bg-opacity-10 p-2 rounded-circle text-danger">
+            <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
+        </div>
+        <div>
+            <h6 class="fw-bold text-danger mb-1">Terjadi Kesalahan Input</h6>
+            <ul class="mb-0 small text-secondary ps-3">
+                @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
-            @endforeach
-        </ul>
+                @endforeach
+            </ul>
+        </div>
     </div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 @endif
 
-{{-- ======================================================= --}}
-{{-- PERBAIKAN 1: Tambahkan id="formPembelian" --}}
-{{-- ======================================================= --}}
 <form action="{{ route('admin.purchases.store') }}" method="POST" id="formPembelian">
     @csrf
-
     <input type="hidden" name="user_id" value="{{ Auth::id() ?? 1 }}">
     <input type="hidden" id="pembelian_id_hidden" name="pembelian_id" value="">
 
-    <div class="row">
-        {{-- KOLOM KIRI (70%): Form Utama --}}
+    <div class="row g-4">
+
+        {{-- KOLOM KIRI: Form Utama --}}
         <div class="col-lg-8">
 
-            {{-- CARD 1: INFORMASI TRANSAKSI (Customer & Cabang) --}}
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4">
-                    <h5 class="card-title fw-bold mb-4">Informasi Transaksi</h5>
+            {{-- CARD 1: Informasi Transaksi --}}
+            <div class="card card-modern mb-4">
+                <div class="card-header-modern d-flex align-items-center gap-3">
+                    <i class="fa-solid fa-file-invoice fa-lg text-primary"></i>
+                    <div>
+                        <h6 class="fw-bold text-dark mb-0">Informasi Transaksi</h6>
+                        <p class="text-muted small mb-0">Data pelanggan dan lokasi transaksi</p>
+                    </div>
+                </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="customer_id" class="form-label">Customer</label>
-                            <select class="form-select @error('customer_id') is-invalid @enderror" id="customer_id" name="customer_id" required>
-                                <option value="" selected disabled>Pilih customer...</option>
-                                @foreach($semua_customer as $customer)
-                                <option value="{{ $customer->id }}" {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
-                                    {{ $customer->nama }} ({{ $customer->no_telp }})
-                                </option>
-                                @endforeach
-                            </select>
-                            @error('customer_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            <div class="form-text">
-                                Jika customer baru, <a href="#" data-bs-toggle="modal" data-bs-target="#modalTambahCustomer">klik di sini untuk menambahkannya</a>.
+                <div class="card-body p-4">
+                    <div class="row g-4">
+                        {{-- Customer --}}
+                        <div class="col-md-6">
+                            <label for="customer_id" class="form-label-modern">Customer</label>
+                            <div class="input-group input-group-modern mb-2">
+                                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                                <select class="form-select @error('customer_id') is-invalid @enderror"
+                                    id="customer_id" name="customer_id" required>
+                                    <option value="" selected disabled>-- Pilih Customer --</option>
+                                    @foreach($semua_customer as $customer)
+                                    <option value="{{ $customer->id }}"
+                                        {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
+                                        {{ $customer->nama }} ({{ $customer->no_telp }})
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            
+                            @error('customer_id')
+                                <div class="text-danger small mb-1">{{ $message }}</div>
+                            @enderror
+
+                            <div class="d-flex">
+                                <a href="#" data-bs-toggle="modal" data-bs-target="#modalTambahCustomer"
+                                    class="small text-decoration-none fw-bold text-primary d-inline-flex align-items-center gap-1 ms-2">
+                                    <i class="fa-solid fa-plus-circle"></i> Customer Baru
+                                </a>
                             </div>
                         </div>
 
-                        <div class="col-md-6 mb-3">
-                            <label for="perusahaan_cabang_id" class="form-label">Lokasi Transaksi (Cabang)</label>
-                            <select class="form-select @error('perusahaan_cabang_id') is-invalid @enderror" id="perusahaan_cabang_id" name="perusahaan_cabang_id" required>
-                                @foreach($semua_cabang as $cabang)
-                                <option value="{{ $cabang->id }}" {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}>
-                                    {{ $cabang->nama }}
-                                </option>
-                                @endforeach
-                            </select>
-                            @error('perusahaan_cabang_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        {{-- Lokasi Cabang --}}
+                        <div class="col-md-6">
+                            <label for="perusahaan_cabang_id" class="form-label-modern">Lokasi Transaksi</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="fa-solid fa-store"></i></span>
+                                <select class="form-select @error('perusahaan_cabang_id') is-invalid @enderror"
+                                    id="perusahaan_cabang_id" name="perusahaan_cabang_id" required>
+                                    @foreach($semua_cabang as $cabang)
+                                    <option value="{{ $cabang->id }}"
+                                        {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}>
+                                        {{ $cabang->nama }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            @error('perusahaan_cabang_id')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- CARD 2: DAFTAR ITEM (1-N Produk Draft) --}}
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="card-title fw-bold mb-0">Item yang Dibeli</h5>
-                        <button type="button" class="btn btn-primary" id="btnBukaModalItem">
-                            <i class="fas fa-plus fa-fw me-1"></i> Tambah Item
-                        </button>
-                    </div>
 
-                    @error('items')
-                        <div class="alert alert-danger small p-2">
-                            <i class="fas fa-exclamation-triangle me-1"></i> {{ $message }}
+            {{-- CARD 2: Daftar Item --}}
+            <div class="card card-modern mb-4">
+                <div class="card-header-modern d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                            <i class="fa-solid fa-box-open fa-lg text-primary"></i>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0">Keranjang Barang</h6>
+                            <p class="text-muted small mb-0">Daftar unit yang akan dibeli</p>
                         </div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm px-3 py-2 rounded-3 fw-medium shadow-sm" id="btnBukaModalItem">
+                        <i class="fa-solid fa-plus me-1"></i> Tambah Item
+                    </button>
+                </div>
+
+                <div class="card-body p-0">
+                    @error('items')
+                    <div class="alert alert-danger small m-3 border-0 bg-danger bg-opacity-10 text-danger rounded-3">
+                        <i class="fas fa-exclamation-triangle me-1"></i> {{ $message }}
+                    </div>
                     @enderror
 
                     <div class="table-responsive">
-                        <table class="table align-middle table-product mb-0">
-                            <thead class="table-light">
+                        <table class="table table-modern mb-0">
+                            <thead class="bg-light text-secondary small uppercase">
                                 <tr>
-                                    <th>Nama Item</th>
-                                    <th>Kategori</th>
-                                    <th>Serial Number</th>
-                                    <th class="text-end">Aksi</th>
+                                    <th class="ps-4 py-3 fw-bold border-0" style="width: 45%;">NAMA ITEM / KONDISI</th>
+                                    <th class="py-3 fw-bold border-0">KATEGORI</th>
+                                    <th class="py-3 fw-bold border-0">SN (SERIAL)</th>
+                                    <th class="text-center py-3 fw-bold border-0" style="width: 80px;">AKSI</th>
                                 </tr>
                             </thead>
-                            <tbody id="item-list-wrapper">
-                                {{-- Item yang ditambah (via JS) akan muncul di sini --}}
+                            <tbody id="item-list-wrapper" class="border-top-0">
+                                {{-- Render JS --}}
                             </tbody>
                         </table>
                     </div>
@@ -106,277 +234,358 @@
 
         </div>
 
-        {{-- KOLOM KANAN (30%): Aksi & Harga --}}
+        {{-- KOLOM KANAN: Sticky Sidebar --}}
         <div class="col-lg-4">
-            <div class="card shadow-sm border-0 mb-4 position-sticky" style="top: 20px;">
+            <div class="card card-modern mb-4 position-sticky" style="top: 20px; z-index: 10;">
+                <div class="card-header-modern bg-primary bg-opacity-10 border-primary border-opacity-10">
+                    <h6 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-calculator"></i> Status & Pembayaran
+                    </h6>
+                </div>
                 <div class="card-body p-4">
-                    <h5 class="card-title fw-bold mb-3">Aksi & Status</h5>
 
-                    <div class="d-grid mb-2">
-                        <button type="submit" name="status_pembelian" value="draft" class="btn btn-primary btn-lg">
-                            <i class="fas fa-save me-1"></i> Simpan Draft & Tinjau
+                    {{-- Draft Button --}}
+                    <div class="d-grid mb-4">
+                        <button type="submit" name="status_pembelian" value="draft" class="btn btn-light border text-secondary py-2 fw-medium rounded-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                            <i class="fas fa-save"></i> Simpan Sebagai Draft
                         </button>
                     </div>
 
-                    <p class="text-muted small text-center">Simpan untuk mendapatkan link "Read-Only" yang bisa dibagikan ke atasan.</p>
+                    <hr class="border-dashed my-4">
 
-                    <hr class="my-3">
-
+                    {{-- Inputs Harga --}}
                     <div class="mb-3">
-                        <label for="harga_tawaran_customer" class="form-label">Tawaran Customer (Total)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">Rp</span>
-                            <input type="number" class="form-control @error('harga_tawaran_customer') is-invalid @enderror" id="harga_tawaran_customer" name="harga_tawaran_customer" placeholder="Mis: 5000000" value="{{ old('harga_tawaran_customer') }}">
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label for="harga_tawaran_toko" class="form-label">Tawaran Toko (Total)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">Rp</span>
-                            <input type="number" class="form-control @error('harga_tawaran_toko') is-invalid @enderror" id="harga_tawaran_toko" name="harga_tawaran_toko" placeholder="Mis: 4500000" value="{{ old('harga_tawaran_toko') }}">
+                        <label for="harga_tawaran_customer" class="form-label-modern">Tawaran Customer</label>
+                        <div class="input-group input-group-modern">
+                            <span class="input-group-text bg-light fw-medium">Rp</span>
+                            <input type="number" class="form-control fw-bold" id="harga_tawaran_customer" name="harga_tawaran_customer" placeholder="0" value="{{ old('harga_tawaran_customer') }}">
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label for="harga_deal" class="form-label fw-bold text-success">Harga Deal (Final)</label>
-                        <div class="input-group">
-                            <span class="input-group-text fw-bold text-success">Rp</span>
-                            <input type="number" class="form-control @error('harga_deal') is-invalid @enderror" id="harga_deal" name="harga_deal" placeholder="0" value="{{ old('harga_deal') }}">
+                    <div class="mb-4">
+                        <label for="harga_tawaran_toko" class="form-label-modern">Tawaran Toko</label>
+                        <div class="input-group input-group-modern">
+                            <span class="input-group-text bg-light fw-medium">Rp</span>
+                            <input type="number" class="form-control fw-bold" id="harga_tawaran_toko" name="harga_tawaran_toko" placeholder="0" value="{{ old('harga_tawaran_toko') }}">
                         </div>
-                        <div class="form-text">Isi ini jika sudah ada kesepakatan harga.</div>
                     </div>
 
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" name="status_pembelian" value="deal" class="btn btn-success w-100">
-                            <i class="fas fa-check me-1"></i> Deal
-                        </button>
-                        <button type="submit" name="status_pembelian" value="tidak_deal" class="btn btn-danger w-100">
-                            <i class="fas fa-times me-1"></i> Tidak Deal
-                        </button>
+                    {{-- FINAL DEAL --}}
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-3 mb-4 border border-primary border-opacity-25">
+                        <label for="harga_deal" class="form-label-modern mb-1">HARGA DEAL (FINAL)</label>
+                        <div class="input-group shadow-sm rounded-3 overflow-hidden">
+                            <span class="input-group-text bg-primary text-white border-0 fw-bold px-3">Rp</span>
+                            <input type="number" class="form-control border-0 fw-bold text-success fs-5" id="harga_deal" name="harga_deal" placeholder="0" value="{{ old('harga_deal') }}" style="height: 50px;">
+                        </div>
+                    </div>
+
+                    {{-- Action Buttons --}}
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button type="submit" name="status_pembelian" value="tidak_deal" class="btn btn-light border w-100 py-2 rounded-3 fw-medium">
+                                <i class="fas fa-times me-1"></i> Batal
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button type="submit" name="status_pembelian" value="deal" class="btn btn-primary w-100 py-2 rounded-3 fw-bold shadow-sm">
+                                <i class="fas fa-check me-1"></i> DEAL
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            {{-- Card Salin Link (Contoh, muncul saat halaman 'edit') --}}
+            {{-- Share Link (Mode Edit) --}}
             @if(isset($pembelian))
-            <div class="card shadow-sm border-0 mb-4">
+            <div class="card card-modern mb-4 border-dashed bg-light">
                 <div class="card-body p-3">
-                    <h6 class="card-title fw-bold mb-2">Bagikan Tinjauan</h6>
-                    <p class="text-muted small mt-0 mb-2">Gunakan link ini untuk diskusi dengan atasan.</p>
+                    <label class="form-label-modern small mb-2 text-muted"><i class="fa-solid fa-share-nodes me-1"></i> Link Transaksi</label>
                     <div class="input-group">
-                        <input type="text" class="form-control form-control-sm" id="shareable-link" value="{{ route('admin.purchases.show', $pembelian->id) }}" readonly>
-                        <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyToClipboard()">
-                            <i class="fas fa-copy me-1"></i> Salin
+                        <input type="text" class="form-control form-control-sm bg-white" id="shareable-link" value="{{ route('admin.purchases.show', $pembelian->id) }}" readonly>
+                        <button class="btn btn-primary btn-sm" type="button" onclick="copyToClipboard()">
+                            <i class="fas fa-copy"></i>
                         </button>
                     </div>
                 </div>
             </div>
             @endif
-
         </div>
     </div>
 </form>
 
-
 {{-- ======================================================= --}}
-{{-- MODAL TAMBAH CUSTOMER (DENGAN ATRIBUT 'name') --}}
+{{-- MODAL TAMBAH CUSTOMER --}}
 {{-- ======================================================= --}}
-<div class="modal fade" id="modalTambahCustomer" tabindex="-1" aria-labelledby="modalTambahCustomerLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahCustomerLabel">Tambah Customer Baru</h5>
+<div class="modal fade" id="modalTambahCustomer" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-dark">
+                    <span class="bg-primary bg-opacity-10 p-2 rounded-2 text-primary me-2"><i class="fa-solid fa-user-plus"></i></span>
+                    Tambah Customer Baru
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                {{-- PERBAIKAN: Semua input di sini HARUS punya atribut 'name' --}}
+            <div class="modal-body p-4">
                 <form id="formTambahCustomer">
-                    <div class="alert alert-info small">
-                        Customer yang ditambahkan di sini akan otomatis tersimpan di database.
+                    <div class="alert alert-primary bg-primary bg-opacity-10 border-0 rounded-3 small mb-4 d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-circle-info text-primary"></i>
+                        <span class="text-primary fw-medium">Data otomatis tersimpan setelah tombol simpan ditekan.</span>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_nama_modal">Nama Customer*</label>
-                            <input type="text" class="form-control" id="customer_nama_modal" name="nama" required>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label-modern">Nama Lengkap <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                                <input type="text" class="form-control" id="customer_nama_modal" name="nama" required placeholder="Nama sesuai KTP">
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_no_telp_modal">Nomor Telepon*</label>
-                            <input type="text" class="form-control" id="customer_no_telp_modal" name="no_telp" required>
+                        <div class="col-md-6">
+                            <label class="form-label-modern">WhatsApp / Telepon <span class="text-danger">*</span></label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
+                                <input type="text" class="form-control" id="customer_no_telp_modal" name="no_telp" required placeholder="0812xxxx">
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_identitas_modal">NIK (Identitas)</label>
-                            <input type="text" class="form-control" id="customer_identitas_modal" name="identitas">
+                        <div class="col-md-6">
+                            <label class="form-label-modern">NIK (Identitas)</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="fa-solid fa-id-card"></i></span>
+                                <input type="text" class="form-control" id="customer_identitas_modal" name="identitas" placeholder="Opsional">
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_jenis_kelamin_modal">Jenis Kelamin</label>
-                            <select class="form-select" id="customer_jenis_kelamin_modal" name="jenis_kelamin">
-                                <option value="L">Laki-laki</option>
-                                <option value="P">Perempuan</option>
-                            </select>
+                        <div class="col-md-6">
+                            <label class="form-label-modern">Jenis Kelamin</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="fa-solid fa-venus-mars"></i></span>
+                                <select class="form-select" id="customer_jenis_kelamin_modal" name="jenis_kelamin">
+                                    <option value="L">Laki-laki</option>
+                                    <option value="P">Perempuan</option>
+                                </select>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="customer_alamat_modal">Alamat</label>
-                        <textarea class="form-control" rows="2" id="customer_alamat_modal" name="alamat"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="customer_referensi_modal">Referensi (Opsional)</label>
-                        <input type="text" class="form-control" id="customer_referensi_modal" name="referensi" placeholder="Mis: Info dari Instagram, Teman, dll.">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="customer_keterangan_modal">Keterangan (Opsional)</label>
-                        <textarea class="form-control" rows="2" id="customer_keterangan_modal" name="keterangan" placeholder="Mis: Pelanggan lama, sering jual/beli..."></textarea>
+                        <div class="col-12">
+                            <label class="form-label-modern">Alamat Lengkap</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="fa-solid fa-map-location-dot"></i></span>
+                                <textarea class="form-control" rows="2" id="customer_alamat_modal" name="alamat" placeholder="Masukkan alamat domisili..."></textarea>
+                            </div>
+                        </div>
+                         <div class="col-md-6">
+                            <label class="form-label-modern">Referensi</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="fa-solid fa-bullhorn"></i></span>
+                                <input type="text" class="form-control" id="customer_referensi_modal" name="referensi" placeholder="Contoh: Instagram, Teman">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label-modern">Catatan</label>
+                            <div class="input-group input-group-modern">
+                                <span class="input-group-text"><i class="fa-solid fa-note-sticky"></i></span>
+                                <input type="text" class="form-control" id="customer_keterangan_modal" name="keterangan" placeholder="Catatan khusus...">
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="btnSimpanCustomer">
-                    Simpan Customer
+            <div class="modal-footer border-top-0 px-4 pb-4 pt-0">
+                <button type="button" class="btn btn-light border rounded-3 px-4 fw-medium" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary rounded-3 px-4 fw-medium shadow-sm" id="btnSimpanCustomer">
+                    <i class="fa-solid fa-save me-1"></i> Simpan Data
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-
 {{-- ======================================================= --}}
-{{-- MODAL UNTUK TAMBAH ITEM (Dengan Accordion) --}}
+{{-- MODAL TAMBAH ITEM --}}
 {{-- ======================================================= --}}
-<div class="modal fade" id="modalTambahItem" tabindex="-1" aria-labelledby="modalTambahItemLabel" aria-hidden="true">
+<div class="modal fade" id="modalTambahItem" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahItemLabel">Tambah Item Pembelian</h5>
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <div class="modal-header bg-white border-bottom-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-dark">
+                    <span class="bg-warning bg-opacity-10 p-2 rounded-2 text-warning me-2"><i class="fa-solid fa-box-open"></i></span>
+                    Tambah Item Pembelian
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <div id="formTambahItem">
-                    <h6 class="fw-bold text-primary">1. Informasi Dasar Item</h6>
-                    <div class="row">
-                        <div class="col-md-8 mb-3">
-                            <label class="form-label">Nama Item*</label>
-                            <input type="text" class="form-control" id="item_nama_item" placeholder="Misal: Canon 60D Body Only">
-                        </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Kategori*</label>
-                            <select class="form-select" id="item_kategori_id">
-                                <option value="" selected disabled>Pilih Kategori...</option>
-                                @foreach($semua_kategori as $kat)
-                                <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
-                                @endforeach
-                            </select>
+
+                    {{-- Section 1: Identitas Barang --}}
+                    <div class="bg-light p-4 rounded-4 mb-4 border border-dashed">
+                        <h6 class="fw-bold text-dark mb-3 small text-uppercase tracking-wide text-muted border-bottom pb-2">
+                            <i class="fa-solid fa-tag me-2 text-warning"></i>1. Identitas Barang
+                        </h6>
+                        <div class="row g-3">
+                            <div class="col-md-8">
+                                <label class="form-label-modern">Nama Item <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-lg fs-6" id="item_nama_item" placeholder="Contoh: Canon EOS 60D Body Only">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label-modern">Kategori <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-lg fs-6" id="item_kategori_id">
+                                    <option value="" selected disabled>Pilih...</option>
+                                    @foreach($semua_kategori as $kat)
+                                    <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-modern">Serial Number (Body)</label>
+                                <input type="text" class="form-control font-monospace" id="item_serial_number" placeholder="SN Body">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label-modern">Serial Number (Lensa)</label>
+                                <input type="text" class="form-control font-monospace" id="item_serial_lens" placeholder="SN Lensa (Jika ada)">
+                            </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Serial Number (Body/Unit)</label>
-                            <input type="text" class="form-control" id="item_serial_number">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Serial Number (Lensa)</label>
-                            <input type="text" class="form-control" id="item_serial_lens">
-                        </div>
-                    </div>
-                    <hr>
-                    <h6 class="fw-bold text-primary">2. Pengecekan Kondisi</h6>
-                    <div class="accordion" id="accordionKondisi">
+
+                    {{-- Section 2: Pengecekan (Accordion) --}}
+                    <h6 class="fw-bold text-dark mb-3 px-1 small text-uppercase tracking-wide text-muted">
+                        <i class="fa-solid fa-clipboard-check me-2 text-success"></i>2. Detail Kondisi & Kelengkapan
+                    </h6>
+
+                    <div class="accordion accordion-modern" id="accordionKondisi">
+                        {{-- Accordion Item: Fisik --}}
                         <div class="accordion-item">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFisik">
-                                    Kondisi Fisik Unit
+                                    <i class="fa-solid fa-camera me-2 text-secondary"></i> Kondisi Fisik Unit
                                 </button>
                             </h2>
                             <div id="collapseFisik" class="accordion-collapse collapse" data-bs-parent="#accordionKondisi">
-                                <div class="accordion-body row">
-                                    <div class="col-md-6 mb-3"><label class="form-label">Kondisi Fisik (Keseluruhan)</label><input type="text" class="form-control" id="item_kondisi_fisik" placeholder="Mis: 90% (bekas pemakaian)"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Kondisi Baut</label><input type="text" class="form-control" id="item_kondisi_baut" placeholder="Mis: Utuh, ada bekas obeng"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Tutup USB/Port</label><input type="text" class="form-control" id="item_kondisi_tutup_usb" placeholder="Mis: Ada, kencang"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Karet Grip</label><input type="text" class="form-control" id="item_kondisi_grip" placeholder="Mis: Rapat, sedikit melar"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Mounting Lensa/Body</label><input type="text" class="form-control" id="item_kondisi_mounting" placeholder="Mis: Bersih, ada goresan"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">LCD</label><input type="text" class="form-control" id="item_kondisi_lcd" placeholder="Mis: Bening, no vignette"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Tombol-tombol</label><input type="text" class="form-control" id="item_kondisi_tombol" placeholder="Mis: Berfungsi semua, empuk"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Slot Memori</label><input type="text" class="form-control" id="item_kondisi_slot_memori" placeholder="Mis: Normal"></div>
+                                <div class="accordion-body bg-white">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Fisik Overall</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_fisik" placeholder="Contoh: 95% Mulus">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Kondisi Baut</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_baut" placeholder="Utuh/Segel/Lecet">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Karet Grip</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_grip" placeholder="Rapat/Melar/Putih">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Tutup USB/Mic</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_tutup_usb" placeholder="Ada/Putus/Hilang">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">LCD</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_lcd" placeholder="Vignette/Dead Pixel">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Tombol</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_tombol" placeholder="Normal/Keras/Macet">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Mounting</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_mounting" placeholder="Bersih/Kotor">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Slot Memori</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_slot_memori" placeholder="Normal/Error">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Accordion Item: Lensa --}}
                         <div class="accordion-item">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLensa">
-                                    Kondisi Lensa & Sensor
+                                    <i class="fa-solid fa-bullseye me-2 text-secondary"></i> Kondisi Lensa & Optik
                                 </button>
                             </h2>
                             <div id="collapseLensa" class="accordion-collapse collapse" data-bs-parent="#accordionKondisi">
-                                <div class="accordion-body row">
-                                    <div class="col-md-6 mb-3"><label class="form-label">Jamur Lensa</label><input type="text" class="form-control" id="item_kondisi_jamur_lensa" placeholder="Mis: Tidak ada / Jamur tipis"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">View Finder (Jendela Bidik)</label><input type="text" class="form-control" id="item_kondisi_view_finder" placeholder="Mis: Bersih / Ada debu"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Jamur Sensor</label><input type="text" class="form-control" id="item_kondisi_jamur_sensor" placeholder="Mis: Tidak ada / Ada 1 titik"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Zoom Lensa (In/Out)</label><input type="text" class="form-control" id="item_kondisi_zoom_lensa" placeholder="Mis: Lancar, tidak seret"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Autofokus (AF) Lensa</label><input type="text" class="form-control" id="item_kondisi_af_lensa" placeholder="Mis: Cepat, normal"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Diafragma (Aperture) Lensa</label><input type="text" class="form-control" id="item_kondisi_diafragma_lensa" placeholder="Mis: Normal, tidak error"></div>
-                                    <div class="col-md-6 mb-3"><label class="form-label">Kalibrasi Fokus</label><input type="text" class="form-control" id="item_kondisi_kalibrasi_fokus" placeholder="Mis: Normal, tidak front/back"></div>
+                                <div class="accordion-body bg-white">
+                                    <div class="row g-3">
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Jamur Lensa</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_jamur_lensa" placeholder="Clean/Bibit/Parah">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Jamur Sensor</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_jamur_sensor" placeholder="Clean/Debu Mikro">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">View Finder</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_view_finder" placeholder="Bersih/Kotor">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Zooming</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_zoom_lensa" placeholder="Lancar/Seret">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Auto Fokus (AF)</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_af_lensa" placeholder="Cepat/Mati/Berisik">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Aperture</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_diafragma_lensa" placeholder="Normal/Err01">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="small fw-bold text-muted mb-1">Kalibrasi Fokus</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_kalibrasi_fokus" placeholder="Akurat/Miss Fokus">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        {{-- Accordion Item: Lainnya --}}
                         <div class="accordion-item">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLain">
-                                    Kondisi Fungsi Lain & Kelengkapan
+                                    <i class="fa-solid fa-list-check me-2 text-secondary"></i> Fungsi Lain & Kelengkapan
                                 </button>
                             </h2>
                             <div id="collapseLain" class="accordion-collapse collapse" data-bs-parent="#accordionKondisi">
-                                <div class="accordion-body">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3"><label class="form-label">Flash Internal/Eksternal</label><input type="text" class="form-control" id="item_kondisi_flash" placeholder="Mis: Normal, hotshoe berfungsi"></div>
-                                        <div class="col-md-6 mb-3"><label class="form-label">Sound/Mic</label><input type="text" class="form-control" id="item_kondisi_sound_mic" placeholder="Mis: Normal"></div>
+                                <div class="accordion-body bg-white">
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Flash</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_flash" placeholder="Nyala/Mati">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="small fw-bold text-muted mb-1">Mic/Sound</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_sound_mic" placeholder="Jelas/Kresek">
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="small fw-bold text-muted mb-1">Lain-lain</label>
+                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_lain_lain" placeholder="Wifi, Touchscreen, dll">
+                                        </div>
                                     </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Kondisi Lain-lain (Opsional)</label>
-                                        <input type="text" class="form-control" id="item_kondisi_lain_lain" placeholder="Mis: WiFi normal, Bluetooth normal">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Kelengkapan Awal</label>
-                                        <textarea class="form-control" rows="2" id="item_kelengkapan" placeholder="Misal: Box, Baterai Ori, Charger Ori, Strap, Tas..."></textarea>
+                                    <div class="border-top pt-3">
+                                        <label class="form-label-modern"><i class="fa-solid fa-box-archive me-1"></i> Kelengkapan Awal</label>
+                                        <textarea class="form-control" rows="2" id="item_kelengkapan" placeholder="Contoh: Box, Charger, Baterai, Strap..."></textarea>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="btnSimpanItem">
-                    Simpan Item
+            <div class="modal-footer border-top-0 px-4 pb-4 pt-0">
+                <button type="button" class="btn btn-light border rounded-3 px-4 fw-medium text-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary rounded-3 px-4 fw-medium shadow-sm" id="btnSimpanItem">
+                    <i class="fa-solid fa-save me-1"></i> Simpan Item
                 </button>
             </div>
         </div>
     </div>
 </div>
-@endsection
 
-@push('styles')
-<style>
-    .btn-icon {
-        background: transparent !important; border: none !important;
-        padding: 0 !important; color: #dc3545 !important;
-        cursor: pointer !important; font-size: 16px !important;
-    }
-    .btn-icon:hover { color: #bb2d3b !important; }
-    .accordion-button:not(.collapsed) {
-        color: var(--bs-primary);
-        background-color: var(--bs-primary-bg-subtle);
-    }
-    .accordion-button:focus {
-        box-shadow: 0 0 0 0.25rem rgba(78, 107, 255, 0.25);
-    }
-    .accordion-body {
-        background-color: #f8f9fa;
-    }
-</style>
-@endpush
+@endsection
 
 @push('scripts')
 <script>
@@ -388,10 +597,7 @@
     document.addEventListener("DOMContentLoaded", function() {
 
         const mainForm = document.getElementById('formPembelian');
-        if (!mainForm) {
-            console.error('Form utama #formPembelian tidak ditemukan!');
-            return;
-        }
+        if (!mainForm) return;
 
         const btnBukaModalItem = document.getElementById('btnBukaModalItem');
         const btnSimpanItem = document.getElementById('btnSimpanItem');
@@ -404,23 +610,19 @@
         // Render tabel (awalnya akan kosong)
         renderItemList();
 
-        // TAMBAHKAN EVENT LISTENER INI
+        // Event Buka Modal Item
         btnBukaModalItem.addEventListener('click', function() {
             const customerId = customerSelect.value;
             const cabangId = cabangSelect.value;
 
             if (!customerId || !cabangId) {
-                alert('Harap pilih Customer dan Lokasi Transaksi (Cabang) terlebih dahulu sebelum menambah item.');
-                return; // Hentikan aksi
+                alert('Harap pilih Customer dan Lokasi Transaksi (Cabang) terlebih dahulu.');
+                return;
             }
-
-            // Jika customer & cabang sudah dipilih, baru buka modalnya
             modalTambahItem.show();
         });
 
-        // =======================================================
-        // PERUBAHAN UTAMA 1: Simpan Item (AJAX)
-        // =======================================================
+        // Event Simpan Item (AJAX)
         btnSimpanItem.addEventListener('click', function() {
             const namaItem = document.getElementById('item_nama_item').value;
             const kategoriSelect = document.getElementById('item_kategori_id');
@@ -431,15 +633,11 @@
                 return;
             }
 
-            // Kumpulkan semua data item dari modal
             const newItemData = {
-                // Data parent (dibutuhkan HANYA untuk item pertama)
                 pembelian_id: currentPembelianId,
                 customer_id: document.getElementById('customer_id').value,
                 perusahaan_cabang_id: document.getElementById('perusahaan_cabang_id').value,
                 user_id: mainForm.querySelector('input[name="user_id"]').value,
-
-                // Data item
                 nama_item: namaItem,
                 kategori_id: kategoriId,
                 serial_number: document.getElementById('item_serial_number').value,
@@ -465,211 +663,205 @@
                 kelengkapan_awal: document.getElementById('item_kelengkapan').value
             };
 
-            // Tampilkan loading
             btnSimpanItem.disabled = true;
-            btnSimpanItem.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
+            btnSimpanItem.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
 
-            // Kirim data ke Controller via AJAX (Fetch)
             fetch("{{ route('admin.purchases.ajaxStoreItemDraft') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(newItemData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw err; }); // Tangani error validasi
-                }
-                return response.json();
-            })
-            .then(result => {
-                if (result.success) {
-                    // 1. Simpan ID Pembelian (Induk)
-                    currentPembelianId = result.pembelian_id;
-                    hiddenPembelianIdInput.value = result.pembelian_id;
-
-                    // 2. Tambahkan item baru (dari server) ke array JS
-                    itemsPembelian.push(result.item);
-
-                    // 3. Render ulang tabel
-                    renderItemList();
-
-                    // 4. Reset & tutup modal
-                    document.getElementById('formTambahItem').querySelectorAll('input, textarea, select').forEach(input => {
-                        if(input.type === 'select-one') input.selectedIndex = 0;
-                        else input.value = '';
-                    });
-                    document.querySelectorAll('#accordionKondisi .accordion-collapse').forEach(collapse => {
-                        new bootstrap.Collapse(collapse, { toggle: false }).hide();
-                    });
-                    modalTambahItem.hide();
-                } else {
-                    alert('Gagal: ' + (result.message || 'Error tidak diketahui.'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
-                if (error.errors) {
-                    // Tampilkan error validasi pertama
-                    errorMsg = Object.values(error.errors)[0][0];
-                } else if (error.message) {
-                    errorMsg = error.message;
-                }
-                alert(errorMsg);
-            })
-            .finally(() => {
-                btnSimpanItem.disabled = false;
-                btnSimpanItem.innerHTML = 'Simpan Item';
-            });
-        });
-
-        // =======================================================
-        // PERUBAHAN UTAMA 2: Hapus Item (AJAX)
-        // =======================================================
-        // 'id' di sini adalah ID dari database (item.id)
-        window.hapusItem = function(id) {
-            if (confirm('Yakin ingin menghapus item ini dari database?')) {
-
-                fetch(`/admin/purchases/delete-item-draft/${id}`, { // Gunakan route baru
-                    method: 'DELETE',
+                    method: 'POST',
                     headers: {
+                        'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': '{{ csrf_token() }}',
                         'Accept': 'application/json'
-                    }
+                    },
+                    body: JSON.stringify(newItemData)
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) return response.json().then(err => {
+                        throw err;
+                    });
+                    return response.json();
+                })
                 .then(result => {
                     if (result.success) {
-                        // Hapus item dari array JS
-                        itemsPembelian = itemsPembelian.filter(item => item.id !== id);
-                        // Render ulang tabel
+                        currentPembelianId = result.pembelian_id;
+                        hiddenPembelianIdInput.value = result.pembelian_id;
+                        itemsPembelian.push(result.item);
                         renderItemList();
+
+                        // Reset form & accordion
+                        document.getElementById('formTambahItem').querySelectorAll('input, textarea, select').forEach(input => {
+                            if (input.type === 'select-one') input.selectedIndex = 0;
+                            else input.value = '';
+                        });
+                        document.querySelectorAll('#accordionKondisi .accordion-collapse').forEach(collapse => {
+                            new bootstrap.Collapse(collapse, {
+                                toggle: false
+                            }).hide();
+                        });
+                        modalTambahItem.hide();
                     } else {
-                        alert('Gagal menghapus: ' + result.message);
+                        alert('Gagal: ' + (result.message || 'Error tidak diketahui.'));
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('Gagal menghapus item.');
+                    let errorMsg = 'Gagal menyimpan data.';
+                    if (error.errors) errorMsg = Object.values(error.errors)[0][0];
+                    else if (error.message) errorMsg = error.message;
+                    alert(errorMsg);
+                })
+                .finally(() => {
+                    btnSimpanItem.disabled = false;
+                    btnSimpanItem.innerHTML = '<i class="fas fa-save me-1"></i> Simpan Item';
                 });
+        });
+
+        // Event Hapus Item (AJAX)
+        window.hapusItem = function(id) {
+            if (confirm('Yakin ingin menghapus item ini?')) {
+                fetch(`/admin/purchases/delete-item-draft/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            itemsPembelian = itemsPembelian.filter(item => item.id !== id);
+                            renderItemList();
+                        } else {
+                            alert('Gagal menghapus: ' + result.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Gagal menghapus item.');
+                    });
             }
         }
 
-        // =======================================================
-        // PERUBAHAN UTAMA 3: Render Tabel
-        // =======================================================
+        // Render Tabel
         function renderItemList() {
             if (!itemListWrapper || !mainForm) return;
-
             itemListWrapper.innerHTML = '';
 
-            // HAPUS SEMUA INPUT HIDDEN YANG LAMA
-            // (Kita tidak membutuhkannya lagi, karena data sudah di DB)
+            // Hapus input hidden lama agar tidak duplikat saat submit final
             mainForm.querySelectorAll('input[name^="items["]').forEach(input => input.remove());
             mainForm.querySelectorAll('textarea[name^="items["]').forEach(input => input.remove());
 
             if (itemsPembelian.length === 0) {
                 itemListWrapper.innerHTML = `
                     <tr>
-                        <td colspan="4" class="text-center text-muted py-4">
-                            Belum ada item yang ditambahkan. <br>
-                            Klik tombol "Tambah Item" untuk memulai.
+                        <td colspan="4" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center opacity-50">
+                                <div class="bg-light rounded-circle p-3 mb-3 text-secondary">
+                                    <i class="fa-solid fa-box-open fa-2x"></i>
+                                </div>
+                                <h6 class="text-secondary fw-bold mb-1">Keranjang Kosong</h6>
+                                <p class="small text-muted mb-0">Belum ada item ditambahkan ke transaksi ini.</p>
+                            </div>
                         </td>
                     </tr>
                 `;
             } else {
-                itemsPembelian.forEach((item, index) => {
+                itemsPembelian.forEach((item) => {
                     let tr = document.createElement('tr');
-                    let shortKondisi = item.kondisi_fisik || 'N/A';
-                    if(shortKondisi && shortKondisi.length > 30) shortKondisi = shortKondisi.substring(0, 30) + '...';
+                    let shortKondisi = item.kondisi_fisik || '-';
+                    if (shortKondisi.length > 30) shortKondisi = shortKondisi.substring(0, 30) + '...';
+                    let kategoriNama = (item.kategori && item.kategori.nama_kategori) ? item.kategori.nama_kategori : '-';
 
-                    // Ambil nama kategori dari data relasi (hasil load 'kategori' di controller)
-                    let kategoriNama = (item.kategori && item.kategori.nama_kategori) ? item.kategori.nama_kategori : 'N/A';
-
+                    // Template String Updated for New Look
                     tr.innerHTML = `
-                        <td>
-                            <h6 class="mb-0">${item.nama_item}</h6>
-                            <small class="text-muted">Kondisi: ${shortKondisi}</small>
+                        <td class="ps-4 py-3">
+                            <div class="d-flex flex-column">
+                                <span class="fw-bold text-dark">${item.nama_item}</span>
+                                <span class="small text-muted"><i class="fa-solid fa-circle-info me-1 text-info" style="font-size: 0.7rem;"></i>${shortKondisi}</span>
+                            </div>
                         </td>
-                        <td>${kategoriNama}</td>
-                        <td>${item.serial_number || 'N/A'}</td>
-                        <td class="text-end">
-                            <button type="button" class="btn-icon text-danger" title="Hapus" onclick="hapusItem(${item.id})">
-                                <i class="fa-solid fa-trash"></i>
+                        <td class="py-3">
+                            <span class="badge rounded-pill bg-white text-dark border border-secondary-subtle fw-normal px-3 py-2">
+                                ${kategoriNama}
+                            </span>
+                        </td>
+                        <td class="py-3 font-monospace text-secondary small">${item.serial_number || '-'}</td>
+                        <td class="text-center py-3">
+                            <button type="button" class="btn-action-icon" title="Hapus Item" onclick="hapusItem(${item.id})">
+                                <i class="fa-solid fa-trash-can"></i>
                             </button>
                         </td>
                     `;
                     itemListWrapper.appendChild(tr);
-
-
                 });
             }
         }
 
-        // --- (SCRIPT MODAL CUSTOMER ANDA - TETAP SAMA) ---
+        // Script Simpan Customer (Modal)
         const btnSimpanCustomer = document.getElementById('btnSimpanCustomer');
         const modalTambahCustomer = new bootstrap.Modal(document.getElementById('modalTambahCustomer'));
         const formTambahCustomer = document.getElementById('formTambahCustomer');
 
         btnSimpanCustomer.addEventListener('click', function() {
-            // ... (Logika simpan customer Anda tidak perlu diubah) ...
             const nama = document.getElementById('customer_nama_modal').value;
             const no_telp = document.getElementById('customer_no_telp_modal').value;
-            if(!nama || !no_telp) {
+            if (!nama || !no_telp) {
                 alert('Nama dan No. Telepon customer wajib diisi.');
                 return;
             }
             const formData = new FormData(formTambahCustomer);
             const data = Object.fromEntries(formData.entries());
+
             btnSimpanCustomer.disabled = true;
-            btnSimpanCustomer.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
+            btnSimpanCustomer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+
             fetch("{{ route('admin.customers.store') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) { return response.json().then(err => { throw err; }); }
-                return response.json();
-            })
-            .then(result => {
-                if(result.success) {
-                    const customerSelect = document.getElementById('customer_id');
-                    const newOption = new Option(`${result.customer.nama} (${result.customer.no_telp})`, result.customer.id, true, true);
-                    customerSelect.appendChild(newOption);
-                    formTambahCustomer.reset();
-                    modalTambahCustomer.hide();
-                } else {
-                    alert('Gagal menyimpan customer: ' + (result.message || 'Error tidak diketahui.'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
-                if(error.errors) { errorMsg = Object.values(error.errors)[0][0]; }
-                alert(errorMsg);
-            })
-            .finally(() => {
-                btnSimpanCustomer.disabled = false;
-                btnSimpanCustomer.innerHTML = 'Simpan Customer';
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => {
+                    if (!response.ok) return response.json().then(err => {
+                        throw err;
+                    });
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.success) {
+                        const customerSelect = document.getElementById('customer_id');
+                        const newOption = new Option(`${result.customer.nama} (${result.customer.no_telp})`, result.customer.id, true, true);
+                        customerSelect.appendChild(newOption);
+                        formTambahCustomer.reset();
+                        modalTambahCustomer.hide();
+                    } else {
+                        alert('Gagal menyimpan customer: ' + (result.message || 'Error.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    let errorMsg = 'Gagal menyimpan data.';
+                    if (error.errors) errorMsg = Object.values(error.errors)[0][0];
+                    alert(errorMsg);
+                })
+                .finally(() => {
+                    btnSimpanCustomer.disabled = false;
+                    btnSimpanCustomer.innerHTML = 'Simpan Data';
+                });
         });
 
-        // --- (Script copy-paste link Anda - TETAP SAMA) ---
+        // Script Copy Link
         window.copyToClipboard = function() {
             const linkInput = document.getElementById('shareable-link');
-            linkInput.select();
-            linkInput.setSelectionRange(0, 99999);
-            document.execCommand('copy');
-            alert('Link tinjauan telah disalin ke clipboard!');
+            if (linkInput) {
+                linkInput.select();
+                linkInput.setSelectionRange(0, 99999);
+                document.execCommand('copy');
+                alert('Link tersalin!');
+            }
         }
     });
 </script>

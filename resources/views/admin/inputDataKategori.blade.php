@@ -3,31 +3,66 @@
 @section('title', isset($category) ? 'Edit Data Kategori' : 'Tambah Data Kategori')
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <form action="{{ isset($category)
-                ? route('admin.categories.update', $category->id)
-                : route('admin.categories.store') }}" method="POST">
+
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        
+        <div class="card shadow-sm border-0" style="border-radius: 10px;">
+            {{-- Card Header --}}
+            <div class="card-header bg-white border-0 pt-4 ps-4 pe-4 pb-0">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="fa-solid fa-layer-group me-2 text-primary"></i>
+                    {{ isset($category) ? 'Edit Kategori' : 'Tambah Kategori Baru' }}
+                </h5>
+                <p class="text-muted small mt-1">
+                    {{ isset($category) ? 'Perbarui nama kategori produk di sini.' : 'Buat kategori baru untuk mengelompokkan produk.' }}
+                </p>
+            </div>
+
+            <div class="card-body p-4">
+                <form action="{{ isset($category) ? route('admin.categories.update', $category->id) : route('admin.categories.store') }}" method="POST">
                     @csrf
                     @if(isset($category))
                         @method('PUT')
                     @endif
-                    <div class="mb-3">
-                        <label for="nama_kategori" class="form-label">Nama Kategori</label>
-                        <input type="text" name="nama_kategori" id="nama_kategori" class="form-control @error('nama_kategori') is-invalid @enderror" placeholder="Masukkan nama kategori" value="{{ old('nama_kategori', isset($category) ? $category->nama_kategori : '') }}">
+
+                    {{-- Nama Kategori --}}
+                    <div class="mb-4">
+                        <label for="nama_kategori" class="form-label fw-medium text-secondary small">Nama Kategori</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
+                                <i class="fa-solid fa-tag"></i>
+                            </span>
+                            <input type="text" 
+                                name="nama_kategori" 
+                                id="nama_kategori" 
+                                class="form-control border-start-0 ps-2 @error('nama_kategori') is-invalid @enderror" 
+                                style="height: 45px;"
+                                placeholder="Contoh: Kamera DSLR, Lensa, Tripod..." 
+                                value="{{ old('nama_kategori', isset($category) ? $category->nama_kategori : '') }}"
+                                required>
+                        </div>
                         @error('nama_kategori')
-                            <div class="invalid-feedback">{{ $message }}</div>
+                            <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
-                    <div class="text-end mt-4">
-                        <a href="{{ route('admin.categories.index') }}" class="btn btn-light me-2">Batal</a>
-                        <button type="submit" class="btn btn-primary">{{ isset($category) ? 'Perbarui' : 'Simpan'}}</button>
+
+                    <hr class="my-4 opacity-25">
+
+                    {{-- Tombol Aksi --}}
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ route('admin.categories.index') }}" class="btn btn-light border px-4 fw-medium text-secondary d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-xmark"></i> Batal
+                        </a>
+                        <button type="submit" class="btn btn-primary px-4 fw-medium d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-save"></i> {{ isset($category) ? 'Simpan Perubahan' : 'Simpan Kategori' }}
+                        </button>
                     </div>
+
                 </form>
             </div>
         </div>
     </div>
 </div>
+
 @endsection

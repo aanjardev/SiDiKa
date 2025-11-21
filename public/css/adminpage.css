@@ -120,3 +120,8 @@
         color: white;
         box-shadow: 0 2px 5px rgba(78, 108, 255, 0.3);
     }
+
+    .header-tight {
+    padding-top: 1rem;
+    padding-bottom: 0.4rem; /* bebas kamu atur */
+}

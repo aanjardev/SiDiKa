@@ -43,7 +43,7 @@
 </div>
 
 {{-- Table Card --}}
-<div class="card shadow-sm border-0" style="border-radius: 10px; overflow: hidden; min-height: 700px;">
+<div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
     <div class="card-body p-0">
         <div class="table-responsive">
             <table class="table table-modern mb-0">

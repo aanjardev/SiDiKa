@@ -1,19 +1,38 @@
-{{-- PR: PILIH TANGGAL SESUAI HOPE UI --}}
-
 @extends('layouts.admin')
 
 @section('title', isset($readOnly) && $readOnly ? 'Detail Data Karyawan' : (isset($employee) ? 'Edit Data Karyawan' : 'Tambah Data Karyawan'))
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-body">
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        
+        <div class="card shadow-sm border-0" style="border-radius: 10px;">
+            {{-- Card Header --}}
+            <div class="card-header bg-white border-0 pt-4 ps-4 pe-4 pb-0">
+                <h5 class="fw-bold text-dark mb-0">
+                    <i class="fa-solid fa-id-card-clip me-2 text-primary"></i>
+                    @if(isset($readOnly) && $readOnly)
+                        Detail Informasi Karyawan
+                    @elseif(isset($employee))
+                        Edit Informasi Karyawan
+                    @else
+                        Tambah Karyawan Baru
+                    @endif
+                </h5>
+                <p class="text-muted small mt-1">
+                    @if(isset($readOnly) && $readOnly)
+                        Mode lihat data (Read-only).
+                    @else
+                        Silakan isi data diri karyawan dengan lengkap dan benar.
+                    @endif
+                </p>
+            </div>
+
+            <div class="card-body p-4">
                 
-                @if(isset($readOnly) && $readOnly)
-                    {{-- Mode Read-Only untuk melihat detail --}}
-                @else
-                <form method="POST" action="{{ isset($employee) ? route('admin.employees.update', $employee->id) : route('admin.employees.store') }}">
+                {{-- Pembuka Form --}}
+                @if(!(isset($readOnly) && $readOnly))
+                    <form method="POST" action="{{ isset($employee) ? route('admin.employees.update', $employee->id) : route('admin.employees.store') }}">
                     @csrf
                     @if(isset($employee))
                         @method('PUT')
@@ -22,122 +41,166 @@
 
                     {{-- Baris 1: Nama & NIK --}}
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="nama_lengkap" class="form-label">Nama Lengkap</label>
-                                <input type="text" class="form-control @error('nama_lengkap') is-invalid @enderror" id="nama_lengkap" name="nama_lengkap" value="{{ old('nama_lengkap', $employee->nama_lengkap ?? '') }}" placeholder="Masukkan nama lengkap" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
-                                @error('nama_lengkap')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-medium text-secondary small">Nama Lengkap</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-user"></i></span>
+                                <input type="text" 
+                                    class="form-control border-start-0 ps-2 @error('nama_lengkap') is-invalid @enderror" 
+                                    name="nama_lengkap" 
+                                    style="height: 45px;"
+                                    value="{{ old('nama_lengkap', $employee->nama_lengkap ?? '') }}" 
+                                    placeholder="Nama lengkap sesuai KTP" 
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
                             </div>
+                            @error('nama_lengkap') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="nik" class="form-label">NIK</label>
-                                <input type="text" class="form-control @error('nik') is-invalid @enderror" id="nik" name="nik" value="{{ old('nik', $employee->nik ?? '') }}" placeholder="Masukkan 16 Digit NIK" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
-                                @error('nik')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-medium text-secondary small">NIK</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-fingerprint"></i></span>
+                                <input type="text" 
+                                    class="form-control border-start-0 ps-2 @error('nik') is-invalid @enderror" 
+                                    name="nik" 
+                                    style="height: 45px;"
+                                    value="{{ old('nik', $employee->nik ?? '') }}" 
+                                    placeholder="16 Digit NIK" 
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
                             </div>
+                            @error('nik') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                     </div>
 
-                    {{-- Baris 2: Jabatan & Email --}}
+                    {{-- Baris 2: Jabatan & No Telp --}}
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="jabatan" class="form-label">Jabatan</label>
-                                <select class="form-select @error('jabatan') is-invalid @enderror" id="jabatan" name="jabatan" {{ isset($readOnly) && $readOnly ? 'disabled' : 'required' }}>
-                                    <option value="" selected disabled>Pilih Jabatan</option>
-                                    <option value="Manager" {{ old('jabatan', $employee->jabatan ?? '') === 'Manager' ? 'selected' : '' }}>Manager</option>
-                                    <option value="Staff Operasional" {{ old('jabatan', $employee->jabatan ?? '') === 'Staff Operasional' ? 'selected' : '' }}>Staff Operasional</option>
-                                </select>
-                                @error('jabatan')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-medium text-secondary small">Jabatan</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-briefcase"></i></span>
+                                @if(isset($readOnly) && $readOnly)
+                                    <input type="text" class="form-control border-start-0 ps-2" value="{{ $employee->jabatan ?? '-' }}" readonly style="height: 45px;">
+                                @else
+                                    <select class="form-select border-start-0 ps-2 @error('jabatan') is-invalid @enderror" name="jabatan" style="height: 45px;" required>
+                                        <option value="" selected disabled>-- Pilih Jabatan --</option>
+                                        <option value="Manager" {{ old('jabatan', $employee->jabatan ?? '') === 'Manager' ? 'selected' : '' }}>Manager</option>
+                                        <option value="Staff Operasional" {{ old('jabatan', $employee->jabatan ?? '') === 'Staff Operasional' ? 'selected' : '' }}>Staff Operasional</option>
+                                        {{-- Tambah opsi lain jika ada --}}
+                                        <option value="Teknisi" {{ old('jabatan', $employee->jabatan ?? '') === 'Teknisi' ? 'selected' : '' }}>Teknisi</option>
+                                    </select>
+                                @endif
                             </div>
+                            @error('jabatan') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <!-- <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $employee->user->email ?? '') }}" placeholder="Contoh: @dinoyokamera.com" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
-                                @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror -->
-                                <label for="nomor_telepon" class="form-label">No. Telepon</label>
-                                <input type="text" class="form-control @error('nomor_telepon') is-invalid @enderror" id="nomor_telepon" name="nomor_telepon" value="{{ old('nomor_telepon', $employee->nomor_telepon ?? '') }}" placeholder="Masukkan nomor telepon aktif" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
-                                @error('nomor_telepon')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-medium text-secondary small">No. Telepon</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-phone"></i></span>
+                                <input type="text" 
+                                    class="form-control border-start-0 ps-2 @error('nomor_telepon') is-invalid @enderror" 
+                                    name="nomor_telepon" 
+                                    style="height: 45px;"
+                                    value="{{ old('nomor_telepon', $employee->nomor_telepon ?? '') }}" 
+                                    placeholder="08xx-xxxx-xxxx" 
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
                             </div>
+                            @error('nomor_telepon') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                     </div>
 
-                    {{-- Baris 3: Nomor Telepon & Tanggal Masuk --}}
+                    {{-- Baris 3: Gaji & Tanggal Masuk --}}
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="gaji" class="form-label">Gaji Pokok</label>
-                                <input type="number" class="form-control @error('gaji') is-invalid @enderror" id="gaji" name="gaji" value="{{ old('gaji', $employee->gaji ?? '') }}" placeholder="Masukkan nominal gaji (misal: 5000000)" min="0" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
-                                @error('gaji')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-medium text-secondary small">Gaji Pokok</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted ps-3">Rp</span>
+                                <input type="number" 
+                                    class="form-control border-start-0 ps-2 @error('gaji') is-invalid @enderror" 
+                                    name="gaji" 
+                                    style="height: 45px;"
+                                    value="{{ old('gaji', $employee->gaji ?? '') }}" 
+                                    placeholder="0" 
+                                    min="0" 
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
                             </div>
+                            @error('gaji') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="tanggal_masuk" class="form-label">Tanggal Masuk</label>
-                                <input type="date" class="form-control flatpickr_humandate @error('tanggal_masuk') is-invalid @enderror" id="tanggal_masuk" name="tanggal_masuk" value="{{ old('tanggal_masuk', isset($employee) && $employee->tanggal_masuk ? $employee->tanggal_masuk->format('Y-m-d') : '') }}" placeholder="Pilih Tanggal..." {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
-                                @error('tanggal_masuk')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-medium text-secondary small">Tanggal Masuk</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-regular fa-calendar"></i></span>
+                                {{-- MENGGUNAKAN TYPE="DATE" STANDAR AGAR RAPI --}}
+                                <input type="date" 
+                                    class="form-control border-start-0 ps-2 @error('tanggal_masuk') is-invalid @enderror" 
+                                    name="tanggal_masuk" 
+                                    style="height: 45px;"
+                                    value="{{ old('tanggal_masuk', isset($employee) && $employee->tanggal_masuk ? $employee->tanggal_masuk->format('Y-m-d') : '') }}" 
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
                             </div>
+                            @error('tanggal_masuk') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                     </div>
 
-                    {{-- Baris 4: Gaji Pokok & Status --}}
+                    {{-- Baris 4: Status & Alamat --}}
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="status" class="form-label">Status</label>
-                                <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" {{ isset($readOnly) && $readOnly ? 'disabled' : 'required' }}>
-                                    <option value="" selected disabled>Pilih Status</option>
-                                    <option value="aktif" {{ old('status', $employee->status ?? '') === 'aktif' ? 'selected' : '' }}>Aktif</option>
-                                    <option value="non-aktif" {{ old('status', $employee->status ?? '') === 'non-aktif' ? 'selected' : '' }}>Non Aktif</option>
-                                </select>
-                                @error('status')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-medium text-secondary small">Status Karyawan</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-toggle-on"></i></span>
+                                @if(isset($readOnly) && $readOnly)
+                                    <input type="text" class="form-control border-start-0 ps-2" 
+                                        value="{{ $employee->status == 'aktif' ? 'Aktif' : 'Non Aktif' }}" 
+                                        readonly style="height: 45px;">
+                                @else
+                                    <select class="form-select border-start-0 ps-2 @error('status') is-invalid @enderror" name="status" style="height: 45px;" required>
+                                        <option value="" selected disabled>-- Pilih Status --</option>
+                                        <option value="aktif" {{ old('status', $employee->status ?? '') === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                        <option value="non-aktif" {{ old('status', $employee->status ?? '') === 'non-aktif' ? 'selected' : '' }}>Non Aktif</option>
+                                    </select>
+                                @endif
                             </div>
+                            @error('status') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                
+
+                        <div class="col-12 mb-3">
+                            <label class="form-label fw-medium text-secondary small">Alamat Lengkap</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-map-location-dot"></i></span>
+                                <textarea class="form-control border-start-0 ps-2 @error('alamat') is-invalid @enderror" 
+                                    name="alamat" 
+                                    rows="3" 
+                                    placeholder="Masukkan alamat domisili..." 
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>{{ old('alamat', $employee->alamat ?? '') }}</textarea>
                             </div>
+                            @error('alamat') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                     </div>
 
-                    {{-- Baris 5: Alamat --}}
-                    <div class="mb-3">
-                        <label for="alamat" class="form-label">Alamat</label>
-                        <textarea class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat" rows="3" placeholder="Masukkan alamat lengkap karyawan" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>{{ old('alamat', $employee->alamat ?? '') }}</textarea>
-                        @error('alamat')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    <hr class="my-4 opacity-25">
 
                     {{-- Tombol Aksi --}}
-                    <div class="text-end mt-4">
+                    <div class="d-flex justify-content-end gap-2">
                         @if(isset($readOnly) && $readOnly)
-                            <a href="{{ route('admin.employees.index') }}" class="btn btn-light me-2">Kembali</a>
-                            <a href="{{ route('admin.employees.edit', $employee->id) }}" class="btn btn-primary">Edit</a>
+                            <a href="{{ route('admin.employees.index') }}" class="btn btn-light border px-4 fw-medium text-secondary">
+                                <i class="fa-solid fa-arrow-left me-1"></i> Kembali
+                            </a>
+                            <a href="{{ route('admin.employees.edit', $employee->id) }}" class="btn btn-primary px-4 fw-medium">
+                                <i class="fa-solid fa-pen-to-square me-1"></i> Edit Data
+                            </a>
                         @else
-                            <a href="{{ url('admin/employees') }}" class="btn btn-light me-2">Batal</a>
-                            <button type="submit" class="btn btn-primary">Simpan</button>
+                            <a href="{{ route('admin.employees.index') }}" class="btn btn-light border px-4 fw-medium text-secondary">
+                                <i class="fa-solid fa-xmark me-1"></i> Batal
+                            </a>
+                            <button type="submit" class="btn btn-primary px-4 fw-medium">
+                                <i class="fa-solid fa-save me-1"></i> {{ isset($employee) ? 'Simpan Perubahan' : 'Simpan Karyawan' }}
+                            </button>
                         @endif
                     </div>
-                @if(!isset($readOnly) || !$readOnly)
-                </form>
+
+                @if(!(isset($readOnly) && $readOnly))
+                    </form>
                 @endif
 
             </div>
@@ -147,28 +210,22 @@
 @endsection
 
 @push('styles')
-@if(isset($readOnly) && $readOnly)
 <style>
-    .form-control[readonly],
-    .form-select:disabled {
-        background-color: #f8f9fa;
+    /* Styling khusus untuk ReadOnly agar terlihat jelas */
+    .form-control[readonly], 
+    .form-select[disabled] {
+        background-color: #f9fafb; /* Abu-abu sangat muda */
+        color: #6c757d;
         cursor: not-allowed;
     }
+    /* Fix untuk input group border saat focus */
+    .input-group:focus-within .input-group-text {
+        border-color: #86b7fe;
+    }
+    .input-group:focus-within .form-control, 
+    .input-group:focus-within .form-select {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
 </style>
-@endif
-@endpush
-
-@push('scripts')
-<script>
-    // Jika kamu menggunakan Flatpickr bawaan Hope UI:
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof flatpickr !== 'undefined') {
-            flatpickr(".flatpickr_humandate", {
-                altInput: true,
-                altFormat: "d/m/Y",
-                dateFormat: "Y-m-d"
-            });
-        }
-    });
-</script>
 @endpush
