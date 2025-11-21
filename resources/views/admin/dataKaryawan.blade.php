@@ -12,27 +12,34 @@
 @section('content')
 
 {{-- Search & Filter --}}
-<div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
-    <div class="flex-grow-1 ">
-
-        <div class="input-group shadow-sm">
-            <span class="input-group-text">
-                <i class="fa-solid fa-search"></i>
-            </span>
-            <input type="text" class="form-control" placeholder="Cari produk berdasarkan nama atau SKU...">
+<form method="GET" action="{{ route('admin.employees.index') }}" id="searchForm">
+    <div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
+        <div class="flex-grow-1">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text">
+                    <i class="fa-solid fa-search"></i>
+                </span>
+                <input type="text" 
+                       class="form-control" 
+                       name="search" 
+                       placeholder="Cari karyawan berdasarkan nama..." 
+                       value="{{ $search_term ?? '' }}">
+            </div>
         </div>
+
+        <select name="jabatan" class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" onchange="document.getElementById('searchForm').submit();">
+            <option value="all" {{ ($selected_jabatan ?? 'all') == 'all' ? 'selected' : '' }}>Semua Jabatan</option>
+            <option value="Manager" {{ ($selected_jabatan ?? 'all') == 'Manager' ? 'selected' : '' }}>Manager</option>
+            <option value="Staff Operasional" {{ ($selected_jabatan ?? 'all') == 'Staff Operasional' ? 'selected' : '' }}>Staff Operasional</option>
+        </select>
+
+        <select name="status" class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" onchange="document.getElementById('searchForm').submit();">
+            <option value="all" {{ ($selected_status ?? 'all') == 'all' ? 'selected' : '' }}>Semua Status</option>
+            <option value="aktif" {{ ($selected_status ?? 'all') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+            <option value="non-aktif" {{ ($selected_status ?? 'all') == 'non-aktif' ? 'selected' : '' }}>Non Aktif</option>
+        </select>
     </div>
-
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">>
-        <option selected>Semua Jabatan</option>
-    </select>
-
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
-        <option selected>Status</option>
-        <option>Aktif</option>
-        <option>Non Aktif</option>
-    </select>
-</div>
+</form>
 
 
 {{-- Table --}}
@@ -138,4 +145,32 @@
         color: #bb2d3b;
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        const searchForm = document.getElementById('searchForm');
+        let searchTimeout;
+
+        if (searchInput && searchForm) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    searchForm.submit();
+                }, 500); // Submit setelah 500ms tidak ada input
+            });
+
+            // Submit saat Enter ditekan
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(searchTimeout);
+                    searchForm.submit();
+                }
+            });
+        }
+    });
+</script>
 @endpush

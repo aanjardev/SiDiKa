@@ -13,26 +13,38 @@
 
 
     {{-- Search & Filter --}}
-
-    <div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
-        <div class="flex-grow-1 ">
-
-            <div class="input-group shadow-sm">
-                <span class="input-group-text">
-                    <i class="fa-solid fa-search"></i>
-                </span>
-                <input type="text" class="form-control" placeholder="Cari produk berdasarkan nama atau SKU...">
+    <form method="GET" action="{{ route('admin.products.index') }}" id="searchForm">
+        <div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
+            <div class="flex-grow-1">
+                <div class="input-group shadow-sm">
+                    <span class="input-group-text">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" 
+                           class="form-control" 
+                           name="search" 
+                           placeholder="Cari produk berdasarkan nama atau SKU..." 
+                           value="{{ $search_term ?? '' }}">
+                </div>
             </div>
+
+            <select name="kategori" class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" onchange="document.getElementById('searchForm').submit();">
+                <option value="all" {{ ($selected_kategori ?? 'all') == 'all' ? 'selected' : '' }}>Semua Kategori</option>
+                @foreach($semua_kategori ?? [] as $kat)
+                    <option value="{{ $kat->id }}" {{ ($selected_kategori ?? 'all') == $kat->id ? 'selected' : '' }}>
+                        {{ $kat->nama_kategori }}
+                    </option>
+                @endforeach
+            </select>
+
+            <select name="sort_by" class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" onchange="document.getElementById('searchForm').submit();">
+                <option value="updated_at" {{ ($sort_by ?? 'updated_at') == 'updated_at' ? 'selected' : '' }}>Terakhir diubah</option>
+                <option value="nama" {{ ($sort_by ?? 'updated_at') == 'nama' ? 'selected' : '' }}>Nama (A-Z)</option>
+            </select>
+
+            <input type="hidden" name="sort_order" value="{{ $sort_order ?? 'desc' }}">
         </div>
-
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">>
-        <option selected>Semua Kategori</option>
-    </select>
-
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
-        <option selected>Terakhir diubah</option>
-    </select>
-</div>
+    </form>
 
     {{-- Table --}}
 <div class="card shadow-sm">
@@ -96,7 +108,6 @@
                             <div>
                                 <i class="fa-solid fa-box-open fa-2x text-muted mb-3"></i>
                                 <h5 class="mb-1">Tidak Ada Data Produk</h5>
-                                <p class="text-muted mb-0">Silakan <a href="{{ route('admin.products.create') }}">tambah data produk</a> baru.</p>
                             </div>
                         </td>
                     </tr>
@@ -167,4 +178,32 @@
 
 
     </style>
+    @endpush
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[name="search"]');
+            const searchForm = document.getElementById('searchForm');
+            let searchTimeout;
+
+            if (searchInput && searchForm) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function() {
+                        searchForm.submit();
+                    }, 500); // Submit setelah 500ms tidak ada input
+                });
+
+                // Submit saat Enter ditekan
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        clearTimeout(searchTimeout);
+                        searchForm.submit();
+                    }
+                });
+            }
+        });
+    </script>
     @endpush

@@ -8,12 +8,36 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data_pelanggan = Customer::latest()->paginate(10);
+        $query = Customer::query();
+
+        // Search by nama or nomor telepon
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('no_telp', 'like', "%{$search}%");
+            });
+        }
+
+        // Sort by
+        $sortBy = $request->input('sort_by', 'updated_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+        
+        if ($sortBy === 'nama') {
+            $query->orderBy('nama', $sortOrder);
+        } else {
+            $query->orderBy('updated_at', $sortOrder);
+        }
+
+        $data_pelanggan = $query->paginate(10)->withQueryString();
 
         return view('admin.dataPelanggan', [
-            'data_pelanggan' => $data_pelanggan
+            'data_pelanggan' => $data_pelanggan,
+            'search_term' => $request->input('search', ''),
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
         ]);
     }
 

@@ -17,27 +17,32 @@
             background-color: #f8f9fa;
             min-height: 100vh;
             font-family: 'Montserrat', Arial, sans-serif;
-            overflow: hidden; /* Mencegah scroll di layout utama */
+            overflow: hidden;
         }
 
-        /* LAYOUT BARU (SISI KANAN): GAMBAR
-          (Sesuai permintaan Anda, gambar di kanan)
-        */
-        .login-image-side {
-            background-image: url('{{ asset('mainIMG/bg-login-admin.jpg') }}'); /* <-- GANTI DENGAN PATH GAMBAR ANDA */
-            background-size: cover;
-            background-position: center;
-            min-height: 100vh;
-        }
-
-        /* LAYOUT BARU (SISI KIRI): FORM */
+        /* KOLOM KIRI: FORM */
         .login-form-side {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            background-color: #ffffff; /* Background putih untuk form */
+            background-color: #ffffff;
+            position: relative;
+        }
+
+        /* Background pattern subtle di kiri atas */
+        .login-form-side::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.05) 100%);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
         }
 
         .login-card {
@@ -45,66 +50,43 @@
             width: 100%;
             border: none;
             background: transparent;
+            position: relative;
+            z-index: 1;
         }
 
-        .login-logo {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .login-logo img {
-            max-width: 60px;
-            height: auto;
-        }
-
-        .login-brand-title {
-            font-weight: 700;
-            font-size: 1.75rem;
-            color: #2F353F;
-            line-height: 1.2;
-        }
-
-        .login-greeting {
+        .login-title {
             font-weight: 700;
             font-size: 2rem;
             color: #2F353F;
-            margin-bottom: 0.5rem;
-        }
-
-        .login-subtitle {
-            font-size: 1rem;
-            color: #6c757d;
             margin-bottom: 2rem;
+            text-align: center;
         }
 
         .form-label {
             font-weight: 600;
-            color: #495057;
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
         }
 
         .form-control {
-            border-radius: 8px !important; /* Paksa radius */
+            border-radius: 8px;
             padding: 0.85rem 1rem;
+            border: 1px solid #dee2e6;
+            font-size: 0.95rem;
         }
         .form-control:focus {
             border-color: #4E6BFF;
             box-shadow: 0 0 0 0.25rem rgba(78, 107, 255, 0.25);
         }
 
-        /* FIX TOGGLE PRESISI:
-          Menggunakan Input Group agar ikon pas di tengah
-        */
         .input-group {
             position: relative;
         }
         .input-group .form-control {
-            /* Pastikan input password tidak tumpang tindih dengan tombol */
             padding-right: 3.5rem;
         }
         .input-group .input-group-text {
-            /* Ini membuat tombol pas di dalam input */
             position: absolute;
             right: 0;
             top: 0;
@@ -112,17 +94,41 @@
             z-index: 10;
             border-left: none;
             background: transparent;
-            border-radius: 8px; /* Samakan dengan form-control */
+            border-radius: 8px;
             cursor: pointer;
-            border: 1px solid #dee2e6; /* Samakan border */
+            border: 1px solid #dee2e6;
             border-left: 0;
+            padding: 0 1rem;
         }
         .form-control:focus + .input-group-text {
-             /* Style saat input-nya fokus */
             border-color: #4E6BFF;
         }
         .input-group-text i {
             color: #6c757d;
+        }
+
+        .form-check-input {
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+        .form-check-input:checked {
+            background-color: #4E6BFF;
+            border-color: #4E6BFF;
+        }
+        .form-check-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password-link {
+            color: #4E6BFF;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .forgot-password-link:hover {
+            color: #3a57e8;
+            text-decoration: underline;
         }
 
         .btn-primary {
@@ -131,16 +137,83 @@
             font-weight: 600;
             padding: 0.85rem;
             border-radius: 8px;
+            font-size: 1rem;
         }
         .btn-primary:hover {
             background-color: #3a57e8;
             border-color: #3a57e8;
         }
 
+        /* KOLOM KANAN: BRANDING & GAMBAR */
+        .login-image-side {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4facfe 100%);
+            overflow: hidden;
+        }
+
+        /* Wave pattern overlay - menggunakan Graphic Side.svg jika tersedia */
+        .login-image-side::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('{{ asset('mainIMG/Graphic Side.svg') }}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            opacity: 0.4;
+            z-index: 1;
+        }
+
+        /* Alternatif: jika ingin menggunakan gambar sample sebagai background */
+        /* Uncomment baris di bawah jika ingin menggunakan sample image */
+        /*
+        .login-image-side {
+            background-image: url('{{ asset('mainIMG/sample1.png') }}');
+            background-size: cover;
+            background-position: center;
+        }
+        */
+
+        .login-branding {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .login-brand-logo {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 2rem;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
+        }
+
+        .login-brand-text {
+            font-weight: 700;
+            font-size: 2.5rem;
+            color: #ffffff;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .login-brand-text .brand-line {
+            display: block;
+        }
+
         /* Layout Mobile */
         @media (max-width: 991.98px) {
             .login-image-side {
-                display: none; /* Sembunyikan kolom gambar di mobile */
+                display: none;
+            }
+            .login-form-side::before {
+                display: none;
             }
         }
     </style>
@@ -154,19 +227,11 @@
             {{-- KOLOM KIRI (FORM) --}}
             <div class="col-lg-6 col-md-12 login-form-side">
                 <div class="login-card">
+                    <h1 class="login-title">Sign In</h1>
 
-                    <div class="login-logo">
-                        <img src="{{ asset('mainIMG/logoDinoyo.png') }}" alt="Dinoyo Kamera Logo">
-                        <h1 class="login-brand-title">Dinoyo Kamera</h1>
-                    </div>
-
-                    <h2 class="login-greeting">Welcome, Admin!</h2>
-                    <p class="login-subtitle">Please login to continue.</p>
-
-                    <form method="POST" action="{{ route('login') }}"> {{-- --}}
+                    <form method="POST" action="{{ route('login') }}">
                         @csrf
 
-                        {{-- PERUBAHAN: Input 'email' (bukan 'username' atau 'login') --}}
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
                             <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required autofocus>
@@ -178,7 +243,6 @@
                             @enderror
                         </div>
 
-                        {{-- PERBAIKAN: Input Password dengan Input Group --}}
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
                             <div class="input-group">
@@ -194,16 +258,25 @@
                             </div>
                         </div>
 
-                        <div class="d-grid mt-4">
-                            <button type="submit" class="btn btn-primary">Login</button>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                                <label class="form-check-label" for="remember">
+                                    Remember me?
+                                </label>
+                            </div>
+                            <a href="#" class="forgot-password-link">Forgot Password</a>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">Sign in</button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            {{-- KOLOM KANAN (GAMBAR) - Otomatis hilang di mobile --}}
+            {{-- KOLOM KANAN (BRANDING & GAMBAR) --}}
             <div class="col-lg-6 d-none d-lg-block login-image-side">
-                {{-- Gambar diatur via CSS background-image --}}
             </div>
 
         </div>

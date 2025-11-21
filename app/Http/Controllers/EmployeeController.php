@@ -10,12 +10,34 @@ use Illuminate\Support\Str;
 
 class EmployeeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Employee::with('user');
 
-        $employees = Employee::with('user')->latest()->paginate(10);
-        return view('admin.dataKaryawan', compact('employees'));
+        // Search by nama
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('nama_lengkap', 'like', "%{$search}%");
+        }
 
+        // Filter by jabatan
+        if ($request->filled('jabatan') && $request->input('jabatan') !== 'all') {
+            $query->where('jabatan', $request->input('jabatan'));
+        }
+
+        // Filter by status
+        if ($request->filled('status') && $request->input('status') !== 'all') {
+            $query->where('status', $request->input('status'));
+        }
+
+        $employees = $query->latest()->paginate(10)->withQueryString();
+
+        return view('admin.dataKaryawan', [
+            'employees' => $employees,
+            'search_term' => $request->input('search', ''),
+            'selected_jabatan' => $request->input('jabatan', 'all'),
+            'selected_status' => $request->input('status', 'all'),
+        ]);
     }
 
     public function create()
@@ -39,7 +61,6 @@ class EmployeeController extends Controller
                 'unique:karyawan,nik'
             ],
             'jabatan' => 'required|in:Manager,Staff Operasional',
-            'email' => 'required|email|unique:users,email',
             'nomor_telepon' => [
                 'required',
                 'string',
@@ -53,7 +74,6 @@ class EmployeeController extends Controller
         ], [
             'nama_lengkap.regex' => 'Nama karyawan hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
             'nik.unique' => 'NIK sudah terdaftar.',
-            'email.unique' => 'Email sudah terdaftar.',
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
             'jabatan.in' => 'Jabatan harus dipilih dari opsi yang tersedia.',
         ]);
@@ -104,7 +124,6 @@ class EmployeeController extends Controller
                 'unique:karyawan,nik,' . $id
             ],
             'jabatan' => 'required|in:Manager,Staff Operasional',
-            'email' => 'required|email|unique:users,email,',
             'nomor_telepon' => [
                 'required',
                 'string',
@@ -118,7 +137,6 @@ class EmployeeController extends Controller
         ], [
             'nama_lengkap.regex' => 'Nama karyawan hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
             'nik.unique' => 'NIK sudah terdaftar.',
-            'email.unique' => 'Email sudah terdaftar.',
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
             'jabatan.in' => 'Jabatan harus dipilih dari opsi yang tersedia.',
         ]);
