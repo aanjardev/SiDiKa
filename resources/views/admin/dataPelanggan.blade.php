@@ -48,9 +48,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($data_pelanggan as $pelanggan)
+                    @forelse ($data_pelanggan as $index => $pelanggan)
                         <tr>
-                            <td class="text-center">{{ $loop->iteration }}</td>
+                            <td class="text-center">{{ ($data_pelanggan->firstItem() ?? 0) + $index }}</td>
                             <td>{{ $pelanggan->nama }}</td>
                             <td>{{ $pelanggan->jenis_kelamin }}</td>
                             <td>{{ $pelanggan->no_telp }}</td>
@@ -58,13 +58,13 @@
                             <td>{{ $pelanggan->identitas }}</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="#" title="Lihat">
+                                    <a href="{{ route('admin.customers.show', $pelanggan->id) }}" title="Lihat">
                                         <i class="fa-solid fa-eye" style="color: black;"></i>
                                     </a>
-                                    <a href="#" title="Edit">
+                                    <a href="{{ route('admin.customers.edit', $pelanggan->id) }}" title="Edit">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                                    <form action="{{ route('admin.customers.destroy', $pelanggan->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn-icon" title="Hapus">

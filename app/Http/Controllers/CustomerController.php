@@ -77,4 +77,50 @@ class CustomerController extends Controller
             'customer' => $customer // Kirim data customer baru kembali ke JS
         ]);
     }
+
+    public function show($id)
+    {
+        $pelanggan = Customer::findOrFail($id);
+        return view('admin.inputDataPelanggan', compact('pelanggan'))->with('readOnly', true);
+    }
+
+    public function edit($id)
+    {
+        $pelanggan = Customer::findOrFail($id);
+        return view('admin.inputDataPelanggan', compact('pelanggan'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $pelanggan = Customer::findOrFail($id);
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:50',
+            'no_telp' => 'required|string|max:20',
+            'identitas' => 'nullable|string|max:20',
+            'jenis_kelamin' => 'required|in:L,P',
+            'alamat' => 'nullable|string|max:100',
+            'referensi' => 'nullable|string|max:100',
+            'keterangan' => 'nullable|string',
+        ], [
+            'nama.required' => 'Nama pelanggan wajib diisi.',
+            'no_telp.required' => 'Nomor telepon wajib diisi.',
+            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
+            'jenis_kelamin.in' => 'Jenis kelamin harus L atau P.',
+        ]);
+
+        $pelanggan->update($validated);
+
+        return redirect()->route('admin.customers.index')
+                         ->with('success', 'Data pelanggan berhasil diperbarui.');
+    }
+
+    public function destroy($id)
+    {
+        $pelanggan = Customer::findOrFail($id);
+        $pelanggan->delete();
+
+        return redirect()->route('admin.customers.index')
+                         ->with('success', 'Data pelanggan berhasil dihapus.');
+    }
 }
