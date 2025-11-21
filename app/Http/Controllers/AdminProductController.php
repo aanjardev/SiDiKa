@@ -15,9 +15,8 @@ class AdminProductController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Produk::with(['gambar', 'gambarUtama', 'kategori'])
-            ->orderBy('updated_at', 'desc')
-            ->paginate(10); // 10 item per page
+        $query = Produk::with(['gambar', 'gambarUtama', 'kategori'])
+            ->orderBy('updated_at', 'desc');
 
         // Search by nama produk or SKU
         if ($request->filled('search')) {

@@ -246,6 +246,20 @@ class PenjualanController extends Controller
         ]);
     }
 
+    public function show(Penjualan $sale)
+    {
+        $sale->load([
+            'customer',
+            'perusahaan_cabang',
+            'user',
+            'detail_penjualan.produk',
+        ]);
+
+        return view('admin.showPenjualan', [
+            'penjualan' => $sale,
+        ]);
+    }
+
     public function update(Request $request, Penjualan $sale)
     {
         $validated = $request->validate([
