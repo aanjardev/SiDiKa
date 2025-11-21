@@ -88,4 +88,5 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     });
 
     Route::resource('/profile', ProfileController::class)->names('profile');
+    Route::post('/sales/checkout', [PenjualanController::class, 'checkout'])->name('sales.checkout');
 });
