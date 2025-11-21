@@ -245,7 +245,7 @@
     </button>
 
     <!-- Main Content -->
-    <main class="main-content pt-3 mb-0 mt-0 d-flex flex-column pb-0">
+    <main class="main-content pt-5 mb-0 mt-0 d-flex flex-column pb-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="page-title mb-0">@yield('title', 'Dashboard')</h1>
             <div class="d-flex align-items-center gap-3">
