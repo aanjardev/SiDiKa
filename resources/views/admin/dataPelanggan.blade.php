@@ -6,22 +6,29 @@
 
 
 {{-- Search & Filter --}}
-<div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
-    <div class="flex-grow-1 ">
-
-        <div class="input-group shadow-sm">
-            <span class="input-group-text">
-                <i class="fa-solid fa-search"></i>
-            </span>
-            <input type="text" class="form-control" placeholder="Cari pelanggan berdasarkan nama atau nomor telepon...">
+<form method="GET" action="{{ route('admin.customers.index') }}" id="searchForm">
+    <div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
+        <div class="flex-grow-1">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text">
+                    <i class="fa-solid fa-search"></i>
+                </span>
+                <input type="text" 
+                       class="form-control" 
+                       name="search" 
+                       placeholder="Cari pelanggan berdasarkan nama atau nomor telepon..." 
+                       value="{{ $search_term ?? '' }}">
+            </div>
         </div>
-    </div>
 
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
-        <option selected>Terakhir diubah</option>
-        <option>Nama (A-Z)</option>
-    </select>
-</div>
+        <select name="sort_by" class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" onchange="document.getElementById('searchForm').submit();">
+            <option value="updated_at" {{ ($sort_by ?? 'updated_at') == 'updated_at' ? 'selected' : '' }}>Terakhir diubah</option>
+            <option value="nama" {{ ($sort_by ?? 'updated_at') == 'nama' ? 'selected' : '' }}>Nama (A-Z)</option>
+        </select>
+
+        <input type="hidden" name="sort_order" value="{{ $sort_order ?? 'desc' }}">
+    </div>
+</form>
 
 
 
@@ -184,4 +191,32 @@
             padding-bottom: 0;
         }
     </style>
+    @endpush
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[name="search"]');
+            const searchForm = document.getElementById('searchForm');
+            let searchTimeout;
+
+            if (searchInput && searchForm) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function() {
+                        searchForm.submit();
+                    }, 500); // Submit setelah 500ms tidak ada input
+                });
+
+                // Submit saat Enter ditekan
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        clearTimeout(searchTimeout);
+                        searchForm.submit();
+                    }
+                });
+            }
+        });
+    </script>
     @endpush

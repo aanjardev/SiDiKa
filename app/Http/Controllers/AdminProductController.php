@@ -13,18 +13,46 @@ use Illuminate\Validation\Rule;
 
 class AdminProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Produk::with(['gambar', 'gambarUtama', 'kategori'])
-                        ->orderBy('updated_at', 'desc')
-                        ->paginate(10); // 10 item per page
+        $query = Produk::with(['gambar', 'gambarUtama', 'kategori']);
 
-        // 5. Ambil data kategori untuk filter
+        // Search by nama produk or SKU
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama_produk', 'like', "%{$search}%")
+                  ->orWhere('kode_sku', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by kategori
+        if ($request->filled('kategori') && $request->input('kategori') !== 'all') {
+            $query->where('id_kategori', $request->input('kategori'));
+        }
+
+        // Sort by
+        $sortBy = $request->input('sort_by', 'updated_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+        
+        if ($sortBy === 'nama') {
+            $query->orderBy('nama_produk', $sortOrder);
+        } else {
+            $query->orderBy('updated_at', $sortOrder);
+        }
+
+        $products = $query->paginate(10)->withQueryString();
+
+        // Ambil data kategori untuk filter
         $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
 
         return view('admin.dataProduk', [
             'products' => $products,
-            'semua_kategori' => $kategori
+            'semua_kategori' => $kategori,
+            'search_term' => $request->input('search', ''),
+            'selected_kategori' => $request->input('kategori', 'all'),
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
         ]);
     }
 
