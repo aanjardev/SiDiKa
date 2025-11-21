@@ -3,7 +3,16 @@
 @section('title', 'Transaksi Penjualan')
 
 @push('page-actions')
-    {{-- Halaman form tidak perlu tombol aksi di header --}}
+    @php
+        $backRoute = route('admin.sales.index');
+        if(isset($penjualan)) {
+            $backRoute = route('admin.sales.show', $penjualan->id);
+        }
+    @endphp
+
+    <a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
+        <i class="fas fa-arrow-left me-1"></i> Kembali
+    </a>
 @endpush
 
 @section('content')
@@ -78,6 +87,7 @@
                                     </option>
                                 @endforeach
                             </select>
+                            @error('perusahaan_cabang_id') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                     </div>
                 </div>
@@ -476,48 +486,58 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 {{-- Modal Tambah Customer (reuse dari inputPembelian) --}}
 <div class="modal fade" id="modalTambahCustomer" tabindex="-1" aria-labelledby="modalTambahCustomerLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form id="formTambahCustomer">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalTambahCustomerLabel">Tambah Customer</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label" for="customer_nama_modal">Nama</label>
-                        <input type="text" class="form-control" id="customer_nama_modal" name="nama" required>
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahCustomerLabel">Tambah Customer Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{-- PERBAIKAN: Semua input di sini HARUS punya atribut 'name' --}}
+                <form id="formTambahCustomer">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_nama_modal">Nama Customer*</label>
+                            <input type="text" class="form-control" id="customer_nama_modal" name="nama" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_no_telp_modal">Nomor Telepon*</label>
+                            <input type="text" class="form-control" id="customer_no_telp_modal" name="no_telp" required>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="customer_no_telp_modal">No. Telepon</label>
-                        <input type="text" class="form-control" id="customer_no_telp_modal" name="no_telp" required>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_identitas_modal">NIK (Identitas)</label>
+                            <input type="text" class="form-control" id="customer_identitas_modal" name="identitas">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_jenis_kelamin_modal">Jenis Kelamin</label>
+                            <select class="form-select" id="customer_jenis_kelamin_modal" name="jenis_kelamin" style="height: calc(2.5rem + 9px);">
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label" for="customer_alamat_modal">Alamat</label>
-                        <input type="text" class="form-control" id="customer_alamat_modal" name="alamat">
+                        <textarea class="form-control" rows="2" id="customer_alamat_modal" name="alamat"></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="customer_jenis_kelamin_modal">Jenis Kelamin</label>
-                        <select class="form-select" id="customer_jenis_kelamin_modal" name="jenis_kelamin" required>
-                            <option value="" selected disabled>Pilih jenis kelamin...</option>
-                            <option value="L">Laki-laki</option>
-                            <option value="P">Perempuan</option>
-                        </select>
+                        <label class="form-label" for="customer_referensi_modal">Referensi (Opsional)</label>
+                        <input type="text" class="form-control" id="customer_referensi_modal" name="referensi" placeholder="Mis: Info dari Instagram, Teman, dll.">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label" for="customer_referensi_modal">Referensi</label>
-                        <input type="text" class="form-control" id="customer_referensi_modal" name="referensi">
+                        <label class="form-label" for="customer_keterangan_modal">Keterangan (Opsional)</label>
+                        <textarea class="form-control" rows="2" id="customer_keterangan_modal" name="keterangan" placeholder="Mis: Pelanggan lama, sering jual/beli..."></textarea>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="customer_keterangan_modal">Keterangan</label>
-                        <textarea class="form-control" id="customer_keterangan_modal" name="keterangan" rows="2"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-primary" id="btnSimpanCustomer">Simpan Customer</button>
-                </div>
-            </form>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="btnSimpanCustomer">
+                    Simpan Customer
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -584,3 +604,60 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 @endpush
 @endsection
+
+@push ('styles')
+<style>
+    /* Modal glassy clean style */
+.modal-content {
+    border-radius: 14px;
+    border: none;
+    box-shadow: 0 10px 35px rgba(0,0,0,0.12);
+}
+
+.modal-header {
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.modal-title {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.modal-body {
+    padding: 1.5rem;
+}
+
+.modal-footer {
+    border-top: 1px solid #f1f1f1;
+    padding: 1rem 1.5rem;
+}
+
+/* Better form spacing */
+.form-label {
+    font-weight: 500;
+    margin-bottom: .4rem;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+    padding: .65rem .9rem;
+}
+
+.btn-primary {
+    padding: .55rem 1.3rem;
+    border-radius: 10px;
+}
+
+.btn-outline-secondary {
+    border-radius: 10px;
+}
+
+/* Stock alert soft */
+#infoStokProduk {
+    border-radius: 10px;
+    padding: .8rem 1rem;
+}
+</style>
+@endpush

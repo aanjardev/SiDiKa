@@ -3,30 +3,30 @@
 @section('title', 'Transaksi Pembelian')
 
 @push('page-actions')
-    @php
-        $backRoute = route('admin.purchases.index');
-        if(isset($pembelian)) {
-            $backRoute = route('admin.purchases.show', $pembelian->id);
-        }
-    @endphp
+@php
+$backRoute = route('admin.purchases.index');
+if(isset($pembelian)) {
+$backRoute = route('admin.purchases.show', $pembelian->id);
+}
+@endphp
 
-    <a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
-        <i class="fas fa-arrow-left me-1"></i> Kembali
-    </a>
+<a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
+    <i class="fas fa-arrow-left me-1"></i> Kembali
+</a>
 @endpush
 
 @section('content')
 
 {{-- Tampilkan Error Validasi (dari Backend) --}}
 @if ($errors->any())
-    <div class="alert alert-danger mb-4">
-        <h5 class="alert-heading">Ada Kesalahan Input!</h5>
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+<div class="alert alert-danger mb-4">
+    <h5 class="alert-heading">Ada Kesalahan Input!</h5>
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
 @endif
 
 {{-- ======================================================= --}}
@@ -35,7 +35,7 @@
 <form action="{{ isset($pembelian) ? route('admin.purchases.update', $pembelian->id) : route('admin.purchases.store') }}" method="POST" id="formPembelian">
     @csrf
     @if(isset($pembelian))
-        @method('PUT') {{-- Spoofing method PUT untuk update --}}
+    @method('PUT') {{-- Spoofing method PUT untuk update --}}
     @endif
 
     <input type="hidden" name="user_id" value="{{ Auth::id() ?? 1 }}">
@@ -58,8 +58,7 @@
                                 @foreach($semua_customer as $customer)
                                 <option value="{{ $customer->id }}"
                                     {{-- Logika: Pilih yang dari old() atau yang tersimpan di $pembelian --}}
-                                    {{ (old('customer_id') == $customer->id) || (isset($pembelian) && $pembelian->customer_id == $customer->id) ? 'selected' : '' }}
-                                >
+                                    {{ (old('customer_id') == $customer->id) || (isset($pembelian) && $pembelian->customer_id == $customer->id) ? 'selected' : '' }}>
                                     {{ $customer->nama }} ({{ $customer->no_telp }})
                                 </option>
                                 @endforeach
@@ -77,11 +76,10 @@
                                 <option value="{{ $cabang->id }}"
                                     {{-- Logika: Pilih yang tersimpan di $pembelian, atau default untuk mode Create --}}
                                     @if(isset($pembelian))
-                                        {{ $pembelian->perusahaan_cabang_id == $cabang->id ? 'selected' : '' }}
+                                    {{ $pembelian->perusahaan_cabang_id == $cabang->id ? 'selected' : '' }}
                                     @else
-                                        {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}
-                                    @endif
-                                >
+                                    {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}
+                                    @endif>
                                     {{ $cabang->nama }}
                                 </option>
                                 @endforeach
@@ -103,9 +101,9 @@
                     </div>
 
                     @error('items')
-                        <div class="alert alert-danger small p-2">
-                            <i class="fas fa-exclamation-triangle me-1"></i> {{ $message }}
-                        </div>
+                    <div class="alert alert-danger small p-2">
+                        <i class="fas fa-exclamation-triangle me-1"></i> {{ $message }}
+                    </div>
                     @enderror
 
                     <div class="table-responsive">
@@ -128,69 +126,69 @@
 
         </div>
 
- {{-- KOLOM KANAN (30%): Aksi & Harga --}}
+        {{-- KOLOM KANAN (30%): Aksi & Harga --}}
         <div class="col-lg-4">
             <div class="card shadow-sm border-0 mb-4 position-sticky" style="top: 20px;">
                 <div class="card-body p-4">
                     <h5 class="card-title fw-bold mb-3">Status & Harga</h5>
 
                     {{-- INPUT 1: TAWARAN CUSTOMER --}}
-            <div class="mb-3">
-                <label for="display_harga_tawaran_customer" class="form-label">Tawaran Customer</label>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text">Rp</span>
-                    {{-- Input TAMPILAN (User mengetik di sini) --}}
-                    <input type="text" class="form-control rupiah-mask"
-                        id="display_harga_tawaran_customer" style="height: 40px"
-                        placeholder="0"
-                        value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
+                    <div class="mb-3">
+                        <label for="display_harga_tawaran_customer" class="form-label">Tawaran Customer</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">Rp</span>
+                            {{-- Input TAMPILAN (User mengetik di sini) --}}
+                            <input type="text" class="form-control rupiah-mask"
+                                id="display_harga_tawaran_customer" style="height: 40px"
+                                placeholder="0"
+                                value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
 
-                    {{-- Input ASLI (Dikirim ke Database) --}}
-                    <input type="hidden"
-                        name="harga_tawaran_customer"
-                        id="harga_tawaran_customer"
-                        value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
-                </div>
-            </div>
+                            {{-- Input ASLI (Dikirim ke Database) --}}
+                            <input type="hidden"
+                                name="harga_tawaran_customer"
+                                id="harga_tawaran_customer"
+                                value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
+                        </div>
+                    </div>
 
-            {{-- INPUT 2: TAWARAN TOKO --}}
-            <div class="mb-3">
-                <label for="display_harga_tawaran_toko" class="form-label">Tawaran Toko</label>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text">Rp</span>
-                    {{-- Input TAMPILAN --}}
-                    <input type="text" class="form-control rupiah-mask"
-                        id="display_harga_tawaran_toko"
-                        placeholder="0" style="height: 40px"
-                        value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
+                    {{-- INPUT 2: TAWARAN TOKO --}}
+                    <div class="mb-3">
+                        <label for="display_harga_tawaran_toko" class="form-label">Tawaran Toko</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">Rp</span>
+                            {{-- Input TAMPILAN --}}
+                            <input type="text" class="form-control rupiah-mask"
+                                id="display_harga_tawaran_toko"
+                                placeholder="0" style="height: 40px"
+                                value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
 
-                    {{-- Input ASLI --}}
-                    <input type="hidden"
-                        name="harga_tawaran_toko"
-                        id="harga_tawaran_toko"
-                        value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
-                </div>
-            </div>
+                            {{-- Input ASLI --}}
+                            <input type="hidden"
+                                name="harga_tawaran_toko"
+                                id="harga_tawaran_toko"
+                                value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
+                        </div>
+                    </div>
 
-            {{-- INPUT 3: HARGA DEAL --}}
-            <div class="mb-3">
-                <label for="display_harga_deal" class="form-label fw-bold text-success">Harga Deal (Final)</label>
-                <div class="input-group">
-                    <span class="input-group-text fw-bold text-success">Rp</span>
-                    {{-- Input TAMPILAN --}}
-                    <input type="text" class="form-control fw-bold text-success rupiah-mask"
-                        id="display_harga_deal"
-                        placeholder="0"
-                        value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
+                    {{-- INPUT 3: HARGA DEAL --}}
+                    <div class="mb-3">
+                        <label for="display_harga_deal" class="form-label fw-bold text-success">Harga Deal (Final)</label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold text-success">Rp</span>
+                            {{-- Input TAMPILAN --}}
+                            <input type="text" class="form-control fw-bold text-success rupiah-mask"
+                                id="display_harga_deal"
+                                placeholder="0"
+                                value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
 
-                    {{-- Input ASLI --}}
-                    <input type="hidden"
-                        name="harga_deal"
-                        id="harga_deal"
-                        value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
-                </div>
-                <div class="form-text small">Isi jika sudah sepakat.</div>
-            </div>
+                            {{-- Input ASLI --}}
+                            <input type="hidden"
+                                name="harga_deal"
+                                id="harga_deal"
+                                value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
+                        </div>
+                        <div class="form-text small">Isi jika sudah sepakat.</div>
+                    </div>
 
                     <hr class="my-4">
 
@@ -421,18 +419,27 @@
 @push('styles')
 <style>
     .btn-icon {
-        background: transparent !important; border: none !important;
-        padding: 0 !important; color: #dc3545 !important;
-        cursor: pointer !important; font-size: 16px !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        color: #dc3545 !important;
+        cursor: pointer !important;
+        font-size: 16px !important;
     }
-    .btn-icon:hover { color: #bb2d3b !important; }
+
+    .btn-icon:hover {
+        color: #bb2d3b !important;
+    }
+
     .accordion-button:not(.collapsed) {
         color: var(--bs-primary);
         background-color: var(--bs-primary-bg-subtle);
     }
+
     .accordion-button:focus {
         box-shadow: 0 0 0 0.25rem rgba(78, 107, 255, 0.25);
     }
+
     .accordion-body {
         background-color: #f8f9fa;
     }
@@ -444,11 +451,16 @@
     // 1. Variabel Global PHP -> JS (Perbaikan Kategori dan Data Awal)
     let kategoriMap = {};
     @foreach($semua_kategori as $kat)
-        kategoriMap[{{ $kat->id }}] = '{{ $kat->nama_kategori }}';
+    kategoriMap[{
+        {
+            $kat - > id
+        }
+    }] = '{{ $kat->nama_kategori }}';
     @endforeach
 
-    let currentPembelianId = '{{ $pembelian->id ?? '' }}';
-    let initialItems = @json($pembelian->item_pembelian_draft ?? []);
+    let currentPembelianId = '{{ $pembelian->id ?? '
+    ' }}';
+    let initialItems = @json($pembelian - > item_pembelian_draft ?? []);
 
     let itemsPembelian = [];
     let itemCounter = 0;
@@ -456,7 +468,7 @@
     if (initialItems.length > 0) {
         itemsPembelian = initialItems.map(item => {
             // Pastikan ID ada (ID ini adalah ID DB item)
-            if(typeof item.id === 'undefined') {
+            if (typeof item.id === 'undefined') {
                 item.id = itemCounter++;
             }
             return item;
@@ -559,7 +571,7 @@
                 if (btn) {
                     btn.disabled = isDisabled;
                     btn.title = isDisabled ? disableTitle : btn.title;
-                    if(isDisabled) btn.removeAttribute('data-bs-toggle'); // Hapus tooltip jika disabled
+                    if (isDisabled) btn.removeAttribute('data-bs-toggle'); // Hapus tooltip jika disabled
                 }
             });
 
@@ -576,7 +588,7 @@
             }
 
             // Re-initialize tooltips if needed (for title attribute change)
-            if(window.bootstrap) {
+            if (window.bootstrap) {
                 document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(tooltipEl => {
                     if (tooltipEl.title) {
                         let tooltip = bootstrap.Tooltip.getInstance(tooltipEl);
@@ -612,7 +624,8 @@
                 user_id: mainForm.querySelector('input[name="user_id"]').value,
 
                 // Data item
-                nama_item: namaItem, kategori_id: kategoriId,
+                nama_item: namaItem,
+                kategori_id: kategoriId,
                 serial_number: document.getElementById('item_serial_number').value,
                 serial_lens: document.getElementById('item_serial_lens').value,
                 kondisi_fisik: document.getElementById('item_kondisi_fisik').value,
@@ -642,59 +655,63 @@
 
             // Kirim data ke Controller via AJAX (Fetch)
             fetch("{{ route('admin.purchases.ajaxStoreItemDraft') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(newItemData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw err; }); // Tangani error validasi
-                }
-                return response.json();
-            })
-            .then(result => {
-                if (result.success) {
-                    // 1. Simpan ID Pembelian (Induk)
-                    currentPembelianId = result.pembelian_id;
-                    hiddenPembelianIdInput.value = result.pembelian_id;
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(newItemData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw err;
+                        }); // Tangani error validasi
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.success) {
+                        // 1. Simpan ID Pembelian (Induk)
+                        currentPembelianId = result.pembelian_id;
+                        hiddenPembelianIdInput.value = result.pembelian_id;
 
-                    // 2. Tambahkan item baru (dari server) ke array JS
-                    itemsPembelian.push(result.item);
+                        // 2. Tambahkan item baru (dari server) ke array JS
+                        itemsPembelian.push(result.item);
 
-                    // 3. Render ulang tabel & kontrol tombol
-                    renderItemList();
+                        // 3. Render ulang tabel & kontrol tombol
+                        renderItemList();
 
-                    // 4. Reset & tutup modal
-                    document.getElementById('formTambahItem').querySelectorAll('input, textarea, select').forEach(input => {
-                        if(input.type === 'select-one') input.selectedIndex = 0;
-                        else input.value = '';
-                    });
-                    document.querySelectorAll('#accordionKondisi .accordion-collapse').forEach(collapse => {
-                        new bootstrap.Collapse(collapse, { toggle: false }).hide();
-                    });
-                    modalTambahItem.hide();
-                } else {
-                    alert('Gagal: ' + (result.message || 'Error tidak diketahui.'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
-                if (error.errors) {
-                    errorMsg = Object.values(error.errors)[0][0];
-                } else if (error.message) {
-                    errorMsg = error.message;
-                }
-                alert(errorMsg);
-            })
-            .finally(() => {
-                btnSimpanItem.disabled = false;
-                btnSimpanItem.innerHTML = 'Simpan Item';
-            });
+                        // 4. Reset & tutup modal
+                        document.getElementById('formTambahItem').querySelectorAll('input, textarea, select').forEach(input => {
+                            if (input.type === 'select-one') input.selectedIndex = 0;
+                            else input.value = '';
+                        });
+                        document.querySelectorAll('#accordionKondisi .accordion-collapse').forEach(collapse => {
+                            new bootstrap.Collapse(collapse, {
+                                toggle: false
+                            }).hide();
+                        });
+                        modalTambahItem.hide();
+                    } else {
+                        alert('Gagal: ' + (result.message || 'Error tidak diketahui.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
+                    if (error.errors) {
+                        errorMsg = Object.values(error.errors)[0][0];
+                    } else if (error.message) {
+                        errorMsg = error.message;
+                    }
+                    alert(errorMsg);
+                })
+                .finally(() => {
+                    btnSimpanItem.disabled = false;
+                    btnSimpanItem.innerHTML = 'Simpan Item';
+                });
         });
 
         // =======================================================
@@ -704,27 +721,27 @@
             if (confirm('Yakin ingin menghapus item ini dari database?')) {
 
                 fetch(`/admin/purchases/delete-item-draft/${id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        // Hapus item dari array JS
-                        itemsPembelian = itemsPembelian.filter(item => item.id !== id);
-                        // Render ulang tabel & kontrol tombol
-                        renderItemList();
-                    } else {
-                        alert('Gagal menghapus: ' + result.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Gagal menghapus item.');
-                });
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            // Hapus item dari array JS
+                            itemsPembelian = itemsPembelian.filter(item => item.id !== id);
+                            // Render ulang tabel & kontrol tombol
+                            renderItemList();
+                        } else {
+                            alert('Gagal menghapus: ' + result.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Gagal menghapus item.');
+                    });
             }
         }
 
@@ -753,7 +770,7 @@
                 itemsPembelian.forEach((item, index) => {
                     let tr = document.createElement('tr');
                     let shortKondisi = item.kondisi_fisik || 'N/A';
-                    if(shortKondisi && shortKondisi.length > 30) shortKondisi = shortKondisi.substring(0, 30) + '...';
+                    if (shortKondisi && shortKondisi.length > 30) shortKondisi = shortKondisi.substring(0, 30) + '...';
 
                     // Logika Perbaikan Kategori: Cek relasi, fallback ke map, atau N/A
                     let kategoriNama = 'N/A';
@@ -794,34 +811,54 @@
         btnSimpanCustomer.addEventListener('click', function() {
             const nama = document.getElementById('customer_nama_modal').value;
             const no_telp = document.getElementById('customer_no_telp_modal').value;
-            if(!nama || !no_telp) { alert('Nama dan No. Telepon customer wajib diisi.'); return; }
+            if (!nama || !no_telp) {
+                alert('Nama dan No. Telepon customer wajib diisi.');
+                return;
+            }
             const formData = new FormData(formTambahCustomer);
             const data = Object.fromEntries(formData.entries());
             btnSimpanCustomer.disabled = true;
             btnSimpanCustomer.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
             fetch("{{ route('admin.customers.store') }}", {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }, body: JSON.stringify(data)
-            })
-            .then(response => { if (!response.ok) { return response.json().then(err => { throw err; }); } return response.json(); })
-            .then(result => {
-                if(result.success) {
-                    const customerSelect = document.getElementById('customer_id');
-                    const newOption = new Option(`${result.customer.nama} (${result.customer.no_telp})`, result.customer.id, true, true);
-                    customerSelect.appendChild(newOption);
-                    formTambahCustomer.reset();
-                    modalTambahCustomer.hide();
-                } else { alert('Gagal menyimpan customer: ' + (result.message || 'Error tidak diketahui.')); }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
-                if(error.errors) { errorMsg = Object.values(error.errors)[0][0]; }
-                alert(errorMsg);
-            })
-            .finally(() => {
-                btnSimpanCustomer.disabled = false;
-                btnSimpanCustomer.innerHTML = 'Simpan Customer';
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw err;
+                        });
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.success) {
+                        const customerSelect = document.getElementById('customer_id');
+                        const newOption = new Option(`${result.customer.nama} (${result.customer.no_telp})`, result.customer.id, true, true);
+                        customerSelect.appendChild(newOption);
+                        formTambahCustomer.reset();
+                        modalTambahCustomer.hide();
+                    } else {
+                        alert('Gagal menyimpan customer: ' + (result.message || 'Error tidak diketahui.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
+                    if (error.errors) {
+                        errorMsg = Object.values(error.errors)[0][0];
+                    }
+                    alert(errorMsg);
+                })
+                .finally(() => {
+                    btnSimpanCustomer.disabled = false;
+                    btnSimpanCustomer.innerHTML = 'Simpan Customer';
+                });
         });
 
         // --- (Script copy-paste link Anda - DIHAPUS ALERT-NYA) ---
@@ -843,7 +880,9 @@
                 input.value = formatRupiah(cleanValue);
                 const hiddenInputId = input.id.replace('display_', '');
                 const hiddenInput = document.getElementById(hiddenInputId);
-                if (hiddenInput) { hiddenInput.value = cleanValue; }
+                if (hiddenInput) {
+                    hiddenInput.value = cleanValue;
+                }
             }
 
             // 2. Event listener saat mengetik
@@ -852,8 +891,12 @@
                 this.value = formatRupiah(cleanValue);
                 const hiddenInputId = this.id.replace('display_', '');
                 const hiddenInput = document.getElementById(hiddenInputId);
-                if(hiddenInput) { hiddenInput.value = cleanValue; }
-                if (isDealInput) { checkDealButtonStatus(); }
+                if (hiddenInput) {
+                    hiddenInput.value = cleanValue;
+                }
+                if (isDealInput) {
+                    checkDealButtonStatus();
+                }
                 markFormAsDirty(); // Mark form dirty on price change
             });
 
@@ -861,8 +904,12 @@
             input.addEventListener('change', function() {
                 const hiddenInputId = this.id.replace('display_', '');
                 const hiddenInput = document.getElementById(hiddenInputId);
-                if (hiddenInput) { hiddenInput.value = this.value.replace(/\D/g, ''); }
-                if (isDealInput) { checkDealButtonStatus(); }
+                if (hiddenInput) {
+                    hiddenInput.value = this.value.replace(/\D/g, '');
+                }
+                if (isDealInput) {
+                    checkDealButtonStatus();
+                }
                 markFormAsDirty(); // Mark form dirty on price change
             });
         });
@@ -909,6 +956,5 @@
             });
         }
     });
-
 </script>
 @endpush

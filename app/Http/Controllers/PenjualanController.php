@@ -14,27 +14,70 @@ use App\Models\Branch as PerusahaanCabang;
 class PenjualanController extends Controller
 {
 
-    public function index()
+    public function index(Request $request)
     {
-        // 1. Ambil semua kategori untuk filter dropdown
-        $semua_kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
+        // Ambil semua parameter filter
+        $search = $request->query('search');
+        $filterKategori = $request->query('kategori');
+        $status = $request->query('status');
+        $sort = $request->query('sort', 'terbaru'); // default = terbaru
 
-        // 2. Ambil data penjualan, paginasi, dan Eager Load
-        $data_penjualan = Penjualan::with([
-                                    'customer',
-                                    'perusahaan_cabang',
-                                    'user',
-                                    'detail_penjualan.produk' // <-- PENTING: Ambil item & nama produknya
-                                ])
-                                ->latest() // Urutkan dari yg terbaru (berdasarkan created_at)
-                                ->paginate(10); // Ambil 10 data per halaman
+        // Query utama (gunakan eager load hanya sekali)
+        $query = Penjualan::with([
+            'customer',
+            'perusahaan_cabang',
+            'user',
+            'detail_penjualan.produk'
+        ]);
 
-        // 3. Kirim data ke view
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('kode_transaksi', 'like', "%{$search}%")
+                    ->orWhere('id', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($qCust) use ($search) {
+                        $qCust->where('nama', 'like', "%{$search}%");
+                    });
+            });
+        }
+
+        if (!empty($filterKategori)) {
+            $query->whereHas('detail_penjualan.produk.kategori', function ($qK) use ($filterKategori) {
+                $qK->where('id', $filterKategori);
+            });
+        }
+
+        if (!empty($status)) {
+            $query->where('status', $status);
+        }
+
+        if ($sort === 'terlama') {
+            $query->oldest();
+        } else {
+            $query->latest();
+        }
+
+        $data_penjualan = $query->paginate(10)->withQueryString();
+
+        $semua_kategori = Kategori::orderBy('nama_kategori')->get();
+
+        if ($request->ajax()) {
+            return response()->json([
+                'table_html' => view('admin.partials.sales_table_content', ['data_penjualan' => $data_penjualan])->render(),
+                'pagination_html' => $data_penjualan->links('pagination::bootstrap-5')->render(),
+            ]);
+        }
+
+
         return view('admin.dataPenjualan', [
             'data_penjualan' => $data_penjualan,
-            'semua_kategori' => $semua_kategori
+            'semua_kategori' => $semua_kategori,
+            'search' => $search,
+            'filterKategori' => $filterKategori,
+            'status' => $status,
+            'sort' => $sort,
         ]);
     }
+
 
     public function new()
     {

@@ -1,149 +1,164 @@
-    @extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Data Penjualan')
 
 @push('page-actions')
-    <a href="{{ route('admin.sales.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
-        <i class="fas fa-plus fa-fw"></i>
-        <span>Tambah Penjualan</span>
-    </a>
+<a href="{{ route('admin.sales.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <i class="fas fa-plus fa-fw"></i>
+    <span>Tambah Penjualan</span>
+</a>
 @endpush
 
 @section('content')
 
-@if (session('success'))
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    {{ session('success') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
-@if (session('error'))
-<div class="alert alert-danger alert-dismissible fade show" role="alert">
-    {{ session('error') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
+<form action="{{ route('admin.sales.index') }}" method="GET" id="filterForm">
+    <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
 
-{{-- Search & Filter --}}
-<div class="d-flex flex-wrap gap-2 align-items-center mb-4">
-    {{-- Search Bar --}}
-    <div class="flex-grow-1">
-        <div class="input-group shadow-sm">
-            <span class="input-group-text" style="background: #fff; border-right: 0;">
-                <i class="fa-solid fa-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control" placeholder="Cari Kode Penjualan (ID) atau Nama Customer..." style="border-left: 0; box-shadow: none;">
+        {{-- SEARCH --}}
+        <div class="flex-grow-1">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text" style="background: #fff; border-right: 0;">
+                    <i class="fa-solid fa-search text-muted"></i>
+                </span>
+                <input type="text" name="search" id="search-input"
+                    class="form-control"
+                    placeholder="Cari Kode Penjualan atau Nama Customer…"
+                    style="border-left:0; box-shadow:none;"
+                    value="{{ request('search') }}">
+            </div>
         </div>
+
+        {{-- FILTER KATEGORI --}}
+        <select name="kategori" id="filter-kategori"
+            class="form-select w-auto shadow-sm"
+            style="height: calc(2.5rem + 10px);">
+
+            <option value="">Semua Kategori</option>
+
+            @foreach ($semua_kategori as $kat)
+            <option value="{{ $kat->id }}"
+                {{ request('kategori') == $kat->id ? 'selected' : '' }}>
+                {{ $kat->nama_kategori }}
+            </option>
+            @endforeach
+        </select>
+
+        {{-- SORT --}}
+        <select name="sort" id="filter-sort"
+            class="form-select w-auto shadow-sm"
+            style="height: calc(2.5rem + 10px);">
+
+            <option value="terbaru" {{ request('sort') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+            <option value="terlama" {{ request('sort') == 'terlama' ? 'selected' : '' }}>Terlama</option>
+        </select>
+
     </div>
+</form>
 
-    {{-- Filter Kategori (Dinamis dari Controller) --}}
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
-        <option value="" selected>Semua Kategori</option>
-        @foreach ($semua_kategori as $kat)
-            <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
-        @endforeach
-    </select>
+<div id="sales-list-container">
 
-    {{-- Filter Urutkan --}}
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
-        <option selected>Terbaru</option>
-        <option>Terlama</option>
-    </select>
-</div>
+    <div class="card shadow-sm">
+        <div class="card-body p-0 table-wrapper">
+            <div class="table-responsive">
 
-
-<div class="card shadow-sm">
-    <div class="card-body p-0 table-wrapper">
-        <div class="table-responsive">
-            <table class="table align-middle mb-0 table-product">
-                <thead class="table-light">
-                    {{-- ======================================================= --}}
-                    {{-- PERUBAHAN: Kolom Tabel (thead) untuk Penjualan --}}
-                    {{-- ======================================================= --}}
-                    <tr>
-                        <th class="text-center" style="width: 60px;">ID</th>
-                        <th>Customer</th>
-                        <th>Tanggal</th>
-                        <th style="width: 25%">Item Terjual</th> {{-- <-- KOLOM BARU --}}
-                        <th>Cabang</th>
-                        <th>Total</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{-- ======================================================= --}}
-                    {{-- PERUBAHAN: Menggunakan data $data_penjualan --}}
-                    {{-- ======================================================= --}}
-                    @forelse ($data_penjualan as $penjualan)
+                <table class="table align-middle mb-0 table-product">
+                    <thead class="table-light">
                         <tr>
-                            <td class="text-center">#{{ $penjualan->id }}</td>
-                            <td>{{ $penjualan->customer->nama ?? 'N/A' }}</td>
-                            <td>{{ $penjualan->created_at->format('d M Y') }}</td>
-
-                            {{-- Kolom Item Terjual --}}
-                            <td>
-                                @php
-                                    // 1. Ambil semua nama produk dari relasi yg sudah di-load
-                                    $itemNames = $penjualan->detail_penjualan->pluck('produk.nama_produk')->implode(', ');
-
-                                    // 2. Batasi panjangnya ke 40 karakter
-                                    echo \Illuminate\Support\Str::limit($itemNames, 40, '...');
-                                @endphp
-                            </td>
-
-                            @php
-                                $fallbackTotal = $penjualan->detail_penjualan->sum(function($d){
-                                    return ($d->qty ?? 0) * ($d->harga_jual_satuan ?? 0);
-                                });
-                                $totalNominal = ($penjualan->harga_total ?? 0) > 0 ? $penjualan->harga_total : $fallbackTotal;
-                            @endphp
-                            <td>{{ $penjualan->perusahaan_cabang->nama ?? 'N/A' }}</td>
-                            <td>Rp {{ number_format($totalNominal, 0, ',', '.') }}</td>
-                            <td class="text-center">
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="#" {{-- route('admin.sales.show', $penjualan->id) --}} title="Lihat Detail Transaksi">
-                                        <i class="fa-solid fa-eye" style="color: black;"></i>
-                                    </a>
-                                    <a href="{{ route('admin.sales.edit', $penjualan->id) }}" title="Edit Transaksi">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </a>
-                                    <form action="{{ route('admin.sales.destroy', $penjualan->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn-icon" title="Hapus">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
+                            <th class="text-center" style="width: 60px;">No</th>
+                            <th>Kode</th>
+                            <th>Customer</th>
+                            <th>Tanggal</th>
+                            <th style="width: 25%">Item Terjual</th>
+                            <th>Cabang</th>
+                            <th>Total</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
+                    </thead>
 
-                    {{-- Bagian @empty state --}}
-                    @empty
-                        <tr class="tr-empty">
-                            <td colspan="7" class="p-0">
-                                <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
-                                    <i class="fa-solid fa-receipt fa-2x text-muted mb-3"></i>
-                                    <h5 class="mb-1">Tidak Ada Data Penjualan</h5>
-                                    <p class="text-muted mb-0">Belum ada transaksi penjualan yang tercatat.</p>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    <tbody id="sales-table-body">
+                        @include('admin.partials.sales_table_content', ['data_penjualan' => $data_penjualan])
+                    </tbody>
+
+                </table>
+
+            </div>
         </div>
+
+        <div id="pagination-links-container">
+            @if ($data_penjualan->hasPages())
+            <div class="card-footer bg-white">
+                {{ $data_penjualan->links('pagination::bootstrap-5') }}
+            </div>
+            @endif
+        </div>
+
     </div>
 
-    {{-- Pagination (Dinamis dari Controller) --}}
-    @if ($data_penjualan->hasPages())
-        <div class="card-footer bg-white">
-            {{ $data_penjualan->links('pagination::bootstrap-5') }}
-        </div>
-    @endif
-
 </div>
+
 @endsection
+
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const form = document.getElementById('filterForm');
+        const searchInput = document.getElementById('search-input');
+        const kategori = document.getElementById('filter-kategori');
+        const sort = document.getElementById('filter-sort');
+
+        const tableBody = document.getElementById('sales-table-body');
+        const paginationContainer = document.getElementById('pagination-links-container');
+
+        const baseUrl = "{{ route('admin.sales.index') }}";
+
+        function formToParams() {
+            const data = new FormData(form);
+            return new URLSearchParams(data).toString();
+        }
+
+        function buildUrl() {
+            return `${baseUrl}?${formToParams()}`;
+        }
+
+        function fetchSales(url) {
+            fetch(url, {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    tableBody.innerHTML = data.table_html;
+                    paginationContainer.innerHTML = data.pagination_html;
+                    attachPaginationEvents();
+                });
+        }
+
+        let timeout = null;
+        searchInput.addEventListener('keyup', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fetchSales(buildUrl()), 400);
+        });
+
+        kategori.addEventListener('change', () => fetchSales(buildUrl()));
+        sort.addEventListener('change', () => fetchSales(buildUrl()));
+
+        function attachPaginationEvents() {
+            paginationContainer.querySelectorAll("a").forEach(a => {
+                a.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    fetchSales(this.href);
+                });
+            });
+        }
+
+        attachPaginationEvents();
+    });
+</script>
+@endpush
+
 
 {{-- PENTING: Salin SEMUA style dari master template --}}
 @push('styles')
@@ -154,63 +169,164 @@
         border-collapse: separate;
         border-spacing: 0;
     }
+
     .table-product tbody tr:nth-child(even) {
         background-color: #F8F9FC;
     }
+
     .table-product tbody tr:hover {
         background-color: #EFF3F9;
         transition: 0.2s;
+    }
+
+    .table-product tbody tr.align-middle>td {
+        vertical-align: middle;
     }
 
     /* Style untuk Tombol Hapus (btn-icon) */
     button.btn-icon,
     .table-product button.btn-icon,
     form .btn-icon {
-        background: transparent !important; border: none !important;
-        padding: 0 !important; color: #dc3545 !important;
-        cursor: pointer !important; font-size: 16px !important;
-        line-height: 1 !important; appearance: none !important;
-        box-shadow: none !important; outline: none !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        color: #dc3545 !important;
+        cursor: pointer !important;
+        font-size: 16px !important;
+        line-height: 1 !important;
+        appearance: none !important;
+        box-shadow: none !important;
+        outline: none !important;
     }
-    .btn-icon i, .btn-icon svg, .btn-icon .fa-solid {
-        color: inherit !important; fill: currentColor !important;
+
+    .btn-icon i,
+    .btn-icon svg,
+    .btn-icon .fa-solid {
+        color: inherit !important;
+        fill: currentColor !important;
         stroke: currentColor !important;
     }
-    button.btn-icon:focus, button.btn-icon:active,
-    .btn-icon:focus, .btn-icon:active {
-        outline: none !important; box-shadow: none !important;
+
+    button.btn-icon:focus,
+    button.btn-icon:active,
+    .btn-icon:focus,
+    .btn-icon:active {
+        outline: none !important;
+        box-shadow: none !important;
     }
-    .btn-icon:hover { color: #bb2d3b !important; }
+
+    .btn-icon:hover {
+        color: #bb2d3b !important;
+    }
 
     /* CSS UNTUK TINGGI TABEL FIX & EMPTY STATE */
     .table-wrapper {
-        min-height: 700px; /* Atur tinggi minimal */
+        /* Tabel mengambil tinggi natural sesuai konten */
+        flex: 1;
         display: flex;
         flex-direction: column;
     }
+
     .table-responsive {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
+        /* Normal table responsive behavior */
+        flex: 1;
     }
+
     .table-product {
-        flex-grow: 1;
+        /* Normal table behavior */
+        margin-bottom: 0;
     }
+
     .table-product tr.tr-empty {
-        flex-grow: 1;
+        /* Empty state row */
         display: table-row;
     }
+
     .table-product tr.tr-empty td {
         vertical-align: middle;
         padding-top: 0;
         padding-bottom: 0;
     }
+
     .table-product tr.tr-empty td .empty-message {
-        min-height: 250px;
+        min-height: 400px;
         width: 100%;
     }
+
     .tr-empty td {
         border: none;
     }
+
+    .table-product tbody tr:not(.tr-empty) td {
+        vertical-align: top !important;
+        padding: 0.75rem 0.75rem !important;
+    }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const form = document.getElementById('filterForm');
+        const search = document.getElementById('search-input');
+        const kategori = document.getElementById('filter-kategori');
+        const sort = document.getElementById('filter-sort');
+
+        const tableBody = document.getElementById('sales-table-body');
+        const paginationContainer = document.getElementById('pagination-links-container');
+
+        const baseUrl = "{{ route('admin.sales.index') }}";
+
+        let typingTimeout = null;
+        let isFetching = false;
+
+        function buildUrl() {
+            const params = new URLSearchParams(form.serialize());
+            return `${baseUrl}?${params.toString()}`;
+        }
+
+        function fetchSales(url) {
+            if (isFetching) return;
+            isFetching = true;
+
+            fetch(url, {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    tableBody.innerHTML = data.table_html;
+                    paginationContainer.innerHTML = data.pagination_html;
+
+                    attachPaginationEvents();
+                })
+                .finally(() => {
+                    isFetching = false;
+                });
+        }
+
+        search.addEventListener('keyup', function() {
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                fetchSales(buildUrl());
+            }, 400);
+        });
+
+        kategori.addEventListener('change', () => fetchSales(buildUrl()));
+        sort.addEventListener('change', () => fetchSales(buildUrl()));
+
+        function attachPaginationEvents() {
+            paginationContainer.querySelectorAll("a").forEach(a => {
+                a.addEventListener("click", function(e) {
+                    e.preventDefault();
+                    fetchSales(this.href);
+                });
+            });
+        }
+
+        attachPaginationEvents();
+    });
+</script>
 @endpush
