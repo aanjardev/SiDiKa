@@ -11,36 +11,68 @@
 
 @section('content')
 
-{{-- Filter dan Pencarian --}}
-<div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-    <div class="card-body p-2 d-flex align-items-center flex-wrap">
-        {{-- Bagian Kiri: Input Search --}}
-        <div class="d-flex align-items-center flex-grow-1 ps-2">
-            <span class="text-muted ms-2 me-3">
-                <i class="fa-solid fa-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control border-0 shadow-none bg-transparent"
-                placeholder="Cari ID Penjualan atau Nama Customer..."
-                style="font-size: 0.95rem;">
-        </div>
+{{-- Session Alerts (Dari Main) --}}
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
 
-        {{-- Bagian Kanan: Dropdown --}}
-        <div class="d-flex align-items-center gap-2 pe-2">
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option value="" selected>Semua Kategori</option>
-                @foreach ($semua_kategori as $kat)
-                    <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
-                @endforeach
-            </select>
+@if (session('error'))
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ session('error') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
 
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option selected>Terbaru</option>
-                <option>Terlama</option>
-                <option>Total Tertinggi</option>
-            </select>
+{{-- Filter dan Pencarian (Visual: HEAD, Logic: Main) --}}
+<form action="{{ route('admin.sales.index') }}" method="GET" id="searchForm">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+            
+            {{-- Bagian Kiri: Input Search --}}
+            <div class="d-flex align-items-center flex-grow-1 ps-2">
+                <span class="text-muted ms-2 me-3">
+                    <i class="fa-solid fa-search text-muted"></i>
+                </span>
+                <input type="text" 
+                       name="search"
+                       class="form-control border-0 shadow-none bg-transparent"
+                       placeholder="Cari ID Penjualan atau Nama Customer..."
+                       value="{{ $search_term ?? '' }}"
+                       style="font-size: 0.95rem;">
+            </div>
+
+            {{-- Bagian Kanan: Dropdown --}}
+            <div class="d-flex align-items-center gap-2 pe-2">
+                
+                {{-- Filter Kategori --}}
+                <select name="kategori" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="" selected>Semua Kategori</option>
+                    @foreach ($semua_kategori as $kat)
+                        <option value="{{ $kat->id }}" {{ ($kategori_filter ?? '') == $kat->id ? 'selected' : '' }}>
+                            {{ $kat->nama_kategori }}
+                        </option>
+                    @endforeach
+                </select>
+
+                {{-- Filter Sort --}}
+                <select name="sort" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="terbaru" {{ ($sort_filter ?? 'terbaru') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+                    <option value="terlama" {{ ($sort_filter ?? '') == 'terlama' ? 'selected' : '' }}>Terlama</option>
+                    <option value="total_tertinggi" {{ ($sort_filter ?? '') == 'total_tertinggi' ? 'selected' : '' }}>Total Tertinggi</option>
+                </select>
+            </div>
         </div>
     </div>
-</div>
+</form>
 
 {{-- Table Card --}}
 <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
@@ -71,6 +103,7 @@
                             </span>
                         </td>
 
+                        {{-- Customer --}}
                         <td>
                             <div class="d-flex align-items-center gap-3">
                                 <div class="flex-grow-1">
@@ -81,7 +114,7 @@
                             </div>
                         </td>
 
-                        {{-- Tanggal (Split 2 baris) --}}
+                        {{-- Tanggal --}}
                         <td class="text-muted small">
                             <span class="fw-medium text-dark">{{ $penjualan->created_at->format('d M Y') }}</span>
                             <br>
@@ -105,9 +138,16 @@
                             {{ $penjualan->perusahaan_cabang->nama ?? '-' }}
                         </td>
 
-                        {{-- Total --}}
+                        {{-- Total (Logic Kalkulasi dari Main) --}}
                         <td class="fw-bold text-dark">
-                            Rp{{ number_format($penjualan->harga_total, 0, ',', '.') }}
+                            @php
+                                // Logic dari Main: Hitung manual jika harga_total null/0 (backup data lama)
+                                $fallbackTotal = $penjualan->detail_penjualan->sum(function($d){
+                                    return ($d->qty ?? 0) * ($d->harga_jual_satuan ?? 0);
+                                });
+                                $totalNominal = ($penjualan->harga_total ?? 0) > 0 ? $penjualan->harga_total : $fallbackTotal;
+                            @endphp
+                            Rp{{ number_format($totalNominal, 0, ',', '.') }}
                         </td>
 
                         {{-- Aksi --}}
@@ -121,20 +161,20 @@
                                 </a>
 
                                 {{-- Edit --}}
-                                <a href="#" {{-- route('admin.sales.edit', $penjualan->id) --}}
+                                <a href="{{ route('admin.sales.edit', $penjualan->id) }}"
                                     class="btn-action btn-action-edit"
                                     title="Edit">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 
                                 {{-- Hapus --}}
-                                <form action="#" {{-- route('admin.sales.destroy', $penjualan->id) --}} method="POST" class="d-inline">
+                                <form action="{{ route('admin.sales.destroy', $penjualan->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button"
-                                        class="btn-action btn-action-delete"
-                                        title="Hapus"
-                                        onclick="confirmDelete(this)">
+                                            class="btn-action btn-action-delete"
+                                            title="Hapus"
+                                            onclick="confirmDelete(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -147,10 +187,8 @@
                             <div class="d-flex flex-column align-items-center opacity-50">
                                 <i class="fa-solid fa-receipt fa-3x mb-3 text-muted"></i>
                                 <h6 class="text-muted">Belum ada data penjualan</h6>
-                            </div>
-                            <div class="d-flex flex-column align-items-center">
                                 <p class="text-muted small mb-0">Silakan lakukan <a href="{{ route('admin.sales.create') }}">transaksi penjualan</a> baru.</p>
-                            </div >
+                            </div>
                         </td>
                     </tr>
                     @endforelse

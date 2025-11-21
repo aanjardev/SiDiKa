@@ -11,32 +11,56 @@
 
 @section('content')
 
-{{-- Filter dan Pencarian --}}
-<div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-    <div class="card-body p-2 d-flex align-items-center flex-wrap">
-        {{-- Bagian Kiri: Input Search --}}
-        <div class="d-flex align-items-center flex-grow-1 ps-2">
-            <span class="text-muted ms-2 me-3">
-                <i class="fa-solid fa-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control border-0 shadow-none bg-transparent"
-                placeholder="Cari produk berdasarkan nama atau SKU"
-                style="font-size: 0.95rem;">
-        </div>
+{{-- Search & Filter (Resolved: Visual HEAD + Logic Main) --}}
+<form method="GET" action="{{ route('admin.products.index') }}" id="searchForm">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+            
+            {{-- Bagian Kiri: Input Search --}}
+            <div class="d-flex align-items-center flex-grow-1 ps-2">
+                <span class="text-muted ms-2 me-3">
+                    <i class="fa-solid fa-search text-muted"></i>
+                </span>
+                <input type="text" 
+                       class="form-control border-0 shadow-none bg-transparent"
+                       name="search"
+                       placeholder="Cari produk berdasarkan nama atau SKU"
+                       value="{{ $search_term ?? '' }}"
+                       style="font-size: 0.95rem;">
+            </div>
 
-        {{-- Bagian Kanan: Dropdown --}}
-        <div class="d-flex align-items-center gap-2 pe-2">
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option selected>Semua Kategori</option>
-            </select>
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option selected>Urutkan: Terakhir diubah</option>
-                <option value="az">Nama (A-Z)</option>
-                <option value="za">Nama (Z-A)</option>
-            </select>
+            {{-- Bagian Kanan: Dropdown Filter --}}
+            <div class="d-flex align-items-center gap-2 pe-2">
+                
+                {{-- Dropdown Kategori --}}
+                <select name="kategori" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="all" {{ ($selected_kategori ?? 'all') == 'all' ? 'selected' : '' }}>Semua Kategori</option>
+                    @foreach($semua_kategori ?? [] as $kat)
+                        <option value="{{ $kat->id }}" {{ ($selected_kategori ?? 'all') == $kat->id ? 'selected' : '' }}>
+                            {{ $kat->nama_kategori }}
+                        </option>
+                    @endforeach
+                </select>
+
+                {{-- Dropdown Sort --}}
+                <select name="sort_by" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="updated_at" {{ ($sort_by ?? 'updated_at') == 'updated_at' ? 'selected' : '' }}>Urutkan: Terakhir diubah</option>
+                    <option value="nama" {{ ($sort_by ?? 'updated_at') == 'nama' ? 'selected' : '' }}>Nama (A-Z)</option>
+                    <option value="nama_desc" {{ ($sort_by ?? 'updated_at') == 'nama_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
+                </select>
+
+                {{-- Hidden Input --}}
+                <input type="hidden" name="sort_order" value="{{ $sort_order ?? 'desc' }}">
+            </div>
         </div>
     </div>
-</div>
+</form>
 
 {{-- Table Card --}}
 <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
@@ -65,19 +89,19 @@
                                 <div class="flex-shrink-0 position-relative">
                                     @if ($product->gambarUtama)
                                     <img src="{{ $product->gambarUtama->url }}" loading="lazy"
-                                        alt="Img"
-                                        class="rounded-3 shadow-sm"
-                                        style="width: 45px; height: 45px; object-fit: cover;">
+                                         alt="Img"
+                                         class="rounded-3 shadow-sm"
+                                         style="width: 45px; height: 45px; object-fit: cover;">
                                     @else
                                     {{-- Placeholder --}}
                                     <div class="rounded-3 bg-light d-flex align-items-center justify-content-center text-secondary fw-bold"
-                                        style="width: 45px; height: 45px; font-size: 0.7rem;">
+                                         style="width: 45px; height: 45px; font-size: 0.7rem;">
                                         Img
                                     </div>
                                     @endif
                                 </div>
 
-                                {{-- Bagian Teks (Dibatasi Lebarnya & Line Clamp) --}}
+                                {{-- Bagian Teks --}}
                                 <div class="flex-grow-1" style="min-width: 200px; max-width: 320px;">
                                     <span class="text-dark fw-semibold d-block" 
                                           style="font-size: 0.95rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
@@ -130,9 +154,9 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="button"
-                                        class="btn-action btn-action-delete"
-                                        title="Hapus"
-                                        onclick="confirmDelete(this)">
+                                            class="btn-action btn-action-delete"
+                                            title="Hapus"
+                                            onclick="confirmDelete(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -164,10 +188,35 @@
 
 @push('scripts')
 <script>
+    // Fungsi Delete
     function confirmDelete(button) {
         if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
             button.form.submit();
         }
     }
+
+    // Fungsi Auto Search (Debounce)
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        const searchForm = document.getElementById('searchForm');
+        let searchTimeout;
+
+        if (searchInput && searchForm) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    searchForm.submit();
+                }, 500); // Submit setelah 500ms idle
+            });
+
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(searchTimeout);
+                    searchForm.submit();
+                }
+            });
+        }
+    });
 </script>
 @endpush

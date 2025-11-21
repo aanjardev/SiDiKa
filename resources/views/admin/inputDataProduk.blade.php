@@ -10,6 +10,17 @@
         @method('PUT')
     @endif
 
+    {{-- Tampilkan Error Validasi (Dari Main) --}}
+    @if ($errors->any())
+    <div class="alert alert-danger mb-4 shadow-sm border-0" style="border-radius: 10px;">
+        <ul class="mb-0 small">
+            @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
+
     <div class="row">
         {{-- KOLOM KIRI: Informasi Dasar Produk --}}
         <div class="col-lg-8 mb-4">
@@ -178,7 +189,7 @@
 
         </div>
 
-        {{-- KOLOM BAWAH: Upload Gambar --}}
+        {{-- KOLOM BAWAH: Upload Gambar (Integrasi Visual HEAD + Logic MAIN) --}}
         <div class="col-12 mb-5">
             <div class="card shadow-sm border-0" style="border-radius: 10px;">
                 <div class="card-header bg-white py-3">
@@ -186,7 +197,7 @@
                 </div>
                 <div class="card-body">
                     <label for="images" class="form-label fw-medium text-secondary small">Upload Gambar</label>
-                    <div class="input-group">
+                    <div class="input-group mb-3">
                         <input type="file" 
                             class="form-control @error('images') is-invalid @enderror" 
                             id="images" name="images[]" 
@@ -194,32 +205,35 @@
                             {{ $isEdit ? '' : 'required' }}>
                         <label class="input-group-text" for="images">Browse</label>
                     </div>
-                    @error('images') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                    <div class="form-text text-muted">
+                    <div class="form-text text-muted mb-3">
                         <i class="fa-solid fa-circle-info me-1"></i>
                         Format: JPG, JPEG, PNG. Maksimal 5MB per file. Gambar pertama akan dijadikan cover.
                     </div>
 
-                    {{-- Preview Gambar Eksisting (Opsional: Hanya tampil jika mode Edit dan ada relasi gambar) --}}
+                    {{-- Container Preview Gambar (Logic from Main via JS) --}}
+                    <div id="image-grid" class="d-flex flex-wrap gap-3 mt-3"></div>
+
+                    {{-- Script Logic untuk Edit Gambar Existing (Dari Main) --}}
                     @if($isEdit && isset($product->gambar) && count($product->gambar) > 0)
-                        <div class="mt-4">
-                            <h6 class="small fw-bold text-secondary mb-2">Gambar Saat Ini:</h6>
-                            <div class="d-flex flex-wrap gap-2">
-                                @foreach($product->gambar as $img)
-                                    <div class="position-relative border rounded p-1" style="width: 100px; height: 100px;">
-                                        <img src="{{ $img->url }}" class="w-100 h-100 object-fit-cover rounded" alt="Produk">
-                                        {{-- Tambahkan tombol hapus gambar per item di sini jika diperlukan logika delete terpisah --}}
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
+                        @foreach($product->gambar as $img)
+                            <script>
+                                window.existingImages = window.existingImages || [];
+                                window.existingImages.push({
+                                    id: "{{ $img->id }}",
+                                    url: "{{ Storage::disk('r2')->url($img->path_gambar) }}"
+                                });
+                            </script>
+                            {{-- Hidden input untuk tracking penghapusan --}}
+                            <input type="hidden" name="remove_images[]" value="" class="remove-input-{{ $img->id }}">
+                        @endforeach
                     @endif
+
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- ACTION BUTTONS (Floating / Bottom) --}}
+    {{-- ACTION BUTTONS --}}
     <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
         <div class="card-body d-flex justify-content-between align-items-center">
             <a href="{{ route('admin.products.index') }}" class="btn btn-light border fw-medium text-secondary px-4">
@@ -232,4 +246,22 @@
     </div>
 
 </form>
+
+{{-- FULL IMAGE MODAL (Dari Main) --}}
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-body p-0 text-center">
+                <img id="modalImage" src="" class="img-fluid rounded" alt="">
+            </div>
+            <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
+        </div>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+{{-- Script penting dari Main untuk handle preview & delete gambar --}}
+<script src="{{ asset('js/productImages.js') }}"></script>
+@endpush

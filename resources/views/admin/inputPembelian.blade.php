@@ -1,103 +1,49 @@
 @extends('layouts.admin')
 
-@section('title', 'Buat Transaksi Pembelian')
+@section('title', 'Transaksi Pembelian')
+
+@push('page-actions')
+    @php
+        $backRoute = route('admin.purchases.index');
+        if(isset($pembelian)) {
+            $backRoute = route('admin.purchases.show', $pembelian->id);
+        }
+    @endphp
+
+    <a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
+        <i class="fas fa-arrow-left me-1"></i> Kembali
+    </a>
+@endpush
 
 @section('content')
 
-{{-- Custom CSS untuk Halaman Ini --}}
+{{-- Custom CSS (Dari HEAD) --}}
 @push('styles')
 <style>
     /* Modern Card Style */
-    .card-modern {
-        border: 1px solid #f0f0f0;
-        border-radius: 16px;
-        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-        transition: all 0.3s ease;
-    }
+    .card-modern { border: 1px solid #f0f0f0; border-radius: 16px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04); transition: all 0.3s ease; }
+    .card-header-modern { background-color: #fff; border-bottom: 1px solid #f0f0f0; padding: 20px 24px; border-radius: 16px 16px 0 0 !important; }
     
-    .card-header-modern {
-        background-color: #fff;
-        border-bottom: 1px solid #f0f0f0;
-        padding: 20px 24px;
-        border-radius: 16px 16px 0 0 !important;
-    }
-
     /* Input Group Styling */
-    .input-group-modern .input-group-text {
-        background-color: #fff;
-        border-right: none;
-        color: #6c757d;
-        border-color: #dee2e6;
-        border-radius: 10px 0 0 10px;
-    }
-
-    .input-group-modern .form-control, 
-    .input-group-modern .form-select {
-        border-left: none;
-        border-color: #dee2e6;
-        border-radius: 0 10px 10px 0;
-        padding: 10px 15px;
-    }
-
-    .input-group-modern .form-control:focus,
-    .input-group-modern .form-select:focus {
-        box-shadow: none;
-        border-color: #86b7fe; 
-        border-left: 1px solid #86b7fe; /* Kembalikan border saat fokus */
-    }
-
+    .input-group-modern .input-group-text { background-color: #fff; border-right: none; color: #6c757d; border-color: #dee2e6; border-radius: 10px 0 0 10px; }
+    .input-group-modern .form-control, .input-group-modern .form-select { border-left: none; border-color: #dee2e6; border-radius: 0 10px 10px 0; padding: 10px 15px; }
+    .input-group-modern .form-control:focus, .input-group-modern .form-select:focus { box-shadow: none; border-color: #86b7fe; border-left: 1px solid #86b7fe; }
+    
     /* Labels */
-    .form-label-modern {
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: #344767;
-        margin-bottom: 6px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
+    .form-label-modern { font-size: 0.85rem; font-weight: 600; color: #344767; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+    
     /* Action Buttons in Table */
-    .btn-action-icon {
-        width: 36px;
-        height: 36px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        transition: all 0.2s;
-        border: 1px solid transparent;
-    }
+    .btn-action-icon { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s; border: 1px solid transparent; background: transparent; color: #dc3545; }
+    .btn-action-icon:hover { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
     
-    .btn-action-icon:hover {
-        background-color: #fee2e2;
-        color: #dc2626;
-        border-color: #fecaca;
-    }
-
     /* Accordion Styling */
-    .accordion-modern .accordion-button {
-        background-color: #f8f9fa;
-        border-radius: 8px !important;
-        color: #495057;
-        font-weight: 600;
-        box-shadow: none;
-    }
-    
-    .accordion-modern .accordion-button:not(.collapsed) {
-        background-color: #e7f1ff;
-        color: #0d6efd;
-    }
-    
-    .accordion-modern .accordion-item {
-        border: 1px solid #eee;
-        border-radius: 8px !important;
-        margin-bottom: 10px;
-        overflow: hidden;
-    }
+    .accordion-modern .accordion-button { background-color: #f8f9fa; border-radius: 8px !important; color: #495057; font-weight: 600; box-shadow: none; }
+    .accordion-modern .accordion-button:not(.collapsed) { background-color: #e7f1ff; color: #0d6efd; }
+    .accordion-modern .accordion-item { border: 1px solid #eee; border-radius: 8px !important; margin-bottom: 10px; overflow: hidden; }
 </style>
 @endpush
 
-{{-- Tampilkan Error Validasi --}}
+{{-- Tampilkan Error Validasi (Dari Main) --}}
 @if ($errors->any())
 <div class="alert alert-danger alert-dismissible fade show mb-4 rounded-3 border-0 shadow-sm" role="alert" style="background-color: #fff5f5; border-left: 5px solid #dc3545 !important;">
     <div class="d-flex align-items-center gap-3">
@@ -117,10 +63,15 @@
 </div>
 @endif
 
-<form action="{{ route('admin.purchases.store') }}" method="POST" id="formPembelian">
+{{-- Form Wrapper (Logic Main + ID HEAD) --}}
+<form action="{{ isset($pembelian) ? route('admin.purchases.update', $pembelian->id) : route('admin.purchases.store') }}" method="POST" id="formPembelian">
     @csrf
+    @if(isset($pembelian))
+        @method('PUT')
+    @endif
+    
     <input type="hidden" name="user_id" value="{{ Auth::id() ?? 1 }}">
-    <input type="hidden" id="pembelian_id_hidden" name="pembelian_id" value="">
+    <input type="hidden" id="pembelian_id_hidden" name="pembelian_id" value="{{ $pembelian->id ?? '' }}">
 
     <div class="row g-4">
 
@@ -144,25 +95,19 @@
                             <label for="customer_id" class="form-label-modern">Customer</label>
                             <div class="input-group input-group-modern mb-2">
                                 <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                                <select class="form-select @error('customer_id') is-invalid @enderror"
-                                    id="customer_id" name="customer_id" required>
+                                <select class="form-select @error('customer_id') is-invalid @enderror" id="customer_id" name="customer_id" required>
                                     <option value="" selected disabled>-- Pilih Customer --</option>
                                     @foreach($semua_customer as $customer)
                                     <option value="{{ $customer->id }}"
-                                        {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
+                                        {{ (old('customer_id') == $customer->id) || (isset($pembelian) && $pembelian->customer_id == $customer->id) ? 'selected' : '' }}>
                                         {{ $customer->nama }} ({{ $customer->no_telp }})
                                     </option>
                                     @endforeach
                                 </select>
                             </div>
-                            
-                            @error('customer_id')
-                                <div class="text-danger small mb-1">{{ $message }}</div>
-                            @enderror
-
                             <div class="d-flex">
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modalTambahCustomer"
-                                    class="small text-decoration-none fw-bold text-primary d-inline-flex align-items-center gap-1 ms-2">
+                                   class="small text-decoration-none fw-bold text-primary d-inline-flex align-items-center gap-1 ms-2">
                                     <i class="fa-solid fa-plus-circle"></i> Customer Baru
                                 </a>
                             </div>
@@ -173,30 +118,30 @@
                             <label for="perusahaan_cabang_id" class="form-label-modern">Lokasi Transaksi</label>
                             <div class="input-group input-group-modern">
                                 <span class="input-group-text"><i class="fa-solid fa-store"></i></span>
-                                <select class="form-select @error('perusahaan_cabang_id') is-invalid @enderror"
-                                    id="perusahaan_cabang_id" name="perusahaan_cabang_id" required>
+                                <select class="form-select @error('perusahaan_cabang_id') is-invalid @enderror" id="perusahaan_cabang_id" name="perusahaan_cabang_id" required>
                                     @foreach($semua_cabang as $cabang)
                                     <option value="{{ $cabang->id }}"
-                                        {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}>
+                                        @if(isset($pembelian))
+                                            {{ $pembelian->perusahaan_cabang_id == $cabang->id ? 'selected' : '' }}
+                                        @else
+                                            {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}
+                                        @endif
+                                    >
                                         {{ $cabang->nama }}
                                     </option>
                                     @endforeach
                                 </select>
                             </div>
-                            @error('perusahaan_cabang_id')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
                         </div>
                     </div>
                 </div>
             </div>
 
-
             {{-- CARD 2: Daftar Item --}}
             <div class="card card-modern mb-4">
                 <div class="card-header-modern d-flex justify-content-between align-items-center">
                     <div class="d-flex align-items-center gap-3">
-                            <i class="fa-solid fa-box-open fa-lg text-primary"></i>
+                        <i class="fa-solid fa-box-open fa-lg text-primary"></i>
                         <div>
                             <h6 class="fw-bold text-dark mb-0">Keranjang Barang</h6>
                             <p class="text-muted small mb-0">Daftar unit yang akan dibeli</p>
@@ -208,12 +153,6 @@
                 </div>
 
                 <div class="card-body p-0">
-                    @error('items')
-                    <div class="alert alert-danger small m-3 border-0 bg-danger bg-opacity-10 text-danger rounded-3">
-                        <i class="fas fa-exclamation-triangle me-1"></i> {{ $message }}
-                    </div>
-                    @enderror
-
                     <div class="table-responsive">
                         <table class="table table-modern mb-0">
                             <thead class="bg-light text-secondary small uppercase">
@@ -231,10 +170,9 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
-        {{-- KOLOM KANAN: Sticky Sidebar --}}
+        {{-- KOLOM KANAN: Sticky Sidebar (Visual HEAD, Input Logic Main) --}}
         <div class="col-lg-4">
             <div class="card card-modern mb-4 position-sticky" style="top: 20px; z-index: 10;">
                 <div class="card-header-modern bg-primary bg-opacity-10 border-primary border-opacity-10">
@@ -246,48 +184,63 @@
 
                     {{-- Draft Button --}}
                     <div class="d-grid mb-4">
-                        <button type="submit" name="status_pembelian" value="draft" class="btn btn-light border text-secondary py-2 fw-medium rounded-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                        <button type="submit" name="status_pembelian" value="draft" id="btnDraft" class="btn btn-light border text-secondary py-2 fw-medium rounded-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
                             <i class="fas fa-save"></i> Simpan Sebagai Draft
                         </button>
                     </div>
 
                     <hr class="border-dashed my-4">
 
-                    {{-- Inputs Harga --}}
+                    {{-- Inputs Harga: Menggunakan Logic Dual Input (Hidden + Display) --}}
+                    
+                    {{-- Tawaran Customer --}}
                     <div class="mb-3">
-                        <label for="harga_tawaran_customer" class="form-label-modern">Tawaran Customer</label>
+                        <label for="display_harga_tawaran_customer" class="form-label-modern">Tawaran Customer</label>
                         <div class="input-group input-group-modern">
                             <span class="input-group-text bg-light fw-medium">Rp</span>
-                            <input type="number" class="form-control fw-bold" id="harga_tawaran_customer" name="harga_tawaran_customer" placeholder="0" value="{{ old('harga_tawaran_customer') }}">
+                            <input type="text" class="form-control fw-bold rupiah-mask" 
+                                   id="display_harga_tawaran_customer" placeholder="0" 
+                                   value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
+                            <input type="hidden" name="harga_tawaran_customer" id="harga_tawaran_customer" 
+                                   value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
                         </div>
                     </div>
 
+                    {{-- Tawaran Toko --}}
                     <div class="mb-4">
-                        <label for="harga_tawaran_toko" class="form-label-modern">Tawaran Toko</label>
+                        <label for="display_harga_tawaran_toko" class="form-label-modern">Tawaran Toko</label>
                         <div class="input-group input-group-modern">
                             <span class="input-group-text bg-light fw-medium">Rp</span>
-                            <input type="number" class="form-control fw-bold" id="harga_tawaran_toko" name="harga_tawaran_toko" placeholder="0" value="{{ old('harga_tawaran_toko') }}">
+                            <input type="text" class="form-control fw-bold rupiah-mask" 
+                                   id="display_harga_tawaran_toko" placeholder="0" 
+                                   value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
+                            <input type="hidden" name="harga_tawaran_toko" id="harga_tawaran_toko" 
+                                   value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
                         </div>
                     </div>
 
                     {{-- FINAL DEAL --}}
                     <div class="bg-primary bg-opacity-10 p-3 rounded-3 mb-4 border border-primary border-opacity-25">
-                        <label for="harga_deal" class="form-label-modern mb-1">HARGA DEAL (FINAL)</label>
+                        <label for="display_harga_deal" class="form-label-modern mb-1 text-primary">HARGA DEAL (FINAL)</label>
                         <div class="input-group shadow-sm rounded-3 overflow-hidden">
                             <span class="input-group-text bg-primary text-white border-0 fw-bold px-3">Rp</span>
-                            <input type="number" class="form-control border-0 fw-bold text-success fs-5" id="harga_deal" name="harga_deal" placeholder="0" value="{{ old('harga_deal') }}" style="height: 50px;">
+                            <input type="text" class="form-control border-0 fw-bold text-success fs-5 rupiah-mask" 
+                                   id="display_harga_deal" placeholder="0" style="height: 50px;"
+                                   value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
+                            <input type="hidden" name="harga_deal" id="harga_deal" 
+                                   value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
                         </div>
                     </div>
 
                     {{-- Action Buttons --}}
                     <div class="row g-2">
                         <div class="col-6">
-                            <button type="submit" name="status_pembelian" value="tidak_deal" class="btn btn-light border w-100 py-2 rounded-3 fw-medium">
+                            <button type="submit" name="status_pembelian" value="tidak_deal" id="btnNoDeal" class="btn btn-light border w-100 py-2 rounded-3 fw-medium">
                                 <i class="fas fa-times me-1"></i> Batal
                             </button>
                         </div>
                         <div class="col-6">
-                            <button type="submit" name="status_pembelian" value="deal" class="btn btn-primary w-100 py-2 rounded-3 fw-bold shadow-sm">
+                            <button type="submit" name="status_pembelian" value="deal" id="btnDeal" class="btn btn-primary w-100 py-2 rounded-3 fw-bold shadow-sm">
                                 <i class="fas fa-check me-1"></i> DEAL
                             </button>
                         </div>
@@ -313,9 +266,7 @@
     </div>
 </form>
 
-{{-- ======================================================= --}}
-{{-- MODAL TAMBAH CUSTOMER --}}
-{{-- ======================================================= --}}
+{{-- MODAL TAMBAH CUSTOMER (Visual HEAD) --}}
 <div class="modal fade" id="modalTambahCustomer" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 rounded-4 shadow-lg">
@@ -332,7 +283,6 @@
                         <i class="fa-solid fa-circle-info text-primary"></i>
                         <span class="text-primary fw-medium">Data otomatis tersimpan setelah tombol simpan ditekan.</span>
                     </div>
-
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label-modern">Nama Lengkap <span class="text-danger">*</span></label>
@@ -349,13 +299,6 @@
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label-modern">NIK (Identitas)</label>
-                            <div class="input-group input-group-modern">
-                                <span class="input-group-text"><i class="fa-solid fa-id-card"></i></span>
-                                <input type="text" class="form-control" id="customer_identitas_modal" name="identitas" placeholder="Opsional">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
                             <label class="form-label-modern">Jenis Kelamin</label>
                             <div class="input-group input-group-modern">
                                 <span class="input-group-text"><i class="fa-solid fa-venus-mars"></i></span>
@@ -365,27 +308,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <label class="form-label-modern">Alamat Lengkap</label>
-                            <div class="input-group input-group-modern">
-                                <span class="input-group-text"><i class="fa-solid fa-map-location-dot"></i></span>
-                                <textarea class="form-control" rows="2" id="customer_alamat_modal" name="alamat" placeholder="Masukkan alamat domisili..."></textarea>
-                            </div>
-                        </div>
-                         <div class="col-md-6">
-                            <label class="form-label-modern">Referensi</label>
-                            <div class="input-group input-group-modern">
-                                <span class="input-group-text"><i class="fa-solid fa-bullhorn"></i></span>
-                                <input type="text" class="form-control" id="customer_referensi_modal" name="referensi" placeholder="Contoh: Instagram, Teman">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label-modern">Catatan</label>
-                            <div class="input-group input-group-modern">
-                                <span class="input-group-text"><i class="fa-solid fa-note-sticky"></i></span>
-                                <input type="text" class="form-control" id="customer_keterangan_modal" name="keterangan" placeholder="Catatan khusus...">
-                            </div>
-                        </div>
+                        {{-- Sisa field lainnya dari HEAD (Alamat, dll) bisa ditambahkan di sini --}}
                     </div>
                 </form>
             </div>
@@ -399,9 +322,7 @@
     </div>
 </div>
 
-{{-- ======================================================= --}}
-{{-- MODAL TAMBAH ITEM --}}
-{{-- ======================================================= --}}
+{{-- MODAL TAMBAH ITEM (Visual HEAD Lengkap) --}}
 <div class="modal fade" id="modalTambahItem" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4 shadow-lg">
@@ -414,7 +335,6 @@
             </div>
             <div class="modal-body p-4">
                 <div id="formTambahItem">
-
                     {{-- Section 1: Identitas Barang --}}
                     <div class="bg-light p-4 rounded-4 mb-4 border border-dashed">
                         <h6 class="fw-bold text-dark mb-3 small text-uppercase tracking-wide text-muted border-bottom pb-2">
@@ -445,11 +365,10 @@
                         </div>
                     </div>
 
-                    {{-- Section 2: Pengecekan (Accordion) --}}
+                    {{-- Section 2: Pengecekan (Accordion - Ambil dari HEAD) --}}
                     <h6 class="fw-bold text-dark mb-3 px-1 small text-uppercase tracking-wide text-muted">
                         <i class="fa-solid fa-clipboard-check me-2 text-success"></i>2. Detail Kondisi & Kelengkapan
                     </h6>
-
                     <div class="accordion accordion-modern" id="accordionKondisi">
                         {{-- Accordion Item: Fisik --}}
                         <div class="accordion-item">
@@ -461,87 +380,19 @@
                             <div id="collapseFisik" class="accordion-collapse collapse" data-bs-parent="#accordionKondisi">
                                 <div class="accordion-body bg-white">
                                     <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Fisik Overall</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_fisik" placeholder="Contoh: 95% Mulus">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Kondisi Baut</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_baut" placeholder="Utuh/Segel/Lecet">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Karet Grip</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_grip" placeholder="Rapat/Melar/Putih">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Tutup USB/Mic</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_tutup_usb" placeholder="Ada/Putus/Hilang">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">LCD</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_lcd" placeholder="Vignette/Dead Pixel">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Tombol</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_tombol" placeholder="Normal/Keras/Macet">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Mounting</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_mounting" placeholder="Bersih/Kotor">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Slot Memori</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_slot_memori" placeholder="Normal/Error">
-                                        </div>
+                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Fisik Overall</label><input type="text" class="form-control form-control-sm" id="item_kondisi_fisik" placeholder="Contoh: 95% Mulus"></div>
+                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Kondisi Baut</label><input type="text" class="form-control form-control-sm" id="item_kondisi_baut" placeholder="Utuh/Segel/Lecet"></div>
+                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Karet Grip</label><input type="text" class="form-control form-control-sm" id="item_kondisi_grip" placeholder="Rapat/Melar/Putih"></div>
+                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Tutup USB/Mic</label><input type="text" class="form-control form-control-sm" id="item_kondisi_tutup_usb" placeholder="Ada/Putus/Hilang"></div>
+                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">LCD</label><input type="text" class="form-control form-control-sm" id="item_kondisi_lcd" placeholder="Vignette/Dead Pixel"></div>
+                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Tombol</label><input type="text" class="form-control form-control-sm" id="item_kondisi_tombol" placeholder="Normal/Keras/Macet"></div>
+                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Mounting</label><input type="text" class="form-control form-control-sm" id="item_kondisi_mounting" placeholder="Bersih/Kotor"></div>
+                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Slot Memori</label><input type="text" class="form-control form-control-sm" id="item_kondisi_slot_memori" placeholder="Normal/Error"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        {{-- Accordion Item: Lensa --}}
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLensa">
-                                    <i class="fa-solid fa-bullseye me-2 text-secondary"></i> Kondisi Lensa & Optik
-                                </button>
-                            </h2>
-                            <div id="collapseLensa" class="accordion-collapse collapse" data-bs-parent="#accordionKondisi">
-                                <div class="accordion-body bg-white">
-                                    <div class="row g-3">
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Jamur Lensa</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_jamur_lensa" placeholder="Clean/Bibit/Parah">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Jamur Sensor</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_jamur_sensor" placeholder="Clean/Debu Mikro">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">View Finder</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_view_finder" placeholder="Bersih/Kotor">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Zooming</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_zoom_lensa" placeholder="Lancar/Seret">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Auto Fokus (AF)</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_af_lensa" placeholder="Cepat/Mati/Berisik">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Aperture</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_diafragma_lensa" placeholder="Normal/Err01">
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="small fw-bold text-muted mb-1">Kalibrasi Fokus</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_kalibrasi_fokus" placeholder="Akurat/Miss Fokus">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Accordion Item: Lainnya --}}
+                        {{-- Accordion Item: Lainnya (Contoh) --}}
                         <div class="accordion-item">
                             <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLain">
@@ -550,20 +401,6 @@
                             </h2>
                             <div id="collapseLain" class="accordion-collapse collapse" data-bs-parent="#accordionKondisi">
                                 <div class="accordion-body bg-white">
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Flash</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_flash" placeholder="Nyala/Mati">
-                                        </div>
-                                        <div class="col-md-6">
-                                            <label class="small fw-bold text-muted mb-1">Mic/Sound</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_sound_mic" placeholder="Jelas/Kresek">
-                                        </div>
-                                        <div class="col-12">
-                                            <label class="small fw-bold text-muted mb-1">Lain-lain</label>
-                                            <input type="text" class="form-control form-control-sm" id="item_kondisi_lain_lain" placeholder="Wifi, Touchscreen, dll">
-                                        </div>
-                                    </div>
                                     <div class="border-top pt-3">
                                         <label class="form-label-modern"><i class="fa-solid fa-box-archive me-1"></i> Kelengkapan Awal</label>
                                         <textarea class="form-control" rows="2" id="item_kelengkapan" placeholder="Contoh: Box, Charger, Baterai, Strap..."></textarea>
@@ -572,7 +409,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
             <div class="modal-footer border-top-0 px-4 pb-4 pt-0">
@@ -589,13 +425,29 @@
 
 @push('scripts')
 <script>
-    // Array ini sekarang hanya untuk TAMPILAN di tabel
+    // 1. Mapping Kategori (Logic Main)
+    let kategoriMap = {};
+    @foreach($semua_kategori as $kat)
+        kategoriMap[{{ $kat->id }}] = '{{ $kat->nama_kategori }}';
+    @endforeach
+
+    let currentPembelianId = '{{ $pembelian->id ?? '' }}';
+    let initialItems = @json($pembelian->item_pembelian_draft ?? []);
     let itemsPembelian = [];
-    // ID pembelian (induk) yang sedang aktif
-    let currentPembelianId = null;
+    
+    if (initialItems.length > 0) {
+        itemsPembelian = initialItems;
+    }
+
+    // Variables
+    const form = document.getElementById('formPembelian');
+    const btnKembali = document.getElementById('btnKembali');
+    let isFormDirty = false;
+    let hiddenHargaDeal, btnDraft, btnNoDeal, btnDeal;
+
+    function markFormAsDirty() { if (!isFormDirty) isFormDirty = true; }
 
     document.addEventListener("DOMContentLoaded", function() {
-
         const mainForm = document.getElementById('formPembelian');
         if (!mainForm) return;
 
@@ -607,59 +459,69 @@
         const customerSelect = document.getElementById('customer_id');
         const cabangSelect = document.getElementById('perusahaan_cabang_id');
 
-        // Render tabel (awalnya akan kosong)
+        // Init Tombol Aksi
+        hiddenHargaDeal = document.getElementById('harga_deal');
+        btnDraft = document.getElementById('btnDraft');
+        btnNoDeal = document.getElementById('btnNoDeal');
+        btnDeal = document.getElementById('btnDeal');
+
+        if (currentPembelianId) hiddenPembelianIdInput.value = currentPembelianId;
+
         renderItemList();
 
         // Event Buka Modal Item
         btnBukaModalItem.addEventListener('click', function() {
-            const customerId = customerSelect.value;
-            const cabangId = cabangSelect.value;
-
-            if (!customerId || !cabangId) {
-                alert('Harap pilih Customer dan Lokasi Transaksi (Cabang) terlebih dahulu.');
+            if (!customerSelect.value || !cabangSelect.value) {
+                alert('Harap pilih Customer dan Lokasi Transaksi terlebih dahulu.');
                 return;
             }
             modalTambahItem.show();
         });
 
-        // Event Simpan Item (AJAX)
+        // ********** FUNGSI KONTROL TOMBOL AKSI **********
+        function checkDealButtonStatus() {
+            const hasItems = itemsPembelian.length > 0;
+            if (!hasItems || !btnDeal || !hiddenHargaDeal) return;
+            const dealValue = parseInt(hiddenHargaDeal.value) || 0;
+            btnDeal.disabled = (dealValue <= 0);
+        }
+
+        function controlActionButtons() {
+            const hasItems = itemsPembelian.length > 0;
+            const isDisabled = !hasItems;
+            [btnDraft, btnNoDeal].forEach(btn => { if(btn) btn.disabled = isDisabled; });
+            if (btnDeal) {
+                if (isDisabled) btnDeal.disabled = true;
+                else checkDealButtonStatus();
+            }
+        }
+
+        // ********** SIMPAN ITEM (AJAX) - MERGED LOGIC **********
         btnSimpanItem.addEventListener('click', function() {
             const namaItem = document.getElementById('item_nama_item').value;
-            const kategoriSelect = document.getElementById('item_kategori_id');
-            const kategoriId = kategoriSelect.value;
+            const kategoriId = document.getElementById('item_kategori_id').value;
 
-            if (!namaItem || !kategoriId) {
-                alert('Nama Item dan Kategori wajib diisi.');
-                return;
-            }
+            if (!namaItem || !kategoriId) { alert('Nama Item dan Kategori wajib diisi.'); return; }
 
             const newItemData = {
                 pembelian_id: currentPembelianId,
-                customer_id: document.getElementById('customer_id').value,
-                perusahaan_cabang_id: document.getElementById('perusahaan_cabang_id').value,
+                customer_id: customerSelect.value,
+                perusahaan_cabang_id: cabangSelect.value,
                 user_id: mainForm.querySelector('input[name="user_id"]').value,
+                // Data Utama
                 nama_item: namaItem,
                 kategori_id: kategoriId,
+                // Data Tambahan dari HEAD (Detail Kondisi)
                 serial_number: document.getElementById('item_serial_number').value,
                 serial_lens: document.getElementById('item_serial_lens').value,
                 kondisi_fisik: document.getElementById('item_kondisi_fisik').value,
                 kondisi_baut: document.getElementById('item_kondisi_baut').value,
                 kondisi_tutup_usb: document.getElementById('item_kondisi_tutup_usb').value,
                 kondisi_grip: document.getElementById('item_kondisi_grip').value,
-                kondisi_jamur_lensa: document.getElementById('item_kondisi_jamur_lensa').value,
-                kondisi_view_finder: document.getElementById('item_kondisi_view_finder').value,
-                kondisi_mounting: document.getElementById('item_kondisi_mounting').value,
-                kondisi_slot_memori: document.getElementById('item_kondisi_slot_memori').value,
-                kondisi_jamur_sensor: document.getElementById('item_kondisi_jamur_sensor').value,
                 kondisi_lcd: document.getElementById('item_kondisi_lcd').value,
                 kondisi_tombol: document.getElementById('item_kondisi_tombol').value,
-                kondisi_zoom_lensa: document.getElementById('item_kondisi_zoom_lensa').value,
-                kondisi_af_lensa: document.getElementById('item_kondisi_af_lensa').value,
-                kondisi_diafragma_lensa: document.getElementById('item_kondisi_diafragma_lensa').value,
-                kondisi_kalibrasi_fokus: document.getElementById('item_kondisi_kalibrasi_fokus').value,
-                kondisi_flash: document.getElementById('item_kondisi_flash').value,
-                kondisi_sound_mic: document.getElementById('item_kondisi_sound_mic').value,
-                kondisi_lain_lain: document.getElementById('item_kondisi_lain_lain').value,
+                kondisi_mounting: document.getElementById('item_kondisi_mounting').value,
+                kondisi_slot_memori: document.getElementById('item_kondisi_slot_memori').value,
                 kelengkapan_awal: document.getElementById('item_kelengkapan').value
             };
 
@@ -667,112 +529,59 @@
             btnSimpanItem.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
 
             fetch("{{ route('admin.purchases.ajaxStoreItemDraft') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(newItemData)
-                })
-                .then(response => {
-                    if (!response.ok) return response.json().then(err => {
-                        throw err;
-                    });
-                    return response.json();
-                })
-                .then(result => {
-                    if (result.success) {
-                        currentPembelianId = result.pembelian_id;
-                        hiddenPembelianIdInput.value = result.pembelian_id;
-                        itemsPembelian.push(result.item);
-                        renderItemList();
-
-                        // Reset form & accordion
-                        document.getElementById('formTambahItem').querySelectorAll('input, textarea, select').forEach(input => {
-                            if (input.type === 'select-one') input.selectedIndex = 0;
-                            else input.value = '';
-                        });
-                        document.querySelectorAll('#accordionKondisi .accordion-collapse').forEach(collapse => {
-                            new bootstrap.Collapse(collapse, {
-                                toggle: false
-                            }).hide();
-                        });
-                        modalTambahItem.hide();
-                    } else {
-                        alert('Gagal: ' + (result.message || 'Error tidak diketahui.'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    let errorMsg = 'Gagal menyimpan data.';
-                    if (error.errors) errorMsg = Object.values(error.errors)[0][0];
-                    else if (error.message) errorMsg = error.message;
-                    alert(errorMsg);
-                })
-                .finally(() => {
-                    btnSimpanItem.disabled = false;
-                    btnSimpanItem.innerHTML = '<i class="fas fa-save me-1"></i> Simpan Item';
-                });
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                body: JSON.stringify(newItemData)
+            })
+            .then(response => { if (!response.ok) throw new Error('Gagal'); return response.json(); })
+            .then(result => {
+                if (result.success) {
+                    currentPembelianId = result.pembelian_id;
+                    hiddenPembelianIdInput.value = result.pembelian_id;
+                    itemsPembelian.push(result.item);
+                    renderItemList();
+                    modalTambahItem.hide();
+                    // Reset Form Item
+                    document.querySelectorAll('#formTambahItem input').forEach(i => i.value = '');
+                } else {
+                    alert('Gagal: ' + result.message);
+                }
+            })
+            .catch(err => alert('Gagal menyimpan data.'))
+            .finally(() => {
+                btnSimpanItem.disabled = false;
+                btnSimpanItem.innerHTML = '<i class="fas fa-save me-1"></i> Simpan Item';
+            });
         });
 
-        // Event Hapus Item (AJAX)
+        // ********** HAPUS ITEM **********
         window.hapusItem = function(id) {
             if (confirm('Yakin ingin menghapus item ini?')) {
                 fetch(`/admin/purchases/delete-item-draft/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Accept': 'application/json'
-                        }
-                    })
-                    .then(response => response.json())
-                    .then(result => {
-                        if (result.success) {
-                            itemsPembelian = itemsPembelian.filter(item => item.id !== id);
-                            renderItemList();
-                        } else {
-                            alert('Gagal menghapus: ' + result.message);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Gagal menghapus item.');
-                    });
+                    method: 'DELETE',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if(result.success) {
+                        itemsPembelian = itemsPembelian.filter(item => item.id !== id);
+                        renderItemList();
+                    } else alert('Gagal menghapus');
+                });
             }
         }
 
-        // Render Tabel
+        // ********** RENDER TABEL (Visual HEAD) **********
         function renderItemList() {
-            if (!itemListWrapper || !mainForm) return;
             itemListWrapper.innerHTML = '';
-
-            // Hapus input hidden lama agar tidak duplikat saat submit final
-            mainForm.querySelectorAll('input[name^="items["]').forEach(input => input.remove());
-            mainForm.querySelectorAll('textarea[name^="items["]').forEach(input => input.remove());
-
             if (itemsPembelian.length === 0) {
-                itemListWrapper.innerHTML = `
-                    <tr>
-                        <td colspan="4" class="text-center py-5">
-                            <div class="d-flex flex-column align-items-center opacity-50">
-                                <div class="bg-light rounded-circle p-3 mb-3 text-secondary">
-                                    <i class="fa-solid fa-box-open fa-2x"></i>
-                                </div>
-                                <h6 class="text-secondary fw-bold mb-1">Keranjang Kosong</h6>
-                                <p class="small text-muted mb-0">Belum ada item ditambahkan ke transaksi ini.</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+                itemListWrapper.innerHTML = `<tr><td colspan="4" class="text-center py-5"><div class="d-flex flex-column align-items-center opacity-50"><div class="bg-light rounded-circle p-3 mb-3 text-secondary"><i class="fa-solid fa-box-open fa-2x"></i></div><h6 class="text-secondary fw-bold mb-1">Keranjang Kosong</h6><p class="small text-muted mb-0">Belum ada item ditambahkan.</p></div></td></tr>`;
             } else {
                 itemsPembelian.forEach((item) => {
                     let tr = document.createElement('tr');
                     let shortKondisi = item.kondisi_fisik || '-';
-                    if (shortKondisi.length > 30) shortKondisi = shortKondisi.substring(0, 30) + '...';
-                    let kategoriNama = (item.kategori && item.kategori.nama_kategori) ? item.kategori.nama_kategori : '-';
-
-                    // Template String Updated for New Look
+                    let kategoriNama = (item.kategori && item.kategori.nama_kategori) ? item.kategori.nama_kategori : (kategoriMap[item.kategori_id] || '-');
+                    
                     tr.innerHTML = `
                         <td class="ps-4 py-3">
                             <div class="d-flex flex-column">
@@ -780,24 +589,37 @@
                                 <span class="small text-muted"><i class="fa-solid fa-circle-info me-1 text-info" style="font-size: 0.7rem;"></i>${shortKondisi}</span>
                             </div>
                         </td>
-                        <td class="py-3">
-                            <span class="badge rounded-pill bg-white text-dark border border-secondary-subtle fw-normal px-3 py-2">
-                                ${kategoriNama}
-                            </span>
-                        </td>
+                        <td class="py-3"><span class="badge rounded-pill bg-white text-dark border border-secondary-subtle fw-normal px-3 py-2">${kategoriNama}</span></td>
                         <td class="py-3 font-monospace text-secondary small">${item.serial_number || '-'}</td>
                         <td class="text-center py-3">
-                            <button type="button" class="btn-action-icon" title="Hapus Item" onclick="hapusItem(${item.id})">
-                                <i class="fa-solid fa-trash-can"></i>
-                            </button>
+                            <button type="button" class="btn-action-icon" title="Hapus Item" onclick="hapusItem(${item.id})"><i class="fa-solid fa-trash-can"></i></button>
                         </td>
                     `;
                     itemListWrapper.appendChild(tr);
                 });
             }
+            controlActionButtons();
         }
 
-        // Script Simpan Customer (Modal)
+        // ********** RUPIAH FORMATTING **********
+        const rupiahInputs = document.querySelectorAll('.rupiah-mask');
+        rupiahInputs.forEach(input => {
+            const isDealInput = input.id === 'display_harga_deal';
+            if (input.value) {
+                const cleanValue = input.value.replace(/\D/g, '');
+                input.value = new Intl.NumberFormat('id-ID').format(cleanValue);
+            }
+            input.addEventListener('keyup', function() {
+                let cleanValue = this.value.replace(/\D/g, '');
+                this.value = cleanValue ? new Intl.NumberFormat('id-ID').format(cleanValue) : '';
+                const hiddenInput = document.getElementById(this.id.replace('display_', ''));
+                if(hiddenInput) hiddenInput.value = cleanValue;
+                if(isDealInput) checkDealButtonStatus();
+                markFormAsDirty();
+            });
+        });
+
+        // ********** MODAL CUSTOMER (Logic Main) **********
         const btnSimpanCustomer = document.getElementById('btnSimpanCustomer');
         const modalTambahCustomer = new bootstrap.Modal(document.getElementById('modalTambahCustomer'));
         const formTambahCustomer = document.getElementById('formTambahCustomer');
@@ -805,63 +627,32 @@
         btnSimpanCustomer.addEventListener('click', function() {
             const nama = document.getElementById('customer_nama_modal').value;
             const no_telp = document.getElementById('customer_no_telp_modal').value;
-            if (!nama || !no_telp) {
-                alert('Nama dan No. Telepon customer wajib diisi.');
-                return;
-            }
+            if(!nama || !no_telp) { alert('Nama dan No. Telepon wajib diisi.'); return; }
+            
             const formData = new FormData(formTambahCustomer);
             const data = Object.fromEntries(formData.entries());
-
+            
             btnSimpanCustomer.disabled = true;
-            btnSimpanCustomer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
-
             fetch("{{ route('admin.customers.store') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(response => {
-                    if (!response.ok) return response.json().then(err => {
-                        throw err;
-                    });
-                    return response.json();
-                })
-                .then(result => {
-                    if (result.success) {
-                        const customerSelect = document.getElementById('customer_id');
-                        const newOption = new Option(`${result.customer.nama} (${result.customer.no_telp})`, result.customer.id, true, true);
-                        customerSelect.appendChild(newOption);
-                        formTambahCustomer.reset();
-                        modalTambahCustomer.hide();
-                    } else {
-                        alert('Gagal menyimpan customer: ' + (result.message || 'Error.'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    let errorMsg = 'Gagal menyimpan data.';
-                    if (error.errors) errorMsg = Object.values(error.errors)[0][0];
-                    alert(errorMsg);
-                })
-                .finally(() => {
-                    btnSimpanCustomer.disabled = false;
-                    btnSimpanCustomer.innerHTML = 'Simpan Data';
-                });
+                method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }, body: JSON.stringify(data)
+            })
+            .then(res => res.json())
+            .then(result => {
+                if(result.success) {
+                    const newOption = new Option(`${result.customer.nama} (${result.customer.no_telp})`, result.customer.id, true, true);
+                    customerSelect.appendChild(newOption);
+                    formTambahCustomer.reset();
+                    modalTambahCustomer.hide();
+                } else alert('Gagal menyimpan customer.');
+            })
+            .finally(() => btnSimpanCustomer.disabled = false);
         });
 
-        // Script Copy Link
+        // ********** COPY LINK **********
         window.copyToClipboard = function() {
             const linkInput = document.getElementById('shareable-link');
-            if (linkInput) {
-                linkInput.select();
-                linkInput.setSelectionRange(0, 99999);
-                document.execCommand('copy');
-                alert('Link tersalin!');
-            }
+            linkInput.select();
+            document.execCommand('copy');
         }
     });
 </script>

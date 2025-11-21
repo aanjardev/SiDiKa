@@ -47,7 +47,22 @@ Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 // Routenya admin
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    // Page for products that need photos (no images yet) - register BEFORE the resource so it isn't captured by /products/{id}
+    Route::get('/products/photos', [AdminProductController::class, 'photos'])->name('products.photos');
+    // Upload photos for a specific product (uploader role)
+    Route::get('/products/{id}/photos-upload', [AdminProductController::class, 'photosUpload'])->name('products.photos.upload');
+    Route::post('/products/{id}/photos-upload', [AdminProductController::class, 'photosUploadStore'])->name('products.photos.uploadStore');
+    // Single AJAX upload for one image (used by the upload UI)
+    Route::post('/products/{id}/photo-upload', [AdminProductController::class, 'photosUploadSingle'])->name('products.photos.uploadSingle');
+    // Set a specific image as main
+    Route::post('/products/{productId}/photos/{imageId}/set-main', [AdminProductController::class, 'setMainPhoto'])->name('products.photos.setMain');
+    // Delete a product image
+    Route::post('/products/{productId}/photos/{imageId}/delete', [AdminProductController::class, 'deletePhoto'])->name('products.photos.delete');
     Route::resource('/products', AdminProductController::class)->names('products');
+    Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create');
+    Route::post('/products/store', [AdminProductController::class, 'store'])->name('products.store');
+    Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('products.destroy');
+    Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('products.update');
     Route::resource('/customers', CustomerController::class)->names('customers');
     // Route::resource('/employees', EmployeeController::class)->names('employees');
     Route::resource('/categories', CategoryController::class)->names('categories');
@@ -63,9 +78,16 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Transaksi
     Route::resource('/sales', PenjualanController::class)->names('sales');
+    Route::post('/sales/checkout', [PenjualanController::class, 'checkout'])->name('sales.checkout');
     Route::resource('/purchases', PembelianController::class)->names('purchases');
     Route::post('/purchases/store-item-draft', [PembelianController::class, 'ajaxStoreItemDraft'])->name('purchases.ajaxStoreItemDraft');
     Route::delete('/purchases/delete-item-draft/{item_id}', [PembelianController::class, 'ajaxDeleteItemDraft'])->name('purchases.ajaxDeleteItemDraft');
+    // Route untuk melihat arsip produk QC (tidak layak jual)
+    // IMPORTANT: register this explicit route BEFORE the resource routes so
+    // it doesn't get captured by the resource 'show' route (/quality-control/{id}).
+    Route::get('/quality-control/archived', [QCController::class, 'archived'])->name('quality-control.archived');
+    // Route untuk mengembalikan item dari arsip (restore)
+    Route::post('/quality-control/{id}/restore', [QCController::class, 'restore'])->name('quality-control.restore');
     Route::resource('/quality-control', QCController::class)->names('quality-control');
 
     // Manajemen
@@ -81,7 +103,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/permissions/{id}/edit', [PermissionsController::class, 'edit'])->name('permissions.edit');
         Route::put('/permissions/{id}', [PermissionsController::class, 'update'])->name('permissions.update');
         Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy'])->name('permissions.destroy');
+        Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('purchases.print');
     });
 
     Route::resource('/profile', ProfileController::class)->names('profile');
+    
+    // Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('admin.purchases.print');
 });

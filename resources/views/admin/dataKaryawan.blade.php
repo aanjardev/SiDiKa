@@ -11,38 +11,50 @@
 
 @section('content')
 
-{{-- Filter dan Pencarian --}}
-<div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-    <div class="card-body p-2 d-flex align-items-center flex-wrap">
-        {{-- Bagian Kiri: Input Search --}}
-        <div class="d-flex align-items-center flex-grow-1 ps-2">
-            <span class="text-muted ms-2 me-3">
-                <i class="fa-solid fa-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control border-0 shadow-none bg-transparent"
-                placeholder="Cari karyawan berdasarkan nama..."
-                style="font-size: 0.95rem;">
-        </div>
+{{-- Filter dan Pencarian (Resolved: Visual Design-Wafa + Logic Main) --}}
+<form method="GET" action="{{ route('admin.employees.index') }}" id="searchForm">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+            
+            {{-- Bagian Kiri: Input Search --}}
+            <div class="d-flex align-items-center flex-grow-1 ps-2">
+                <span class="text-muted ms-2 me-3">
+                    <i class="fa-solid fa-search text-muted"></i>
+                </span>
+                <input type="text" 
+                       class="form-control border-0 shadow-none bg-transparent"
+                       name="search"
+                       placeholder="Cari karyawan berdasarkan nama..."
+                       value="{{ $search_term ?? '' }}"
+                       style="font-size: 0.95rem;">
+            </div>
 
-        {{-- Bagian Kanan: Dropdown Filter --}}
-        <div class="d-flex align-items-center gap-2 pe-2">
-            {{-- Dropdown Jabatan --}}
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option selected>Semua Jabatan</option>
-                <option value="Manager">Manager</option>
-                <option value="Teknisi">Teknisi</option>
-                <option value="Staff">Staff Administrasi</option>
-            </select>
+            {{-- Bagian Kanan: Dropdown Filter --}}
+            <div class="d-flex align-items-center gap-2 pe-2">
+                
+                {{-- Dropdown Jabatan --}}
+                <select name="jabatan" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="all" {{ ($selected_jabatan ?? 'all') == 'all' ? 'selected' : '' }}>Semua Jabatan</option>
+                    <option value="Manager" {{ ($selected_jabatan ?? 'all') == 'Manager' ? 'selected' : '' }}>Manager</option>
+                    <option value="Staff Operasional" {{ ($selected_jabatan ?? 'all') == 'Staff Operasional' ? 'selected' : '' }}>Staff Operasional</option>
+                </select>
 
-            {{-- Dropdown Status --}}
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option selected>Semua Status</option>
-                <option value="active">Aktif</option>
-                <option value="inactive">Non Aktif</option>
-            </select>
+                {{-- Dropdown Status --}}
+                <select name="status" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="all" {{ ($selected_status ?? 'all') == 'all' ? 'selected' : '' }}>Semua Status</option>
+                    <option value="aktif" {{ ($selected_status ?? 'all') == 'aktif' ? 'selected' : '' }}>Aktif</option>
+                    <option value="non-aktif" {{ ($selected_status ?? 'all') == 'non-aktif' ? 'selected' : '' }}>Non Aktif</option>
+                </select>
+            </div>
         </div>
     </div>
-</div>
+</form>
 
 {{-- Table Card --}}
 <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
@@ -114,9 +126,9 @@
                                     @csrf
                                     @method('DELETE')
                                     <button type="button"
-                                        class="btn-action btn-action-delete"
-                                        title="Hapus"
-                                        onclick="confirmDelete(this)">
+                                            class="btn-action btn-action-delete"
+                                            title="Hapus"
+                                            onclick="confirmDelete(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -148,10 +160,35 @@
 
 @push('scripts')
 <script>
+    // Fungsi Delete (Bawaan Logic)
     function confirmDelete(button) {
         if (confirm('Apakah Anda yakin ingin menghapus data karyawan ini?')) {
             button.form.submit();
         }
     }
+
+    // Fungsi Auto Search (Ditambahkan dari Logic Main untuk UX)
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        const searchForm = document.getElementById('searchForm');
+        let searchTimeout;
+
+        if (searchInput && searchForm) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    searchForm.submit();
+                }, 500); // Submit setelah 500ms idle
+            });
+
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(searchTimeout);
+                    searchForm.submit();
+                }
+            });
+        }
+    });
 </script>
 @endpush
