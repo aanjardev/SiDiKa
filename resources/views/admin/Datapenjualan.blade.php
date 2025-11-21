@@ -3,13 +3,26 @@
 @section('title', 'Data Penjualan')
 
 @push('page-actions')
-    <a href="#" {{-- Nanti: route('admin.sales.create') --}} class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <a href="{{ route('admin.sales.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
         <i class="fas fa-plus fa-fw"></i>
         <span>Tambah Penjualan</span>
     </a>
 @endpush
 
 @section('content')
+
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+@if (session('error'))
+<div class="alert alert-danger alert-dismissible fade show" role="alert">
+    {{ session('error') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
 
 {{-- Search & Filter --}}
 <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
@@ -78,17 +91,23 @@
                                 @endphp
                             </td>
 
+                            @php
+                                $fallbackTotal = $penjualan->detail_penjualan->sum(function($d){
+                                    return ($d->qty ?? 0) * ($d->harga_jual_satuan ?? 0);
+                                });
+                                $totalNominal = ($penjualan->harga_total ?? 0) > 0 ? $penjualan->harga_total : $fallbackTotal;
+                            @endphp
                             <td>{{ $penjualan->perusahaan_cabang->nama ?? 'N/A' }}</td>
-                            <td>Rp {{ number_format($penjualan->harga_total, 0, ',', '.') }}</td>
+                            <td>Rp {{ number_format($totalNominal, 0, ',', '.') }}</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <a href="#" {{-- route('admin.sales.show', $penjualan->id) --}} title="Lihat Detail Transaksi">
                                         <i class="fa-solid fa-eye" style="color: black;"></i>
                                     </a>
-                                    <a href="#" {{-- route('admin.sales.edit', $penjualan->id) --}} title="Edit Transaksi">
+                                    <a href="{{ route('admin.sales.edit', $penjualan->id) }}" title="Edit Transaksi">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="#" {{-- route('admin.sales.destroy', $penjualan->id) --}} method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                                    <form action="{{ route('admin.sales.destroy', $penjualan->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn-icon" title="Hapus">

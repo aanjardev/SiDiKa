@@ -72,7 +72,8 @@ KELENGKAPAN:
         ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -135,7 +136,8 @@ Untuk memaksimalkan pengiriman :
         ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -200,7 +202,8 @@ Untuk memaksimalkan pengiriman :
         ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -210,15 +213,15 @@ Untuk memaksimalkan pengiriman :
 
 
         // produk 4
-            $produk = Produk::create([
-                'kode_sku' => '1258OOOOJT',
-                'id_kategori' => 7,
-                'nama_produk' => 'Lensa Nikon 28 300mm VR Kondisi Baik',
-                'harga_jual' => 5200000,
-                'stok_produk' => 1,
-                'status' => 'Second',
-                'grade' => 'Unggulan',
-                'deskripsi_produk' => 'TYPE : Lensa Nikon 28 300mm VR
+        $produk = Produk::create([
+            'kode_sku' => '1258OOOOJT',
+            'id_kategori' => 7,
+            'nama_produk' => 'Lensa Nikon 28 300mm VR Kondisi Baik',
+            'harga_jual' => 5200000,
+            'stok_produk' => 1,
+            'status' => 'Second',
+            'grade' => 'Unggulan',
+            'deskripsi_produk' => 'TYPE : Lensa Nikon 28 300mm VR
 
 HARGA : 5.200.000
 
@@ -252,25 +255,25 @@ Untuk memaksimalkan pengiriman :
 ● Luar pulau jawa Wajib pakai JNE
 ● Dalam pulau Jawa wajib pakai JNT'
 
+        ]);
+
+        $gambarList = [
+            ['path_gambar' => 'gambar_produk/41.png', 'is_main' => true],
+            ['path_gambar' => 'gambar_produk/42.jpg', 'is_main' => false],
+            ['path_gambar' => 'gambar_produk/43.jpg', 'is_main' => false],
+            ['path_gambar' => 'gambar_produk/44.png', 'is_main' => false],
+        ];
+
+        foreach ($gambarList as $gambar) {
+            GambarProduk::create([
+                'id_produk' => $produk->id,
+                'path_gambar' => $gambar['path_gambar'],
+                'is_main' => $gambar['is_main'],
             ]);
-
-            $gambarList = [
-                ['path_gambar' => 'gambar_produk/41.png', 'is_main' => true],
-                ['path_gambar' => 'gambar_produk/42.jpg', 'is_main' => false],
-                ['path_gambar' => 'gambar_produk/43.jpg', 'is_main' => false],
-                ['path_gambar' => 'gambar_produk/44.png', 'is_main' => false],
-            ];
-
-            foreach ($gambarList as $gambar) {
-                GambarProduk::create([
-                    'id_produk' => $produk->id,
-                    'path_gambar' => $gambar['path_gambar'],
-                    'is_main' => $gambar['is_main'],
-                ]);
-            }
+        }
 
 
-            // produk 5
+        // produk 5
         $produk = Produk::create([
             'kode_sku' => '1065',
             'id_kategori' => 5,
@@ -318,7 +321,8 @@ Untuk memaksimalkan pengiriman :
         ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -379,7 +383,8 @@ Untuk memaksimalkan pengiriman :
         ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -455,7 +460,8 @@ Untuk memaksimalkan pengiriman :
         ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -478,10 +484,11 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
 
         $gambarList = [
             ['path_gambar' => 'gambar_produk/81.png', 'is_main' => true],
-                    ];
+        ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -502,10 +509,11 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
 
         $gambarList = [
             ['path_gambar' => 'gambar_produk/91.png', 'is_main' => true],
-                    ];
+        ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -526,10 +534,11 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
 
         $gambarList = [
             ['path_gambar' => 'gambar_produk/101.png', 'is_main' => true],
-                    ];
+        ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -550,10 +559,11 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
 
         $gambarList = [
             ['path_gambar' => 'gambar_produk/102.png', 'is_main' => true],
-                    ];
+        ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -574,10 +584,11 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
 
         $gambarList = [
             ['path_gambar' => 'gambar_produk/92.png', 'is_main' => true],
-                    ];
+        ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -598,10 +609,11 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
 
         $gambarList = [
             ['path_gambar' => 'gambar_produk/93.png', 'is_main' => true],
-                    ];
+        ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -624,10 +636,11 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
 
         $gambarList = [
             ['path_gambar' => 'gambar_produk/82.png', 'is_main' => true],
-                    ];
+        ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -650,10 +663,11 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
 
         $gambarList = [
             ['path_gambar' => 'gambar_produk/83.png', 'is_main' => true],
-                    ];
+        ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -676,10 +690,11 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
 
         $gambarList = [
             ['path_gambar' => 'gambar_produk/84.png', 'is_main' => true],
-                    ];
+        ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -724,7 +739,8 @@ Kode Barang : #1309_DK'
         ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -771,7 +787,8 @@ KELENGKAPAN:
         ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
+
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
@@ -822,24 +839,21 @@ Kode Barang : #1298_DK'
         ];
 
         foreach ($gambarList as $gambar) {
-            $uploadedPath = $this->uploadSeederImage($gambar['path_gambar'], $localDir);
+            $uploadedPath = $this->uploadSeederImage($produk->id, $gambar['path_gambar'], $localDir);
             GambarProduk::create([
                 'id_produk' => $produk->id,
                 'path_gambar' => $uploadedPath,
                 'is_main' => $gambar['is_main'],
             ]);
         }
-
     }
 
-    private function uploadSeederImage(string $relativePath, string $localDir): string
+    private function uploadSeederImage(int $productId, string $relativePath, string $localDir): string
     {
         $relative = ltrim($relativePath, DIRECTORY_SEPARATOR);
         $source = $localDir . DIRECTORY_SEPARATOR . $relative;
 
-        // Langsung pakai path relatif jika ada.
         if (!is_file($source)) {
-            // Fallback: cari berdasarkan nama file di seluruh folder productIMG (case-insensitive).
             $basename = basename($relative);
             $iterator = new \RecursiveIteratorIterator(
                 new \RecursiveDirectoryIterator($localDir, \FilesystemIterator::SKIP_DOTS)
@@ -856,11 +870,13 @@ Kode Barang : #1298_DK'
             throw new \RuntimeException("Seeder image not found: {$source}");
         }
 
-        $extension = pathinfo($source, PATHINFO_EXTENSION);
-        $remoteName = Str::uuid() . ($extension ? '.' . $extension : '');
+        $ext = pathinfo($source, PATHINFO_EXTENSION);
+        $remoteName = Str::uuid() . '.' . $ext;
+
+        $folder = "product/{$productId}";
 
         return Storage::disk('r2')->putFileAs(
-            'product',
+            $folder,
             new File($source),
             $remoteName,
             ['visibility' => 'public']

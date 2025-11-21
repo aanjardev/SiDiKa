@@ -59,6 +59,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Delete a product image
     Route::post('/products/{productId}/photos/{imageId}/delete', [AdminProductController::class, 'deletePhoto'])->name('products.photos.delete');
     Route::resource('/products', AdminProductController::class)->names('products');
+    Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create');
+    Route::post('/products/store', [AdminProductController::class, 'store'])->name('products.store');
+    Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('products.destroy');
+    Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('products.update');
     Route::resource('/customers', CustomerController::class)->names('customers');
     // Route::resource('/employees', EmployeeController::class)->names('employees');
     Route::resource('/categories', CategoryController::class)->names('categories');
@@ -74,6 +78,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Transaksi
     Route::resource('/sales', PenjualanController::class)->names('sales');
+    Route::post('/sales/checkout', [PenjualanController::class, 'checkout'])->name('sales.checkout');
     Route::resource('/purchases', PembelianController::class)->names('purchases');
     Route::post('/purchases/store-item-draft', [PembelianController::class, 'ajaxStoreItemDraft'])->name('purchases.ajaxStoreItemDraft');
     Route::delete('/purchases/delete-item-draft/{item_id}', [PembelianController::class, 'ajaxDeleteItemDraft'])->name('purchases.ajaxDeleteItemDraft');
@@ -102,5 +107,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     });
 
     Route::resource('/profile', ProfileController::class)->names('profile');
+    
     // Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('admin.purchases.print');
 });
