@@ -6,22 +6,29 @@
 
 
 {{-- Search & Filter --}}
-<div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
-    <div class="flex-grow-1 ">
-
-        <div class="input-group shadow-sm">
-            <span class="input-group-text">
-                <i class="fa-solid fa-search"></i>
-            </span>
-            <input type="text" class="form-control" placeholder="Cari pelanggan berdasarkan nama atau nomor telepon...">
+<form method="GET" action="{{ route('admin.customers.index') }}" id="searchForm">
+    <div class="card-body d-flex flex-wrap gap-2 align-items-center mb-4 p-0">
+        <div class="flex-grow-1">
+            <div class="input-group shadow-sm">
+                <span class="input-group-text">
+                    <i class="fa-solid fa-search"></i>
+                </span>
+                <input type="text" 
+                       class="form-control" 
+                       name="search" 
+                       placeholder="Cari pelanggan berdasarkan nama atau nomor telepon..." 
+                       value="{{ $search_term ?? '' }}">
+            </div>
         </div>
-    </div>
 
-    <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);">
-        <option selected>Terakhir diubah</option>
-        <option>Nama (A-Z)</option>
-    </select>
-</div>
+        <select name="sort_by" class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" onchange="document.getElementById('searchForm').submit();">
+            <option value="updated_at" {{ ($sort_by ?? 'updated_at') == 'updated_at' ? 'selected' : '' }}>Terakhir diubah</option>
+            <option value="nama" {{ ($sort_by ?? 'updated_at') == 'nama' ? 'selected' : '' }}>Nama (A-Z)</option>
+        </select>
+
+        <input type="hidden" name="sort_order" value="{{ $sort_order ?? 'desc' }}">
+    </div>
+</form>
 
 
 
@@ -41,9 +48,9 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($data_pelanggan as $pelanggan)
+                    @forelse ($data_pelanggan as $index => $pelanggan)
                         <tr>
-                            <td class="text-center">{{ $loop->iteration }}</td>
+                            <td class="text-center">{{ ($data_pelanggan->firstItem() ?? 0) + $index }}</td>
                             <td>{{ $pelanggan->nama }}</td>
                             <td>{{ $pelanggan->jenis_kelamin }}</td>
                             <td>{{ $pelanggan->no_telp }}</td>
@@ -51,16 +58,16 @@
                             <td>{{ $pelanggan->identitas }}</td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="#" title="Lihat">
+                                    <a href="{{ route('admin.customers.show', $pelanggan->id) }}" title="Lihat">
                                         <i class="fa-solid fa-eye" style="color: black;"></i>
                                     </a>
-                                    <a href="#" title="Edit">
+                                    <a href="{{ route('admin.customers.edit', $pelanggan->id) }}" title="Edit">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                                    <form action="{{ route('admin.customers.destroy', $pelanggan->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-icon" title="Hapus">
+                                        <button type="button" class="btn-icon btn-delete" title="Hapus">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
@@ -184,4 +191,66 @@
             padding-bottom: 0;
         }
     </style>
+    @endpush
+
+    @push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.querySelector('input[name="search"]');
+            const searchForm = document.getElementById('searchForm');
+            let searchTimeout;
+
+            if (searchInput && searchForm) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(function() {
+                        searchForm.submit();
+                    }, 500); // Submit setelah 500ms tidak ada input
+                });
+
+                // Submit saat Enter ditekan
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        clearTimeout(searchTimeout);
+                        searchForm.submit();
+                    }
+                });
+            }
+
+            // Custom alert untuk delete pelanggan dengan informasi nama
+            // Menggunakan event delegation untuk menghindari konflik dengan alert.js
+            document.addEventListener('click', function(e) {
+                // Cek apakah klik pada button delete di dalam form customers
+                const deleteBtn = e.target.closest('.btn-delete');
+                if (!deleteBtn) return;
+                
+                const form = deleteBtn.closest('form');
+                if (!form || !form.action || !form.action.includes('customers')) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                // Ambil nama pelanggan dari baris tabel (kolom ke-2 adalah nama)
+                const row = form.closest('tr');
+                const namaPelanggan = row ? row.querySelector('td:nth-child(2)')?.textContent?.trim() || 'pelanggan ini' : 'pelanggan ini';
+
+                Swal.fire({
+                    title: 'Yakin ingin menghapus?',
+                    html: `Data pelanggan <strong>${namaPelanggan}</strong> akan dihapus secara permanen!<br><small class="text-muted">Tindakan ini tidak dapat dibatalkan.</small>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="fa-solid fa-trash me-1"></i> Ya, hapus!',
+                    cancelButtonText: 'Batal',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            }, true); // Menggunakan capture phase untuk dijalankan sebelum alert.js
+        });
+    </script>
     @endpush

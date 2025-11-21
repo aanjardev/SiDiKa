@@ -1,10 +1,10 @@
-<tbody>
-    @forelse ($data_pembelian as $pembelian)
+@forelse ($data_pembelian as $pembelian)
         <tr>
-            <td class="text-center">#{{ $pembelian->id }}</td>
-            <td>{{ $pembelian->customer->nama ?? 'N/A' }}</td>
+            {{-- ... baris data Anda yang normal ... --}}
+            <td>{{ $pembelian->kode_transaksi }}</td>
+            <td>{{ $pembelian->customer->nama ?? '-' }}</td>
             <td>{{ $pembelian->created_at->format('d M Y, H:i') }}</td>
-            <td>{{ $pembelian->perusahaan_cabang->nama ?? 'N/A' }}</td>
+            <td>{{ $pembelian->perusahaan_cabang->nama ?? '-' }}</td>
             <td>
                 @php
                     $itemNames = $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ');
@@ -47,20 +47,14 @@
         </tr>
     @empty
         <tr class="tr-empty">
-            <td colspan="8" class="text-center">
-                <div>
+            {{-- Tambahkan p-0 di td untuk menghapus padding, dan tambahkan h-100 di inner div --}}
+            <td colspan="8" class="p-0">
+                {{-- d-flex dan h-100 adalah kunci untuk membuat inner div ini bisa dipusatkan --}}
+                <div class="d-flex flex-column align-items-center justify-content-center h-100 p-5 empty-message">
                     <i class="fa-solid fa-shopping-bag fa-2x text-muted mb-3"></i>
                     <h5 class="mb-1">Tidak Ada Data Pembelian</h5>
-                    <p class="text-muted mb-0">Silakan <a href="{{ route('admin.purchases.create') }}">tambah transaksi pembelian</a> baru.</p>
                 </div>
             </td>
         </tr>
     @endforelse
 </tbody>
-
-@if ($data_pembelian->hasPages())
-    {{-- Pagination akan dimuat di luar tag <table>, jadi kita kirim juga --}}
-    <div class="card-footer bg-white">
-        {{ $data_pembelian->links('pagination::bootstrap-5') }}
-    </div>
-@endif

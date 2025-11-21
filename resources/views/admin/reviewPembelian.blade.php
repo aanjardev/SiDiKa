@@ -1,19 +1,27 @@
 @extends('layouts.admin')
 
-@section('title', 'Detail Pembelian #' . $pembelian->id)
+@section('title', 'Detail Pembelian #' . $pembelian->kode_transaksi)
 
 @push('page-actions')
-    {{-- Tombol Edit untuk kembali ke form --}}
-    {{-- GANTI href="#" dengan route('admin.purchases.edit', $pembelian->id) --}}
-    <a href="{{ route('admin.purchases.edit', $pembelian->id) }}" class="btn btn-warning btn-sm d-flex align-items-center gap-2">
+    {{-- Tombol Kembali ke Daftar --}}
+    <a href="{{ route('admin.purchases.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+        <i class="fas fa-arrow-left me-1"></i>
+        <span>Kembali</span>
+    </a>
+
+    {{-- Tombol Edit Transaksi Ini (Diubah ke Dark Gold Outline) --}}
+    <a href="{{ route('admin.purchases.edit', $pembelian->id) }}" class="btn btn-outline-dark-gold btn-sm d-flex align-items-center gap-2">
         <i class="fas fa-pen-to-square fa-fw"></i>
-        <span>Edit Transaksi Ini</span>
+        <span>Edit Transaksi</span>
     </a>
-    {{-- Tombol Cetak PDF (Placeholder) --}}
-    <a href="#" class="btn btn-secondary btn-sm d-flex align-items-center gap-2">
-        <i class="fas fa-print fa-fw"></i>
-        <span>Cetak</span>
-    </a>
+
+    {{-- Tombol Cetak PDF (Tetap Biru Outline) --}}
+    @if ($pembelian->status_pembelian == 'deal')
+        <a href="{{ route('admin.purchases.print', $pembelian->id) }}" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2" target="_blank">
+            <i class="fas fa-print fa-fw"></i>
+            <span>Cetak Nota</span>
+        </a>
+    @endif
 @endpush
 
 @section('content')
@@ -38,17 +46,17 @@
                         <small class="text-muted">{{ $pembelian->customer->no_telp ?? '' }}</small>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label text-muted small">Lokasi Transaksi (Cabang)</label>
+                        <label class="form-label text-muted small">Cabang</label>
                         <p class="fw-bold mb-0">{{ $pembelian->perusahaan_cabang->nama ?? '-' }}</p>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <label class="form-label text-muted small">Petugas (Karyawan)</label>
+                        <label class="form-label text-muted small">Kasir</label>
                         <p class="fw-bold mb-0">{{ $pembelian->user->name ?? '-' }}</p>
                     </div>
                     <div class="col-md-6 mb-3">
-                        <label class="form-label text-muted small">Tanggal Dibuat</label>
+                        <label class="form-label text-muted small">Tanggal Transaksi</label>
                         <p class="fw-bold mb-0">{{ $pembelian->created_at->format('d M Y, H:i') }}</p>
                     </div>
                 </div>
@@ -58,7 +66,7 @@
         {{-- CARD 2: DAFTAR ITEM DRAFT --}}
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body p-4">
-                <h5 class="card-title fw-bold mb-3">Item yang Ditawarkan ({{ $pembelian->item_pembelian_draft->count() }} item)</h5>
+                <h5 class="card-title fw-bold mb-3">Daftar Item ({{ $pembelian->item_pembelian_draft->count() }} item)</h5>
 
                 {{-- Kita gunakan accordion untuk menampilkan semua 20+ data kondisi --}}
                 <div class="accordion" id="accordionItemReview">
@@ -188,7 +196,7 @@
         <div class="card shadow-sm border-0 mb-4">
             <div class="card-body p-3">
                 <h6 class="card-title fw-bold mb-2"><i class="fas fa-share-alt me-1"></i> Bagikan Tinjauan</h6>
-                <p class="text-muted small mt-0 mb-2">Link ini dapat dibagikan untuk persetujuan (read-only).</p>
+                <p class="text-muted small mt-0 mb-2">Link ini dapat dibagikan (read-only).</p>
                 <div class="input-group">
                     {{-- Ganti value di sini agar menggunakan fungsi route Laravel --}}
                     <input type="text" class="form-control form-control-sm" id="shareable-link" value="{{ route('admin.purchases.show', $pembelian->id) }}" readonly>
@@ -205,13 +213,27 @@
 
 @push('styles')
 <style>
-    /* ... (CSS styles Anda tetap sama) ... */
+
     .accordion-button:not(.collapsed) {
         color: var(--bs-primary);
         background-color: var(--bs-primary-bg-subtle);
     }
     .accordion-button:focus {
         box-shadow: 0 0 0 0.25rem rgba(78, 107, 255, 0.25);
+    }
+    .btn-outline-dark-gold {
+        /* Warna teks dan border saat normal (Dark Gold) */
+        color: #CC9900 !important; /* Warna Emas Pekat */
+        border-color: #CC9900 !important;
+    }
+
+    /* Warna saat di-hover/focus */
+    .btn-outline-dark-gold:hover,
+    .btn-outline-dark-gold:focus,
+    .btn-outline-dark-gold:active {
+        color: #000 !important; /* Warna teks diubah menjadi hitam agar kontras */
+        background-color: #D4A017 !important; /* Warna latar belakang saat hover (Sedikit lebih gelap dari normal) */
+        border-color: #D4A017 !important;
     }
 </style>
 @endpush
@@ -230,18 +252,21 @@
         // Coba salin ke clipboard
         try {
             document.execCommand('copy');
-            alert('Link tinjauan berhasil disalin ke clipboard!');
+
+            // Karena UI Feedback sudah ada di sistem Anda, kita tidak perlu alert() lagi.
+            // Jika ada fungsi global untuk menampilkan notifikasi sukses (misalnya showSuccessToast), panggil di sini.
+
         } catch (err) {
             console.error('Gagal menyalin:', err);
-            alert('Gagal menyalin link.');
+            // Anda bisa menambahkan feedback gagal kustom di sini jika diperlukan.
         }
     }
 
     @if(session('auto_copy_link'))
     // Script ini dijalankan jika ada flash session 'auto_copy_link' (dari method store)
     document.addEventListener("DOMContentLoaded", function() {
-        // Panggil fungsi salin
-        copyToClipboard();
+        // Panggil fungsi salin yang kini tidak memiliki alert()
+        window.copyToClipboard();
     });
     @endif
 </script>

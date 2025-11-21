@@ -72,21 +72,12 @@
 
         <!-- Sidebar Menu -->
         <div class="sidebar-menu" id="sidebarMenu">
-            <!-- Home Section -->
+            <!-- Dashboard (direct link) -->
             <div class="menu-section">
-                <button class="menu-link menu-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#homeMenu" aria-expanded="false" aria-controls="homeMenu">
-                    <i class="fas fa-house menu-icon"></i>
-                    <span>Home</span>
-                    <i class="fas fa-chevron-right menu-arrow"></i>
-                </button>
-                <div class="collapse submenu" id="homeMenu">
-                    <div class="submenu-item">
-                        <a href="{{ route('admin.dashboard') }}" class="submenu-link">
-                            <i class="fas fa-th-large submenu-icon"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </div>
-                </div>
+                <a href="{{ route('admin.dashboard') }}" class="menu-link d-flex align-items-center">
+                    <i class="fas fa-th-large menu-icon"></i>
+                    <span>Dashboard</span>
+                </a>
             </div>
 
             <!-- Master Data Section -->
@@ -141,7 +132,7 @@
             <div class="menu-section">
                 <button class="menu-link menu-toggle collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#transaksiMenu" aria-expanded="false" aria-controls="transaksiMenu">
                     <i class="fas fa-exchange-alt menu-icon"></i>
-                    <span>Transaksi</span>
+                    <span>Operasional</span>
                     <i class="fas fa-chevron-right menu-arrow"></i>
                 </button>
 
@@ -166,6 +157,13 @@
                             <span>Quality Control</span>
                         </a>
                     </div>
+
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.products.photos') }}" class="submenu-link">
+                            <i class="fas fa-image submenu-icon"></i>
+                            <span>Foto Produk</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
@@ -185,12 +183,7 @@
                         </a>
                     </div>
 
-                    <div class="submenu-item">
-                        <a href="#" class="submenu-link">
-                            <i class="fas fa-bullhorn submenu-icon"></i>
-                            <span>Manajemen Promosi</span>
-                        </a>
-                    </div>
+                    {{-- Manajemen Promosi removed per request --}}
 
                     @if (Auth::user()->role == 'manager')
                     <div class="submenu-item">
@@ -211,8 +204,8 @@
                     <i class="fas fa-user"></i>
                 </div>
                 <div class="user-info">
-                    <p class="user-name">Syaiful Budiyanto</p>
-                    <p class="user-role">Manager</p>
+                    <p class="user-name">{{ Auth::user()->name ?? 'User' }}</p>
+                    <p class="user-role">{{ isset(Auth::user()->role) ? ucfirst(Auth::user()->role) : '' }}</p>
                 </div>
                 <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
             </div>
@@ -357,7 +350,7 @@
                     });
                 });
             }
-            const currentUrl = window.location.href.split(/[?#]/)[0];
+            const currentPath = window.location.pathname;
             const navLinks = document.querySelectorAll('.submenu-link, .menu-link[href]');
 
             navLinks.forEach(link => {
@@ -366,22 +359,49 @@
                     return;
                 }
 
-                const normalizedHref = href.split(/[?#]/)[0];
-                if (normalizedHref === currentUrl) {
-                    link.classList.add('active');
+                let linkPath;
+                try {
+                    // Get the pathname from href (handle both relative and absolute URLs)
+                    const linkUrl = new URL(href, window.location.origin);
+                    linkPath = linkUrl.pathname;
+                } catch (e) {
+                    // Fallback: if URL parsing fails, use href as-is (shouldn't happen with Laravel routes)
+                    linkPath = href.split(/[?#]/)[0];
+                }
 
-                    const parentCollapse = link.closest('.collapse');
-                    if (parentCollapse) {
-                        parentCollapse.classList.add('show');
-                        const parentToggle = parentCollapse.previousElementSibling;
-                        if (parentToggle && parentToggle.classList.contains('menu-toggle')) {
-                            parentToggle.classList.add('active');
-                            parentToggle.classList.remove('collapsed');
-                            parentToggle.setAttribute('aria-expanded', 'true');
-                        }
+                // Check for exact match
+                if (linkPath === currentPath) {
+                    link.classList.add('active');
+                    activateParentMenu(link);
+                }
+                // Check if current path is a child route of this menu link
+                // e.g., /admin/purchases/create is a child of /admin/purchases
+                // Exception: /admin/products/photos should NOT be considered a child of /admin/products
+                else if (currentPath.startsWith(linkPath + '/') && linkPath !== currentPath && linkPath !== '/') {
+                    // Exclude /admin/products/photos and its child routes from being treated as child of /admin/products
+                    // This ensures "Foto Produk" menu stays separate from "Produk" menu
+                    if (linkPath === '/admin/products' && currentPath.startsWith('/admin/products/photos')) {
+                        // Skip - Foto Produk is a separate menu under Operasional, not under Produk
+                        return;
                     }
+                    link.classList.add('active');
+                    activateParentMenu(link);
                 }
             });
+
+            // Helper function to activate parent menu and expand collapse
+            function activateParentMenu(link) {
+                const parentCollapse = link.closest('.collapse');
+                if (parentCollapse) {
+                    parentCollapse.classList.add('show');
+                    const parentToggle = parentCollapse.previousElementSibling;
+                    if (parentToggle && parentToggle.classList.contains('menu-toggle')) {
+                        parentToggle.classList.add('active');
+                        parentToggle.classList.remove('collapsed');
+                        parentToggle.setAttribute('aria-expanded', 'true');
+                    }
+                }
+            }
 
             const collapses = document.querySelectorAll('#sidebarMenu .collapse');
             collapses.forEach(collapse => {

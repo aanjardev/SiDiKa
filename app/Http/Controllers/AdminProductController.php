@@ -13,19 +13,250 @@ use Illuminate\Validation\Rule;
 
 class AdminProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Produk::with(['gambar', 'gambarUtama', 'kategori'])
-            ->orderBy('updated_at', 'desc')
-            ->paginate(10); // 10 item per page
+        $query = Produk::with(['gambar', 'gambarUtama', 'kategori'])
+            ->orderBy('updated_at', 'desc');
 
-        // 5. Ambil data kategori untuk filter
+        // Search by nama produk or SKU
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama_produk', 'like', "%{$search}%")
+                  ->orWhere('kode_sku', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by kategori
+        if ($request->filled('kategori') && $request->input('kategori') !== 'all') {
+            $query->where('id_kategori', $request->input('kategori'));
+        }
+
+        // Sort by
+        $sortBy = $request->input('sort_by', 'updated_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+        
+        if ($sortBy === 'nama') {
+            $query->orderBy('nama_produk', $sortOrder);
+        } else {
+            $query->orderBy('updated_at', $sortOrder);
+        }
+
+        $products = $query->paginate(10)->withQueryString();
+
+        // Ambil data kategori untuk filter
         $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
 
         return view('admin.dataProduk', [
             'products' => $products,
-            'semua_kategori' => $kategori
+            'semua_kategori' => $kategori,
+            'search_term' => $request->input('search', ''),
+            'selected_kategori' => $request->input('kategori', 'all'),
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
         ]);
+    }
+
+    /**
+     * Tampilkan daftar produk yang belum memiliki gambar (perlu diupload foto)
+     */
+    public function photos(Request $request)
+    {
+        $query = Produk::with('kategori')
+                    ->whereDoesntHave('gambar');
+
+        if ($request->filled('search')) {
+            $s = $request->input('search');
+            $query->where(function($q) use ($s) {
+                $q->where('nama_produk', 'like', "%{$s}%")
+                  ->orWhere('kode_sku', 'like', "%{$s}%");
+            });
+        }
+
+        if ($request->filled('kategori')) {
+            $query->where('id_kategori', $request->input('kategori'));
+        }
+
+        $products = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        // AJAX support: return partial HTML for tbody + pagination
+        if ($request->ajax() || $request->wantsJson()) {
+            $table_html = view('admin.partials.photo_product_rows', ['products' => $products])->render();
+            $pagination_html = $products->hasPages() ? $products->appends($request->query())->links('pagination::bootstrap-5')->render() : '';
+            return response()->json([
+                'table_html' => $table_html,
+                'pagination_html' => $pagination_html,
+            ]);
+        }
+
+        $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
+
+        return view('admin.dataFotoProduk', [
+            'products' => $products,
+            'semua_kategori' => $kategori,
+            'search_term' => $request->input('search', ''),
+            'selected_kategori' => $request->input('kategori', ''),
+        ]);
+    }
+
+    /**
+     * Show upload form for product photos
+     */
+    public function photosUpload($id)
+    {
+        // load the photos relation (alias added on the Produk model)
+        $product = Produk::with('photos')->findOrFail($id);
+        return view('admin.uploadProductPhotos', [
+            'product' => $product,
+        ]);
+    }
+
+    /**
+     * Store uploaded photos for a product
+     */
+    public function photosUploadStore(Request $request, $id)
+    {
+        $product = Produk::findOrFail($id);
+        $validated = $request->validate([
+            'images' => ['sometimes', 'array', 'min:1'],
+            'images.*' => ['image', 'max:5120'],
+            'main_image' => ['nullable', 'string'],
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $images = $request->file('images', []);
+            $createdIds = [];
+            $hasMain = $product->gambarUtama()->exists();
+
+            foreach ($images as $index => $image) {
+                $extension = $image->getClientOriginalExtension();
+                $filename = Str::uuid()->toString() . ($extension ? '.' . $extension : '');
+                $path = Storage::disk('r2')->putFileAs('product', $image, $filename, [
+                    'visibility' => 'public',
+                ]);
+
+                $g = \App\Models\GambarProduk::create([
+                    'id_produk' => $product->id,
+                    'path_gambar' => $path,
+                    'is_main' => false,
+                ]);
+                $createdIds[] = $g->id;
+            }
+
+            // handle explicit main selection: 'existing_{id}' or 'new_{index}'
+            if (!empty($validated['main_image'])) {
+                $main = $validated['main_image'];
+                if (str_starts_with($main, 'existing_')) {
+                    $idToSet = intval(substr($main, strlen('existing_')));
+                    \App\Models\GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
+                    \App\Models\GambarProduk::where('id_produk', $product->id)->where('id', $idToSet)->update(['is_main' => true]);
+                } elseif (str_starts_with($main, 'new_')) {
+                    $idx = intval(substr($main, strlen('new_')));
+                    if (isset($createdIds[$idx])) {
+                        \App\Models\GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
+                        \App\Models\GambarProduk::where('id_produk', $product->id)->where('id', $createdIds[$idx])->update(['is_main' => true]);
+                    }
+                }
+            } else {
+                // if no explicit main chosen and there was no existing main, set first created as main
+                if (!$hasMain && !empty($createdIds)) {
+                    \App\Models\GambarProduk::where('id', $createdIds[0])->update(['is_main' => true]);
+                }
+            }
+
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->withInput()->withErrors(['error' => 'Gagal mengunggah gambar: ' . $th->getMessage()]);
+        }
+
+        return redirect()->route('admin.products.photos')->with('success', 'Gambar berhasil diunggah.');
+    }
+
+    /**
+     * Single AJAX upload for one image. Returns JSON with image data.
+     */
+    public function photosUploadSingle(Request $request, $id)
+    {
+        $product = Produk::findOrFail($id);
+
+        $validated = $request->validate([
+            'image' => ['required', 'image', 'max:5120'],
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $image = $request->file('image');
+            $extension = $image->getClientOriginalExtension();
+            $filename = Str::uuid()->toString() . ($extension ? '.' . $extension : '');
+            $path = Storage::disk('r2')->putFileAs('product', $image, $filename, [
+                'visibility' => 'public',
+            ]);
+
+            $hasMain = $product->gambarUtama()->exists();
+
+            $gambar = GambarProduk::create([
+                'id_produk' => $product->id,
+                'path_gambar' => $path,
+                'is_main' => $hasMain ? false : true,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'image' => [
+                    'id' => $gambar->id,
+                    'url' => $gambar->url,
+                    'is_main' => $gambar->is_main,
+                ],
+            ]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => 'Gagal mengunggah gambar: ' . $th->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Set a given image as the main image for a product.
+     */
+    public function setMainPhoto(Request $request, $productId, $imageId)
+    {
+        $product = Produk::findOrFail($productId);
+        $gambar = GambarProduk::where('id_produk', $product->id)->where('id', $imageId)->firstOrFail();
+
+        DB::beginTransaction();
+        try {
+            // unset existing main
+            GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
+            $gambar->is_main = true;
+            $gambar->save();
+            DB::commit();
+            return response()->json(['success' => true]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $th->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Delete a product image
+     */
+    public function deletePhoto(Request $request, $productId, $imageId)
+    {
+        $product = Produk::findOrFail($productId);
+        $gambar = GambarProduk::where('id_produk', $product->id)->where('id', $imageId)->firstOrFail();
+
+        DB::beginTransaction();
+        try {
+            $gambar->delete();
+            DB::commit();
+            return response()->json(['success' => true]);
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return response()->json(['success' => false, 'message' => $th->getMessage()], 500);
+        }
     }
 
     public function create()
@@ -104,7 +335,7 @@ class AdminProductController extends Controller
 
         return redirect()
             ->route('admin.products.index')
-            ->with('success', 'Produk berhasil ditambahkan dan gambar tersimpan di Cloudflare R2.');
+            ->with('success', 'Produk berhasil ditambahkan');
     }
 
 

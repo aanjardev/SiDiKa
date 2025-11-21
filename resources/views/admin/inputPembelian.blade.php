@@ -3,21 +3,30 @@
 @section('title', 'Transaksi Pembelian')
 
 @push('page-actions')
-    {{-- Halaman form tidak perlu tombol aksi di header --}}
+@php
+$backRoute = route('admin.purchases.index');
+if(isset($pembelian)) {
+$backRoute = route('admin.purchases.show', $pembelian->id);
+}
+@endphp
+
+<a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
+    <i class="fas fa-arrow-left me-1"></i> Kembali
+</a>
 @endpush
 
 @section('content')
 
 {{-- Tampilkan Error Validasi (dari Backend) --}}
 @if ($errors->any())
-    <div class="alert alert-danger mb-4">
-        <h5 class="alert-heading">Ada Kesalahan Input!</h5>
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+<div class="alert alert-danger mb-4">
+    <h5 class="alert-heading">Ada Kesalahan Input!</h5>
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
 @endif
 
 {{-- ======================================================= --}}
@@ -26,7 +35,7 @@
 <form action="{{ isset($pembelian) ? route('admin.purchases.update', $pembelian->id) : route('admin.purchases.store') }}" method="POST" id="formPembelian">
     @csrf
     @if(isset($pembelian))
-        @method('PUT') {{-- Spoofing method PUT untuk update --}}
+    @method('PUT') {{-- Spoofing method PUT untuk update --}}
     @endif
 
     <input type="hidden" name="user_id" value="{{ Auth::id() ?? 1 }}">
@@ -49,8 +58,7 @@
                                 @foreach($semua_customer as $customer)
                                 <option value="{{ $customer->id }}"
                                     {{-- Logika: Pilih yang dari old() atau yang tersimpan di $pembelian --}}
-                                    {{ (old('customer_id') == $customer->id) || (isset($pembelian) && $pembelian->customer_id == $customer->id) ? 'selected' : '' }}
-                                >
+                                    {{ (old('customer_id') == $customer->id) || (isset($pembelian) && $pembelian->customer_id == $customer->id) ? 'selected' : '' }}>
                                     {{ $customer->nama }} ({{ $customer->no_telp }})
                                 </option>
                                 @endforeach
@@ -68,11 +76,10 @@
                                 <option value="{{ $cabang->id }}"
                                     {{-- Logika: Pilih yang tersimpan di $pembelian, atau default untuk mode Create --}}
                                     @if(isset($pembelian))
-                                        {{ $pembelian->perusahaan_cabang_id == $cabang->id ? 'selected' : '' }}
+                                    {{ $pembelian->perusahaan_cabang_id == $cabang->id ? 'selected' : '' }}
                                     @else
-                                        {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}
-                                    @endif
-                                >
+                                    {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}
+                                    @endif>
                                     {{ $cabang->nama }}
                                 </option>
                                 @endforeach
@@ -94,9 +101,9 @@
                     </div>
 
                     @error('items')
-                        <div class="alert alert-danger small p-2">
-                            <i class="fas fa-exclamation-triangle me-1"></i> {{ $message }}
-                        </div>
+                    <div class="alert alert-danger small p-2">
+                        <i class="fas fa-exclamation-triangle me-1"></i> {{ $message }}
+                    </div>
                     @enderror
 
                     <div class="table-responsive">
@@ -119,88 +126,88 @@
 
         </div>
 
- {{-- KOLOM KANAN (30%): Aksi & Harga --}}
+        {{-- KOLOM KANAN (30%): Aksi & Harga --}}
         <div class="col-lg-4">
             <div class="card shadow-sm border-0 mb-4 position-sticky" style="top: 20px;">
                 <div class="card-body p-4">
                     <h5 class="card-title fw-bold mb-3">Status & Harga</h5>
 
                     {{-- INPUT 1: TAWARAN CUSTOMER --}}
-            <div class="mb-3">
-                <label for="display_harga_tawaran_customer" class="form-label">Tawaran Customer</label>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text">Rp</span>
-                    {{-- Input TAMPILAN (User mengetik di sini) --}}
-                    <input type="text" class="form-control rupiah-mask"
-                        id="display_harga_tawaran_customer" style="height: 40px"
-                        placeholder="0"
-                        value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
+                    <div class="mb-3">
+                        <label for="display_harga_tawaran_customer" class="form-label">Tawaran Customer</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">Rp</span>
+                            {{-- Input TAMPILAN (User mengetik di sini) --}}
+                            <input type="text" class="form-control rupiah-mask"
+                                id="display_harga_tawaran_customer" style="height: 40px"
+                                placeholder="0"
+                                value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
 
-                    {{-- Input ASLI (Dikirim ke Database) --}}
-                    <input type="hidden"
-                        name="harga_tawaran_customer"
-                        id="harga_tawaran_customer"
-                        value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
-                </div>
-            </div>
+                            {{-- Input ASLI (Dikirim ke Database) --}}
+                            <input type="hidden"
+                                name="harga_tawaran_customer"
+                                id="harga_tawaran_customer"
+                                value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
+                        </div>
+                    </div>
 
-            {{-- INPUT 2: TAWARAN TOKO --}}
-            <div class="mb-3">
-                <label for="display_harga_tawaran_toko" class="form-label">Tawaran Toko</label>
-                <div class="input-group input-group-sm">
-                    <span class="input-group-text">Rp</span>
-                    {{-- Input TAMPILAN --}}
-                    <input type="text" class="form-control rupiah-mask"
-                        id="display_harga_tawaran_toko"
-                        placeholder="0" style="height: 40px"
-                        value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
+                    {{-- INPUT 2: TAWARAN TOKO --}}
+                    <div class="mb-3">
+                        <label for="display_harga_tawaran_toko" class="form-label">Tawaran Toko</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">Rp</span>
+                            {{-- Input TAMPILAN --}}
+                            <input type="text" class="form-control rupiah-mask"
+                                id="display_harga_tawaran_toko"
+                                placeholder="0" style="height: 40px"
+                                value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
 
-                    {{-- Input ASLI --}}
-                    <input type="hidden"
-                        name="harga_tawaran_toko"
-                        id="harga_tawaran_toko"
-                        value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
-                </div>
-            </div>
+                            {{-- Input ASLI --}}
+                            <input type="hidden"
+                                name="harga_tawaran_toko"
+                                id="harga_tawaran_toko"
+                                value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
+                        </div>
+                    </div>
 
-            {{-- INPUT 3: HARGA DEAL --}}
-            <div class="mb-3">
-                <label for="display_harga_deal" class="form-label fw-bold text-success">Harga Deal (Final)</label>
-                <div class="input-group">
-                    <span class="input-group-text fw-bold text-success">Rp</span>
-                    {{-- Input TAMPILAN --}}
-                    <input type="text" class="form-control fw-bold text-success rupiah-mask"
-                        id="display_harga_deal"
-                        placeholder="0"
-                        value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
+                    {{-- INPUT 3: HARGA DEAL --}}
+                    <div class="mb-3">
+                        <label for="display_harga_deal" class="form-label fw-bold text-success">Harga Deal (Final)</label>
+                        <div class="input-group">
+                            <span class="input-group-text fw-bold text-success">Rp</span>
+                            {{-- Input TAMPILAN --}}
+                            <input type="text" class="form-control fw-bold text-success rupiah-mask"
+                                id="display_harga_deal"
+                                placeholder="0"
+                                value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
 
-                    {{-- Input ASLI --}}
-                    <input type="hidden"
-                        name="harga_deal"
-                        id="harga_deal"
-                        value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
-                </div>
-                <div class="form-text small">Isi jika sudah sepakat.</div>
-            </div>
+                            {{-- Input ASLI --}}
+                            <input type="hidden"
+                                name="harga_deal"
+                                id="harga_deal"
+                                value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
+                        </div>
+                        <div class="form-text small">Isi jika sudah sepakat.</div>
+                    </div>
 
                     <hr class="my-4">
 
                     {{-- TOMBOL AKSI (Sejajar Satu Baris) --}}
                     <div class="d-flex gap-2">
-                        {{-- Tombol Draft (Saya ubah jadi outline agar tidak terlalu dominan, tapi tetap sejajar) --}}
-                        <button type="submit" name="status_pembelian" value="draft" class="btn btn-outline-primary w-100" title="Simpan sebagai Draft">
-                            <i class="fas fa-save d-block d-md-none"></i> {{-- Icon only di layar kecil --}}
+                        {{-- Tombol Draft --}}
+                        <button type="submit" name="status_pembelian" value="draft" id="btnDraft" class="btn btn-outline-primary w-100" title="Simpan sebagai Draft">
+                            <i class="fas fa-save d-block d-md-none"></i>
                             <span class="d-none d-md-inline"><i class="fas fa-save me-1"></i> Draft</span>
                         </button>
 
                         {{-- Tombol Tidak Deal --}}
-                        <button type="submit" name="status_pembelian" value="tidak_deal" class="btn btn-danger w-100" title="Batalkan Transaksi">
+                        <button type="submit" name="status_pembelian" value="tidak_deal" id="btnNoDeal" class="btn btn-danger w-100" title="Batalkan Transaksi">
                             <i class="fas fa-times d-block d-md-none"></i>
                             <span class="d-none d-md-inline"><i class="fas fa-times me-1"></i> No Deal</span>
                         </button>
 
                         {{-- Tombol Deal --}}
-                        <button type="submit" name="status_pembelian" value="deal" class="btn btn-success w-100" title="Sepakat / Deal">
+                        <button type="submit" name="status_pembelian" value="deal" id="btnDeal" class="btn btn-success w-100" title="Sepakat / Deal">
                             <i class="fas fa-check d-block d-md-none"></i>
                             <span class="d-none d-md-inline"><i class="fas fa-check me-1"></i> Deal</span>
                         </button>
@@ -246,9 +253,6 @@
             <div class="modal-body">
                 {{-- PERBAIKAN: Semua input di sini HARUS punya atribut 'name' --}}
                 <form id="formTambahCustomer">
-                    <div class="alert alert-info small">
-                        Customer yang ditambahkan di sini akan otomatis tersimpan di database.
-                    </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="customer_nama_modal">Nama Customer*</label>
@@ -415,18 +419,27 @@
 @push('styles')
 <style>
     .btn-icon {
-        background: transparent !important; border: none !important;
-        padding: 0 !important; color: #dc3545 !important;
-        cursor: pointer !important; font-size: 16px !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        color: #dc3545 !important;
+        cursor: pointer !important;
+        font-size: 16px !important;
     }
-    .btn-icon:hover { color: #bb2d3b !important; }
+
+    .btn-icon:hover {
+        color: #bb2d3b !important;
+    }
+
     .accordion-button:not(.collapsed) {
         color: var(--bs-primary);
         background-color: var(--bs-primary-bg-subtle);
     }
+
     .accordion-button:focus {
         box-shadow: 0 0 0 0.25rem rgba(78, 107, 255, 0.25);
     }
+
     .accordion-body {
         background-color: #f8f9fa;
     }
@@ -435,33 +448,46 @@
 
 @push('scripts')
 <script>
+    // 1. Variabel Global PHP -> JS (Perbaikan Kategori dan Data Awal)
+    let kategoriMap = {};
+    @foreach($semua_kategori as $kat)
+    kategoriMap[{
+        {
+            $kat - > id
+        }
+    }] = '{{ $kat->nama_kategori }}';
+    @endforeach
 
-    let currentPembelianId = '{{ $pembelian->id ?? '' }}';
-    let initialItems = @json(old('items') ?? ($pembelian->item_pembelian_draft ?? []));
+    let currentPembelianId = '{{ $pembelian->id ?? '
+    ' }}';
+    let initialItems = @json($pembelian - > item_pembelian_draft ?? []);
 
-    // Array ini sekarang hanya untuk TAMPILAN di tabel
     let itemsPembelian = [];
     let itemCounter = 0;
 
     if (initialItems.length > 0) {
         itemsPembelian = initialItems.map(item => {
-            // Ambil nama kategori jika sudah ada (dari relasi di model)
-            if (item.kategori && item.kategori.nama_kategori) {
-                item.kategori_nama = item.kategori.nama_kategori;
-            }
-            // Jika tidak ada (misal dari old() atau bug), gunakan fallback display
-            else {
-                item.kategori_nama = item.kategori_nama || 'Kategori (Reloaded)';
-            }
-
             // Pastikan ID ada (ID ini adalah ID DB item)
-            if(typeof item.id === 'undefined') {
+            if (typeof item.id === 'undefined') {
                 item.id = itemCounter++;
             }
-
             return item;
         });
     }
+
+    // Variabel dan Fungsi untuk Deteksi Perubahan (global scope)
+    const form = document.getElementById('formPembelian');
+    const btnKembali = document.getElementById('btnKembali');
+    let isFormDirty = false;
+
+    function markFormAsDirty() {
+        if (!isFormDirty) {
+            isFormDirty = true;
+        }
+    }
+
+    // Inisialisasi variabel tombol aksi (diakses di DOMContentLoaded)
+    let hiddenHargaDeal, btnDraft, btnNoDeal, btnDeal;
 
     document.addEventListener("DOMContentLoaded", function() {
 
@@ -479,10 +505,18 @@
         const customerSelect = document.getElementById('customer_id');
         const cabangSelect = document.getElementById('perusahaan_cabang_id');
 
+        // Inisialisasi Tombol Aksi dan Harga Deal
+        hiddenHargaDeal = document.getElementById('harga_deal');
+        btnDraft = document.getElementById('btnDraft');
+        btnNoDeal = document.getElementById('btnNoDeal');
+        btnDeal = document.getElementById('btnDeal');
+
+
         if (currentPembelianId) {
             hiddenPembelianIdInput.value = currentPembelianId;
         }
-        // Render tabel (awalnya akan kosong)
+
+        // Render tabel (awalnya akan kosong) - INI MEMANGGIL controlActionButtons()
         renderItemList();
 
         // TAMBAHKAN EVENT LISTENER INI
@@ -499,6 +533,73 @@
             modalTambahItem.show();
         });
 
+
+        // ********** FUNGSI KONTROL TOMBOL AKSI **********
+
+        // Fungsi untuk mengecek dan men-disable/enable tombol Deal (berdasarkan harga)
+        function checkDealButtonStatus() {
+            const hasItems = itemsPembelian.length > 0;
+            if (!hasItems) return; // Kontrol utama ada di controlActionButtons()
+
+            if (!btnDeal || !hiddenHargaDeal) return;
+
+            const dealValue = parseInt(hiddenHargaDeal.value) || 0;
+
+            if (dealValue <= 0) {
+                btnDeal.disabled = true;
+                btnDeal.setAttribute('data-bs-toggle', 'tooltip');
+                btnDeal.setAttribute('data-bs-placement', 'top');
+                btnDeal.setAttribute('title', 'Harap isi Harga Deal (Final) sebelum klik Deal.');
+            } else {
+                btnDeal.disabled = false;
+                btnDeal.removeAttribute('data-bs-toggle');
+                btnDeal.removeAttribute('data-bs-placement');
+                btnDeal.removeAttribute('title');
+                const tooltip = bootstrap.Tooltip.getInstance(btnDeal);
+                if (tooltip) tooltip.dispose();
+            }
+        }
+
+        // FUNGSI UTAMA UNTUK KONTROL SEMUA TOMBOL SIMPAN (berdasarkan item)
+        function controlActionButtons() {
+            const hasItems = itemsPembelian.length > 0;
+            const isDisabled = !hasItems;
+            const disableTitle = 'Tambahkan Item terlebih dahulu';
+
+            // 1. Kontrol Draft dan No Deal
+            [btnDraft, btnNoDeal].forEach(btn => {
+                if (btn) {
+                    btn.disabled = isDisabled;
+                    btn.title = isDisabled ? disableTitle : btn.title;
+                    if (isDisabled) btn.removeAttribute('data-bs-toggle'); // Hapus tooltip jika disabled
+                }
+            });
+
+            // 2. Kontrol Deal (Kondisi Ganda: Item ADA dan Harga ADA)
+            if (btnDeal) {
+                if (isDisabled) {
+                    btnDeal.disabled = true;
+                    btnDeal.title = disableTitle;
+                    btnDeal.removeAttribute('data-bs-toggle');
+                } else {
+                    // Jika ada item, baru cek status harga
+                    checkDealButtonStatus();
+                }
+            }
+
+            // Re-initialize tooltips if needed (for title attribute change)
+            if (window.bootstrap) {
+                document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(tooltipEl => {
+                    if (tooltipEl.title) {
+                        let tooltip = bootstrap.Tooltip.getInstance(tooltipEl);
+                        if (tooltip) tooltip.dispose();
+                        new bootstrap.Tooltip(tooltipEl);
+                    }
+                });
+            }
+        }
+
+        // ********** END FUNGSI KONTROL TOMBOL AKSI **********
 
 
         // =======================================================
@@ -554,96 +655,98 @@
 
             // Kirim data ke Controller via AJAX (Fetch)
             fetch("{{ route('admin.purchases.ajaxStoreItemDraft') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(newItemData)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(err => { throw err; }); // Tangani error validasi
-                }
-                return response.json();
-            })
-            .then(result => {
-                if (result.success) {
-                    // 1. Simpan ID Pembelian (Induk)
-                    currentPembelianId = result.pembelian_id;
-                    hiddenPembelianIdInput.value = result.pembelian_id;
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(newItemData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw err;
+                        }); // Tangani error validasi
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.success) {
+                        // 1. Simpan ID Pembelian (Induk)
+                        currentPembelianId = result.pembelian_id;
+                        hiddenPembelianIdInput.value = result.pembelian_id;
 
-                    // 2. Tambahkan item baru (dari server) ke array JS
-                    itemsPembelian.push(result.item);
+                        // 2. Tambahkan item baru (dari server) ke array JS
+                        itemsPembelian.push(result.item);
 
-                    // 3. Render ulang tabel
-                    renderItemList();
+                        // 3. Render ulang tabel & kontrol tombol
+                        renderItemList();
 
-                    // 4. Reset & tutup modal
-                    document.getElementById('formTambahItem').querySelectorAll('input, textarea, select').forEach(input => {
-                        if(input.type === 'select-one') input.selectedIndex = 0;
-                        else input.value = '';
-                    });
-                    document.querySelectorAll('#accordionKondisi .accordion-collapse').forEach(collapse => {
-                        new bootstrap.Collapse(collapse, { toggle: false }).hide();
-                    });
-                    modalTambahItem.hide();
-                } else {
-                    alert('Gagal: ' + (result.message || 'Error tidak diketahui.'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
-                if (error.errors) {
-                    // Tampilkan error validasi pertama
-                    errorMsg = Object.values(error.errors)[0][0];
-                } else if (error.message) {
-                    errorMsg = error.message;
-                }
-                alert(errorMsg);
-            })
-            .finally(() => {
-                btnSimpanItem.disabled = false;
-                btnSimpanItem.innerHTML = 'Simpan Item';
-            });
+                        // 4. Reset & tutup modal
+                        document.getElementById('formTambahItem').querySelectorAll('input, textarea, select').forEach(input => {
+                            if (input.type === 'select-one') input.selectedIndex = 0;
+                            else input.value = '';
+                        });
+                        document.querySelectorAll('#accordionKondisi .accordion-collapse').forEach(collapse => {
+                            new bootstrap.Collapse(collapse, {
+                                toggle: false
+                            }).hide();
+                        });
+                        modalTambahItem.hide();
+                    } else {
+                        alert('Gagal: ' + (result.message || 'Error tidak diketahui.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
+                    if (error.errors) {
+                        errorMsg = Object.values(error.errors)[0][0];
+                    } else if (error.message) {
+                        errorMsg = error.message;
+                    }
+                    alert(errorMsg);
+                })
+                .finally(() => {
+                    btnSimpanItem.disabled = false;
+                    btnSimpanItem.innerHTML = 'Simpan Item';
+                });
         });
 
         // =======================================================
         // PERUBAHAN UTAMA 2: Hapus Item (AJAX)
         // =======================================================
-        // 'id' di sini adalah ID dari database (item.id)
         window.hapusItem = function(id) {
             if (confirm('Yakin ingin menghapus item ini dari database?')) {
 
-                fetch(`/admin/purchases/delete-item-draft/${id}`, { // Gunakan route baru
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        // Hapus item dari array JS
-                        itemsPembelian = itemsPembelian.filter(item => item.id !== id);
-                        // Render ulang tabel
-                        renderItemList();
-                    } else {
-                        alert('Gagal menghapus: ' + result.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Gagal menghapus item.');
-                });
+                fetch(`/admin/purchases/delete-item-draft/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            // Hapus item dari array JS
+                            itemsPembelian = itemsPembelian.filter(item => item.id !== id);
+                            // Render ulang tabel & kontrol tombol
+                            renderItemList();
+                        } else {
+                            alert('Gagal menghapus: ' + result.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Gagal menghapus item.');
+                    });
             }
         }
 
         // =======================================================
-        // PERUBAHAN UTAMA 3: Render Tabel
+        // PERUBAHAN UTAMA 3: Render Tabel (Termasuk Perbaikan Kategori & Kontrol Tombol)
         // =======================================================
         function renderItemList() {
             if (!itemListWrapper || !mainForm) return;
@@ -651,7 +754,6 @@
             itemListWrapper.innerHTML = '';
 
             // HAPUS SEMUA INPUT HIDDEN YANG LAMA
-            // (Kita tidak membutuhkannya lagi, karena data sudah di DB)
             mainForm.querySelectorAll('input[name^="items["]').forEach(input => input.remove());
             mainForm.querySelectorAll('textarea[name^="items["]').forEach(input => input.remove());
 
@@ -668,10 +770,17 @@
                 itemsPembelian.forEach((item, index) => {
                     let tr = document.createElement('tr');
                     let shortKondisi = item.kondisi_fisik || 'N/A';
-                    if(shortKondisi && shortKondisi.length > 30) shortKondisi = shortKondisi.substring(0, 30) + '...';
+                    if (shortKondisi && shortKondisi.length > 30) shortKondisi = shortKondisi.substring(0, 30) + '...';
 
-                    // Ambil nama kategori dari data relasi (hasil load 'kategori' di controller)
-                    let kategoriNama = (item.kategori && item.kategori.nama_kategori) ? item.kategori.nama_kategori : 'N/A';
+                    // Logika Perbaikan Kategori: Cek relasi, fallback ke map, atau N/A
+                    let kategoriNama = 'N/A';
+                    if (item.kategori && item.kategori.nama_kategori) {
+                        kategoriNama = item.kategori.nama_kategori;
+                    } else if (item.kategori_id && kategoriMap[item.kategori_id]) {
+                        kategoriNama = kategoriMap[item.kategori_id];
+                    } else {
+                        kategoriNama = 'Kategori: N/A';
+                    }
 
                     tr.innerHTML = `
                         <td>
@@ -687,22 +796,22 @@
                         </td>
                     `;
                     itemListWrapper.appendChild(tr);
-
-
                 });
             }
+
+            // PENTING: Panggil fungsi kontrol setelah rendering selesai
+            controlActionButtons();
         }
 
-        // --- (SCRIPT MODAL CUSTOMER ANDA - TETAP SAMA) ---
+        // --- (SCRIPT MODAL CUSTOMER ANDA) ---
         const btnSimpanCustomer = document.getElementById('btnSimpanCustomer');
         const modalTambahCustomer = new bootstrap.Modal(document.getElementById('modalTambahCustomer'));
         const formTambahCustomer = document.getElementById('formTambahCustomer');
 
         btnSimpanCustomer.addEventListener('click', function() {
-            // ... (Logika simpan customer Anda tidak perlu diubah) ...
             const nama = document.getElementById('customer_nama_modal').value;
             const no_telp = document.getElementById('customer_no_telp_modal').value;
-            if(!nama || !no_telp) {
+            if (!nama || !no_telp) {
                 alert('Nama dan No. Telepon customer wajib diisi.');
                 return;
             }
@@ -711,87 +820,141 @@
             btnSimpanCustomer.disabled = true;
             btnSimpanCustomer.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
             fetch("{{ route('admin.customers.store') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => {
-                if (!response.ok) { return response.json().then(err => { throw err; }); }
-                return response.json();
-            })
-            .then(result => {
-                if(result.success) {
-                    const customerSelect = document.getElementById('customer_id');
-                    const newOption = new Option(`${result.customer.nama} (${result.customer.no_telp})`, result.customer.id, true, true);
-                    customerSelect.appendChild(newOption);
-                    formTambahCustomer.reset();
-                    modalTambahCustomer.hide();
-                } else {
-                    alert('Gagal menyimpan customer: ' + (result.message || 'Error tidak diketahui.'));
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
-                if(error.errors) { errorMsg = Object.values(error.errors)[0][0]; }
-                alert(errorMsg);
-            })
-            .finally(() => {
-                btnSimpanCustomer.disabled = false;
-                btnSimpanCustomer.innerHTML = 'Simpan Customer';
-            });
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => {
+                            throw err;
+                        });
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.success) {
+                        const customerSelect = document.getElementById('customer_id');
+                        const newOption = new Option(`${result.customer.nama} (${result.customer.no_telp})`, result.customer.id, true, true);
+                        customerSelect.appendChild(newOption);
+                        formTambahCustomer.reset();
+                        modalTambahCustomer.hide();
+                    } else {
+                        alert('Gagal menyimpan customer: ' + (result.message || 'Error tidak diketahui.'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    let errorMsg = 'Gagal menyimpan data. Cek console (F12) untuk detail.';
+                    if (error.errors) {
+                        errorMsg = Object.values(error.errors)[0][0];
+                    }
+                    alert(errorMsg);
+                })
+                .finally(() => {
+                    btnSimpanCustomer.disabled = false;
+                    btnSimpanCustomer.innerHTML = 'Simpan Customer';
+                });
         });
 
-        // --- (Script copy-paste link Anda - TETAP SAMA) ---
+        // --- (Script copy-paste link Anda - DIHAPUS ALERT-NYA) ---
         window.copyToClipboard = function() {
             const linkInput = document.getElementById('shareable-link');
             linkInput.select();
             linkInput.setSelectionRange(0, 99999);
             document.execCommand('copy');
-            alert('Link tinjauan telah disalin ke clipboard!');
         }
 
         const rupiahInputs = document.querySelectorAll('.rupiah-mask');
 
-    rupiahInputs.forEach(input => {
-        // 1. Format awal saat halaman diload (jika ada value dari old/database)
-        if (input.value) {
-            const cleanValue = input.value.replace(/\D/g, ''); // Hapus karakter non-angka
-            input.value = formatRupiah(cleanValue); // Tampilkan format
+        rupiahInputs.forEach(input => {
+            const isDealInput = input.id === 'display_harga_deal';
+
+            // 1. Format awal
+            if (input.value) {
+                const cleanValue = input.value.replace(/\D/g, '');
+                input.value = formatRupiah(cleanValue);
+                const hiddenInputId = input.id.replace('display_', '');
+                const hiddenInput = document.getElementById(hiddenInputId);
+                if (hiddenInput) {
+                    hiddenInput.value = cleanValue;
+                }
+            }
+
+            // 2. Event listener saat mengetik
+            input.addEventListener('keyup', function(e) {
+                let cleanValue = this.value.replace(/\D/g, '');
+                this.value = formatRupiah(cleanValue);
+                const hiddenInputId = this.id.replace('display_', '');
+                const hiddenInput = document.getElementById(hiddenInputId);
+                if (hiddenInput) {
+                    hiddenInput.value = cleanValue;
+                }
+                if (isDealInput) {
+                    checkDealButtonStatus();
+                }
+                markFormAsDirty(); // Mark form dirty on price change
+            });
+
+            // 3. Event listener change
+            input.addEventListener('change', function() {
+                const hiddenInputId = this.id.replace('display_', '');
+                const hiddenInput = document.getElementById(hiddenInputId);
+                if (hiddenInput) {
+                    hiddenInput.value = this.value.replace(/\D/g, '');
+                }
+                if (isDealInput) {
+                    checkDealButtonStatus();
+                }
+                markFormAsDirty(); // Mark form dirty on price change
+            });
+        });
+
+        function formatRupiah(angka) {
+            if (!angka) return '';
+            return new Intl.NumberFormat('id-ID').format(angka);
         }
 
-        // 2. Event listener saat mengetik
-        input.addEventListener('keyup', function(e) {
-            // Ambil value tanpa karakter non-angka
-            let cleanValue = this.value.replace(/\D/g, '');
+        // Inisialisasi Tooltip di akhir DOMContentLoaded
+        if (window.bootstrap) {
+            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(tooltipEl => {
+                if (tooltipEl.title) {
+                    new bootstrap.Tooltip(tooltipEl);
+                }
+            });
+        }
 
-            // Update tampilan ke format Rupiah
-            this.value = formatRupiah(cleanValue);
+        // ********** LOGIKA PERINGATAN PERUBAHAN BELUM TERSIMPAN (Cont.) **********
 
-            // Update input HIDDEN yang berteman dengan input ini
-            // Kita cari input hidden yang ID-nya mirip (tanpa prefix 'display_')
-            const hiddenInputId = this.id.replace('display_', '');
-            const hiddenInput = document.getElementById(hiddenInputId);
+        if (form) {
+            // 1. Tambahkan event listener ke semua input/select/textarea di formulir utama (diulang untuk field non-price)
+            form.querySelectorAll('input:not([type="hidden"]):not(.rupiah-mask), select, textarea').forEach(element => {
+                element.addEventListener('input', markFormAsDirty);
+                element.addEventListener('change', markFormAsDirty);
+            });
 
-            if(hiddenInput) {
-                hiddenInput.value = cleanValue;
+            // 2. Event listener untuk tombol Kembali
+            if (btnKembali) {
+                btnKembali.addEventListener('click', function(e) {
+                    if (isFormDirty) {
+                        e.preventDefault();
+                        const confirmation = confirm("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?");
+                        if (confirmation) {
+                            window.location.href = btnKembali.href;
+                        }
+                    }
+                });
             }
-        });
-    });
 
-    function formatRupiah(angka) {
-        if (!angka) return '';
-
-        // Menggunakan fungsi bawaan Intl untuk format Indonesia
-        return new Intl.NumberFormat('id-ID').format(angka);
-
-        // ATAU jika ingin manual regex titik:
-        // return angka.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    }
+            // 3. Reset status dirty saat formulir utama berhasil disubmit
+            form.addEventListener('submit', function() {
+                isFormDirty = false;
+            });
+        }
     });
 </script>
 @endpush

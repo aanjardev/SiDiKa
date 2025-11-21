@@ -18,9 +18,19 @@ class Penjualan extends Model
 
     protected $guarded = [];
 
-    public function branch()
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id');
+    }
+
+    public function perusahaan_cabang()
     {
         return $this->belongsTo(Branch::class, 'perusahaan_cabang_id');
+    }
+
+    public function branch()
+    {
+        return $this->perusahaan_cabang();
     }
 
     public function user()
@@ -28,9 +38,38 @@ class Penjualan extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public function details()
+    public function detail_penjualan()
     {
         return $this->hasMany(DetailPenjualan::class, 'penjualan_id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($penjualan) {
+            // Prefix: PJ (Penjualan)
+            $prefix = 'PJ' . date('Ym'); // Contoh: PJ202511
+
+            $latestCode = static::where('kode_transaksi', 'like', $prefix . '%')
+                                ->latest('kode_transaksi')
+                                ->pluck('kode_transaksi')
+                                ->first();
+
+            $number = 1;
+
+            if ($latestCode) {
+                $number = (int) substr($latestCode, -4);
+                $number++;
+            }
+
+            // Format kode transaksi: PJ[YYYYMM][000X]
+            $penjualan->kode_transaksi = $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
+        });
+    }
+    public function details()
+    {
+        return $this->detail_penjualan();
     }
 }
 

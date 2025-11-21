@@ -45,4 +45,13 @@ class Produk extends Model
         return $this->hasMany(GambarProduk::class, 'id_produk', 'id');
     }
 
+    /**
+     * Alias untuk kompatibilitas view yang menggunakan ->photos
+     * sehingga $product->photos akan mengembalikan collection gambar.
+     */
+    public function photos()
+    {
+        return $this->gambar();
+    }
+
 }

@@ -11,7 +11,6 @@
 
 @section('content')
 
-{{-- FORM FILTER DENGAN METHOD GET (Form utama, hanya satu) --}}
 <form action="{{ route('admin.purchases.index') }}" method="GET" id="filterForm">
     <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
         {{-- Search Bar --}}
@@ -21,7 +20,7 @@
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
                 {{-- Tambahkan ID untuk JS --}}
-                <input type="text" name="search" id="search-input" class="form-control" placeholder="Cari Kode Pembelian (ID) atau Nama Customer..." style="border-left: 0; box-shadow: none;" value="{{ $search_term ?? '' }}">
+                <input type="text" name="search" id="search-input" class="form-control" placeholder="Cari Kode Pembelian atau Nama Customer..." style="border-left: 0; box-shadow: none;" value="{{ $search_term ?? '' }}">
             </div>
         </div>
         {{-- Filter Status --}}
@@ -36,21 +35,19 @@
             <option value="terbaru" {{ ($sort_filter ?? 'terbaru') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
             <option value="terlama" {{ ($sort_filter ?? '') == 'terlama' ? 'selected' : '' }}>Terlama</option>
         </select>
-        {{-- Hilangkan tombol submit tersembunyi, JS akan menangani submit --}}
     </div>
 </form>
 
 
-{{-- CONTAINER UTAMA YANG AKAN DI-UPDATE AJAX --}}
 <div id="purchase-list-container">
     <div class="card shadow-sm">
         <div class="card-body p-0 table-wrapper">
             <div class="table-responsive">
-                {{-- Tambahkan CLASS table-sm (bukan table-md) untuk font kecil --}}
-                <table class="table align-middle mb-0 table-product table-sm">
+                <table class="table align-middle mb-0 table-product table-md">
                     <thead class="table-light">
                     <tr>
-                        <th class="text-center" style="width: 60px;">ID</th>
+                        <th class="text-center" style="width: 60px;">No</th>
+                        <th>Kode</th>
                         <th>Customer</th>
                         <th>Tanggal</th>
                         <th>Cabang</th>
@@ -61,13 +58,14 @@
                     </tr>
                 </thead>
                 <tbody id="purchase-table-body">
-                    {{-- Ganti dengan include partial view yang HANYA berisi rows <tr> --}}
+                    {{-- @include('admin.partials.purchase_table_content', $data_pembelian) --}}
                     @forelse ($data_pembelian as $pembelian)
                         <tr>
-                            <td class="text-center">#{{ $pembelian->id }}</td>
-                            <td>{{ $pembelian->customer->nama ?? 'N/A' }}</td>
+                            <td class="text-center" style="width: 60px;">{{ $loop->iteration }}</td>
+                            <td>{{ $pembelian->kode_transaksi }}</td>
+                            <td>{{ $pembelian->customer->nama ?? '-' }}</td>
                             <td>{{ $pembelian->created_at->format('d M Y, H:i') }}</td>
-                            <td>{{ $pembelian->perusahaan_cabang->nama ?? 'N/A' }}</td>
+                            <td>{{ $pembelian->perusahaan_cabang->nama ?? '-' }}</td>
                             <td>
                                 @php
                                     $itemNames = $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ');
@@ -92,19 +90,16 @@
                             </td>
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    {{-- AKTIFKAN TOMBOL DETAIL (SHOW) --}}
                                     <a href="{{ route('admin.purchases.show', $pembelian->id) }}" title="Lihat Detail Transaksi">
                                         <i class="fa-solid fa-eye" style="color: black;"></i>
                                     </a>
-                                    {{-- AKTIFKAN TOMBOL EDIT --}}
                                     <a href="{{ route('admin.purchases.edit', $pembelian->id) }}" title="Edit Transaksi">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    {{-- AKTIFKAN TOMBOL DELETE --}}
-                                    <form action="{{ route('admin.purchases.destroy', $pembelian->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                                    <form action="{{ route('admin.purchases.destroy', $pembelian->id) }}" method="POST" class="d-inline delete-form">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-icon" title="Hapus">
+                                        <button type="submit" class="btn-icon btn-delete" data-id="{{ $pembelian->id }}" title="Hapus">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
@@ -113,30 +108,46 @@
                         </tr>
                     @empty
                         <tr class="tr-empty">
-                            {{-- Gunakan Flexbox di <td> untuk perataan vertikal dan horizontal. --}}
-                            <td colspan="8" class="text-center">
-                                {{-- Tambahkan d-flex, align-items-center, dan justify-content-center di sini. Min-height akan diatur di CSS. --}}
-                                <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-content">
+                            <td colspan="9" class="p-0">
+                                <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
                                     <i class="fa-solid fa-shopping-bag fa-2x text-muted mb-3"></i>
                                     <h5 class="mb-1">Tidak Ada Data Pembelian</h5>
-                                    <p class="text-muted mb-0">Silakan <a href="{{ route('admin.purchases.create') }}">tambah transaksi pembelian</a> baru.</p>
                                 </div>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
+
             </table>
             </div>
         </div>
     </div>
 
-    {{-- KONTEN PAGINATION (Di luar card jika menggunakan partial view terpisah) --}}
-    @if ($data_pembelian->hasPages())
-        <div class="card-footer bg-white">
-            {{ $data_pembelian->links('pagination::bootstrap-5') }}
-        </div>
-    @endif
+    <div id="pagination-links-container">
+        @if ($data_pembelian->hasPages())
+            <div class="card-footer bg-white">
+                {{ $data_pembelian->links('pagination::bootstrap-5') }}
+            </div>
+        @endif
+    </div>
+</div>
 
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Konfirmasi Hapus</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+      </div>
+      <div class="modal-body">
+        <p>Yakin ingin menghapus data pembelian ini? Aksi ini tidak dapat dibatalkan.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Hapus</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 @endsection
@@ -152,7 +163,7 @@
 
         /* Tambahkan style untuk table-sm agar lebih kecil lagi */
         .table-sm th, .table-sm td {
-            padding: 0.3rem 0.5rem; /* Kurangi padding */
+            padding: 0.75rem 0.75rem; /* Kurangi padding */
             font-size: 0.85rem; /* Kecilkan ukuran font */
         }
 
@@ -166,6 +177,7 @@
         }
         .table-md > :not(caption) > * > * {
             padding: 0.75rem 0.75rem !important;
+            font-size: 0.95rem;
         }
 
         button.btn-icon,
@@ -208,37 +220,58 @@
             color: #bb2d3b;
         }
 
-        .table-wrapper {
+        .card.shadow-sm {
             min-height: 700px;
-            display: flex; /* Tambahkan display flex di sini */
-            flex-direction: column; /* Atur arah flex */
-        }
-
-        .table-responsive {
-            flex-grow: 1;
             display: flex;
             flex-direction: column;
         }
 
-        .table-product {
-            flex-grow: 1;
+        .card.shadow-sm .card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
         }
 
-        .table-product tbody {
-            height: 100%;
+        .table-wrapper {
+            /* Tabel mengambil tinggi natural sesuai konten */
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .table-responsive {
+            /* Normal table responsive behavior */
+            flex: 1;
+        }
+
+        .table-product {
+            /* Normal table behavior */
+            margin-bottom: 0;
         }
 
         .table-product tr.tr-empty {
-            height: 100%;
+            /* Empty state row */
+            display: table-row;
         }
 
         .table-product tr.tr-empty td {
-            height: 100%;
-            padding: 0 !important;
+            vertical-align: middle;
+            padding-top: 0;
+            padding-bottom: 0;
         }
 
-        .table-product tr.tr-empty td .empty-content {
-            height: 100%; /* Pastikan div mengisi penuh tinggi td */
+        .table-product tr.tr-empty td .empty-message {
+            min-height: 400px;
+            width: 100%;
+        }
+
+        .tr-empty td {
+            border: none;
+        }
+
+        .table-product tbody tr:not(.tr-empty) td {
+            vertical-align: top !important;
+            padding: 0.75rem 0.75rem !important;
         }
     </style>
 @endpush
@@ -247,6 +280,8 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const container = document.getElementById('purchase-list-container');
+        const tableBody = document.getElementById('purchase-table-body');
+        const paginationContainer = document.getElementById('pagination-links-container');
         const form = document.getElementById('filterForm');
         const searchInput = form.querySelector('input[name="search"]');
         const statusFilter = form.querySelector('select[name="status"]');
@@ -254,6 +289,29 @@
         const urlIndex = '{{ route('admin.purchases.index') }}';
         let isFetching = false;
         let searchTimeout;
+        let formToDelete = null;
+        const confirmModalEl = document.getElementById('confirmDeleteModal');
+        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+        // Pastikan bootstrap modal tersedia
+        const bsModal = confirmModalEl ? new bootstrap.Modal(confirmModalEl) : null;
+
+        document.querySelectorAll('.delete-form').forEach(form => {
+            form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            formToDelete = this;
+            if (bsModal) bsModal.show();
+            });
+        });
+
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', function () {
+            if (formToDelete) {
+                // optional: disable button agar tidak double submit
+                confirmDeleteBtn.disabled = true;
+                formToDelete.submit();
+            }
+            });
+        }
 
         function fetchPurchases(url) {
             if (isFetching) return;
@@ -265,49 +323,43 @@
             fetch(url, {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest', // Tanda AJAX
-                    'Accept': 'text/html', // Minta HTML (Fragment)
+                    'Accept': 'application/json', // Minta JSON, karena controller mengembalikan JSON
                 }
             })
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Network response was not ok. Status: ' + response.status);
                 }
-                return response.text();
+                return response.json(); // Ambil respons sebagai JSON
             })
-            .then(html => {
-                // Ganti konten container dengan HTML respons
-                // Ini mengasumsikan response AJAX berisi seluruh konten <tbody> dan pagination.
-                container.innerHTML = `
-                    <div class="card shadow-sm">
-                        <div class="card-body p-0 table-wrapper">
-                            <div class="table-responsive">
-                                <table class="table align-middle mb-0 table-product table-sm">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th class="text-center" style="width: 60px;">ID</th>
-                                        <th>Customer</th>
-                                        <th>Tanggal</th>
-                                        <th>Cabang</th>
-                                        <th style="width: 25%">Item Dibeli</th>
-                                        <th>Status</th>
-                                        <th>Harga Deal</th>
-                                        <th class="text-center">Aksi</th>
-                                    </tr>
-                                    </thead>
-                                    ${html}
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                `;
+            .then(data => {
+                // Hapus konten <tbody> dan pagination lama
+                tableBody.innerHTML = data.table_html || '';
+
+                // Pastikan paginationContainer diperbarui dengan benar
+                paginationContainer.innerHTML = data.pagination_html ?
+                    `<div class="card-footer bg-white">${data.pagination_html}</div>` : '';
 
                 // Perbarui URL browser (tanpa reload)
                 window.history.pushState(null, null, url);
 
+                // Re-attach pagination listeners
+                attachPaginationListeners();
             })
             .catch(error => {
                 console.error('Fetch error:', error);
-                alert('Gagal memuat data: ' + error.message);
+                // Render empty message dengan style yang sama
+                tableBody.innerHTML = `
+                    <tr class="tr-empty">
+                        <td colspan="9" class="p-0">
+                            <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
+                                <i class="fa-solid fa-exclamation-triangle fa-2x text-muted mb-3"></i>
+                                <h5 class="mb-1">Gagal memuat data</h5>
+                                <p class="text-muted mb-0">Silakan coba lagi atau cek log server.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
             })
             .finally(() => {
                 isFetching = false;
@@ -351,7 +403,7 @@
         // 3. Pagination Links (Delegation)
         function attachPaginationListeners() {
             // Pasang event listener ke link pagination di dalam container
-            container.querySelectorAll('.pagination a').forEach(link => {
+            paginationContainer.querySelectorAll('.pagination a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     fetchPurchases(this.href);

@@ -8,12 +8,36 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $data_pelanggan = Customer::latest()->paginate(10);
+        $query = Customer::query();
+
+        // Search by nama or nomor telepon
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('no_telp', 'like', "%{$search}%");
+            });
+        }
+
+        // Sort by
+        $sortBy = $request->input('sort_by', 'updated_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+        
+        if ($sortBy === 'nama') {
+            $query->orderBy('nama', $sortOrder);
+        } else {
+            $query->orderBy('updated_at', $sortOrder);
+        }
+
+        $data_pelanggan = $query->paginate(10)->withQueryString();
 
         return view('admin.dataPelanggan', [
-            'data_pelanggan' => $data_pelanggan
+            'data_pelanggan' => $data_pelanggan,
+            'search_term' => $request->input('search', ''),
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
         ]);
     }
 
@@ -52,5 +76,51 @@ class CustomerController extends Controller
             'message' => 'Customer berhasil ditambahkan!',
             'customer' => $customer // Kirim data customer baru kembali ke JS
         ]);
+    }
+
+    public function show($id)
+    {
+        $pelanggan = Customer::findOrFail($id);
+        return view('admin.inputDataPelanggan', compact('pelanggan'))->with('readOnly', true);
+    }
+
+    public function edit($id)
+    {
+        $pelanggan = Customer::findOrFail($id);
+        return view('admin.inputDataPelanggan', compact('pelanggan'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $pelanggan = Customer::findOrFail($id);
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:50',
+            'no_telp' => 'required|string|max:20',
+            'identitas' => 'nullable|string|max:20',
+            'jenis_kelamin' => 'required|in:L,P',
+            'alamat' => 'nullable|string|max:100',
+            'referensi' => 'nullable|string|max:100',
+            'keterangan' => 'nullable|string',
+        ], [
+            'nama.required' => 'Nama pelanggan wajib diisi.',
+            'no_telp.required' => 'Nomor telepon wajib diisi.',
+            'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
+            'jenis_kelamin.in' => 'Jenis kelamin harus L atau P.',
+        ]);
+
+        $pelanggan->update($validated);
+
+        return redirect()->route('admin.customers.index')
+                         ->with('success', 'Data pelanggan berhasil diperbarui.');
+    }
+
+    public function destroy($id)
+    {
+        $pelanggan = Customer::findOrFail($id);
+        $pelanggan->delete();
+
+        return redirect()->route('admin.customers.index')
+                         ->with('success', 'Data pelanggan berhasil dihapus.');
     }
 }
