@@ -266,88 +266,37 @@
     </div>
 </form>
 
-{{-- MODAL TAMBAH CUSTOMER (Visual HEAD) --}}
-<div class="modal fade" id="modalTambahCustomer" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow-lg">
-            <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold text-dark">
-                    <span class="bg-primary bg-opacity-10 p-2 rounded-2 text-primary me-2"><i class="fa-solid fa-user-plus"></i></span>
-                    Tambah Customer Baru
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-4">
-                <form id="formTambahCustomer">
-                    <div class="alert alert-primary bg-primary bg-opacity-10 border-0 rounded-3 small mb-4 d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-circle-info text-primary"></i>
-                        <span class="text-primary fw-medium">Data otomatis tersimpan setelah tombol simpan ditekan.</span>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label-modern">Nama Lengkap <span class="text-danger">*</span></label>
-                            <div class="input-group input-group-modern">
-                                <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
-                                <input type="text" class="form-control" id="customer_nama_modal" name="nama" required placeholder="Nama sesuai KTP">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label-modern">WhatsApp / Telepon <span class="text-danger">*</span></label>
-                            <div class="input-group input-group-modern">
-                                <span class="input-group-text"><i class="fa-solid fa-phone"></i></span>
-                                <input type="text" class="form-control" id="customer_no_telp_modal" name="no_telp" required placeholder="0812xxxx">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label-modern">Jenis Kelamin</label>
-                            <div class="input-group input-group-modern">
-                                <span class="input-group-text"><i class="fa-solid fa-venus-mars"></i></span>
-                                <select class="form-select" id="customer_jenis_kelamin_modal" name="jenis_kelamin">
-                                    <option value="L">Laki-laki</option>
-                                    <option value="P">Perempuan</option>
-                                </select>
-                            </div>
-                        </div>
-                        {{-- Sisa field lainnya dari HEAD (Alamat, dll) bisa ditambahkan di sini --}}
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer border-top-0 px-4 pb-4 pt-0">
-                <button type="button" class="btn btn-light border rounded-3 px-4 fw-medium" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary rounded-3 px-4 fw-medium shadow-sm" id="btnSimpanCustomer">
-                    <i class="fa-solid fa-save me-1"></i> Simpan Data
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-{{-- MODAL TAMBAH ITEM (Visual HEAD Lengkap) --}}
+{{-- MODAL TAMBAH ITEM (Visual HEAD Lengkap - FINAL FLOATING ACCORDION VERSION) --}}
 <div class="modal fade" id="modalTambahItem" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4 shadow-lg">
-            <div class="modal-header bg-white border-bottom-0 pb-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold text-dark">
-                    <span class="bg-warning bg-opacity-10 p-2 rounded-2 text-warning me-2"><i class="fa-solid fa-box-open"></i></span>
+            {{-- Header --}}
+            <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center">
+                    <i class="fa-solid fa-box-open text-primary me-3 fs-4"></i>
                     Tambah Item Pembelian
                 </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
             <div class="modal-body p-4">
                 <div id="formTambahItem">
-                    {{-- Section 1: Identitas Barang --}}
-                    <div class="bg-light p-4 rounded-4 mb-4 border border-dashed">
-                        <h6 class="fw-bold text-dark mb-3 small text-uppercase tracking-wide text-muted border-bottom pb-2">
-                            <i class="fa-solid fa-tag me-2 text-warning"></i>1. Identitas Barang
+                    {{-- =========================================
+                         SECTION 1: IDENTITAS BARANG
+                         ========================================= --}}
+                    <div class="mb-5">
+                        <h6 class="fw-bold text-secondary mb-4 pb-2 border-bottom">
+                            <span class="me-2 text-primary fw-black">1.</span> Identitas Barang
                         </h6>
-                        <div class="row g-3">
+
+                        <div class="row g-3 px-2">
                             <div class="col-md-8">
-                                <label class="form-label-modern">Nama Item <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-lg fs-6" id="item_nama_item" placeholder="Contoh: Canon EOS 60D Body Only">
+                                <label class="form-label fw-semibold text-secondary small">Nama Item <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control form-control-lg fs-6 shadow-none" id="item_nama_item" placeholder="Contoh: Canon EOS 60D Body Only">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label-modern">Kategori <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-lg fs-6" id="item_kategori_id">
+                                <label class="form-label fw-semibold text-secondary small">Kategori <span class="text-danger">*</span></label>
+                                <select class="form-select form-select-lg fs-6 shadow-none" id="item_kategori_id">
                                     <option value="" selected disabled>Pilih...</option>
                                     @foreach($semua_kategori as $kat)
                                     <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
@@ -355,71 +304,100 @@
                                 </select>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-modern">Serial Number (Body)</label>
-                                <input type="text" class="form-control font-monospace" id="item_serial_number" placeholder="SN Body">
+                                <label class="form-label fw-semibold text-secondary small">Serial Number (Body)</label>
+                                <input type="text" class="form-control font-monospace shadow-none" id="item_serial_number" placeholder="SN Body">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label-modern">Serial Number (Lensa)</label>
-                                <input type="text" class="form-control font-monospace" id="item_serial_lens" placeholder="SN Lensa (Jika ada)">
+                                <label class="form-label fw-semibold text-secondary small">Serial Number (Lensa)</label>
+                                <input type="text" class="form-control font-monospace shadow-none" id="item_serial_lens" placeholder="SN Lensa (Jika ada)">
                             </div>
                         </div>
                     </div>
 
-                    {{-- Section 2: Pengecekan (Accordion - Ambil dari HEAD) --}}
-                    <h6 class="fw-bold text-dark mb-3 px-1 small text-uppercase tracking-wide text-muted">
-                        <i class="fa-solid fa-clipboard-check me-2 text-success"></i>2. Detail Kondisi & Kelengkapan
-                    </h6>
-                    <div class="accordion accordion-modern" id="accordionKondisi">
-                        {{-- Accordion Item: Fisik --}}
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFisik">
-                                    <i class="fa-solid fa-camera me-2 text-secondary"></i> Kondisi Fisik Unit
-                                </button>
-                            </h2>
-                            <div id="collapseFisik" class="accordion-collapse collapse" data-bs-parent="#accordionKondisi">
-                                <div class="accordion-body bg-white">
-                                    <div class="row g-3">
-                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Fisik Overall</label><input type="text" class="form-control form-control-sm" id="item_kondisi_fisik" placeholder="Contoh: 95% Mulus"></div>
-                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Kondisi Baut</label><input type="text" class="form-control form-control-sm" id="item_kondisi_baut" placeholder="Utuh/Segel/Lecet"></div>
-                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Karet Grip</label><input type="text" class="form-control form-control-sm" id="item_kondisi_grip" placeholder="Rapat/Melar/Putih"></div>
-                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Tutup USB/Mic</label><input type="text" class="form-control form-control-sm" id="item_kondisi_tutup_usb" placeholder="Ada/Putus/Hilang"></div>
-                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">LCD</label><input type="text" class="form-control form-control-sm" id="item_kondisi_lcd" placeholder="Vignette/Dead Pixel"></div>
-                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Tombol</label><input type="text" class="form-control form-control-sm" id="item_kondisi_tombol" placeholder="Normal/Keras/Macet"></div>
-                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Mounting</label><input type="text" class="form-control form-control-sm" id="item_kondisi_mounting" placeholder="Bersih/Kotor"></div>
-                                        <div class="col-md-6"><label class="small fw-bold text-muted mb-1">Slot Memori</label><input type="text" class="form-control form-control-sm" id="item_kondisi_slot_memori" placeholder="Normal/Error"></div>
+
+                    {{-- =========================================
+                         SECTION 2: DETAIL KONDISI (Floating Cards Style)
+                         ========================================= --}}
+                    <div class="mb-3">
+                        <h6 class="fw-bold text-secondary mb-4 pb-2 border-bottom">
+                            <span class="me-2 text-primary fw-black">2.</span> Detail Kondisi & Kelengkapan
+                        </h6>
+
+                        {{-- PERUBAHAN DI SINI: --}}
+                        {{-- 1. Hapus class 'border', 'rounded', 'overflow-hidden' dari wrapper induk --}}
+                        <div class="accordion" id="accordionKondisi">
+
+                            {{-- ITEM 1: Fisik --}}
+                            {{-- 2. Tambahkan style card (border, rounded, mb-3, shadow-sm) di sini --}}
+                            <div class="accordion-item bg-white mb-3 border rounded-3 overflow-hidden shadow-sm">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button bg-white shadow-none collapsed fw-semibold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFisik">
+                                        <i class="fa-solid fa-camera me-3 text-primary opacity-75"></i> Kondisi Fisik Unit
+                                    </button>
+                                </h2>
+                                <div id="collapseFisik" class="accordion-collapse collapse" data-bs-parent="#accordionKondisi">
+                                    <div class="accordion-body bg-white pt-0 pb-4 px-4">
+                                        <hr class="mt-0 mb-4 text-muted opacity-25">
+                                        <div class="row g-3">
+                                            <div class="col-md-6"><label class="form-label fw-semibold text-secondary small mb-1">Fisik Overall</label><input type="text" class="form-control form-control-sm shadow-none" id="item_kondisi_fisik" placeholder="Contoh: 95% Mulus"></div>
+                                            <div class="col-md-6"><label class="form-label fw-semibold text-secondary small mb-1">Kondisi Baut</label><input type="text" class="form-control form-control-sm shadow-none" id="item_kondisi_baut" placeholder="Utuh/Segel/Lecet"></div>
+                                            <div class="col-md-6"><label class="form-label fw-semibold text-secondary small mb-1">Karet Grip</label><input type="text" class="form-control form-control-sm shadow-none" id="item_kondisi_grip" placeholder="Rapat/Melar/Putih"></div>
+                                            <div class="col-md-6"><label class="form-label fw-semibold text-secondary small mb-1">Tutup USB/Mic</label><input type="text" class="form-control form-control-sm shadow-none" id="item_kondisi_tutup_usb" placeholder="Ada/Putus/Hilang"></div>
+                                            <div class="col-md-6"><label class="form-label fw-semibold text-secondary small mb-1">LCD</label><input type="text" class="form-control form-control-sm shadow-none" id="item_kondisi_lcd" placeholder="Vignette/Dead Pixel"></div>
+                                            <div class="col-md-6"><label class="form-label fw-semibold text-secondary small mb-1">Tombol</label><input type="text" class="form-control form-control-sm shadow-none" id="item_kondisi_tombol" placeholder="Normal/Keras/Macet"></div>
+                                            <div class="col-md-6"><label class="form-label fw-semibold text-secondary small mb-1">Mounting</label><input type="text" class="form-control form-control-sm shadow-none" id="item_kondisi_mounting" placeholder="Bersih/Kotor"></div>
+                                            <div class="col-md-6"><label class="form-label fw-semibold text-secondary small mb-1">Slot Memori</label><input type="text" class="form-control form-control-sm shadow-none" id="item_kondisi_slot_memori" placeholder="Normal/Error"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        {{-- Accordion Item: Lainnya (Contoh) --}}
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLain">
-                                    <i class="fa-solid fa-list-check me-2 text-secondary"></i> Fungsi Lain & Kelengkapan
-                                </button>
-                            </h2>
-                            <div id="collapseLain" class="accordion-collapse collapse" data-bs-parent="#accordionKondisi">
-                                <div class="accordion-body bg-white">
-                                    <div class="border-top pt-3">
-                                        <label class="form-label-modern"><i class="fa-solid fa-box-archive me-1"></i> Kelengkapan Awal</label>
-                                        <textarea class="form-control" rows="2" id="item_kelengkapan" placeholder="Contoh: Box, Charger, Baterai, Strap..."></textarea>
+
+                            {{-- ITEM 2: Lainnya --}}
+                            {{-- 3. Hapus 'border-top' manual, ganti dengan style card yang sama --}}
+                            <div class="accordion-item bg-white mb-3 border rounded-3 overflow-hidden shadow-sm">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button bg-white shadow-none collapsed fw-semibold text-dark py-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLain">
+                                        <i class="fa-solid fa-list-check me-3 text-primary opacity-75"></i> Fungsi Lain & Kelengkapan
+                                    </button>
+                                </h2>
+                                <div id="collapseLain" class="accordion-collapse collapse" data-bs-parent="#accordionKondisi">
+                                    <div class="accordion-body bg-white pt-0 pb-4 px-4">
+                                         <hr class="mt-0 mb-4 text-muted opacity-25">
+                                        <div>
+                                            <label class="form-label fw-semibold text-secondary small"><i class="fa-solid fa-box-archive me-2 text-primary opacity-50"></i> Kelengkapan Awal</label>
+                                            <textarea class="form-control shadow-none" rows="3" id="item_kelengkapan" placeholder="Contoh: Box, Charger, Baterai, Strap..."></textarea>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-top-0 px-4 pb-4 pt-0">
-                <button type="button" class="btn btn-light border rounded-3 px-4 fw-medium text-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary rounded-3 px-4 fw-medium shadow-sm" id="btnSimpanItem">
-                    <i class="fa-solid fa-save me-1"></i> Simpan Item
+            <div class="modal-footer border-top-0 px-4 pb-4 pt-2">
+                <button type="button" class="btn btn-light bg-white border rounded-3 px-4 fw-semibold text-secondary shadow-sm" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary rounded-3 px-4 fw-semibold shadow-sm" id="btnSimpanItem">
+                    <i class="fa-solid fa-save me-2"></i> Simpan Item
                 </button>
             </div>
         </div>
     </div>
 </div>
+
+@push('styles')
+<style>
+.accordion-button:not(.collapsed) {
+    color: var(--bs-dark); 
+    background-color: #fff; /* Background putih saat aktif */
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.125); /* Border bawah halus */
+}
+.accordion-button::after {
+    /* Optional: Mengubah warna panah accordion jadi primary biar seragam */
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230d6efd'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+</style>
+@endpush
 
 @endsection
 
