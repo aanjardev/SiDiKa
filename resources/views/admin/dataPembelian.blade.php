@@ -3,280 +3,207 @@
 @section('title', 'Data Pembelian')
 
 @push('page-actions')
-    <a href="{{route('admin.purchases.create')}}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
-        <i class="fas fa-plus fa-fw"></i>
-        <span>Tambah Pembelian</span>
-    </a>
+<a href="{{ route('admin.purchases.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <i class="fas fa-plus fa-fw"></i>
+    <span>Tambah Pembelian</span>
+</a>
 @endpush
 
 @section('content')
 
+{{-- Filter dan Pencarian (Visual: HEAD, Logic: Main) --}}
 <form action="{{ route('admin.purchases.index') }}" method="GET" id="filterForm">
-    <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
-        {{-- Search Bar --}}
-        <div class="flex-grow-1">
-            <div class="input-group shadow-sm">
-                <span class="input-group-text" style="background: #fff; border-right: 0;">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+            
+            {{-- Bagian Kiri: Input Search --}}
+            <div class="d-flex align-items-center flex-grow-1 ps-2">
+                <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                {{-- Tambahkan ID untuk JS --}}
-                <input type="text" name="search" id="search-input" class="form-control" placeholder="Cari Kode Pembelian atau Nama Customer..." style="border-left: 0; box-shadow: none;" value="{{ $search_term ?? '' }}">
+                <input type="text" 
+                       name="search" 
+                       id="search-input"
+                       class="form-control border-0 shadow-none bg-transparent"
+                       placeholder="Cari Kode Pembelian atau Nama Customer..."
+                       value="{{ $search_term ?? '' }}"
+                       style="font-size: 0.95rem;">
+            </div>
+
+            {{-- Bagian Kanan: Dropdown --}}
+            <div class="d-flex align-items-center gap-2 pe-2">
+                
+                {{-- Filter Status --}}
+                <select name="status" id="filter-status" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;">
+                    <option value="semua" {{ ($status_filter ?? 'semua') == 'semua' ? 'selected' : '' }}>Semua Status</option>
+                    <option value="draft" {{ ($status_filter ?? '') == 'draft' ? 'selected' : '' }}>Draft</option>
+                    <option value="deal" {{ ($status_filter ?? '') == 'deal' ? 'selected' : '' }}>Deal</option>
+                    <option value="tidak_deal" {{ ($status_filter ?? '') == 'tidak_deal' ? 'selected' : '' }}>Tidak Deal</option>
+                </select>
+
+                {{-- Filter Urutkan --}}
+                <select name="sort" id="filter-sort" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;">
+                    <option value="terbaru" {{ ($sort_filter ?? 'terbaru') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+                    <option value="terlama" {{ ($sort_filter ?? '') == 'terlama' ? 'selected' : '' }}>Terlama</option>
+                </select>
             </div>
         </div>
-        {{-- Filter Status --}}
-        <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" name="status" id="filter-status">
-            <option value="semua" {{ ($status_filter ?? 'semua') == 'semua' ? 'selected' : '' }}>Semua Status</option>
-            <option value="draft" {{ ($status_filter ?? '') == 'draft' ? 'selected' : '' }}>Draft</option>
-            <option value="deal" {{ ($status_filter ?? '') == 'deal' ? 'selected' : '' }}>Deal</option>
-            <option value="tidak_deal" {{ ($status_filter ?? '') == 'tidak_deal' ? 'selected' : '' }}>Tidak Deal</option>
-        </select>
-        {{-- Filter Urutkan --}}
-        <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" name="sort" id="filter-sort">
-            <option value="terbaru" {{ ($sort_filter ?? 'terbaru') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
-            <option value="terlama" {{ ($sort_filter ?? '') == 'terlama' ? 'selected' : '' }}>Terlama</option>
-        </select>
     </div>
 </form>
 
-
+{{-- Table Card (Wrapper ID dari Main untuk AJAX) --}}
 <div id="purchase-list-container">
-    <div class="card shadow-sm">
-        <div class="card-body p-0 table-wrapper">
+    <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
+        <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table align-middle mb-0 table-product table-md">
-                    <thead class="table-light">
-                    <tr>
-                        <th class="text-center" style="width: 60px;">No</th>
-                        <th>Kode</th>
-                        <th>Customer</th>
-                        <th>Tanggal</th>
-                        <th>Cabang</th>
-                        <th style="width: 25%">Item Dibeli</th>
-                        <th>Status</th>
-                        <th>Harga Deal</th>
-                        <th class="text-center">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody id="purchase-table-body">
-                    {{-- @include('admin.partials.purchase_table_content', $data_pembelian) --}}
-                    @forelse ($data_pembelian as $pembelian)
+                <table class="table table-modern mb-0">
+                    <thead>
                         <tr>
-                            <td class="text-center" style="width: 60px;">{{ $loop->iteration }}</td>
-                            <td>{{ $pembelian->kode_transaksi }}</td>
-                            <td>{{ $pembelian->customer->nama ?? '-' }}</td>
-                            <td>{{ $pembelian->created_at->format('d M Y, H:i') }}</td>
-                            <td>{{ $pembelian->perusahaan_cabang->nama ?? '-' }}</td>
+                            <th class="text-center" style="width: 5%;">No</th>
+                            <th style="width: 15%;">Kode Transaksi</th>
+                            <th style="width: 20%;">Customer</th>
+                            <th>Tanggal</th>
+                            <th>Cabang</th>
+                            <th style="width: 15%;">Item Dibeli</th>
+                            <th class="text-center">Status</th>
+                            <th>Harga Deal</th>
+                            <th class="text-center" style="width: 100px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    {{-- ID Body dari Main untuk AJAX Replacement --}}
+                    <tbody id="purchase-table-body">
+                        @forelse ($data_pembelian as $index => $pembelian)
+                        <tr>
+                            <td class="text-center text-muted fw-bold">{{ ($data_pembelian->firstItem() ?? 0) + $index }}</td>
+
+                            {{-- Kode Transaksi --}}
                             <td>
-                                @php
-                                    $itemNames = $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ');
-                                    echo \Illuminate\Support\Str::limit($itemNames, 40, '...');
-                                @endphp
+                                <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
+                                    {{ $pembelian->kode_transaksi ?? '#' . $pembelian->id }}
+                                </span>
                             </td>
+
+                            {{-- Customer --}}
                             <td>
+                                <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
+                                    {{ $pembelian->customer->nama ?? 'N/A' }}
+                                </span>
+                            </td>
+
+                            {{-- Tanggal --}}
+                            <td class="text-muted small">
+                                <span class="fw-medium text-dark">{{ $pembelian->created_at->format('d M Y') }}</span>
+                                <br>
+                                <span class="opacity-75">{{ $pembelian->created_at->format('H:i') }} WIB</span>
+                            </td>
+
+                            {{-- Cabang --}}
+                            <td class="text-dark fw-medium">
+                                {{ $pembelian->perusahaan_cabang->nama ?? '-' }}
+                            </td>
+
+                            {{-- Item Dibeli --}}
+                            <td>
+                                <span class="text-secondary small d-block" 
+                                      title="{{ $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ') }}"
+                                      style="line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                    @php
+                                        $itemNames = $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ');
+                                        echo $itemNames ?: '-';
+                                    @endphp
+                                </span>
+                            </td>
+
+                            {{-- Status --}}
+                            <td class="text-center">
                                 @if($pembelian->status_pembelian == 'deal')
-                                    <span class="badge bg-success-subtle text-success-emphasis">Deal</span>
+                                    <span class="badge rounded-pill bg-success bg-opacity-10 text-success">Deal</span>
                                 @elseif($pembelian->status_pembelian == 'tidak_deal')
-                                    <span class="badge bg-danger-subtle text-danger-emphasis">Tidak Deal</span>
+                                    <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger">Batal</span>
                                 @else
-                                    <span class="badge bg-secondary-subtle text-secondary-emphasis">Draft</span>
+                                    <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary">Draft</span>
                                 @endif
                             </td>
-                            <td>
-                                @if($pembelian->harga_deal)
-                                    Rp {{ number_format($pembelian->harga_deal, 0, ',', '.') }}
-                                @else
-                                    -
-                                @endif
+
+                            {{-- Harga Deal --}}
+                            <td class="fw-bold text-dark">
+                                Rp{{ number_format($pembelian->harga_deal, 0, ',', '.') }}
                             </td>
+
+                            {{-- Aksi --}}
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ route('admin.purchases.show', $pembelian->id) }}" title="Lihat Detail Transaksi">
-                                        <i class="fa-solid fa-eye" style="color: black;"></i>
+                                    {{-- Detail --}}
+                                    <a href="{{ route('admin.purchases.show', $pembelian->id) }}"
+                                       class="btn-action btn-action-view"
+                                       title="Lihat Detail">
+                                        <i class="fa-solid fa-eye"></i>
                                     </a>
-                                    <a href="{{ route('admin.purchases.edit', $pembelian->id) }}" title="Edit Transaksi">
+
+                                    {{-- Edit --}}
+                                    <a href="{{ route('admin.purchases.edit', $pembelian->id) }}"
+                                        class="btn-action btn-action-edit"
+                                        title="Edit">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
-                                    <form action="{{ route('admin.purchases.destroy', $pembelian->id) }}" method="POST" class="d-inline delete-form">
+
+                                    {{-- Hapus --}}
+                                    <form action="{{ route('admin.purchases.destroy', $pembelian->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="btn-icon btn-delete" data-id="{{ $pembelian->id }}" title="Hapus">
+                                        <button type="button"
+                                                class="btn-action btn-action-delete"
+                                                title="Hapus"
+                                                onclick="confirmDelete(this)">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
                                 </div>
                             </td>
                         </tr>
-                    @empty
+                        @empty
                         <tr class="tr-empty">
-                            <td colspan="9" class="p-0">
-                                <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
-                                    <i class="fa-solid fa-shopping-bag fa-2x text-muted mb-3"></i>
-                                    <h5 class="mb-1">Tidak Ada Data Pembelian</h5>
+                            <td colspan="9" class="text-center py-5">
+                                <div class="d-flex flex-column align-items-center opacity-50">
+                                    <i class="fa-solid fa-cart-shopping fa-3x mb-3 text-muted"></i>
+                                    <h6 class="text-muted">Belum ada data pembelian</h6>
+                                    <p class="text-muted small mb-0">Silakan lakukan <a href="{{ route('admin.purchases.create') }}">transaksi pembelian</a> baru.</p>
                                 </div>
                             </td>
                         </tr>
-                    @endforelse
-                </tbody>
-
-            </table>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
-    </div>
 
-    <div id="pagination-links-container">
-        @if ($data_pembelian->hasPages())
-            <div class="card-footer bg-white">
+        {{-- Pagination Container (ID dari Main untuk AJAX) --}}
+        <div id="pagination-links-container">
+            @if ($data_pembelian->hasPages())
+            <div class="card-footer bg-white border-0 d-flex justify-content-end py-3 px-4">
                 {{ $data_pembelian->links('pagination::bootstrap-5') }}
             </div>
-        @endif
+            @endif
+        </div>
     </div>
 </div>
-
-<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Konfirmasi Hapus</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
-      </div>
-      <div class="modal-body">
-        <p>Yakin ingin menghapus data pembelian ini? Aksi ini tidak dapat dibatalkan.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Hapus</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 @endsection
 
-@push('styles')
-    <style>
-        .table {
-            border-radius: 5px;
-            overflow: hidden;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
-
-        /* Tambahkan style untuk table-sm agar lebih kecil lagi */
-        .table-sm th, .table-sm td {
-            padding: 0.75rem 0.75rem; /* Kurangi padding */
-            font-size: 0.85rem; /* Kecilkan ukuran font */
-        }
-
-        .table-product tbody tr:nth-child(even) {
-            background-color: #F8F9FC;
-        }
-
-        .table-product tbody tr:hover {
-            background-color: #EFF3F9;
-            transition: 0.2s;
-        }
-        .table-md > :not(caption) > * > * {
-            padding: 0.75rem 0.75rem !important;
-            font-size: 0.95rem;
-        }
-
-        button.btn-icon,
-        .table-product button.btn-icon,
-        form .btn-icon {
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-            color: #dc3545 !important;
-            /* merah */
-            cursor: pointer !important;
-            font-size: 16px !important;
-            line-height: 1 !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            appearance: none !important;
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        /* Pastikan ikon mewarisi warna, dan svg FA menggunakan fill:currentColor */
-        .btn-icon i,
-        .btn-icon svg,
-        .btn-icon .fa-solid {
-            color: inherit !important;
-            fill: currentColor !important;
-            stroke: currentColor !important;
-        }
-
-        /* Hilangkan efek fokus/active yang mungkin ditambahkan global */
-        button.btn-icon:focus,
-        button.btn-icon:active,
-        .btn-icon:focus,
-        .btn-icon:active {
-            outline: none !important;
-            box-shadow: none !important;
-        }
-
-        .btn-icon:hover {
-            color: #bb2d3b;
-        }
-
-        .card.shadow-sm {
-            min-height: 700px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card.shadow-sm .card-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-wrapper {
-            /* Tabel mengambil tinggi natural sesuai konten */
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-responsive {
-            /* Normal table responsive behavior */
-            flex: 1;
-        }
-
-        .table-product {
-            /* Normal table behavior */
-            margin-bottom: 0;
-        }
-
-        .table-product tr.tr-empty {
-            /* Empty state row */
-            display: table-row;
-        }
-
-        .table-product tr.tr-empty td {
-            vertical-align: middle;
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-
-        .table-product tr.tr-empty td .empty-message {
-            min-height: 400px;
-            width: 100%;
-        }
-
-        .tr-empty td {
-            border: none;
-        }
-
-        .table-product tbody tr:not(.tr-empty) td {
-            vertical-align: top !important;
-            padding: 0.75rem 0.75rem !important;
-        }
-    </style>
-@endpush
-
 @push('scripts')
+{{-- Script Hapus Sederhana (Visual HEAD) --}}
+<script>
+    function confirmDelete(button) {
+        if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
+            button.form.submit();
+        }
+    }
+</script>
+
+{{-- Script AJAX Search (Logic Main) --}}
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const container = document.getElementById('purchase-list-container');
@@ -287,84 +214,46 @@
         const statusFilter = form.querySelector('select[name="status"]');
         const sortFilter = form.querySelector('select[name="sort"]');
         const urlIndex = '{{ route('admin.purchases.index') }}';
+        
         let isFetching = false;
         let searchTimeout;
-        let formToDelete = null;
-        const confirmModalEl = document.getElementById('confirmDeleteModal');
-        const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-        // Pastikan bootstrap modal tersedia
-        const bsModal = confirmModalEl ? new bootstrap.Modal(confirmModalEl) : null;
-
-        document.querySelectorAll('.delete-form').forEach(form => {
-            form.addEventListener('submit', function (e) {
-            e.preventDefault();
-            formToDelete = this;
-            if (bsModal) bsModal.show();
-            });
-        });
-
-        if (confirmDeleteBtn) {
-            confirmDeleteBtn.addEventListener('click', function () {
-            if (formToDelete) {
-                // optional: disable button agar tidak double submit
-                confirmDeleteBtn.disabled = true;
-                formToDelete.submit();
-            }
-            });
-        }
 
         function fetchPurchases(url) {
             if (isFetching) return;
             isFetching = true;
 
-            // Tambahkan kelas loading visual ke container
-            container.style.opacity = '0.5';
+            // Efek Loading Visual
+            container.style.opacity = '0.6';
+            container.style.transition = 'opacity 0.3s';
 
             fetch(url, {
                 headers: {
-                    'X-Requested-With': 'XMLHttpRequest', // Tanda AJAX
-                    'Accept': 'application/json', // Minta JSON, karena controller mengembalikan JSON
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
                 }
             })
             .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok. Status: ' + response.status);
-                }
-                return response.json(); // Ambil respons sebagai JSON
+                if (!response.ok) throw new Error('Network response was not ok');
+                return response.json();
             })
             .then(data => {
-                // Hapus konten <tbody> dan pagination lama
+                // Update Tabel & Pagination
                 tableBody.innerHTML = data.table_html || '';
+                paginationContainer.innerHTML = data.pagination_html ? 
+                    `<div class="card-footer bg-white border-0 d-flex justify-content-end py-3 px-4">${data.pagination_html}</div>` : '';
 
-                // Pastikan paginationContainer diperbarui dengan benar
-                paginationContainer.innerHTML = data.pagination_html ?
-                    `<div class="card-footer bg-white">${data.pagination_html}</div>` : '';
-
-                // Perbarui URL browser (tanpa reload)
+                // Update URL Browser
                 window.history.pushState(null, null, url);
-
-                // Re-attach pagination listeners
+                
+                // Re-attach event listeners untuk pagination baru
                 attachPaginationListeners();
             })
             .catch(error => {
                 console.error('Fetch error:', error);
-                // Render empty message dengan style yang sama
-                tableBody.innerHTML = `
-                    <tr class="tr-empty">
-                        <td colspan="9" class="p-0">
-                            <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
-                                <i class="fa-solid fa-exclamation-triangle fa-2x text-muted mb-3"></i>
-                                <h5 class="mb-1">Gagal memuat data</h5>
-                                <p class="text-muted mb-0">Silakan coba lagi atau cek log server.</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
             })
             .finally(() => {
                 isFetching = false;
-                container.style.opacity = '1'; // Hapus loading visual
-                attachPaginationListeners(); // Pasang kembali event listener untuk pagination
+                container.style.opacity = '1';
             });
         }
 
@@ -381,17 +270,14 @@
             return `${urlIndex}?${params.toString()}`;
         }
 
-        // --- Event Listeners ---
-
-        // 1. Search Input (dengan debounce/timeout)
+        // Event Listeners
         searchInput.addEventListener('keyup', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 fetchPurchases(buildUrl());
-            }, 500); // Tunggu 500ms setelah user berhenti mengetik
+            }, 500);
         });
 
-        // 2. Filter Dropdown (Status & Sort)
         statusFilter.addEventListener('change', function() {
             fetchPurchases(buildUrl());
         });
@@ -400,9 +286,7 @@
             fetchPurchases(buildUrl());
         });
 
-        // 3. Pagination Links (Delegation)
         function attachPaginationListeners() {
-            // Pasang event listener ke link pagination di dalam container
             paginationContainer.querySelectorAll('.pagination a').forEach(link => {
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
@@ -411,10 +295,10 @@
             });
         }
 
-        // Panggil pertama kali untuk memastikan pagination berfungsi saat load awal
+        // Init Pagination Listener
         attachPaginationListeners();
 
-        // Mencegah form submit default saat enter di search bar
+        // Prevent Form Submit Refresh
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             fetchPurchases(buildUrl());

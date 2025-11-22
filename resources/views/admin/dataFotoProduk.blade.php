@@ -1,284 +1,222 @@
 @extends('layouts.admin')
 
-@section('title', 'Foto Produk')
+@section('title', 'Data Produk')
+
+@push('page-actions')
+<a href="{{ route('admin.products.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <i class="fas fa-plus fa-fw"></i>
+    <span>Tambah Produk</span>
+</a>
+@endpush
 
 @section('content')
 
-<form action="{{ route('admin.products.photos') }}" method="GET" id="filterFormPhoto">
-    <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
-        <div class="flex-grow-1">
-            <div class="input-group shadow-sm">
-                <span class="input-group-text" style="background: #fff; border-right: 0;">
+{{-- Filter dan Pencarian (UI Baru) --}}
+<form method="GET" action="{{ route('admin.products.index') }}" id="searchForm">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+            
+            {{-- Bagian Kiri: Input Search --}}
+            <div class="d-flex align-items-center flex-grow-1 ps-2">
+                <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                <input type="text" name="search" id="search-input-photo" class="form-control" placeholder="Cari SKU atau Nama Produk..." style="border-left: 0; box-shadow: none;" value="{{ $search_term ?? '' }}">
+                <input type="text" 
+                       class="form-control border-0 shadow-none bg-transparent"
+                       name="search"
+                       placeholder="Cari produk berdasarkan nama atau SKU"
+                       value="{{ $search_term ?? '' }}"
+                       style="font-size: 0.95rem;">
+            </div>
+
+            {{-- Bagian Kanan: Dropdown Filter --}}
+            <div class="d-flex align-items-center gap-2 pe-2">
+                
+                {{-- Dropdown Kategori --}}
+                <select name="kategori" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="all" {{ ($selected_kategori ?? 'all') == 'all' ? 'selected' : '' }}>Semua Kategori</option>
+                    @foreach($semua_kategori ?? [] as $kat)
+                        <option value="{{ $kat->id }}" {{ ($selected_kategori ?? 'all') == $kat->id ? 'selected' : '' }}>
+                            {{ $kat->nama_kategori }}
+                        </option>
+                    @endforeach
+                </select>
+
+                {{-- Dropdown Sort --}}
+                <select name="sort_by" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="updated_at" {{ ($sort_by ?? 'updated_at') == 'updated_at' ? 'selected' : '' }}>Urutkan: Terakhir diubah</option>
+                    <option value="nama" {{ ($sort_by ?? 'updated_at') == 'nama' ? 'selected' : '' }}>Nama (A-Z)</option>
+                    <option value="nama_desc" {{ ($sort_by ?? 'updated_at') == 'nama_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
+                </select>
+
+                {{-- Hidden Input untuk sort order default --}}
+                <input type="hidden" name="sort_order" value="{{ $sort_order ?? 'desc' }}">
             </div>
         </div>
-
-        <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" name="kategori" id="filter-kategori">
-            <option value="">Semua Kategori</option>
-            @foreach($semua_kategori as $kat)
-                <option value="{{ $kat->id }}" {{ (isset($selected_kategori) && $selected_kategori == $kat->id) ? 'selected' : '' }}>{{ $kat->nama_kategori }}</option>
-            @endforeach
-        </select>
     </div>
 </form>
 
-<div id="photo-list-container">
-    <div class="card shadow-sm">
-        <div class="card-body p-0 table-wrapper">
-            <div class="table-responsive">
-                <table class="table align-middle mb-0 table-product table-md">
+{{-- Table Card (UI Baru) --}}
+<div class="card shadow-sm border-0" style="border-radius: 10px; overflow: hidden; min-height: 700px;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-modern mb-0">
                 <thead>
                     <tr>
-                        <th style="width:60px" class="text-center">No</th>
-                        <th>Kode SKU</th>
-                        <th>Nama Produk</th>
-                        <th>Kategori</th>
-                        <th>Stok</th>
-                        <th>Harga Jual</th>
-                        <th class="text-center">Aksi</th>
+                        <th class="text-center" style="width: 5%;">No</th>
+                        <th style="width: 35%;">Produk</th>
+                        <th>SKU</th>
+                        <th>Harga</th>
+                        <th class="text-center">Stok</th>
+                        <th>Last Update</th>
+                        <th class="text-center" style="width: 100px;">Aksi</th>
                     </tr>
                 </thead>
-                <tbody id="photo-products-tbody">
-                    @include('admin.partials.photo_product_rows', ['products' => $products])
-                </tbody>
-            </table>
-            </div>
-        </div>
-    </div>
+                <tbody>
+                    @forelse($products as $index => $product)
+                    <tr> 
+                        <td class="text-center text-muted fw-bold">{{ ($products->firstItem() ?? 0) + $index }}</td>
 
-    <div id="pagination-links-container">
-        @if ($products->hasPages())
-            <div class="card-footer bg-white">
-                {{ $products->appends(request()->query())->links('pagination::bootstrap-5') }}
-            </div>
-        @endif
-    </div>
-</div>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                {{-- Bagian Gambar --}}
+                                <div class="flex-shrink-0 position-relative">
+                                    @if ($product->gambarUtama)
+                                    <img src="{{ $product->gambarUtama->url }}" loading="lazy"
+                                         alt="Img"
+                                         class="rounded-3 shadow-sm"
+                                         style="width: 45px; height: 45px; object-fit: cover;">
+                                    @else
+                                    {{-- Placeholder --}}
+                                    <div class="rounded-3 bg-light d-flex align-items-center justify-content-center text-secondary fw-bold"
+                                         style="width: 45px; height: 45px; font-size: 0.7rem;">
+                                        <i class="fa-solid fa-box-open"></i>
+                                    </div>
+                                    @endif
+                                </div>
 
-@endsection
+                                {{-- Bagian Teks --}}
+                                <div class="flex-grow-1" style="min-width: 200px; max-width: 320px;">
+                                    <span class="text-dark fw-semibold d-block" 
+                                          style="font-size: 0.95rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                        {{ $product->nama_produk }}
+                                    </span>
+                                </div>
+                            </div>
+                        </td>
 
-@push('styles')
-    <style>
-        .table {
-            border-radius: 5px;
-            overflow: hidden;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
+                        <td class="text-nowrap">
+                            <span class="fw-medium text-secondary font-monospace small">
+                                {{ $product->kode_sku ?? '-' }}
+                            </span>
+                        </td>
 
-        .table-sm th, .table-sm td {
-            padding: 0.75rem 0.75rem;
-            font-size: 0.85rem;
-        }
+                        <td class="fw-bold text-dark text-nowrap">
+                            Rp{{ number_format($product->harga_jual, 0, ',', '.') }}
+                        </td>
 
-        .table-product tbody tr:nth-child(even) {
-            background-color: #F8F9FC;
-        }
+                        <td class="text-center">
+                            @if($product->stok_produk > 5)
+                            <span class="badge rounded-pill bg-success bg-opacity-10 text-success" style="font-size: 0.85rem;">
+                                {{ $product->stok_produk }}
+                            </span>
+                            @elseif($product->stok_produk > 0)
+                            <span class="badge rounded-pill bg-warning bg-opacity-10 text-warning" style="font-size: 0.85rem;">
+                                {{ $product->stok_produk }}
+                            </span>
+                            @else
+                            <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger" style="font-size: 0.85rem;">
+                                Habis
+                            </span>
+                            @endif
+                        </td>
 
-        .table-product tbody tr:hover {
-            background-color: #EFF3F9;
-            transition: 0.2s;
-        }
-        .table-md > :not(caption) > * > * {
-            padding: 0.75rem 0.75rem !important;
-            font-size: 0.95rem;
-        }
+                        <td class="text-muted small text-nowrap">
+                            {{ $product->updated_at->format('d M Y') }} <br>
+                            <span class="opacity-75">{{ $product->updated_at->format('H:i') }}</span>
+                        </td>
 
-        button.btn-icon,
-        .table-product button.btn-icon,
-        form .btn-icon {
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-            color: #dc3545 !important;
-            cursor: pointer !important;
-            font-size: 16px !important;
-            line-height: 1 !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            appearance: none !important;
-            box-shadow: none !important;
-            outline: none !important;
-        }
+                        <td class="text-center">
+                            <div class="d-flex justify-content-center gap-2">
+                                <a href="{{ route('admin.products.edit', $product->id) }}"
+                                    class="btn-action btn-action-edit"
+                                    title="Edit">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </a>
 
-        .btn-icon i,
-        .btn-icon svg,
-        .btn-icon .fa-solid {
-            color: inherit !important;
-            fill: currentColor !important;
-            stroke: currentColor !important;
-        }
-
-        button.btn-icon:focus,
-        button.btn-icon:active,
-        .btn-icon:focus,
-        .btn-icon:active {
-            outline: none !important;
-            box-shadow: none !important;
-        }
-
-        .btn-icon:hover {
-            color: #bb2d3b;
-        }
-
-        .card.shadow-sm {
-            min-height: 700px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card.shadow-sm .card-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-wrapper {
-            /* Tabel mengambil tinggi natural sesuai konten */
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-responsive {
-            /* Normal table responsive behavior */
-            flex: 1;
-        }
-
-        .table-product {
-            /* Normal table behavior */
-            margin-bottom: 0;
-        }
-
-        .table-product tr.tr-empty {
-            /* Empty state row */
-            display: table-row;
-        }
-
-        .table-product tr.tr-empty td {
-            vertical-align: middle;
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-
-        .table-product tr.tr-empty td .empty-message {
-            min-height: 400px;
-            width: 100%;
-        }
-
-        .tr-empty td {
-            border: none;
-        }
-
-        .table-product tbody tr:not(.tr-empty) td {
-            vertical-align: top !important;
-            padding: 0.75rem 0.75rem !important;
-        }
-    </style>
-@endpush
-
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('filterFormPhoto') || document.querySelector('form[action*="products/photos"]');
-    const tbody = document.getElementById('photo-products-tbody');
-    const paginationContainer = document.getElementById('pagination-links-container');
-
-    function buildUrl(params) {
-        const base = '{{ route('admin.products.photos') }}';
-        const query = new URLSearchParams(params).toString();
-        return base + (query ? ('?' + query) : '');
-    }
-
-    let timer = null;
-    function fetchAndRender() {
-        const formData = new FormData(form);
-        const params = {};
-        for (const [k,v] of formData.entries()) {
-            if (v !== '') params[k] = v;
-        }
-        const url = buildUrl(params);
-
-        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
-            .then(r => {
-                if (!r.ok) throw new Error('Network response was not ok. Status: ' + r.status);
-                return r.json();
-            })
-            .then(data => {
-                if (data.table_html !== undefined) {
-                    tbody.innerHTML = data.table_html;
-                } else {
-                    tbody.innerHTML = '';
-                }
-                paginationContainer.innerHTML = data.pagination_html ?
-                    `<div class="card-footer bg-white">${data.pagination_html}</div>` : '';
-                attachPaginationLinks();
-            }).catch(err => {
-                console.error('Failed to fetch photo products', err);
-                // Render empty message dengan style yang sama
-                tbody.innerHTML = `
-                    <tr class="tr-empty">
-                        <td colspan="7" class="p-0">
-                            <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
-                                <i class="fa-solid fa-exclamation-triangle fa-2x text-muted mb-3"></i>
-                                <h5 class="mb-1">Gagal memuat data</h5>
-                                <p class="text-muted mb-0">Silakan coba lagi atau cek log server.</p>
+                                <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button"
+                                            class="btn-action btn-action-delete"
+                                            title="Hapus"
+                                            onclick="confirmDelete(this)">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
-                `;
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center opacity-50">
+                                <i class="fa-solid fa-box-open fa-3x mb-3 text-muted"></i>
+                                <h6 class="text-muted">Belum ada data produk</h6>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if ($products->hasPages())
+    <div class="card-footer bg-white border-0 d-flex justify-content-end py-3 px-4">
+        {{ $products->links('pagination::bootstrap-5') }}
+    </div>
+    @endif
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    // Fungsi Delete
+    function confirmDelete(button) {
+        if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+            button.form.submit();
+        }
+    }
+
+    // Fungsi Auto Search (Debounce)
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        const searchForm = document.getElementById('searchForm');
+        let searchTimeout;
+
+        if (searchInput && searchForm) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    searchForm.submit();
+                }, 500); // Submit setelah 500ms idle
             });
-    }
 
-    function debounceFetch() {
-        if (timer) clearTimeout(timer);
-        timer = setTimeout(fetchAndRender, 350);
-    }
-
-    form.addEventListener('input', debounceFetch);
-    form.addEventListener('change', debounceFetch);
-
-    function attachPaginationLinks() {
-        const links = paginationContainer.querySelectorAll('a');
-        links.forEach(link => {
-            link.addEventListener('click', function(e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                if (!href) return;
-                fetch(href, { headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' } })
-                    .then(r => {
-                        if (!r.ok) throw new Error('Network response was not ok. Status: ' + r.status);
-                        return r.json();
-                    })
-                    .then(data => {
-                        tbody.innerHTML = data.table_html || '';
-                        paginationContainer.innerHTML = data.pagination_html ?
-                            `<div class="card-footer bg-white">${data.pagination_html}</div>` : '';
-                        attachPaginationLinks();
-                    }).catch(err => {
-                        console.error(err);
-                        // Render empty message dengan style yang sama
-                        tbody.innerHTML = `
-                            <tr class="tr-empty">
-                                <td colspan="7" class="p-0">
-                                    <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
-                                        <i class="fa-solid fa-exclamation-triangle fa-2x text-muted mb-3"></i>
-                                        <h5 class="mb-1">Gagal memuat data</h5>
-                                        <p class="text-muted mb-0">Silakan coba lagi atau cek log server.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        `;
-                    });
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(searchTimeout);
+                    searchForm.submit();
+                }
             });
-        });
-    }
-
-    // initial attach
-    attachPaginationLinks();
-});
+        }
+    });
 </script>
 @endpush
-

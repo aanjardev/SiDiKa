@@ -32,6 +32,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Admin CSS -->
     <link href="{{ asset('css/adminsidebar.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/adminpage.css') }}" rel="stylesheet">
 
     <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/8794378048.js" crossorigin="anonymous"></script>
@@ -232,7 +233,7 @@
     </button>
 
     <!-- Main Content -->
-    <main class="main-content pt-3 mb-0 mt-0 d-flex flex-column pb-0">
+    <main class="main-content pt-5 mb-0 mt-0 d-flex flex-column pb-0">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="page-title mb-0">@yield('title', 'Dashboard')</h1>
             <div class="d-flex align-items-center gap-3">
