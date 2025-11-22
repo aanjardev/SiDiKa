@@ -47,7 +47,7 @@
                 
                 {{-- Toolbar / Instruksi --}}
                 <div class="bg-light p-3 rounded mb-4 border-start border-4 border-primary d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-                    <div class="small text-muted">
+                <div class="small text-muted">
                         <i class="fa-solid fa-circle-info me-1 text-primary"></i>
                         Maksimal <strong>10 gambar</strong> (Max 5MB/file). Klik kotak di bawah untuk memilih gambar.
                     </div>

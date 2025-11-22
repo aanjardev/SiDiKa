@@ -1,66 +1,124 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     const uploadGrid = document.getElementById("upload-grid");
-    const addButton = document.getElementById("add-image-btn");
     const hiddenInput = document.getElementById("image-input-hidden");
 
     const MAX_FILES = 10;
     const MAX_SIZE = 5 * 1024 * 1024;
 
-    let selectedFiles = [];
+    let queuedFiles = {};   // index → File
+    let indexCounter = 0;
 
-    function renderGrid() {
-        uploadGrid.innerHTML = "";
+    function createUploadBox(idx) {
+        const box = document.createElement("div");
+        box.className = "upload-box";
+        box.dataset.index = idx;
 
-        selectedFiles.forEach((file, index) => {
-            const url = URL.createObjectURL(file);
+        box.innerHTML = `
+            <input type="file" accept="image/*" class="d-none file-input">
+            <div class="empty-state">
+                <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+                <div style="font-size:0.75rem;font-weight:500;">Klik Upload</div>
+            </div>
 
-            const box = document.createElement("div");
-            box.classList.add("upload-box");
-            box.innerHTML = `
-                <img src="${url}">
-                <button class="remove-btn" data-index="${index}">&times;</button>
-                <div class="main-badge ${index === 0 ? '' : 'd-none'}">UTAMA</div>
-            `;
-            uploadGrid.appendChild(box);
+            <div class="preview d-none"></div>
+
+            <div class="controls d-none">
+                <button class="btn btn-danger btn-remove-queue" title="Hapus">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="main-choice d-none">
+                <label class="form-check-label">
+                    <input type="radio" name="main_image_choice" value="new_${idx}" class="form-check-input mt-0">
+                    <span>Utama</span>
+                </label>
+            </div>
+        `;
+
+        const input = box.querySelector(".file-input");
+        const removeBtn = box.querySelector(".btn-remove-queue");
+
+        // Klik untuk buka file
+        box.addEventListener("click", function (e) {
+            if (e.target.closest(".controls") || e.target.closest(".main-choice")) return;
+            input.click();
         });
-    }
 
-    function addFiles(files) {
-        for (const file of files) {
-            if (selectedFiles.length >= MAX_FILES) break;
-            if (!file.type.startsWith("image/")) continue;
+        // Input file change
+        input.addEventListener("change", function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith("image/")) {
+                alert("File harus berupa gambar.");
+                return;
+            }
             if (file.size > MAX_SIZE) {
                 alert("Ukuran gambar maksimal 5MB.");
-                continue;
+                return;
             }
-            selectedFiles.push(file);
-        }
-        renderGrid();
-        syncToForm();
+
+            previewFile(file, box, idx);
+            queuedFiles[idx] = file;
+
+            updateHiddenInput();
+            ensureAvailableBox();
+        });
+
+        // Hapus file
+        removeBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+
+            delete queuedFiles[idx];
+            box.remove();
+
+            updateHiddenInput();
+            ensureAvailableBox();
+        });
+
+        return box;
     }
 
-    function syncToForm() {
+    function previewFile(file, box, idx) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const preview = box.querySelector(".preview");
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+
+            box.querySelector(".preview").classList.remove("d-none");
+            box.querySelector(".empty-state").classList.add("d-none");
+            box.querySelector(".controls").classList.remove("d-none");
+            box.querySelector(".main-choice").classList.remove("d-none");
+
+            box.classList.add("has-image");
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function updateHiddenInput() {
         const dataTransfer = new DataTransfer();
-        selectedFiles.forEach(f => dataTransfer.items.add(f));
+
+        Object.values(queuedFiles).forEach(file => {
+            dataTransfer.items.add(file);
+        });
+
         hiddenInput.files = dataTransfer.files;
     }
 
-    uploadGrid.addEventListener("click", (e) => {
-        if (e.target.classList.contains("remove-btn")) {
-            const idx = e.target.dataset.index;
-            selectedFiles.splice(idx, 1);
-            renderGrid();
-            syncToForm();
-            return;
+    function ensureAvailableBox() {
+        const current = uploadGrid.querySelectorAll(".upload-box").length;
+        const filled = uploadGrid.querySelectorAll(".upload-box.has-image").length;
+
+        if (current < MAX_FILES && current === filled) {
+            uploadGrid.appendChild(createUploadBox(++indexCounter));
         }
-    });
 
-    addButton.addEventListener("click", () => hiddenInput.click());
+        if (current === 0) {
+            uploadGrid.appendChild(createUploadBox(++indexCounter));
+        }
+    }
 
-    hiddenInput.addEventListener("change", function () {
-        addFiles(this.files);
-        hiddenInput.value = "";
-    });
-
+    ensureAvailableBox();
 });
