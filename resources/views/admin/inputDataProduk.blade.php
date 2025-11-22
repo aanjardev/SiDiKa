@@ -131,18 +131,23 @@
                         <div class="col-md-6">
                             <label for="images" class="form-label">Gambar Produk</label>
 
-                            <input type="file"
-                                class="form-control"
-                                id="images"
-                                name="images[]"
-                                accept="image/*"
-                                multiple="multiple"
-                                {{ $isEdit ? '' : 'required' }}>
+                            <label class="form-label d-block">Gambar Produk</label>
 
-                            <small class="text-muted">Gambar pertama akan menjadi gambar utama. Maksimal 5 MB per file.</small>
+                            <div id="upload-grid" class="d-flex flex-wrap gap-3"></div>
 
-                            <!-- PREVIEW GAMBAR BARU -->
-                            <div id="image-grid" class="d-flex flex-wrap gap-3 mt-3"></div>
+                            <button type="button" class="btn btn-primary btn-sm mt-3" id="add-image-btn">
+                                <i class="fas fa-plus"></i> Tambah Gambar
+                            </button>
+
+                            <small class="text-muted d-block mt-2">
+                                • Maksimal 10 gambar<br>
+                                • Maksimal 5MB / file<br>
+                                • Gambar pertama = gambar utama
+                            </small>
+
+                            {{-- Hidden input yang akan mengirim file --}}
+                            <input type="file" id="image-input-hidden" class="d-none" accept="image/*" multiple>
+
                             @if($isEdit)
                             @foreach($product->gambar as $img)
                             <script>
@@ -191,6 +196,74 @@
 </div>
 @endsection
 
+@push('styles')
+<style>
+    <style>
+    .upload-box {
+        width: 150px;
+        height: 150px;
+        background: #f8f9fc;
+        border: 2px dashed #ced4da;
+        border-radius: 8px;
+        cursor: pointer;
+        overflow: hidden;
+        transition: 0.3s;
+        position: relative;
+    }
+
+    .upload-box:hover {
+        border-color: #4e6bff;
+        background: #eef3ff;
+    }
+
+    .upload-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .upload-box .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(255, 0, 0, 0.85);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .upload-box .main-badge {
+        position: absolute;
+        bottom: 5px;
+        left: 5px;
+        background: rgba(0, 0, 0, 0.70);
+        color: white;
+        padding: 2px 6px;
+        font-size: 11px;
+        border-radius: 4px;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script src="{{ asset('js/productImages.js') }}"></script>
+    @if($isEdit)
+    @foreach ($product->gambar as $img)
+        fetch("{{ Storage::disk('r2')->url($img->path_gambar) }}")
+            .then(r => r.blob())
+            .then(blob => {
+                blob.name = "{{ $img->id }}.jpg";
+                selectedFiles.push(blob);
+                renderGrid();
+                syncToForm();
+            });
+    @endforeach
+    @endif
 @endpush
