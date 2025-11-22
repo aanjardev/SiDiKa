@@ -1,7 +1,7 @@
-@forelse ($data_qc as $item)
+{{-- @forelse ($data_qc as $item)
     <tr>
         <td class="text-center" style="width: 60px;">{{ $loop->iteration + (($data_qc->currentPage()-1) * $data_qc->perPage()) }}</td>
-        <td>{{ $item->pembelian->kode_transaksi ?? ('#' . $item->pembelian_id) }}</td>
+        <td>{{ $item->pembelian->kode_transaksi}}</td>
         <td>{{ $item->nama_item }}</td>
         <td>{{ $item->serial_number ?? '-' }}/{{ $item->serial_lens ?? '-'}}</td>
         <td>{{ $item->kategori->nama_kategori ?? '-' }}</td>
@@ -36,7 +36,6 @@
         <td colspan="7" class="p-0">
             <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
                 <i class="fa-solid fa-check-circle fa-2x text-muted mb-3"></i>
-                {{-- Allow customizing empty message via variables passed into the partial --}}
                 @php
                     $emptyHeading = $empty_heading ?? 'Tidak Ada Item Menunggu QC';
                     $emptyText = $empty_text ?? "Semua item dari transaksi 'Deal' akan muncul di sini.";
@@ -46,4 +45,4 @@
             </div>
         </td>
     </tr>
-@endforelse
+@endforelse --}}

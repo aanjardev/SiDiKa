@@ -122,13 +122,13 @@ document.addEventListener('DOMContentLoaded', function() {
 <form action="{{ route('admin.quality-control.index') }}" method="GET" id="filterFormQc">
     <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
         <div class="card-body p-2 d-flex align-items-center flex-wrap">
-            
+
             {{-- Bagian Kiri: Input Search --}}
             <div class="d-flex align-items-center flex-grow-1 ps-2">
                 <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                <input type="text" 
+                <input type="text"
                        name="search"
                        id="search-input-qc"
                        class="form-control border-0 shadow-none bg-transparent"
@@ -139,10 +139,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
             {{-- Bagian Kanan: Dropdown --}}
             <div class="d-flex align-items-center gap-2 pe-2">
-                
+
                 {{-- Filter Kategori --}}
-                <select name="kategori" id="filter-kategori" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="kategori" id="filter-kategori"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;">
                     <option value="" selected>Semua Kategori</option>
                     @foreach ($semua_kategori as $kat)
@@ -153,8 +153,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 </select>
 
                 {{-- Filter Sort --}}
-                <select name="sort" id="filter-sort-qc" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="sort" id="filter-sort-qc"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;">
                     <option value="terbaru" {{ ($sort_filter ?? 'terbaru') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
                     <option value="terlama" {{ ($sort_filter ?? '') == 'terlama' ? 'selected' : '' }}>Terlama</option>
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             {{-- ID Pembelian --}}
                             <td>
                                 <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
-                                    #{{ $item->pembelian_id }}
+                                    #{{ $item->pembelian->kode_transaksi }}
                                 </span>
                             </td>
 
@@ -224,11 +224,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                 @php $persen = round($item->persentase_lengkap); @endphp
                                 <div class="d-flex align-items-center gap-2">
                                     <div class="progress flex-grow-1 shadow-sm" style="height: 6px; border-radius: 10px; background-color: #f0f2f5;">
-                                        <div class="progress-bar {{ $persen == 100 ? 'bg-success' : 'bg-primary' }}" 
-                                             role="progressbar" 
-                                             style="width: {{ $persen }}%; border-radius: 10px;" 
-                                             aria-valuenow="{{ $persen }}" 
-                                             aria-valuemin="0" 
+                                        <div class="progress-bar {{ $persen == 100 ? 'bg-success' : 'bg-primary' }}"
+                                             role="progressbar"
+                                             style="width: {{ $persen }}%; border-radius: 10px;"
+                                             aria-valuenow="{{ $persen }}"
+                                             aria-valuemin="0"
                                              aria-valuemax="100">
                                         </div>
                                     </div>
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             {{-- Aksi --}}
                             <td class="text-center">
-                                <a href="{{ route('admin.qc.edit', $item->id) }}" 
+                                <a href="{{ route('admin.quality-control.edit', $item->id) }}"
                                    class="btn btn-sm btn-primary shadow-sm px-3 rounded-3 fw-medium"
                                    style="font-size: 0.85rem;"
                                    title="Proses QC">
