@@ -4,7 +4,7 @@
 
 @push('page-actions')
     {{-- Tombol Arsip (Fitur dari Main) --}}
-    <a href="{{ url('admin/quality-control/archived') }}" class="btn btn-secondary btn-sm d-flex align-items-center gap-2">
+    <a href="{{ url('admin/quality-control/archived') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
         <i class="fas fa-archive fa-fw"></i>
         <span>Arsip Produk</span>
     </a>

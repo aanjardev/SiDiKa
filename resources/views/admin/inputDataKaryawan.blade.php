@@ -3,8 +3,10 @@
 @section('title', isset($readOnly) && $readOnly ? 'Detail Data Karyawan' : (isset($employee) ? 'Edit Data Karyawan' : 'Tambah Data Karyawan'))
 
 @section('content')
-<div class="row justify-content-center">
-    <div class="col-md-10 col-lg-8">
+{{-- UBAHAN: Hapus justify-content-center agar layout mulai dari kiri --}}
+<div class="row">
+    {{-- UBAHAN: Ubah jadi col-12 agar Card memenuhi lebar layar --}}
+    <div class="col-12">
         
         <div class="card shadow-sm border-0" style="border-radius: 10px;">
             {{-- Card Header --}}
@@ -40,6 +42,7 @@
                 @endif
 
                     {{-- Baris 1: Nama & NIK --}}
+                    {{-- Karena Card sudah full width, col-md-6 ini akan membagi layar jadi 2 kolom yang proporsional --}}
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium text-secondary small">Nama Lengkap</label>
@@ -85,7 +88,6 @@
                                         <option value="" selected disabled>-- Pilih Jabatan --</option>
                                         <option value="Manager" {{ old('jabatan', $employee->jabatan ?? '') === 'Manager' ? 'selected' : '' }}>Manager</option>
                                         <option value="Staff Operasional" {{ old('jabatan', $employee->jabatan ?? '') === 'Staff Operasional' ? 'selected' : '' }}>Staff Operasional</option>
-                                        {{-- Tambah opsi lain jika ada --}}
                                         <option value="Teknisi" {{ old('jabatan', $employee->jabatan ?? '') === 'Teknisi' ? 'selected' : '' }}>Teknisi</option>
                                     </select>
                                 @endif
@@ -131,7 +133,6 @@
                             <label class="form-label fw-medium text-secondary small">Tanggal Masuk</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-regular fa-calendar"></i></span>
-                                {{-- MENGGUNAKAN TYPE="DATE" STANDAR AGAR RAPI --}}
                                 <input type="date" 
                                     class="form-control border-start-0 ps-2 @error('tanggal_masuk') is-invalid @enderror" 
                                     name="tanggal_masuk" 

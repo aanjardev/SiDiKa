@@ -4,8 +4,10 @@
 
 @section('content')
 
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
+{{-- Hapus 'justify-content-center' agar tidak di tengah --}}
+<div class="row"> 
+    {{-- Ubah menjadi 'col-12' agar Card memenuhi lebar layar yang tersedia --}}
+    <div class="col-12"> 
         
         <div class="card shadow-sm border-0" style="border-radius: 10px;">
             {{-- Card Header --}}
@@ -26,25 +28,38 @@
                         @method('PUT')
                     @endif
 
-                    {{-- Nama Kategori --}}
-                    <div class="mb-4">
-                        <label for="nama_kategori" class="form-label fw-medium text-secondary small">Nama Kategori</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
-                                <i class="fa-solid fa-tag"></i>
-                            </span>
-                            <input type="text" 
-                                name="nama_kategori" 
-                                id="nama_kategori" 
-                                class="form-control border-start-0 ps-2 @error('nama_kategori') is-invalid @enderror" 
-                                style="height: 45px;"
-                                placeholder="Contoh: Kamera DSLR, Lensa, Tripod..." 
-                                value="{{ old('nama_kategori', isset($category) ? $category->nama_kategori : '') }}"
-                                required>
+                    <div class="row">
+                        {{-- Kolom Input: Saya set col-md-7 agar input tidak 'stretching' terlalu panjang secara visual (Good UX), tapi Card tetap full width --}}
+                        <div class="col-md-7 col-lg-6">
+                            <div class="mb-4">
+                                <label for="nama_kategori" class="form-label fw-medium text-secondary small">Nama Kategori</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted ps-3">
+                                        <i class="fa-solid fa-tag"></i>
+                                    </span>
+                                    <input type="text" 
+                                        name="nama_kategori" 
+                                        id="nama_kategori" 
+                                        class="form-control border-start-0 ps-2 @error('nama_kategori') is-invalid @enderror" 
+                                        style="height: 45px;"
+                                        placeholder="Contoh: Kamera DSLR, Lensa, Tripod..." 
+                                        value="{{ old('nama_kategori', isset($category) ? $category->nama_kategori : '') }}"
+                                        required>
+                                </div>
+                                @error('nama_kategori')
+                                    <div class="text-danger small mt-1">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
-                        @error('nama_kategori')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
+
+                        {{-- Kolom Info Tambahan (Opsional): Mengisi sisa ruang kosong di kanan dengan tips/info --}}
+                        <div class="col-md-5 col-lg-6 ps-md-4 d-none d-md-block border-start">
+                            <div class="alert alert-light border-0 text-muted small">
+                                <i class="fa-solid fa-circle-info me-1 text-primary"></i>
+                                <strong>Tips:</strong><br>
+                                Pastikan nama kategori unik dan mudah dipahami. Nama kategori ini akan muncul di filter pencarian produk.
+                            </div>
+                        </div>
                     </div>
 
                     <hr class="my-4 opacity-25">

@@ -4,28 +4,28 @@
         width: 100%;
     }
 
-.table-modern thead th {
-    background-color: #F8F9FC;
-    color: #000;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
-    padding: 1rem;
-    border: none;
-    position: relative;
-    font-weight: 800;
-}
+    .table-modern thead th {
+        background-color: #F8F9FC;
+        color: #000;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        border: none;
+        position: relative;
+        font-weight: 800;
+    }
 
-.table-modern thead th::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: -1px;
-    height: 6px;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-}
+    .table-modern thead th::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1px;
+        height: 6px;
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
 
     /* Radius Sudut Header */
     .table-modern thead th:first-child {
@@ -95,33 +95,151 @@
         color: white;
     }
 
-    /* Pagination Styling */
-    .pagination {
-        margin-bottom: 0;
-        gap: 5px;
+    /* =========================================
+   1. LOGIKA LAYOUT (JANGAN DIUBAH)
+   Bagian ini menjaga posisi agar tidak berantakan lagi
+   ========================================= */
+
+    /* Wadah Utama */
+    nav,
+    nav>div {
+        width: 100% !important;
+        min-width: 100% !important;
+        display: flex !important;
+        position: relative !important;
+        justify-content: flex-end !important;
+        /* Tombol ke Kanan */
+        align-items: center !important;
+        border: none !important;
+        padding: 16px 0 !important;
+        /* Tambah padding biar lega */
     }
 
+    /* Hapus Navigasi Mobile Lama */
+    nav>div:first-child {
+        display: none !important;
+    }
+
+    /* Teks "Showing..." (Posisi Absolute Tengah) */
+    nav p.small.text-muted,
+    div.hidden.sm\:flex-1 p {
+        position: absolute !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        text-align: center !important;
+        margin: 0 !important;
+        z-index: 0;
+        pointer-events: none;
+        white-space: nowrap !important;
+
+        /* Styling Teks */
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-size: 0.875rem;
+        /* 14px standar UI modern */
+        color: #64748b;
+        /* Slate-500 (Abu Modern) */
+        letter-spacing: -0.01em;
+    }
+
+    /* Highlight Angka di dalam Teks */
+    nav p.small.text-muted span {
+        font-weight: 700 !important;
+        color: #1e293b;
+        /* Slate-800 (Hampir Hitam) */
+    }
+
+    /* Container Tombol (Flex) */
+    ul.pagination {
+        position: relative !important;
+        z-index: 10;
+        display: flex !important;
+        gap: 8px;
+        /* Jarak antar tombol lebih lega */
+        margin: 0 !important;
+    }
+
+
+    /* =========================================
+   2. STYLING VISUAL (BAGIAN CANTIKNYA)
+   ========================================= */
+
+    /* Style Dasar Tombol */
     .page-item .page-link {
-        border: none;
-        border-radius: 8px;
-        color: #6c757d;
-        padding: 0.5rem 0.9rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        /* Ukuran Kotak */
+        min-width: 40px;
+        height: 40px;
+        padding: 0 12px;
+
+        /* Typography */
         font-weight: 600;
-        background-color: transparent;
+        font-size: 0.9rem;
+        color: #475467;
+        /* Abu gelap yang nyaman di mata */
+        text-decoration: none;
+
+        /* Shape & Border */
+        background-color: #ffffff;
+        border: 1px solid #eaecf0;
+        /* Border abu sangat tipis */
+        border-radius: 12px !important;
+        /* Sudut membulat modern (Squircle) */
+
+        /* Efek Bayangan Halus (Elevation) */
+        box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+
+        /* Animasi */
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    .page-item .page-link:hover {
-        background-color: #e9ecef;
+    /* Hover State (Saat Mouse Masuk) */
+    .page-item:not(.active):not(.disabled) .page-link:hover {
+        background-color: #f9fafb;
+        /* Abu sangat muda */
         color: #4e6cff;
+        /* Warna brand */
+        border-color: #d0d5dd;
+        transform: translateY(-2px);
+        /* Naik sedikit */
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
 
+    /* Active State (Tombol Terpilih) */
     .page-item.active .page-link {
-        background-color: #4e6cff;
-        color: white;
-        box-shadow: 0 2px 5px rgba(78, 108, 255, 0.3);
+        background: linear-gradient(135deg, #4e6cff 0%, #3b5bdb 100%);
+        /* Gradient Biru */
+        border-color: transparent;
+        color: #ffffff !important;
+
+        /* Glowing Effect Biru */
+        box-shadow: 0 4px 12px rgba(78, 108, 255, 0.35);
+        transform: scale(1.05);
+        /* Sedikit membesar biar standout */
+    }
+
+    /* Disabled State (Tombol Panah Mati) */
+    .page-item.disabled .page-link {
+        background-color: #f2f4f7;
+        color: #98a2b3;
+        border-color: #f2f4f7;
+        cursor: not-allowed;
+        box-shadow: none;
+        opacity: 0.8;
+    }
+
+    /* Focus State (Saat diklik keyboard/mouse) */
+    .page-item .page-link:focus {
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(78, 108, 255, 0.15);
+        /* Ring fokus biru transparan */
     }
 
     .header-tight {
-    padding-top: 1rem;
-    padding-bottom: 0.4rem; /* bebas kamu atur */
-}
+        padding-top: 1rem;
+        padding-bottom: 0.4rem;
+        /* bebas kamu atur */
+    }
