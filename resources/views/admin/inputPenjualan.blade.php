@@ -3,7 +3,16 @@
 @section('title', 'Transaksi Penjualan')
 
 @push('page-actions')
-    {{-- Halaman form tidak perlu tombol aksi di header --}}
+    @php
+        $backRoute = route('admin.sales.index');
+        if(isset($penjualan)) {
+            $backRoute = route('admin.sales.show', $penjualan->id);
+        }
+    @endphp
+
+    <a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
+        <i class="fas fa-arrow-left me-1"></i> Kembali
+    </a>
 @endpush
 
 @section('content')
@@ -523,6 +532,124 @@ document.addEventListener('DOMContentLoaded', () => {
     depresiasiInput?.addEventListener('input', recalcTotals);
 
     renderRows();
+});
+</script>
+{{-- Modal Tambah Customer (reuse dari inputPembelian) --}}
+<div class="modal fade" id="modalTambahCustomer" tabindex="-1" aria-labelledby="modalTambahCustomerLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTambahCustomerLabel">Tambah Customer Baru</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{-- PERBAIKAN: Semua input di sini HARUS punya atribut 'name' --}}
+                <form id="formTambahCustomer">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_nama_modal">Nama Customer*</label>
+                            <input type="text" class="form-control" id="customer_nama_modal" name="nama" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_no_telp_modal">Nomor Telepon*</label>
+                            <input type="text" class="form-control" id="customer_no_telp_modal" name="no_telp" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_identitas_modal">NIK (Identitas)</label>
+                            <input type="text" class="form-control" id="customer_identitas_modal" name="identitas">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="customer_jenis_kelamin_modal">Jenis Kelamin</label>
+                            <select class="form-select" id="customer_jenis_kelamin_modal" name="jenis_kelamin" style="height: calc(2.5rem + 9px);">
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="customer_alamat_modal">Alamat</label>
+                        <textarea class="form-control" rows="2" id="customer_alamat_modal" name="alamat"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="customer_referensi_modal">Referensi (Opsional)</label>
+                        <input type="text" class="form-control" id="customer_referensi_modal" name="referensi" placeholder="Mis: Info dari Instagram, Teman, dll.">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="customer_keterangan_modal">Keterangan (Opsional)</label>
+                        <textarea class="form-control" rows="2" id="customer_keterangan_modal" name="keterangan" placeholder="Mis: Pelanggan lama, sering jual/beli..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="btnSimpanCustomer">
+                    Simpan Customer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const btnSimpanCustomer = document.getElementById('btnSimpanCustomer');
+    const formTambahCustomer = document.getElementById('formTambahCustomer');
+
+    btnSimpanCustomer?.addEventListener('click', function() {
+        const nama = document.getElementById('customer_nama_modal').value.trim();
+        const no_telp = document.getElementById('customer_no_telp_modal').value.trim();
+        if (!nama || !no_telp) { alert('Nama dan No. Telepon wajib diisi.'); return; }
+
+        const formData = new FormData(formTambahCustomer);
+        const data = Object.fromEntries(formData.entries());
+
+        btnSimpanCustomer.disabled = true;
+        btnSimpanCustomer.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
+
+        fetch("{{ route('admin.customers.store') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => { throw err; });
+            }
+            return response.json();
+        })
+        .then(result => {
+            if (result.success && result.customer) {
+                const customerSelect = document.getElementById('customer_id');
+                const newOption = new Option(`${result.customer.nama} (${result.customer.no_telp})`, result.customer.id, true, true);
+                customerSelect.appendChild(newOption);
+                formTambahCustomer.reset();
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalTambahCustomer'));
+                modal?.hide();
+            } else {
+                alert('Gagal menyimpan customer: ' + (result.message || 'Error tidak diketahui.'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            let errorMsg = 'Gagal menyimpan data.';
+            if (error.errors) {
+                errorMsg = Object.values(error.errors)[0][0];
+            } else if (error.message) {
+                errorMsg = error.message;
+            }
+            alert(errorMsg);
+        })
+        .finally(() => {
+            btnSimpanCustomer.disabled = false;
+            btnSimpanCustomer.innerHTML = 'Simpan Customer';
+        });
+    });
 });
 </script>
 @endpush

@@ -242,6 +242,73 @@
 
 @endsection
 
+@push('styles')
+<style>
+    .upload-box {
+        width: 150px;
+        height: 150px;
+        background: #f8f9fc;
+        border: 2px dashed #ced4da;
+        border-radius: 8px;
+        cursor: pointer;
+        overflow: hidden;
+        transition: 0.3s;
+        position: relative;
+    }
+
+    .upload-box:hover {
+        border-color: #4e6bff;
+        background: #eef3ff;
+    }
+
+    .upload-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .upload-box .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(255, 0, 0, 0.85);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .upload-box .main-badge {
+        position: absolute;
+        bottom: 5px;
+        left: 5px;
+        background: rgba(0, 0, 0, 0.70);
+        color: white;
+        padding: 2px 6px;
+        font-size: 11px;
+        border-radius: 4px;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script src="{{ asset('js/productImages.js') }}"></script>
+    @if($isEdit)
+    @foreach ($product->gambar as $img)
+        fetch("{{ Storage::disk('r2')->url($img->path_gambar) }}")
+            .then(r => r.blob())
+            .then(blob => {
+                blob.name = "{{ $img->id }}.jpg";
+                selectedFiles.push(blob);
+                renderGrid();
+                syncToForm();
+            });
+    @endforeach
+    @endif
 @endpush

@@ -67,7 +67,6 @@
                         <td class="text-center">
                             <form action="{{ route('admin.quality-control.restore', $item->id) }}" method="POST" class="d-inline restore-form">
                                 @csrf
-                                @method('PUT')
                                 <button type="submit" 
                                         class="btn btn-sm btn-success bg-opacity-10 text-success border-success shadow-sm px-3 rounded-3 fw-medium"
                                         style="font-size: 0.85rem;"
