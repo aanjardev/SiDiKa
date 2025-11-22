@@ -64,24 +64,18 @@ class ItemPembelian extends Model
     /**
      * Accessor untuk menghitung persentase kelengkapan berdasarkan:
      * 1. kode_sku
-     * 2. harga_beli (harga modal)
-     * 3. harga_jual
-     * 4. deskripsi_produk
+     * 2. harga_jual
+     * 3. deskripsi_produk
      *
      * Setiap kolom yang terisi (tidak null dan tidak kosong) = 25%
      */
     public function getPersentaseLengkapAttribute()
     {
-        $totalFields = 4;
+        $totalFields = 3;
         $completedFields = 0;
 
         // Cek kode_sku
         if (!empty($this->kode_sku)) {
-            $completedFields++;
-        }
-
-        // Cek harga_beli (harga modal)
-        if (!empty($this->harga_beli) && $this->harga_beli > 0) {
             $completedFields++;
         }
 
