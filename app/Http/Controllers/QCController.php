@@ -234,34 +234,66 @@ class QCController extends Controller
      */
     public function archived(Request $request)
     {
-        // Ambil semua kategori untuk kemungkinan filter reuse
+        // Ambil parameter dari request
+        $search_term = $request->input('search');
+        $selected_kategori = $request->input('kategori', 'all');
+        $sort_by = $request->input('sort_by', 'updated_at');
+        $sort_order = $request->input('sort_order', 'desc');
+
+        // Ambil semua kategori untuk dropdown filter
         $semua_kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
 
-        // Logika: gunakan nilai enum yang sesuai dengan migrasi ('diarsipkan')
+        // Query dasar
         $query = ItemPembelian::with(['pembelian', 'kategori'])
             ->whereIn('status_qc', ['diarsipkan', 'gagal_qc'])
             ->whereHas('pembelian', function ($q) {
                 $q->where('status_pembelian', 'deal');
             });
 
-        // simple search support
-        if ($request->filled('search')) {
-            $s = $request->input('search');
-            $query->where(function ($q) use ($s) {
-                $q->where('nama_item', 'like', "%{$s}%")
-                  ->orWhere('serial_number', 'like', "%{$s}%")
-                  ->orWhereHas('pembelian', function ($q2) use ($s) {
-                      $q2->where('kode_transaksi', 'like', "%{$s}%");
-                  });
+        // === SEARCH ===
+        if ($search_term) {
+            $query->where(function ($q) use ($search_term) {
+                $q->where('nama_item', 'like', "%{$search_term}%")
+                ->orWhere('serial_number', 'like', "%{$search_term}%")
+                ->orWhereHas('pembelian', function ($q2) use ($search_term) {
+                    $q2->where('kode_transaksi', 'like', "%{$search_term}%");
+                });
             });
         }
 
-        $data_qc_archived = $query->latest('created_at')->paginate(10);
+        // === FILTER KATEGORI ===
+        if ($selected_kategori !== 'all') {
+            $query->where('kategori_id', $selected_kategori);
+        }
 
-        return view('admin.dataQC_archived', [
-            'data_qc' => $data_qc_archived,
-            'semua_kategori' => $semua_kategori,
-        ]);
+        // === SORTING ===
+        switch ($sort_by) {
+            case 'nama_item':
+                $query->orderBy('nama_item', 'asc');
+                break;
+            case 'nama_item_desc':
+                $query->orderBy('nama_item', 'desc');
+                break;
+            case 'pembelian_id':
+                $query->orderBy('pembelian_id', 'asc');
+                break;
+            case 'updated_at':
+            default:
+                $query->orderBy('updated_at', $sort_order);
+                break;
+        }
+
+        // Pagination
+        $data_qc = $query->paginate(15)->withQueryString();
+
+        return view('admin.dataQC_archived', compact(
+            'data_qc',
+            'semua_kategori',
+            'search_term',
+            'selected_kategori',
+            'sort_by',
+            'sort_order'
+        ));
     }
 
     /**

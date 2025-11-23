@@ -11,7 +11,7 @@ class CatalogSeeder extends Seeder
     {
         // 1. catalog_settings
         $catalogId = DB::table('catalog_settings')->insertGetId([
-            'nama_website' => 'Dinoyo Kamera',
+            'nama_website' => 'Dinoyo Kamera',  
             'nomor_telfon' => '082345670014',
             'description' => 'Toko kamera terpercaya di Malang dan Pasuruan. Menyediakan berbagai kebutuhan fotografi dan videografi dengan kualitas terjamin.',
             'logo_path' => 'mainIMG/logoDinoyo.png',

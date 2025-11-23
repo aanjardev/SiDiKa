@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('name')->nullable(); // Menambahkan kolom name
             $table->string('password');
             $table->string('email')->unique()->nullable();
-            $table->string('role'); // Menambahkan kolom role dengan default 'user'
+            $table->string('role');
             $table->rememberToken();
             $table->timestamps();
         });

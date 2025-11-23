@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
+
 class AdminProductController extends Controller
 {
     public function index(Request $request)
@@ -114,65 +115,87 @@ class AdminProductController extends Controller
     /**
      * Store uploaded photos for a product
      */
-    public function photosUploadStore(Request $request, $id)
-    {
-        $product = Produk::findOrFail($id);
-        $validated = $request->validate([
-            'images' => ['sometimes', 'array', 'min:1'],
-            'images.*' => ['image', 'max:5120'],
-            'main_image' => ['nullable', 'string'],
-        ]);
+        public function photosUploadStore(Request $request, $id)
+        #ini
+        {
+            $product = Produk::findOrFail($id);
+            $validated = $request->validate([
+                'images' => ['sometimes', 'array', 'min:1'],
+                'images.*' => ['image', 'max:5120'],
+                'main_image' => ['nullable', 'string'],
+            ]);
 
-        DB::beginTransaction();
-        try {
-            $images = $request->file('images', []);
-            $createdIds = [];
-            $hasMain = $product->gambarUtama()->exists();
+            DB::beginTransaction();
+            try {
+                $images = $request->file('images', []);
+                $createdIds = [];
+                $hasMain = $product->gambarUtama()->exists();
 
-            foreach ($images as $index => $image) {
-                $extension = $image->getClientOriginalExtension();
-                $filename = Str::uuid()->toString() . ($extension ? '.' . $extension : '');
-                $path = Storage::disk('r2')->putFileAs('product', $image, $filename, [
-                    'visibility' => 'public',
-                ]);
+                foreach ($images as $index => $image) {
+                    $extension = $image->getClientOriginalExtension();
+                    $filename = Str::uuid()->toString() . ($extension ? '.' . $extension : '');
+                    $path = Storage::disk('r2')->putFileAs(
+                        'product',   // folder tujuan
+                        $image,      // UploadedFile
+                        $filename,   // nama file
+                        ['visibility' => 'public']
+                    );
 
-                $g = \App\Models\GambarProduk::create([
-                    'id_produk' => $product->id,
-                    'path_gambar' => $path,
-                    'is_main' => false,
-                ]);
-                $createdIds[] = $g->id;
-            }
+                    $g = \App\Models\GambarProduk::create([
+                        'id_produk' => $product->id,
+                        'path_gambar' => $path,
+                        'is_main' => false,
+                    ]);
+                    $createdIds[] = $g->id;
+                }
 
-            // handle explicit main selection: 'existing_{id}' or 'new_{index}'
-            if (!empty($validated['main_image'])) {
-                $main = $validated['main_image'];
-                if (str_starts_with($main, 'existing_')) {
-                    $idToSet = intval(substr($main, strlen('existing_')));
-                    \App\Models\GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
-                    \App\Models\GambarProduk::where('id_produk', $product->id)->where('id', $idToSet)->update(['is_main' => true]);
-                } elseif (str_starts_with($main, 'new_')) {
-                    $idx = intval(substr($main, strlen('new_')));
-                    if (isset($createdIds[$idx])) {
+                // handle explicit main selection: 'existing_{id}' or 'new_{index}'
+                if (!empty($validated['main_image'])) {
+                    $main = $validated['main_image'];
+                    if (str_starts_with($main, 'existing_')) {
+                        $idToSet = intval(substr($main, strlen('existing_')));
                         \App\Models\GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
-                        \App\Models\GambarProduk::where('id_produk', $product->id)->where('id', $createdIds[$idx])->update(['is_main' => true]);
+                        \App\Models\GambarProduk::where('id_produk', $product->id)->where('id', $idToSet)->update(['is_main' => true]);
+                    } elseif (str_starts_with($main, 'new_')) {
+                        $idx = intval(substr($main, strlen('new_')));
+                        if (isset($createdIds[$idx])) {
+                            \App\Models\GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
+                            \App\Models\GambarProduk::where('id_produk', $product->id)->where('id', $createdIds[$idx])->update(['is_main' => true]);
+                        }
+                    }
+                } else {
+                    // if no explicit main chosen and there was no existing main, set first created as main
+                    if (!$hasMain && !empty($createdIds)) {
+                        \App\Models\GambarProduk::where('id', $createdIds[0])->update(['is_main' => true]);
                     }
                 }
-            } else {
-                // if no explicit main chosen and there was no existing main, set first created as main
-                if (!$hasMain && !empty($createdIds)) {
-                    \App\Models\GambarProduk::where('id', $createdIds[0])->update(['is_main' => true]);
+
+                DB::commit();
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Gambar berhasil diunggah.',
+                        'redirect' => route('admin.products.photos')
+                    ]);
                 }
+        
+        return redirect()->route('admin.products.photos')->with('berhasil', 'Gambar berhasil diunggah.');
+
+
+
+            } catch (\Throwable $th) {
+                DB::rollBack();
+                if ($request->wantsJson() || $request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal mengunggah gambar: ' . $th->getMessage()
+                    ], 500);
+                }
+                return back()->withInput()->withErrors(['error' => 'Gagal mengunggah gambar: ' . $th->getMessage()]);
             }
 
-            DB::commit();
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return back()->withInput()->withErrors(['error' => 'Gagal mengunggah gambar: ' . $th->getMessage()]);
+            // return redirect()->route('admin.products.photos')->with('berhasil', 'Gambar berhasil diunggah.');
         }
-
-        return redirect()->route('admin.products.photos')->with('success', 'Gambar berhasil diunggah.');
-    }
 
     /**
      * Single AJAX upload for one image. Returns JSON with image data.
