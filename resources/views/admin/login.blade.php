@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,292 +8,196 @@
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
 
     {{-- Fonts & Icons --}}
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    {{-- Kita butuh Font Awesome untuk ikon mata (eye) --}}
     <script src="https://kit.fontawesome.com/8794378048.js" crossorigin="anonymous"></script>
 
     <style>
         body {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            font-family: 'Montserrat', Arial, sans-serif;
-            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background-color: #fff;
+            overflow-x: hidden;
         }
 
         /* KOLOM KIRI: FORM */
-        .login-form-side {
+        .login-wrapper {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
-            background-color: #ffffff;
-            position: relative;
-        }
-
-        /* Background pattern subtle di kiri atas */
-        .login-form-side::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(135deg, rgba(0,0,0,0.02) 0%, rgba(0,0,0,0.05) 100%);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 0;
         }
 
         .login-card {
-            max-width: 420px;
             width: 100%;
-            border: none;
-            background: transparent;
-            position: relative;
-            z-index: 1;
+            max-width: 400px;
         }
 
-        .login-title {
-            font-weight: 700;
-            font-size: 2rem;
-            color: #2F353F;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .form-label {
-            font-weight: 600;
+        /* Styling Input agar sama dengan halaman Admin lainnya */
+        .input-group-text {
+            background-color: #f8f9fa;
+            border-right: 0;
             color: #6c757d;
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
         }
 
         .form-control {
-            border-radius: 8px;
-            padding: 0.85rem 1rem;
-            border: 1px solid #dee2e6;
-            font-size: 0.95rem;
-        }
-        .form-control:focus {
-            border-color: #4E6BFF;
-            box-shadow: 0 0 0 0.25rem rgba(78, 107, 255, 0.25);
-        }
-
-        .input-group {
-            position: relative;
-        }
-        .input-group .form-control {
-            padding-right: 3.5rem;
-        }
-        .input-group .input-group-text {
-            position: absolute;
-            right: 0;
-            top: 0;
-            bottom: 0;
-            z-index: 10;
-            border-left: none;
-            background: transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            border: 1px solid #dee2e6;
+            background-color: #fff;
             border-left: 0;
-            padding: 0 1rem;
+            padding: 0.7rem 1rem;
         }
-        .form-control:focus + .input-group-text {
-            border-color: #4E6BFF;
+
+        /* Fix focus state */
+        .input-group:focus-within .input-group-text {
+            border-color: #86b7fe;
+            background-color: #fff;
+            color: #0d6efd;
         }
-        .input-group-text i {
+
+        .input-group:focus-within .form-control {
+            border-color: #86b7fe;
+            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+        }
+
+        /* Toggle Password Button */
+        .btn-toggle-password {
+            border-left: 0;
+            border-color: #dee2e6;
+            background-color: #fff;
             color: #6c757d;
+            z-index: 10;
         }
 
-        .form-check-input {
-            border-radius: 4px;
-            border: 1px solid #dee2e6;
-        }
-        .form-check-input:checked {
-            background-color: #4E6BFF;
-            border-color: #4E6BFF;
-        }
-        .form-check-label {
-            color: #6c757d;
-            font-size: 0.9rem;
+        .btn-toggle-password:hover {
+            background-color: #f8f9fa;
+            color: #0d6efd;
+            border-color: #dee2e6;
         }
 
-        .forgot-password-link {
-            color: #4E6BFF;
-            text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .forgot-password-link:hover {
-            color: #3a57e8;
-            text-decoration: underline;
+        .btn-toggle-password:focus {
+            box-shadow: none;
+            border-color: #86b7fe;
         }
 
-        .btn-primary {
-            background-color: #4E6BFF;
-            border-color: #4E6BFF;
-            font-weight: 600;
-            padding: 0.85rem;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        .btn-primary:hover {
-            background-color: #3a57e8;
-            border-color: #3a57e8;
-        }
-
-        /* KOLOM KANAN: BRANDING & GAMBAR */
-        .login-image-side {
+        /* KOLOM KANAN: BACKGROUND */
+        /* KOLOM KANAN: PURE FOTO */
+        .login-bg-side {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #4facfe 100%);
-            overflow: hidden;
-        }
-
-        /* Wave pattern overlay - menggunakan Graphic Side.svg jika tersedia */
-        .login-image-side::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: url('{{ asset('mainIMG/Graphic Side.svg') }}');
+            background-image: url('{{ asset('../mainIMG/Graphic Side.svg') }}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            opacity: 0.4;
-            z-index: 1;
-        }
-
-        /* Alternatif: jika ingin menggunakan gambar sample sebagai background */
-        /* Uncomment baris di bawah jika ingin menggunakan sample image */
-        /*
-        .login-image-side {
-            background-image: url('{{ asset('mainIMG/sample1.png') }}');
-            background-size: cover;
-            background-position: center;
-        }
-        */
-
-        .login-branding {
-            position: relative;
-            z-index: 2;
-            text-align: center;
-            padding: 2rem;
-        }
-
-        .login-brand-logo {
-            max-width: 200px;
-            height: auto;
-            margin-bottom: 2rem;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));
-        }
-
-        .login-brand-text {
-            font-weight: 700;
-            font-size: 2.5rem;
-            color: #ffffff;
-            line-height: 1.2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        }
-
-        .login-brand-text .brand-line {
-            display: block;
-        }
-
-        /* Layout Mobile */
-        @media (max-width: 991.98px) {
-            .login-image-side {
-                display: none;
-            }
-            .login-form-side::before {
-                display: none;
-            }
         }
     </style>
 </head>
+
 <body>
+
+    {{-- Include Alerts jika ada --}}
     @include('partials.alerts')
 
     <div class="container-fluid g-0">
         <div class="row g-0">
 
             {{-- KOLOM KIRI (FORM) --}}
-            <div class="col-lg-6 col-md-12 login-form-side">
+            <div class="col-lg-6 bg-white login-wrapper">
                 <div class="login-card">
-                    <h1 class="login-title">Sign In</h1>
+
+                    <div class="mb-4 text-center text-lg-start">
+                        {{-- Logo Mobile (Opsional) --}}
+                        {{-- <img src="{{ asset('mainIMG/logoDK.png') }}" alt="Logo" height="50" class="d-lg-none mb-3"> --}}
+
+                        <h2 class="fw-bold text-dark">Welcome Back!</h2>
+                        <p class="text-muted small">Silakan masuk untuk mengelola data Dinoyo Kamera.</p>
+                    </div>
 
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
 
+                        {{-- Input Email --}}
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required autofocus>
-
+                            <label for="email" class="form-label fw-medium text-secondary small">Email Address</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
+                                <input type="email"
+                                    class="form-control @error('email') is-invalid @enderror"
+                                    id="email"
+                                    name="email"
+                                    value="{{ old('email') }}"
+                                    placeholder="contoh@email.com"
+                                    required autofocus>
+                            </div>
                             @error('email')
-                                <div class="invalid-feedback">
-                                    {{ $message }}
-                                </div>
+                            <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
                         </div>
 
+                        {{-- Input Password --}}
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
+                            <label for="password" class="form-label fw-medium text-secondary small">Password</label>
                             <div class="input-group">
-                                <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" required>
-                                <button type="button" class="input-group-text" id="togglePassword">
+                                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                                <input type="password"
+                                    class="form-control border-end-0 @error('password') is-invalid @enderror"
+                                    id="password"
+                                    name="password"
+                                    placeholder="Masukkan password"
+                                    required>
+                                <button class="btn btn-outline-secondary btn-toggle-password border-start-0" type="button" id="togglePassword">
                                     <i class="fas fa-eye"></i>
                                 </button>
-                                @error('password')
-                                    <div class="invalid-feedback">
-                                        {{ $message }}
-                                    </div>
-                                @enderror
                             </div>
+                            @error('password')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
+                        {{-- Remember & Forgot --}}
                         <div class="d-flex justify-content-between align-items-center mb-4">
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                                <label class="form-check-label" for="remember">
-                                    Remember me?
+                                <label class="form-check-label small text-secondary" for="remember">
+                                    Ingat Saya
                                 </label>
                             </div>
-                            <a href="#" class="forgot-password-link">Forgot Password</a>
+                            {{-- Jika ada route forgot password --}}
+                            @if (Route::has('password.request'))
+                            <a href="{{ route('password.request') }}" class="small text-primary text-decoration-none fw-medium">Lupa Password?</a>
+                            @else
+                            <a href="#" class="small text-primary text-decoration-none fw-medium">Lupa Password?</a>
+                            @endif
                         </div>
 
+                        {{-- Submit Button --}}
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">Sign in</button>
+                            <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
+                                <i class="fa-solid fa-right-to-bracket me-2"></i> Sign In
+                            </button>
                         </div>
+
                     </form>
+
+                    <div class="mt-4 text-center">
+                        <p class="text-muted small mb-0">&copy; {{ date('Y') }} Dinoyo Kamera Admin Panel</p>
+                    </div>
                 </div>
             </div>
 
-            {{-- KOLOM KANAN (BRANDING & GAMBAR) --}}
-            <div class="col-lg-6 d-none d-lg-block login-image-side">
-            </div>
-
+            {{-- KOLOM KANAN (IMAGE) --}}
+            <div class="col-lg-6 d-none d-lg-flex login-bg-side"></div>
         </div>
     </div>
 
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- JavaScript untuk Toggle Password --}}
+    {{-- Logic Toggle Password (Tidak diubah) --}}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const togglePassword = document.querySelector("#togglePassword");
             const passwordInput = document.querySelector("#password");
             const icon = togglePassword.querySelector("i");
 
-            togglePassword.addEventListener("click", function () {
+            togglePassword.addEventListener("click", function() {
                 const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
                 passwordInput.setAttribute("type", type);
 
@@ -307,4 +212,5 @@
         });
     </script>
 </body>
+
 </html>

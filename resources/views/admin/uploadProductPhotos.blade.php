@@ -1,9 +1,9 @@
 @extends('layouts.admin')
 
-@section('title', 'Upload Foto Produk - ' . ($product->nama_produk ?? 'Produk'))
+@section('title', 'Upload Foto Produk')
 
 @push('page-actions')
-    <a href="{{ route('admin.products.photos') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+    <a href="{{ route('admin.products.photos') }}" class="btn btn-light border px-3 fw-medium text-secondary d-flex align-items-center gap-2">
         <i class="fas fa-arrow-left"></i>
         <span>Kembali</span>
     </a>
@@ -11,55 +11,64 @@
 
 @section('content')
 
-@if ($errors->any())
-    <div class="alert alert-danger mb-4">
-        <h5 class="alert-heading">Ada Kesalahan!</h5>
-        <ul class="mb-0">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
 <div class="row">
-    {{-- Informasi Produk --}}
-    <div class="col-12 mb-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <h5 class="card-title mb-1">{{ $product->nama_produk }}</h5>
-                <p class="text-muted mb-0">SKU: <strong>{{ $product->kode_sku }}</strong></p>
+    <div class="col-12">
+        
+        {{-- Error Alert --}}
+        @if ($errors->any())
+            <div class="alert alert-danger mb-4 border-0 shadow-sm">
+                <h5 class="alert-heading small fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i>Ada Kesalahan!</h5>
+                <ul class="mb-0 small">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
-        </div>
-    </div>
+        @endif
 
-    {{-- Upload Gambar Baru --}}
-    <div class="col-12 mb-4">
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="card shadow-sm border-0" style="border-radius: 10px;">
+            
+            {{-- Card Header (Disatukan dengan Info Produk agar rapi) --}}
+            <div class="card-header bg-white border-0 pt-4 ps-4 pe-4 pb-0">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
                     <div>
-                        <h5 class="card-title mb-1">Upload Gambar Baru</h5>
-                        <small class="text-muted">Maksimal 10 gambar. Pilih gambar untuk preview, lalu klik Simpan untuk mengunggah.</small>
+                        <h5 class="fw-bold text-dark mb-0">
+                            <i class="fa-solid fa-images me-2 text-primary"></i>
+                            Upload Foto Produk
+                        </h5>
+                        <p class="text-muted small mt-1 mb-0">
+                            Produk: <strong class="text-dark">{{ $product->nama_produk }}</strong> &bull; SKU: <span class="badge bg-light text-dark border">{{ $product->kode_sku }}</span>
+                        </p>
                     </div>
-                    <button id="save-uploads" class="btn btn-primary btn-slim" disabled>
-                        <i class="fas fa-save me-1"></i> Simpan
+                </div>
+            </div>
+
+            <div class="card-body p-4">
+                
+                {{-- Toolbar / Instruksi --}}
+                <div class="bg-light p-3 rounded mb-4 border-start border-4 border-primary d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                <div class="small text-muted">
+                        <i class="fa-solid fa-circle-info me-1 text-primary"></i>
+                        Maksimal <strong>10 gambar</strong> (Max 5MB/file). Klik kotak di bawah untuk memilih gambar.
+                    </div>
+                    
+                    {{-- Tombol Simpan --}}
+                    <button id="save-uploads" class="btn btn-primary px-4 fw-medium d-flex align-items-center gap-2" disabled>
+                        <i class="fas fa-save"></i> Simpan Perubahan
                     </button>
                 </div>
 
+                {{-- Area Upload Grid --}}
                 <div id="upload-grid" class="d-flex flex-wrap gap-3">
                     {{-- Upload boxes akan ditambahkan via JavaScript --}}
                 </div>
+                
                 <div id="upload-status" class="mt-3"></div>
-            </div>
-        </div>
-    </div>
 
-    {{-- Gambar Saat Ini
-    <div class="col-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <h5 class="card-title mb-3">Gambar Saat Ini</h5>
+                {{-- Gambar Saat Ini (Komentar Asli) --}}
+                {{-- 
+                <hr class="my-5 opacity-25">
+                <h6 class="fw-bold text-dark mb-3">Gambar Saat Ini</h6>
                 <div id="current-images" class="d-flex flex-wrap gap-3">
                     @forelse ($product->photos as $photo)
                     <div class="card border position-relative" style="width: 160px;" data-image-id="{{ $photo->id }}">
@@ -85,120 +94,23 @@
                         </div>
                     </div>
                     @empty
-                    <div class="w-100 text-center py-5">
-                        <i class="fas fa-image fa-3x text-muted mb-3"></i>
-                        <p class="text-muted mb-0">Belum ada gambar yang diunggah.</p>
+                    <div class="w-100 text-center py-4 bg-light rounded border border-dashed">
+                        <i class="fas fa-image fa-2x text-muted mb-2"></i>
+                        <p class="text-muted small mb-0">Belum ada gambar yang diunggah.</p>
                     </div>
                     @endforelse
-                </div>
+                </div> 
+                --}}
+
             </div>
         </div>
-    </div> --}}
+    </div>
 </div>
 
 @endsection
 
 @push('styles')
-<style>
-    .btn-slim {
-        height: 40px;
-        padding: 0.375rem 0.75rem;
-        font-size: 0.875rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .upload-box {
-        width: 160px;
-        height: 160px;
-        background: #f8f9fc;
-        border: 2px dashed #ced4da;
-        border-radius: 8px;
-        cursor: pointer;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-
-    .upload-box:hover {
-        border-color: #4e6bff;
-        background: #f0f4ff;
-    }
-
-    .upload-box.has-image {
-        border: 2px solid #4e6bff;
-    }
-
-    .upload-box .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100%;
-        color: #6c757d;
-    }
-
-    .upload-box .preview {
-        width: 100%;
-        height: 100%;
-        position: relative;
-    }
-
-    .upload-box .preview img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .upload-box .controls {
-        position: absolute;
-        top: 4px;
-        right: 4px;
-        z-index: 10;
-    }
-
-    .upload-box .main-choice {
-        position: absolute;
-        bottom: 4px;
-        left: 4px;
-        z-index: 10;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 4px 8px;
-        border-radius: 4px;
-    }
-
-    .upload-box .main-choice label {
-        margin: 0;
-        font-size: 0.75rem;
-        cursor: pointer;
-    }
-
-    .upload-status {
-        padding: 0.5rem;
-        border-radius: 4px;
-        font-size: 0.875rem;
-    }
-
-    .upload-status.success {
-        background: #d1e7dd;
-        color: #0f5132;
-    }
-
-    .upload-status.error {
-        background: #f8d7da;
-        color: #842029;
-    }
-
-    #current-images .card {
-        transition: transform 0.2s ease;
-    }
-
-    #current-images .card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-</style>
+    <link rel="stylesheet" href="{{ asset('css/upload-photo.css') }}">
 @endpush
 
 @push('scripts')
@@ -221,22 +133,23 @@ document.addEventListener('DOMContentLoaded', function() {
         box.className = 'upload-box';
         box.dataset.boxIndex = idx;
 
+        // HTML structure di dalam box (tidak diubah logicnya)
         box.innerHTML = `
             <input type="file" accept="image/*" class="d-none file-input" data-index="${idx}">
             <div class="empty-state">
                 <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
-                <div style="font-size: 0.75rem;">Klik untuk Upload</div>
+                <div style="font-size: 0.75rem; font-weight: 500;">Klik Upload</div>
             </div>
             <div class="preview d-none"></div>
             <div class="controls d-none">
-                <button type="button" class="btn btn-sm btn-danger btn-remove-queue" data-index="${idx}" title="Hapus">
+                <button type="button" class="btn btn-danger btn-remove-queue" data-index="${idx}" title="Hapus">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="main-choice d-none">
                 <label class="form-check-label">
-                    <input type="radio" name="main_image_choice" value="new_${idx}" class="form-check-input">
-                    <span style="font-size: 0.75rem;">Utama</span>
+                    <input type="radio" name="main_image_choice" value="new_${idx}" class="form-check-input mt-0">
+                    <span>Utama</span>
                 </label>
             </div>
         `;
@@ -289,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Remove button
         removeBtn.addEventListener('click', function(e) {
             e.stopPropagation();
-            if (confirm('Hapus gambar ini dari antrian?')) {
+            // if (confirm('Hapus gambar ini dari antrian?')) { // Optional: remove confirm for smoother UX
                 // Uncheck radio jika ini yang dipilih sebagai utama
                 const radio = box.querySelector('input[type="radio"]');
                 if (radio && radio.checked) {
@@ -300,7 +213,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 box.remove();
                 updateSaveButton();
                 ensureBoxes();
-            }
+            // }
         });
 
         return box;
@@ -328,9 +241,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const hasFiles = Object.keys(queuedFiles).length > 0;
         saveBtn.disabled = !hasFiles;
         if (hasFiles) {
-            saveBtn.innerHTML = `<i class="fas fa-save me-1"></i> Simpan (${Object.keys(queuedFiles).length})`;
+            saveBtn.innerHTML = `<i class="fas fa-save"></i> Simpan (${Object.keys(queuedFiles).length})`;
         } else {
-            saveBtn.innerHTML = `<i class="fas fa-save me-1"></i> Simpan`;
+            saveBtn.innerHTML = `<i class="fas fa-save"></i> Simpan Perubahan`;
         }
     }
 

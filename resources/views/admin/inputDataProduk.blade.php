@@ -1,196 +1,366 @@
 @extends('layouts.admin')
-@php $isEdit = isset($product); @endphp
+
+@php
+    $isEdit = isset($product);
+@endphp
 
 @section('title', $isEdit ? 'Edit Data Produk' : 'Tambah Data Produk')
 
-@section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                @if ($errors->any())
-                <div class="alert alert-danger">
-                    <ul class="mb-0">
-                        @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-                @endif
+@push('page-actions')
+    @php
+        $backRoute = route('admin.products.index');
+    @endphp
 
-                <form action="{{ $isEdit ? route('admin.products.update', $product->id) : route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    @if($isEdit)
-                    @method('PUT')
-                    @endif
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <h5>DATA PRODUK</h5>
-                            <hr style="border: 0.5px solid black; margin: 1.5rem 0;">
-                            <label for="nama_produk" class="form-label">Nama Produk</label>
-                            <input type="text"
-                                class="form-control"
-                                id="nama_produk"
-                                name="nama_produk"
-                                value="{{ old('nama_produk', $isEdit ? $product->nama_produk : '') }}"
-                                placeholder="Masukkan nama produk">
+    <a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
+        <i class="fas fa-arrow-left me-1"></i> Kembali
+    </a>
+@endpush
+
+@section('content')
+
+    {{-- Error Alert --}}
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm border-0"
+             role="alert"
+             style="border-left: 5px solid #dc3545 !important;">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-circle-exclamation text-danger"></i>
+                <strong class="text-danger">Ada Kesalahan Input!</strong>
+            </div>
+            <ul class="mb-0 mt-1 small text-secondary">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <form action="{{ $isEdit ? route('admin.products.update', $product->id) : route('admin.products.store') }}"
+          method="POST"
+          enctype="multipart/form-data">
+        @csrf
+        @if ($isEdit)
+            @method('PUT')
+        @endif
+
+        <div class="row">
+
+            {{-- KOLOM KIRI: Informasi Utama & Media --}}
+            <div class="col-lg-8">
+
+                {{-- CARD 1: INFORMASI PRODUK --}}
+                <div class="card shadow-sm border-0 mb-4" style="border-radius: 8px;">
+                    <div class="card-header bg-white border-bottom-0 pt-4 ps-4">
+                        <h6 class="fw-bold text-dark mb-0">
+                            <i class="fa-solid fa-box-open me-2 text-primary"></i>
+                            Informasi Produk
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+
+                        {{-- Nama Produk --}}
+                        <div class="mb-4">
+                            <label class="form-label text-secondary small fw-medium">Nama Produk</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">
+                                    <i class="fa-solid fa-tag"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 py-2 @error('nama_produk') is-invalid @enderror"
+                                    name="nama_produk"
+                                    value="{{ old('nama_produk', $isEdit ? $product->nama_produk : '') }}"
+                                    placeholder="Contoh: Kamera Canon EOS 600D"
+                                    required>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <h5>HARGA</h5>
-                            <hr style="border: 0.5px solid black; margin: 1.5rem 0;">
-                            <label for="harga_jual" class="form-label">Harga Jual</label>
-                            <input type="number"
-                                class="form-control"
-                                id="harga_jual"
-                                name="harga_jual"
-                                value="{{ old('harga_jual', $isEdit ? $product->harga_jual : '') }}"
-                                placeholder="Masukkan harga jual">
+
+                        {{-- Deskripsi --}}
+                        <div class="mb-0">
+                            <label class="form-label text-secondary small fw-medium">Deskripsi Lengkap</label>
+                            <textarea
+                                class="form-control py-2 @error('deskripsi_produk') is-invalid @enderror"
+                                name="deskripsi_produk"
+                                rows="5"
+                                placeholder="Tuliskan spesifikasi, kelengkapan, dan kondisi detail produk...">{{ old('deskripsi_produk', $isEdit ? $product->deskripsi_produk : '') }}</textarea>
                         </div>
                     </div>
+                </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="id_kategori" class="form-label">Kategori</label>
-                            <select class="form-select" id="id_kategori" name="id_kategori">
-                                <option value="" disabled {{ old('id_kategori', $isEdit ? $product->id_kategori : '') ? '' : 'selected' }}>Pilih kategori</option>
-                                @foreach ($semua_kategori as $kategori)
-                                <option value="{{ $kategori->id }}" {{ old('id_kategori', $isEdit ? $product->id_kategori : '') == $kategori->id ? 'selected' : '' }}>
-                                    {{ $kategori->nama_kategori }}
+                {{-- CARD 2: MEDIA PRODUK --}}
+                <div class="card shadow-sm border-0 mb-4" style="border-radius: 8px;">
+                    <div class="card-header bg-white border-bottom-0 pt-4 ps-4">
+                        <h6 class="fw-bold text-dark mb-0">
+                            <i class="fa-solid fa-images me-2 text-primary"></i>
+                            Media Produk
+                        </h6>
+                    </div>
+
+                    <div class="card-body p-4">
+
+                        <div class="small text-muted mb-3">
+                            <i class="fa-solid fa-circle-info me-1 text-primary"></i>
+                            Maksimal <strong>10 gambar</strong> (Max 5MB/file). Klik kotak di bawah untuk memilih gambar.
+                        </div>
+
+                        {{-- HIDDEN INPUT (diisi otomatis oleh JS) --}}
+                        <input type="file" id="image-input-hidden" name="images[]" multiple class="d-none">
+
+                        {{-- Upload grid modern --}}
+                        <div id="upload-grid" class="d-flex flex-wrap gap-3">
+                            {{-- JS akan generate upload-box --}}
+                        </div>
+
+                        {{-- Status upload --}}
+                        <div id="upload-status" class="mt-3"></div>
+
+                        {{-- Gambar Saat Ini --}}
+                        @if ($isEdit && isset($product) && $product->photos && $product->photos->count())
+                            <hr class="my-5 opacity-25">
+                            <h6 class="fw-bold text-dark mb-3">Gambar Saat Ini</h6>
+
+                            <div id="current-images" class="d-flex flex-wrap gap-3">
+                                @foreach ($product->photos as $photo)
+                                    <div class="card border position-relative"
+                                         style="width: 160px;"
+                                         data-image-id="{{ $photo->id }}">
+                                        <img
+                                            src="{{ asset('storage/' . $photo->path) }}"
+                                            class="card-img-top"
+                                            style="height: 160px; object-fit: cover;"
+                                            alt="Gambar produk">
+                                        <div class="card-body p-2">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    @if ($photo->is_main)
+                                                        <span class="badge bg-primary">Utama</span>
+                                                    @else
+                                                        <span class="badge bg-secondary">Tambahan</span>
+                                                    @endif
+                                                </div>
+                                                <div class="btn-group btn-group-sm">
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-outline-info btn-set-main"
+                                                        data-image-id="{{ $photo->id }}"
+                                                        title="Set sebagai Gambar Utama">
+                                                        <i class="fas fa-star"></i>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-outline-danger remove-image"
+                                                        data-image-id="{{ $photo->id }}"
+                                                        title="Hapus">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                    </div>
+                </div>
+
+            </div>
+
+            {{-- KOLOM KANAN: Inventaris & Harga --}}
+            <div class="col-lg-4">
+
+                {{-- CARD 3: KLASIFIKASI & STOK --}}
+                <div class="card shadow-sm border-0 mb-4" style="border-radius: 8px;">
+                    <div class="card-header bg-white border-bottom-0 pt-4 ps-4">
+                        <h6 class="fw-bold text-dark mb-0">
+                            <i class="fa-solid fa-list-check me-2 text-warning"></i>
+                            Klasifikasi & Stok
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+
+                        {{-- Kategori --}}
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-medium">Kategori</label>
+                            <select
+                                class="form-select py-2 text-secondary @error('id_kategori') is-invalid @enderror"
+                                name="id_kategori">
+                                <option value="" disabled
+                                    {{ old('id_kategori', $isEdit ? $product->id_kategori : '') ? '' : 'selected' }}>
+                                    -- Pilih Kategori --
                                 </option>
+                                @foreach ($semua_kategori as $kategori)
+                                    <option
+                                        value="{{ $kategori->id }}"
+                                        {{ old('id_kategori', $isEdit ? $product->id_kategori : '') == $kategori->id ? 'selected' : '' }}>
+                                        {{ $kategori->nama_kategori }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label for="harga_beli" class="form-label">Harga Beli</label>
-                            <input type="number"
-                                class="form-control"
-                                id="harga_beli"
-                                name="harga_beli"
-                                value="{{ old('harga_beli', $isEdit ? $product->harga_beli : '') }}"
-                                placeholder="Masukkan harga beli">
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="kode_sku" class="form-label">Kode SKU</label>
-                            <input type="text"
-                                class="form-control"
-                                id="kode_sku"
-                                name="kode_sku"
-                                value="{{ old('kode_sku', $isEdit ? $product->kode_sku : '') }}"
-                                placeholder="Masukkan kode SKU">
-                        </div>
-                        <div class="col-md-6">
-                            <label for="harga_servis" class="form-label">Harga Servis</label>
-                            <input type="number"
-                                class="form-control"
-                                id="harga_servis"
-                                name="harga_servis"
-                                value="{{ old('harga_servis', $isEdit ? $product->harga_servis : '') }}"
-                                placeholder="Masukkan harga servis">
-                        </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="stok_produk" class="form-label">Stok Produk</label>
-                            <input type="number"
-                                class="form-control"
-                                id="stok_produk"
-                                name="stok_produk"
-                                value="{{ old('stok_produk', $isEdit ? $product->stok_produk : '') }}"
-                                placeholder="Masukkan stok produk">
+                        {{-- SKU --}}
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-medium">Kode SKU</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">
+                                    <i class="fa-solid fa-barcode"></i>
+                                </span>
+                                <input
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 py-2 @error('kode_sku') is-invalid @enderror"
+                                    name="kode_sku"
+                                    value="{{ old('kode_sku', $isEdit ? $product->kode_sku : '') }}"
+                                    placeholder="SKU-0000">
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label for="status" class="form-label">Status</label>
-                            <select class="form-select" id="status" name="status">
-                                <option value="" disabled {{ old('status', $isEdit ? $product->status : '') ? '' : 'selected' }}>Pilih status</option>
-                                <option value="Second" {{ old('status', $isEdit ? $product->status : '') === 'Second' ? 'selected' : '' }}>Second</option>
-                                <option value="Baru" {{ old('status', $isEdit ? $product->status : '') === 'Baru' ? 'selected' : '' }}>Baru</option>
-                            </select>
+
+                        {{-- Stok --}}
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-medium">Stok</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">
+                                    <i class="fa-solid fa-cubes"></i>
+                                </span>
+                                <input
+                                    type="number"
+                                    class="form-control border-start-0 ps-2 py-2 @error('stok_produk') is-invalid @enderror"
+                                    name="stok_produk"
+                                    value="{{ old('stok_produk', $isEdit ? $product->stok_produk : '') }}"
+                                    placeholder="0"
+                                    min="0">
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="grade" class="form-label">Grade</label>
-                            <select class="form-select" id="grade" name="grade">
-                                <option value="" disabled {{ old('grade', $isEdit ? $product->grade : '') ? '' : 'selected' }}>Pilih grade</option>
-                                <option value="Unggulan" {{ old('grade', $isEdit ? $product->grade : '') === 'Unggulan' ? 'selected' : '' }}>Unggulan</option>
-                                <option value="Standar" {{ old('grade', $isEdit ? $product->grade : '') === 'Standar' ? 'selected' : '' }}>Standar</option>
-                                <option value="Minus" {{ old('grade', $isEdit ? $product->grade : '') === 'Minus' ? 'selected' : '' }}>Minus</option>
-                            </select>
+                        {{-- Kondisi & Grade --}}
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label text-secondary small fw-medium">Kondisi</label>
+                                <select class="form-select py-2 text-secondary" name="status">
+                                    <option
+                                        value="Second"
+                                        {{ old('status', $isEdit ? $product->status : '') === 'Second' ? 'selected' : '' }}>
+                                        Second
+                                    </option>
+                                    <option
+                                        value="Baru"
+                                        {{ old('status', $isEdit ? $product->status : '') === 'Baru' ? 'selected' : '' }}>
+                                        Baru
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label text-secondary small fw-medium">Grade</label>
+                                <select class="form-select py-2 text-secondary" name="grade">
+                                    <option
+                                        value="Unggulan"
+                                        {{ old('grade', $isEdit ? $product->grade : '') === 'Unggulan' ? 'selected' : '' }}>
+                                        Unggulan
+                                    </option>
+                                    <option
+                                        value="Standar"
+                                        {{ old('grade', $isEdit ? $product->grade : '') === 'Standar' ? 'selected' : '' }}>
+                                        Standar
+                                    </option>
+                                    <option
+                                        value="Minus"
+                                        {{ old('grade', $isEdit ? $product->grade : '') === 'Minus' ? 'selected' : '' }}>
+                                        Minus
+                                    </option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label for="deskripsi_produk" class="form-label">Deskripsi Produk</label>
-                            <textarea class="form-control" id="deskripsi_produk" name="deskripsi_produk" rows="4" placeholder="Masukkan deskripsi produk">{{ old('deskripsi_produk', $isEdit ? $product->deskripsi_produk : '') }}</textarea>
-                        </div>
-                    </div>
 
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="images" class="form-label">Gambar Produk</label>
-
-                            <input type="file"
-                                class="form-control"
-                                id="images"
-                                name="images[]"
-                                accept="image/*"
-                                multiple="multiple"
-                                {{ $isEdit ? '' : 'required' }}>
-
-                            <small class="text-muted">Gambar pertama akan menjadi gambar utama. Maksimal 5 MB per file.</small>
-
-                            <!-- PREVIEW GAMBAR BARU -->
-                            <div id="image-grid" class="d-flex flex-wrap gap-3 mt-3"></div>
-                            @if($isEdit)
-                            @foreach($product->gambar as $img)
-                            <script>
-                                window.existingImages = window.existingImages || [];
-                                window.existingImages.push({
-                                    id: "{{ $img->id }}",
-                                    url: "{{ Storage::disk('r2')->url($img->path_gambar) }}"
-                                });
-                            </script>
-
-                            <input
-                                type="hidden"
-                                name="remove_images[]"
-                                value=""
-                                class="remove-input-{{ $img->id }}">
-                            @endforeach
-                            @endif
-
-                        </div>
-                    </div>
-
-
-                    <div class="col-md-6 d-flex align-items-end justify-content-end">
-                        <div class="text-end w-100">
-                            <a href="{{ route('admin.products.index') }}" class="btn btn-light me-2">Batal</a>
-                            <button type="submit" class="btn btn-primary">{{ $isEdit ? 'Update' : 'Simpan' }}</button>
-                        </div>
-                    </div>
-            </div>
-            </form>
-            <!-- FULL IMAGE MODAL -->
-            <div class="modal fade" id="imageModal" tabindex="-1">
-                <div class="modal-dialog modal-dialog-centered modal-lg">
-                    <div class="modal-content bg-dark">
-                        <div class="modal-body p-0 text-center">
-                            <img id="modalImage" src="" class="img-fluid rounded" alt="">
-                        </div>
-                        <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
                     </div>
                 </div>
+
+                {{-- CARD 4: HARGA --}}
+                <div class="card shadow-sm border-0 mb-4" style="border-radius: 8px;">
+                    <div class="card-header bg-white border-bottom-0 pt-4 ps-4">
+                        <h6 class="fw-bold text-dark mb-0">
+                            <i class="fa-solid fa-tags me-2 text-success"></i>
+                            Harga
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+
+                        {{-- Harga Beli --}}
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-medium">Harga Beli (Modal)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
+                                <input
+                                    type="number"
+                                    class="form-control border-start-0 ps-2 py-2"
+                                    name="harga_beli"
+                                    value="{{ old('harga_beli', $isEdit ? $product->harga_beli : '') }}"
+                                    placeholder="0">
+                            </div>
+                        </div>
+
+                        {{-- Harga Jual --}}
+                        <div class="mb-3">
+                            <label class="form-label text-secondary small fw-medium">Harga Jual</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
+                                <input
+                                    type="number"
+                                    class="form-control border-start-0 ps-2 py-2"
+                                    name="harga_jual"
+                                    value="{{ old('harga_jual', $isEdit ? $product->harga_jual : '') }}"
+                                    placeholder="0">
+                            </div>
+                        </div>
+
+                        {{-- Harga Servis --}}
+                        <div class="mb-0">
+                            <label class="form-label text-secondary small fw-medium">Estimasi Servis</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
+                                <input
+                                    type="number"
+                                    class="form-control border-start-0 ps-2 py-2"
+                                    name="harga_servis"
+                                    value="{{ old('harga_servis', $isEdit ? $product->harga_servis : '') }}"
+                                    placeholder="0">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
             </div>
 
         </div>
-    </div>
-</div>
-</div>
+
+        {{-- FOOTER ACTION BAR: Tombol Simpan --}}
+        <div class="d-flex justify-content-end align-items-center p-4">
+            <button type="submit" class="btn btn-primary fw-bold px-4 shadow-sm">
+                <i class="fa-solid fa-save me-2"></i>
+                {{ $isEdit ? 'Simpan Perubahan' : 'Simpan Produk Baru' }}
+            </button>
+        </div>
+
+    </form>
+
+    {{-- LOGIC HIDDEN INPUT UNTUK REMOVE IMAGES (Jika dipakai di JS) --}}
+    @if ($isEdit && isset($product) && $product->photos && $product->photos->count())
+        @foreach ($product->photos as $img)
+            <input
+                type="hidden"
+                name="remove_images[]"
+                value=""
+                class="remove-input-{{ $img->id }}">
+        @endforeach
+    @endif
+
 @endsection
 
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/upload-photo.css') }}">
+@endpush
+
 @push('scripts')
-<script src="{{ asset('js/productImages.js') }}"></script>
+    <script src="{{ asset('js/productImages.js') }}"></script>
 @endpush

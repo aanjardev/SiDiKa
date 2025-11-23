@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class CatalogSettings extends Model
 {
@@ -21,4 +22,12 @@ class CatalogSettings extends Model
         'tokopedia_link',
         'shopee_link',
     ];
+    public function getLogoUrlAttribute()
+    {
+        return $this->logo_path
+            ? Storage::disk('r2')->url($this->logo_path)
+            : null;
+    }
+    protected $appends = ['logo_url'];
+
 }

@@ -112,18 +112,28 @@ class CatalogSeeder extends Seeder
         $source = $localDir . DIRECTORY_SEPARATOR . $filename;
 
         if (!is_file($source)) {
-            throw new \RuntimeException("File tidak ditemukan untuk seeder katalog: {$source}");
+            throw new \RuntimeException("Seeder image not found: {$source}");
         }
 
-        $ext = pathinfo($source, PATHINFO_EXTENSION);
-        $remoteName = Str::uuid() . '.' . $ext;
+        // Hash isi file → nama file selalu konsisten
+        $hash = sha1_file($source);
+        $ext = strtolower(pathinfo($source, PATHINFO_EXTENSION));
+        $remoteName = "{$hash}.{$ext}";
+        $remotePath = "{$prefix}/{$remoteName}";
 
-        return Storage::disk('r2')->putFileAs(
+        // Jika sudah ada → return
+        if (Storage::disk('r2')->exists($remotePath)) {
+            return $remotePath;
+        }
+
+        Storage::disk('r2')->putFileAs(
             $prefix,
             new File($source),
             $remoteName,
             ['visibility' => 'public']
         );
+
+        return $remotePath;
     }
 
 
@@ -135,18 +145,27 @@ class CatalogSeeder extends Seeder
         $temp = tempnam(sys_get_temp_dir(), 'img_');
         file_put_contents($temp, file_get_contents($url));
 
-        $ext = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION);
-        $ext = $ext ?: 'jpg';
+        // Hash isi file
+        $hash = sha1_file($temp);
+        $ext = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION) ?: 'jpg';
+        $remoteName = "{$hash}.{$ext}";
+        $remotePath = "{$prefix}/{$remoteName}";
 
-        $remoteName = Str::uuid() . '.' . $ext;
+        // Jika sudah ada → cleanup + return
+        if (Storage::disk('r2')->exists($remotePath)) {
+            @unlink($temp);
+            return $remotePath;
+        }
 
-        $path = Storage::disk('r2')->putFileAs($prefix, new File($temp), $remoteName, [
-            'visibility' => 'public'
-        ]);
+        Storage::disk('r2')->putFileAs(
+            $prefix,
+            new File($temp),
+            $remoteName,
+            ['visibility' => 'public']
+        );
 
         @unlink($temp);
 
-        return $path;
+        return $remotePath;
     }
 }
-

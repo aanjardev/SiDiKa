@@ -1,108 +1,124 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const imageGrid = document.getElementById("image-grid");
-    const inputImages = document.getElementById("images");
+document.addEventListener("DOMContentLoaded", function () {
 
-    let newFiles = []; // file baru
-    let oldFiles = window.existingImages || []; // gambar lama (dari DB)
+    const uploadGrid = document.getElementById("upload-grid");
+    const hiddenInput = document.getElementById("image-input-hidden");
 
-    // =============== RENDER ALL ===============
-    function renderGrid() {
-        imageGrid.innerHTML = "";
+    const MAX_FILES = 10;
+    const MAX_SIZE = 5 * 1024 * 1024;
 
-        // 1. gambar lama
-        oldFiles.forEach((img) => {
-            const box = renderImageBox(img.url, () => removeOld(img.id));
-            imageGrid.appendChild(box);
+    let queuedFiles = {};   // index → File
+    let indexCounter = 0;
+
+    function createUploadBox(idx) {
+        const box = document.createElement("div");
+        box.className = "upload-box";
+        box.dataset.index = idx;
+
+        box.innerHTML = `
+            <input type="file" accept="image/*" class="d-none file-input">
+            <div class="empty-state">
+                <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
+                <div style="font-size:0.75rem;font-weight:500;">Klik Upload</div>
+            </div>
+
+            <div class="preview d-none"></div>
+
+            <div class="controls d-none">
+                <button class="btn btn-danger btn-remove-queue" title="Hapus">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="main-choice d-none">
+                <label class="form-check-label">
+                    <input type="radio" name="main_image_choice" value="new_${idx}" class="form-check-input mt-0">
+                    <span>Utama</span>
+                </label>
+            </div>
+        `;
+
+        const input = box.querySelector(".file-input");
+        const removeBtn = box.querySelector(".btn-remove-queue");
+
+        // Klik untuk buka file
+        box.addEventListener("click", function (e) {
+            if (e.target.closest(".controls") || e.target.closest(".main-choice")) return;
+            input.click();
         });
 
-        // 2. gambar baru
-        newFiles.forEach((file, idx) => {
-            const url = URL.createObjectURL(file);
-            const box = renderImageBox(url, () => removeNew(idx));
-            imageGrid.appendChild(box);
-        });
-    }
+        // Input file change
+        input.addEventListener("change", function () {
+            const file = this.files[0];
+            if (!file) return;
 
-    // =============== BUAT KOTAK GAMBAR ===============
-    function renderImageBox(url, onRemove) {
-        const wrapper = document.createElement("div");
-        wrapper.className = "position-relative";
-        wrapper.style.width = "120px";
-        wrapper.style.height = "120px";
+            if (!file.type.startsWith("image/")) {
+                alert("File harus berupa gambar.");
+                return;
+            }
+            if (file.size > MAX_SIZE) {
+                alert("Ukuran gambar maksimal 5MB.");
+                return;
+            }
 
-        // Thumbnail image
-        const img = document.createElement("img");
-        img.src = url;
-        img.className = "img-thumbnail";
-        img.style.width = "120px";
-        img.style.height = "120px";
-        img.style.objectFit = "cover";
-        img.style.cursor = "pointer";
+            previewFile(file, box, idx);
+            queuedFiles[idx] = file;
 
-        // =====================================================
-        // FULL IMAGE VIEWER (klik thumbnail)
-        // =====================================================
-        img.addEventListener("click", function () {
-            const modalImage = document.getElementById("modalImage");
-            modalImage.src = url;
-
-            const myModal = new bootstrap.Modal(
-                document.getElementById("imageModal")
-            );
-            myModal.show();
+            updateHiddenInput();
+            ensureAvailableBox();
         });
 
-        // Tombol remove
-        const btn = document.createElement("button");
-        btn.innerHTML = "×";
-        btn.type = "button";
-        btn.className = "btn btn-danger btn-sm position-absolute top-0 end-0";
-        btn.style.borderRadius = "50%";
-        btn.style.padding = "0 7px";
-        btn.style.transform = "translate(30%, -30%)";
-        btn.addEventListener("click", function (e) {
-            e.stopPropagation(); // ⛔ supaya klik tombol X tidak trigger full image
-            onRemove();
+        // Hapus file
+        removeBtn.addEventListener("click", function (e) {
+            e.stopPropagation();
+
+            delete queuedFiles[idx];
+            box.remove();
+
+            updateHiddenInput();
+            ensureAvailableBox();
         });
 
-        wrapper.appendChild(img);
-        wrapper.appendChild(btn);
-        return wrapper;
+        return box;
     }
 
-    // =============== REMOVE OLD ===============
-    function removeOld(id) {
-        oldFiles = oldFiles.filter((x) => x.id != id);
+    function previewFile(file, box, idx) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const preview = box.querySelector(".preview");
+            preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
 
-        const hidden = document.querySelector(`.remove-input-${id}`);
-        hidden.value = id;
+            box.querySelector(".preview").classList.remove("d-none");
+            box.querySelector(".empty-state").classList.add("d-none");
+            box.querySelector(".controls").classList.remove("d-none");
+            box.querySelector(".main-choice").classList.remove("d-none");
 
-        renderGrid();
+            box.classList.add("has-image");
+        };
+        reader.readAsDataURL(file);
     }
 
-    // =============== REMOVE NEW ===============
-    function removeNew(idx) {
-        newFiles.splice(idx, 1);
-        syncToInput();
-        renderGrid();
+    function updateHiddenInput() {
+        const dataTransfer = new DataTransfer();
+
+        Object.values(queuedFiles).forEach(file => {
+            dataTransfer.items.add(file);
+        });
+
+        hiddenInput.files = dataTransfer.files;
     }
 
-    // =============== SYNC INPUT FILES ===============
-    function syncToInput() {
-        let dt = new DataTransfer();
-        newFiles.forEach((f) => dt.items.add(f));
-        inputImages.files = dt.files;
-    }
+    function ensureAvailableBox() {
+        const current = uploadGrid.querySelectorAll(".upload-box").length;
+        const filled = uploadGrid.querySelectorAll(".upload-box.has-image").length;
 
-    // =============== HANDLE FILE INPUT ===============
-    inputImages.addEventListener("change", function () {
-        for (let i = 0; i < this.files.length; i++) {
-            newFiles.push(this.files[i]);
+        if (current < MAX_FILES && current === filled) {
+            uploadGrid.appendChild(createUploadBox(++indexCounter));
         }
-        syncToInput();
-        renderGrid();
-    });
 
-    // initial render (gambar lama)
-    renderGrid();
+        if (current === 0) {
+            uploadGrid.appendChild(createUploadBox(++indexCounter));
+        }
+    }
+
+    ensureAvailableBox();
 });

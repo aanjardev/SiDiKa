@@ -406,7 +406,11 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
     // 1. Mapping Kategori (Logic Main)
     let kategoriMap = {};
     @foreach($semua_kategori as $kat)
-    kategoriMap[{{ $kat->id }}] = '{{ $kat->nama_kategori }}';
+    kategoriMap[{
+        {
+            $kat - > id
+        }
+    }] = '{{ $kat->nama_kategori }}';
     @endforeach
 
     let currentPembelianId = '{{ $pembelian->id ?? '' }}';
