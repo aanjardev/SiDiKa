@@ -11,9 +11,10 @@ class Customer extends Model
     protected $table = 'customer';
 
      protected $fillable = [
-        'kode_customer', // TAMBAH INI
+        'kode_customer',
         'nama',
         'no_telp',
+        'email',
         'identitas',
         'jenis_kelamin',
         'alamat',

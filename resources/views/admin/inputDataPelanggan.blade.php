@@ -64,6 +64,20 @@
                         </div>
                     </div>
 
+                    {{-- Baris 2.5: Email --}}
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email <small class="text-muted">(untuk pengiriman nota)</small></label>
+                                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $pelanggan->email ?? '') }}" placeholder="contoh@email.com (opsional)" {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>
+                                @error('email')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                                <small class="form-text text-muted">Email digunakan untuk mengirim nota pembelian secara otomatis.</small>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Baris 3: Alamat --}}
                     <div class="mb-3">
                         <label for="alamat" class="form-label">Alamat</label>

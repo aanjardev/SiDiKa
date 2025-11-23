@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Produk;
 use App\Models\Kategori;
 use App\Models\GambarProduk;
+use App\Jobs\ProcessProductImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -112,9 +114,9 @@ class AdminProductController extends Controller
     }
 
     /**
-     * Store uploaded photos for a product
+     * Store uploaded photos for a product (Using Queue for Background Processing)
      */
-    public function photosUploadStore(Request $request, $id)
+    public function photosUploadStore(Request $request, int $id)
     {
         $product = Produk::findOrFail($id);
         $validated = $request->validate([
@@ -123,55 +125,51 @@ class AdminProductController extends Controller
             'main_image' => ['nullable', 'string'],
         ]);
 
-        DB::beginTransaction();
         try {
             $images = $request->file('images', []);
-            $createdIds = [];
-            $hasMain = $product->gambarUtama()->exists();
-
-            foreach ($images as $index => $image) {
-                $extension = $image->getClientOriginalExtension();
-                $filename = Str::uuid()->toString() . ($extension ? '.' . $extension : '');
-                $path = Storage::disk('r2')->putFileAs('product', $image, $filename, [
-                    'visibility' => 'public',
-                ]);
-
-                $g = \App\Models\GambarProduk::create([
-                    'id_produk' => $product->id,
-                    'path_gambar' => $path,
-                    'is_main' => false,
-                ]);
-                $createdIds[] = $g->id;
+            if (empty($images)) {
+                return back()->withInput()->withErrors(['error' => 'Tidak ada gambar yang diunggah.']);
             }
 
-            // handle explicit main selection: 'existing_{id}' or 'new_{index}'
-            if (!empty($validated['main_image'])) {
-                $main = $validated['main_image'];
-                if (str_starts_with($main, 'existing_')) {
-                    $idToSet = intval(substr($main, strlen('existing_')));
-                    \App\Models\GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
-                    \App\Models\GambarProduk::where('id_produk', $product->id)->where('id', $idToSet)->update(['is_main' => true]);
-                } elseif (str_starts_with($main, 'new_')) {
-                    $idx = intval(substr($main, strlen('new_')));
-                    if (isset($createdIds[$idx])) {
-                        \App\Models\GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
-                        \App\Models\GambarProduk::where('id_produk', $product->id)->where('id', $createdIds[$idx])->update(['is_main' => true]);
+            // Store images temporarily in local storage
+            $temporaryPaths = [];
+            foreach ($images as $image) {
+                $tempPath = $image->store('temp/product-uploads', 'local');
+                $temporaryPaths[] = $tempPath;
+            }
+
+            // Extract main image index if provided (format: 'new_{index}')
+            $mainImageIndex = null;
+            if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'new_')) {
+                $mainImageIndex = intval(substr($validated['main_image'], strlen('new_')));
+            }
+
+            // Dispatch job to process images in background
+            ProcessProductImage::dispatch(
+                $product->id,
+                $temporaryPaths,
+                $mainImageIndex,
+                Auth::id()
+            );
+
+            return redirect()
+                ->route('admin.products.photos')
+                ->with('success', 'Foto sedang diproses di latar belakang. Anda akan menerima notifikasi ketika selesai.');
+
+        } catch (\Throwable $th) {
+            // Clean up any temporary files if error occurs before dispatch
+            if (isset($temporaryPaths)) {
+                foreach ($temporaryPaths as $tempPath) {
+                    if (Storage::disk('local')->exists($tempPath)) {
+                        Storage::disk('local')->delete($tempPath);
                     }
                 }
-            } else {
-                // if no explicit main chosen and there was no existing main, set first created as main
-                if (!$hasMain && !empty($createdIds)) {
-                    \App\Models\GambarProduk::where('id', $createdIds[0])->update(['is_main' => true]);
-                }
             }
 
-            DB::commit();
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return back()->withInput()->withErrors(['error' => 'Gagal mengunggah gambar: ' . $th->getMessage()]);
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Gagal memproses upload: ' . $th->getMessage()]);
         }
-
-        return redirect()->route('admin.products.photos')->with('success', 'Gambar berhasil diunggah.');
     }
 
     /**

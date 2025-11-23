@@ -261,33 +261,37 @@ class PembelianController extends Controller
         return view('admin.reviewPembelian', ['pembelian' => $pembelian]);
     }
 
+    /**
+     * Print nota pembelian (Synchronous - Direct Download)
+     * This method is kept for direct PDF download functionality
+     */
     public function printNota($id)
-        {
-            // 1. Ambil data pembelian dengan semua relasi yang dibutuhkan
-            $pembelian = Pembelian::with([
-                                'customer',
-                                'perusahaan_cabang',
-                                'user',
-                                'item_pembelian_draft.kategori'
-                            ])->findOrFail($id);
+    {
+        // 1. Ambil data pembelian dengan semua relasi yang dibutuhkan
+        $pembelian = Pembelian::with([
+                            'customer',
+                            'perusahaan_cabang',
+                            'user',
+                            'item_pembelian_draft.kategori'
+                        ])->findOrFail($id);
 
-            // Pastikan transaksi sudah 'deal' sebelum mencetak nota resmi (opsional)
-            if ($pembelian->status_pembelian !== 'deal') {
-                return back()->with('error', 'Nota hanya bisa dicetak untuk transaksi yang statusnya "Deal".');
-            }
-
-            $data = [
-                'pembelian' => $pembelian,
-                'title' => 'Nota Pembelian #' . $pembelian->kode_transaksi
-            ];
-
-            // 2. Load view template PDF
-            // Asumsi template ada di resources/views/admin/notaPembelian.blade.php
-            $pdf = Pdf::loadView('admin.notaPembelian', $data);
-
-            // 3. Kembalikan PDF untuk di-stream di browser
-            return $pdf->stream('Nota_Pembelian_' . $pembelian->kode_transaksi . '.pdf');
+        // Pastikan transaksi sudah 'deal' sebelum mencetak nota resmi (opsional)
+        if ($pembelian->status_pembelian !== 'deal') {
+            return back()->with('error', 'Nota hanya bisa dicetak untuk transaksi yang statusnya "Deal".');
         }
+
+        $data = [
+            'pembelian' => $pembelian,
+            'title' => 'Nota Pembelian #' . $pembelian->kode_transaksi
+        ];
+
+        // 2. Load view template PDF
+        // Asumsi template ada di resources/views/admin/notaPembelian.blade.php
+        $pdf = Pdf::loadView('admin.notaPembelian', $data);
+
+        // 3. Kembalikan PDF untuk di-stream di browser
+        return $pdf->stream('Nota_Pembelian_' . $pembelian->kode_transaksi . '.pdf');
+    }
 
     public function ajaxStoreItemDraft(Request $request)
     {

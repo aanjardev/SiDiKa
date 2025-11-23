@@ -97,6 +97,7 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:50',
             'no_telp' => 'required|string|max:20',
+            'email' => 'nullable|email|max:100',
             'identitas' => 'nullable|string|max:20',
             'jenis_kelamin' => 'required|in:L,P',
             'alamat' => 'nullable|string|max:100',
@@ -105,6 +106,7 @@ class CustomerController extends Controller
         ], [
             'nama.required' => 'Nama pelanggan wajib diisi.',
             'no_telp.required' => 'Nomor telepon wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
             'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
             'jenis_kelamin.in' => 'Jenis kelamin harus L atau P.',
         ]);
