@@ -199,14 +199,14 @@
                             <label class="form-label fw-medium text-secondary small">Diskon</label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text bg-white text-muted border-end-0">Rp</span>
-                                <input type="number" name="diskon" class="form-control border-start-0 ps-1" value="{{ old('diskon', $penjualan->diskon ?? 0) }}" min="0">
+                                <input type="text" name="diskon" class="form-control border-start-0 ps-1 rupiah-mask" value="{{ old('diskon', $penjualan->diskon ?? 0) }}" min="0">
                             </div>
                         </div>
                         <div class="col-6">
                             <label class="form-label fw-medium text-secondary small">Biaya Tambahan</label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text bg-white text-muted border-end-0">Rp</span>
-                                <input type="number" name="biaya_tambahan" class="form-control border-start-0 ps-1" value="{{ old('biaya_tambahan', $biaya_tambahan_awal ?? 0) }}" min="0">
+                                <input type="text" name="biaya_tambahan" class="form-control border-start-0 ps-1 rupiah-mask" value="{{ old('biaya_tambahan', $biaya_tambahan_awal ?? 0) }}" min="0">
                             </div>
                         </div>
                     </div>
@@ -215,7 +215,7 @@
                         <label class="form-label fw-medium text-secondary small">Depresiasi (Pengurangan Nilai)</label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-white text-muted border-end-0">Rp</span>
-                            <input type="number" name="depresiasi" class="form-control border-start-0 ps-1" value="{{ old('depresiasi', $depresiasi_awal ?? 0) }}" min="0">
+                            <input type="text" name="depresiasi" class="form-control border-start-0 ps-1 rupiah-mask" value="{{ old('depresiasi', $depresiasi_awal ?? 0) }}" min="0">
                         </div>
                     </div>
 
@@ -325,6 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const diskonInput = document.querySelector('input[name=\"diskon\"]');
     const biayaInput = document.querySelector('input[name=\"biaya_tambahan\"]');
     const depresiasiInput = document.querySelector('input[name=\"depresiasi\"]');
+    const rupiahInputs = Array.from(document.querySelectorAll('.rupiah-mask'));
 
     let cartItems = [];
     try {
@@ -349,6 +350,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'Rp' + number.toLocaleString('id-ID');
     };
 
+    const formatInputValue = (inputEl) => {
+        const cleanValue = (inputEl?.value || '').replace(/\D/g, '');
+        inputEl.value = cleanValue ? new Intl.NumberFormat('id-ID').format(cleanValue) : '';
+        inputEl.dataset.raw = cleanValue || '0';
+    };
+
+    const getInputNumber = (inputEl) => {
+        if (!inputEl) return 0;
+        const raw = inputEl.dataset?.raw ?? inputEl.value;
+        const clean = (raw || '').replace(/\D/g, '');
+        return Number(clean || 0);
+    };
+
     const syncHiddenInput = () => {
         itemsInput.value = JSON.stringify(cartItems);
     };
@@ -363,9 +377,9 @@ document.addEventListener('DOMContentLoaded', () => {
             subtotal += item.qty * (Number(product.harga_jual) || 0);
         });
 
-        const diskonVal = Math.max(0, Number(diskonInput?.value || 0));
-        const biayaVal = Math.max(0, Number(biayaInput?.value || 0));
-        const depresiasiVal = Math.max(0, Number(depresiasiInput?.value || 0));
+        const diskonVal = Math.max(0, getInputNumber(diskonInput));
+        const biayaVal = Math.max(0, getInputNumber(biayaInput));
+        const depresiasiVal = Math.max(0, getInputNumber(depresiasiInput));
 
         const total = Math.max(0, subtotal - diskonVal - depresiasiVal + biayaVal);
 
@@ -527,9 +541,20 @@ document.addEventListener('DOMContentLoaded', () => {
         qtyInput.value = '1';
     });
 
-    diskonInput?.addEventListener('input', recalcTotals);
-    biayaInput?.addEventListener('input', recalcTotals);
-    depresiasiInput?.addEventListener('input', recalcTotals);
+    rupiahInputs.forEach(inputEl => {
+        formatInputValue(inputEl);
+        inputEl.addEventListener('input', () => {
+            formatInputValue(inputEl);
+            recalcTotals();
+        });
+    });
+
+    document.getElementById('formPenjualan')?.addEventListener('submit', () => {
+        rupiahInputs.forEach(inputEl => {
+            const cleanValue = getInputNumber(inputEl);
+            inputEl.value = cleanValue;
+        });
+    });
 
     renderRows();
 });
@@ -650,6 +675,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnSimpanCustomer.innerHTML = 'Simpan Customer';
         });
     });
+
 });
 </script>
 @endpush
