@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Customer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator; 
+use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
@@ -24,7 +24,7 @@ class CustomerController extends Controller
         // Sort by
         $sortBy = $request->input('sort_by', 'updated_at');
         $sortOrder = $request->input('sort_order', 'desc');
-        
+
         if ($sortBy === 'nama') {
             $query->orderBy('nama', $sortOrder);
         } else {
@@ -122,5 +122,30 @@ class CustomerController extends Controller
 
         return redirect()->route('admin.customers.index')
                          ->with('success', 'Data pelanggan berhasil dihapus.');
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->get('q');
+
+        if (empty($query) || strlen($query) < 3) {
+            return response()->json([]);
+        }
+
+        $customers = Customer::where('nama', 'LIKE', '%' . $query . '%')
+                            ->orWhere('no_telp', 'LIKE', '%' . $query . '%')
+                            ->limit(10) // Batasi hasil
+                            ->get(['id', 'nama', 'no_telp']);
+
+        // MENGUBAH FORMAT DATA KE FORMAT Select2: {id, text}
+        $formattedCustomers = $customers->map(function ($customer) {
+            return [
+                'id' => $customer->id,
+                'text' => $customer->nama . ' (Telp: ' . $customer->no_telp . ')'
+            ];
+        });
+
+        
+        return response()->json($formattedCustomers);
     }
 }

@@ -64,7 +64,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('products.destroy');
     Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('products.update');
     Route::resource('/customers', CustomerController::class)->names('customers');
-    // Route::resource('/employees', EmployeeController::class)->names('employees');
+    Route::get('admin/customers/search', [CustomerController::class, 'search'])->name('customers.search');
     Route::resource('/categories', CategoryController::class)->names('categories');
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
     Route::post('/categories/store', [CategoryController::class, 'store'])->name('categories.store');
@@ -107,6 +107,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     });
 
     Route::resource('/profile', ProfileController::class)->names('profile');
-    
+
     // Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('admin.purchases.print');
 });

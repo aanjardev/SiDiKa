@@ -32,7 +32,7 @@
     @method('PUT')
 
     <div class="row">
-        
+
         {{-- KOLOM KIRI: Detail & Kondisi (Style HEAD) --}}
         <div class="col-lg-8 mb-4">
             <div class="card shadow-sm border-0" style="border-radius: 10px;">
@@ -41,9 +41,9 @@
                         <i class="fa-solid fa-box-open me-2 text-primary"></i>Detail Item & Fisik
                     </h6>
                 </div>
-                
+
                 <div class="card-body p-4">
-                    
+
                     {{-- Identitas Item --}}
                     <div class="mb-3">
                         {{-- Logic Main: Added asterisk and required-field class --}}
@@ -114,7 +114,7 @@
                     </h6>
 
                     <div class="accordion shadow-sm" id="qcConditionAccordion" style="border-radius: 8px; overflow: hidden;">
-                        
+
                         {{-- Accordion 1: Fisik --}}
                         <div class="accordion-item border-0 border-bottom">
                             <h2 class="accordion-header" id="headingOne">
@@ -244,7 +244,6 @@
                     </div>
 
                     <div class="mb-0 mt-4">
-                        {{-- Logic Main: Added asterisk and required-field class --}}
                         <label class="form-label fw-medium text-secondary small">Deskripsi Produk (Final) <span class="text-danger">*</span></label>
                         <textarea name="deskripsi_produk" class="form-control required-field" rows="4">{{ old('deskripsi_produk', $item->deskripsi_produk) }}</textarea>
                          {{-- Logic Main: Error Message --}}
@@ -265,7 +264,7 @@
                         <i class="fa-solid fa-calculator me-2 text-warning"></i>Harga & Status
                     </h6>
                 </div>
-                
+
                 <div class="card-body p-4">
                     {{-- Harga Modal --}}
                     <div class="mb-3">
@@ -388,12 +387,12 @@
         margin-top: 0.25rem;
     }
 
-    /* Custom rule agar invalid feedback muncul saat sibling input invalid, 
+    /* Custom rule agar invalid feedback muncul saat sibling input invalid,
        bahkan jika di dalam input-group */
     .required-field.is-invalid ~ .invalid-feedback,
     .required-field.is-invalid ~ .invalid-feedback,
     .input-group:has(.required-field.is-invalid) ~ .invalid-feedback, /* Modern Browsers */
-    .is-invalid + .invalid-feedback { 
+    .is-invalid + .invalid-feedback {
         display: block;
     }
 
