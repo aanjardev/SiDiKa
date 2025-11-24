@@ -2,6 +2,19 @@
 
 @section('title', 'Data Pembelian')
 
+@push('styles')
+<style>
+    .purchase-row {
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+
+    .purchase-row:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+@endpush
+
 @push('page-actions')
 <a href="{{ route('admin.purchases.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
     <i class="fas fa-plus fa-fw"></i>
@@ -71,13 +84,13 @@
                             <th style="width: 20%;">Item Dibeli</th>
                             <th class="text-center">Status</th>
                             <th>Harga Deal</th>
-                            <th class="text-center" style="width: 100px;">Aksi</th>
+                            <th class="text-center" style="width: 120px;">Aksi</th>
                         </tr>
                     </thead>
                     {{-- ID Body dari Main untuk AJAX Replacement --}}
                     <tbody id="purchase-table-body">
                         @forelse ($data_pembelian as $index => $pembelian)
-                        <tr>
+                        <tr class="purchase-row" data-detail-url="{{ route('admin.purchases.show', $pembelian->id) }}">
                             <td class="text-center text-muted fw-bold">{{ ($data_pembelian->firstItem() ?? 0) + $index }}</td>
 
                             {{-- Kode Transaksi --}}
@@ -135,18 +148,11 @@
                             </td>
 
                             {{-- Aksi --}}
-                            <td class="text-center">
+                            <td class="text-center" style="width:120px">
                                 <div class="d-flex justify-content-center gap-2">
-                                    {{-- Detail --}}
-                                    <a href="{{ route('admin.purchases.show', $pembelian->id) }}"
-                                       class="btn-action btn-action-view"
-                                       title="Lihat Detail">
-                                        <i class="fa-solid fa-eye"></i>
-                                    </a>
-
                                     {{-- Edit --}}
                                     <a href="{{ route('admin.purchases.edit', $pembelian->id) }}"
-                                        class="btn-action btn-action-edit"
+                                        class="btn-action btn-action-edit no-row-navigation"
                                         title="Edit">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </a>
@@ -156,7 +162,7 @@
                                         @csrf
                                         @method('DELETE')
                                         <button type="button"
-                                                class="btn-action btn-action-delete"
+                                                class="btn-action btn-action-delete no-row-navigation"
                                                 title="Hapus"
                                                 onclick="confirmDelete(this)">
                                             <i class="fa-solid fa-trash"></i>
@@ -294,6 +300,16 @@
                 });
             });
         }
+
+        tableBody.addEventListener('click', function(e) {
+            if (e.target.closest('.no-row-navigation')) return;
+            const row = e.target.closest('.purchase-row');
+            if (!row) return;
+            const url = row.dataset.detailUrl;
+            if (url) {
+                window.location.href = url;
+            }
+        });
 
         // Init Pagination Listener
         attachPaginationListeners();

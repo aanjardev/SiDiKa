@@ -81,6 +81,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/sales/checkout', [PenjualanController::class, 'checkout'])->name('sales.checkout');
     Route::resource('/purchases', PembelianController::class)->names('purchases');
     Route::post('/purchases/store-item-draft', [PembelianController::class, 'ajaxStoreItemDraft'])->name('purchases.ajaxStoreItemDraft');
+    Route::put('/purchases/update-item-draft/{item_id}', [PembelianController::class, 'ajaxUpdateItemDraft'])->name('purchases.ajaxUpdateItemDraft');
     Route::delete('/purchases/delete-item-draft/{item_id}', [PembelianController::class, 'ajaxDeleteItemDraft'])->name('purchases.ajaxDeleteItemDraft');
     // Route untuk melihat arsip produk QC (tidak layak jual)
     // IMPORTANT: register this explicit route BEFORE the resource routes so

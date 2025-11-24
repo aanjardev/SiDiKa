@@ -125,6 +125,9 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                                 <div id="customer_suggestions" class="dropdown-menu" style="width:100%;"></div>
 
                             </div>
+                            <div class="invalid-feedback" id="customer_search_error" style="display:none;">
+                                Customer wajib dipilih sebelum menambah item.
+                            </div>
                             <div class="d-flex justify-content-between">
                                 {{-- Tombol Modal Customer Baru --}}
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modalTambahCustomer"
@@ -277,9 +280,9 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
         <div class="modal-content border-0 rounded-4 shadow-lg">
             {{-- Header --}}
             <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
-                <h5 class="modal-title fw-bold text-dark d-flex align-items-center">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center" id="modalTambahItemTitle">
                     <i class="fa-solid fa-box-open text-primary me-3 fs-4"></i>
-                    Tambah Item Pembelian
+                    <span class="modal-title-text">Tambah Item Pembelian</span>
                 </h5>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -301,7 +304,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold text-secondary small">Kategori <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-lg fs-6 shadow-none" id="item_kategori_id">
+                                <select class="form-select form-select-lg fs-6 shadow-none" id="item_kategori_id" style="height: calc(2.5rem + 10px);">
                                     <option value="" selected disabled>Pilih...</option>
                                     @foreach($semua_kategori as $kat)
                                     <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
@@ -556,6 +559,11 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230d6efd'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
 }
 
+#customer_search::placeholder {
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
 #modalTambahCustomer .required-field.is-invalid {
     border-color: #dc3545;
 }
@@ -596,6 +604,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
     let currentPembelianId = '{{ $pembelian->id ?? '' }}';
     let initialItems = @json($pembelian->item_pembelian_draft ?? []);
     let itemsPembelian = [];
+    let editingItemId = null;
 
     if (initialItems.length > 0) {
         itemsPembelian = initialItems;
@@ -617,14 +626,113 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
         const btnBukaModalItem = document.getElementById('btnBukaModalItem');
         const btnSimpanItem = document.getElementById('btnSimpanItem');
         const itemListWrapper = document.getElementById('item-list-wrapper');
-        const modalTambahItem = new bootstrap.Modal(document.getElementById('modalTambahItem'));
+        const modalTambahItemEl = document.getElementById('modalTambahItem');
+        const modalTambahItem = modalTambahItemEl ? new bootstrap.Modal(modalTambahItemEl) : null;
         const hiddenPembelianIdInput = document.getElementById('pembelian_id_hidden');
 
         // Elemen yang diperlukan
         const customerSearch = $('#customer_search'); // visible text input
+        const customerSearchInput = document.getElementById('customer_search');
+        const customerSearchError = document.getElementById('customer_search_error');
         const customerIdInput = document.getElementById('customer_id'); // hidden id input (pure JS)
         const customerSuggestions = $('#customer_suggestions');
         const cabangSelect = document.getElementById('perusahaan_cabang_id');
+        const itemNamaInput = document.getElementById('item_nama_item');
+        const modalTambahItemTitle = document.getElementById('modalTambahItemTitle');
+        const modalTambahItemTitleText = modalTambahItemTitle ? modalTambahItemTitle.querySelector('.modal-title-text') : null;
+        const userIdInput = mainForm.querySelector('input[name="user_id"]');
+
+        const itemFieldMap = {
+            nama_item: 'item_nama_item',
+            kategori_id: 'item_kategori_id',
+            serial_number: 'item_serial_number',
+            serial_lens: 'item_serial_lens',
+            kondisi_fisik: 'item_kondisi_fisik',
+            kondisi_baut: 'item_kondisi_baut',
+            kondisi_tutup_usb: 'item_kondisi_tutup_usb',
+            kondisi_grip: 'item_kondisi_grip',
+            kondisi_jamur_lensa: 'item_kondisi_jamur_lensa',
+            kondisi_jamur_sensor: 'item_kondisi_jamur_sensor',
+            kondisi_af_lensa: 'item_kondisi_af_lensa',
+            kondisi_diafragma_lensa: 'item_kondisi_diafragma_lensa',
+            kondisi_zoom_lensa: 'item_kondisi_zoom_lensa',
+            kondisi_kalibrasi_fokus: 'item_kondisi_kalibrasi_fokus',
+            kondisi_mounting: 'item_kondisi_mounting',
+            kondisi_slot_memori: 'item_kondisi_slot_memori',
+            kondisi_lcd: 'item_kondisi_lcd',
+            kondisi_tombol: 'item_kondisi_tombol',
+            kondisi_flash: 'item_kondisi_flash',
+            kondisi_sound_mic: 'item_kondisi_sound_mic',
+            kondisi_view_finder: 'item_kondisi_view_finder',
+            kondisi_lain_lain: 'item_kondisi_lain_lain',
+            kelengkapan: 'item_kelengkapan'
+        };
+
+        const getItemFieldElement = (key) => {
+            const id = itemFieldMap[key];
+            return id ? document.getElementById(id) : null;
+        };
+
+        const collectItemFormData = () => {
+            const data = {};
+            Object.keys(itemFieldMap).forEach(key => {
+                const el = getItemFieldElement(key);
+                data[key] = el ? el.value : '';
+            });
+            return data;
+        };
+
+        const populateItemForm = (data = {}) => {
+            Object.keys(itemFieldMap).forEach(key => {
+                const el = getItemFieldElement(key);
+                if (!el) return;
+                el.value = data[key] ?? '';
+            });
+        };
+
+        const clearItemFormFields = () => {
+            Object.keys(itemFieldMap).forEach(key => {
+                const el = getItemFieldElement(key);
+                if (!el) return;
+                if (el.tagName === 'SELECT') {
+                    el.value = '';
+                } else {
+                    el.value = '';
+                }
+            });
+        };
+
+        const setItemModalMode = (mode = 'add') => {
+            const isEditMode = mode === 'edit';
+            if (modalTambahItemTitleText) {
+                modalTambahItemTitleText.textContent = isEditMode ? 'Edit Item Pembelian' : 'Tambah Item Pembelian';
+            }
+            if (btnSimpanItem) {
+                btnSimpanItem.innerHTML = isEditMode
+                    ? '<i class="fas fa-save me-1"></i> Update Item'
+                    : '<i class="fas fa-save me-1"></i> Simpan Item';
+            }
+        };
+
+        const prepareNewItemForm = () => {
+            editingItemId = null;
+            clearItemFormFields();
+            setItemModalMode('add');
+        };
+
+        setItemModalMode('add');
+
+        if (modalTambahItemEl) {
+            modalTambahItemEl.addEventListener('shown.bs.modal', () => {
+                if (itemNamaInput) itemNamaInput.focus();
+            });
+            modalTambahItemEl.addEventListener('hidden.bs.modal', () => {
+                prepareNewItemForm();
+            });
+        }
+        if (cabangSelect) {
+            cabangSelect.addEventListener('change', () => cabangSelect.classList.remove('is-invalid'));
+        }
 
         // ********** SIMPLE AUTOCOMPLETE FOR CUSTOMER (AJAX) **********
         function debounce(fn, delay){
@@ -670,6 +778,23 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                 .catch(err => { console.error(err); customerSuggestions.hide(); });
         }, 220);
 
+        function showCustomerSelectionError(message) {
+            if (!customerSearchInput) return;
+            customerSearchInput.classList.add('is-invalid');
+            if (customerSearchError) {
+                customerSearchError.textContent = message || 'Customer wajib dipilih sebelum menambah item.';
+                customerSearchError.style.display = 'block';
+            }
+        }
+
+        function clearCustomerSelectionError() {
+            if (!customerSearchInput) return;
+            customerSearchInput.classList.remove('is-invalid');
+            if (customerSearchError) {
+                customerSearchError.style.display = 'none';
+            }
+        }
+
         // Autofocus behaviour: if new pembelian, focus the search input
         if (!currentPembelianId || currentPembelianId === ''){
             setTimeout(() => { customerSearch.focus(); }, 120);
@@ -682,6 +807,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
             customerIdInput.value = '';
             fetchCustomers(v);
             markFormAsDirty();
+            clearCustomerSelectionError();
         });
 
         // Click on suggestion
@@ -693,6 +819,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
             customerIdInput.value = item.id;
             customerSuggestions.hide();
             markFormAsDirty();
+            clearCustomerSelectionError();
         });
 
         // Hide suggestions on outside click
@@ -716,11 +843,19 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
 
         // Event Buka Modal Item
         btnBukaModalItem.addEventListener('click', function() {
-            // Validasi menggunakan hidden customer id
-            if (!customerIdInput.value || !cabangSelect.value) {
-                alert('Harap pilih Customer dan Lokasi Transaksi terlebih dahulu.');
-                return;
+            let hasError = false;
+            if (!customerIdInput.value) {
+                showCustomerSelectionError();
+                if (customerSearchInput) customerSearchInput.focus();
+                hasError = true;
             }
+            if (!cabangSelect?.value) {
+                cabangSelect?.classList.add('is-invalid');
+                if (!hasError && cabangSelect) cabangSelect.focus();
+                hasError = true;
+            }
+            if (hasError || !modalTambahItem) return;
+            prepareNewItemForm();
             modalTambahItem.show();
         });
 
@@ -744,71 +879,73 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
 
         // ********** SIMPAN ITEM (AJAX) - TETAP **********
         btnSimpanItem.addEventListener('click', function() {
-            const namaItem = document.getElementById('item_nama_item').value;
-            const kategoriId = document.getElementById('item_kategori_id').value;
+            const formValues = collectItemFormData();
+            const namaItem = (formValues.nama_item || '').trim();
+            const kategoriId = formValues.kategori_id;
 
-            if (!namaItem || !kategoriId) { alert('Nama Item dan Kategori wajib diisi.'); return; }
+            if (!namaItem || !kategoriId) {
+                alert('Nama Item dan Kategori wajib diisi.');
+                return;
+            }
 
-            const newItemData = {
-                pembelian_id: currentPembelianId,
-                customer_id: customerIdInput.value, // Ambil nilai dari hidden input
-                perusahaan_cabang_id: cabangSelect.value,
-                user_id: mainForm.querySelector('input[name="user_id"]').value,
+            formValues.nama_item = namaItem;
 
-                // Data Kondisi... (kode tetap)
-                nama_item: namaItem,
-                kategori_id: kategoriId,
-                serial_number: document.getElementById('item_serial_number').value,
-                serial_lens: document.getElementById('item_serial_lens').value,
-                kondisi_fisik: document.getElementById('item_kondisi_fisik').value,
-                kondisi_baut: document.getElementById('item_kondisi_baut').value,
-                kondisi_tutup_usb: document.getElementById('item_kondisi_tutup_usb').value,
-                kondisi_grip: document.getElementById('item_kondisi_grip').value,
-                kondisi_jamur_lensa: document.getElementById('item_kondisi_jamur_lensa').value,
-                kondisi_jamur_sensor: document.getElementById('item_kondisi_jamur_sensor').value,
-                kondisi_af_lensa: document.getElementById('item_kondisi_af_lensa').value,
-                kondisi_diafragma_lensa: document.getElementById('item_kondisi_diafragma_lensa').value,
-                kondisi_zoom_lensa: document.getElementById('item_kondisi_zoom_lensa').value,
-                kondisi_kalibrasi_fokus: document.getElementById('item_kondisi_kalibrasi_fokus').value,
-                kondisi_mounting: document.getElementById('item_kondisi_mounting').value,
-                kondisi_slot_memori: document.getElementById('item_kondisi_slot_memori').value,
-                kondisi_lcd: document.getElementById('item_kondisi_lcd').value,
-                kondisi_tombol: document.getElementById('item_kondisi_tombol').value,
-                kondisi_flash: document.getElementById('item_kondisi_flash').value,
-                kondisi_sound_mic: document.getElementById('item_kondisi_sound_mic').value,
-                kondisi_view_finder: document.getElementById('item_kondisi_view_finder').value,
-                kondisi_lain_lain: document.getElementById('item_kondisi_lain_lain').value,
-                kelengkapan: document.getElementById('item_kelengkapan').value
-            };
+            const isEditing = Boolean(editingItemId);
+            const payload = isEditing
+                ? formValues
+                : {
+                    pembelian_id: currentPembelianId,
+                    customer_id: customerIdInput.value,
+                    perusahaan_cabang_id: cabangSelect.value,
+                    user_id: userIdInput?.value || '',
+                    ...formValues,
+                    kelengkapan_awal: formValues.kelengkapan
+                };
 
             btnSimpanItem.disabled = true;
-            btnSimpanItem.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+            btnSimpanItem.innerHTML = isEditing
+                ? '<i class="fas fa-spinner fa-spin"></i> Mengupdate...'
+                : '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
 
-            fetch("{{ route('admin.purchases.ajaxStoreItemDraft') }}", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
-                body: JSON.stringify(newItemData)
-            })
-            .then(response => { if (!response.ok) throw new Error('Gagal'); return response.json(); })
-            .then(result => {
-                if (result.success) {
-                    currentPembelianId = result.pembelian_id;
-                    hiddenPembelianIdInput.value = result.pembelian_id;
-                    itemsPembelian.push(result.item);
-                    renderItemList();
-                    modalTambahItem.hide();
-                    // Reset Form Item
-                    document.querySelectorAll('#formTambahItem input').forEach(i => i.value = '');
-                    document.getElementById('item_kategori_id').value = '';
-                } else {
-                    alert('Gagal: ' + result.message);
-                }
-            })
-            .catch(err => alert('Gagal menyimpan data.'))
-            .finally(() => {
-                btnSimpanItem.disabled = false;
-                btnSimpanItem.innerHTML = '<i class="fas fa-save me-1"></i> Simpan Item';
-            });
+            const requestPromise = isEditing
+                ? fetch(`/admin/purchases/update-item-draft/${editingItemId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+                : fetch("{{ route('admin.purchases.ajaxStoreItemDraft') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+            requestPromise
+                .then(response => { if (!response.ok) throw new Error('Gagal'); return response.json(); })
+                .then(result => {
+                    if (!result.success) {
+                        alert('Gagal: ' + (result.message || 'Terjadi kesalahan.'));
+                        return;
+                    }
+
+                    if (isEditing) {
+                        itemsPembelian = itemsPembelian.map(item => item.id === editingItemId ? result.item : item);
+                        renderItemList();
+                        markFormAsDirty();
+                        modalTambahItem?.hide();
+                    } else {
+                        currentPembelianId = result.pembelian_id;
+                        hiddenPembelianIdInput.value = result.pembelian_id;
+                        itemsPembelian.push(result.item);
+                        renderItemList();
+                        markFormAsDirty();
+                        modalTambahItem?.hide();
+                    }
+                })
+                .catch(() => alert('Gagal menyimpan data.'))
+                .finally(() => {
+                    btnSimpanItem.disabled = false;
+                    setItemModalMode(isEditing ? 'edit' : 'add');
+                });
         });
 
         // ********** FUNGSI MODAL CUSTOMER BARU **********
@@ -883,6 +1020,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         // Set hidden id and visible search input to the created customer
                         customerIdInput.value = result.customer.id;
                         customerSearch.val(result.customer.nama + ' (' + result.customer.no_telp + ')');
+                        clearCustomerSelectionError();
 
                         formTambahCustomer.reset();
                         resetCustomerValidation();
@@ -913,6 +1051,15 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                     } else alert('Gagal menghapus');
                 });
             }
+        }
+
+        window.editItem = function(id) {
+            const targetItem = itemsPembelian.find(item => item.id === id);
+            if (!targetItem || !modalTambahItem) return;
+            editingItemId = id;
+            populateItemForm(targetItem);
+            setItemModalMode('edit');
+            modalTambahItem.show();
         }
 
         // ********** RENDER TABEL (Visual HEAD) **********
@@ -946,7 +1093,14 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         <td class="py-3"><span class="badge rounded-pill bg-white text-dark border border-secondary-subtle fw-normal px-3 py-2">${kategoriNama}</span></td>
                         <td class="py-3 font-monospace text-secondary small">${item.serial_number || '-'}</td>
                         <td class="text-center py-3">
-                            <button type="button" class="btn-action-icon" title="Hapus Item" onclick="hapusItem(${item.id})"><i class="fa-solid fa-trash-can"></i></button>
+                            <div class="d-flex justify-content-center gap-2">
+                                <button type="button" class="btn-action-icon" title="Edit Item" onclick="editItem(${item.id})">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <button type="button" class="btn-action-icon" title="Hapus Item" onclick="hapusItem(${item.id})">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
                         </td>
                     `;
                     itemListWrapper.appendChild(tr);
