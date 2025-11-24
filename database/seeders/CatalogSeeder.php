@@ -4,9 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Illuminate\Http\File;
+use App\Helpers\ImageUpload;
 
 class CatalogSeeder extends Seeder
 {
@@ -18,14 +16,11 @@ class CatalogSeeder extends Seeder
             throw new \RuntimeException("Folder mainIMG tidak ditemukan: {$localDir}");
         }
 
-        // ======================================================
-        // 1) SEED catalog_settings
-        // ======================================================
         $catalogId = DB::table('catalog_settings')->insertGetId([
             'nama_website'    => 'Dinoyo Kamera',
             'nomor_telfon'    => '082345670014',
             'description'     => 'Toko kamera terpercaya di Malang dan Pasuruan. Menyediakan berbagai kebutuhan fotografi dan videografi dengan kualitas terjamin.',
-            'logo_path'       => null, // akan diupdate setelah upload
+            'logo_path'       => null,
             'facebook_link'   => 'https://www.facebook.com/jualkameramalang',
             'youtube_link'    => 'https://www.youtube.com/@DINOYOKAMERA_OFFICIAL',
             'instagram_link'  => 'https://www.instagram.com/dinoyokamera/',
@@ -36,29 +31,20 @@ class CatalogSeeder extends Seeder
             'updated_at'      => now(),
         ]);
 
-
-        // ======================================================
-        // 2) UPLOAD LOGO
-        // ======================================================
-        $logoPath = $this->uploadLocalToR2("logoDinoyo.png", $localDir, "catalog/logo");
+        $logoPath = $this->uploadLocalToR2('logoDinoyo.png', $localDir, 'catalog/logo');
 
         DB::table('catalog_settings')->where('id', $catalogId)->update([
-            'logo_path' => $logoPath
+            'logo_path' => $logoPath,
         ]);
 
-
-        // ======================================================
-        // 3) UPLOAD BANNER
-        // ======================================================
         $bannerFiles = [
-            "sample1.png",
-            "sample2.png",
-            "sample3.png",
+            'sample1.png',
+            'sample2.png',
+            'sample3.png',
         ];
 
         foreach ($bannerFiles as $file) {
-
-            $uploaded = $this->uploadLocalToR2($file, $localDir, "catalog/banners");
+            $uploaded = $this->uploadLocalToR2($file, $localDir, 'catalog/banners');
 
             DB::table('catalog_banners')->insert([
                 'catalog_setting_id' => $catalogId,
@@ -68,10 +54,6 @@ class CatalogSeeder extends Seeder
             ]);
         }
 
-
-        // ======================================================
-        // 4) UPLOAD PARTNER LOGO (dari URL)
-        // ======================================================
         $partnerUrls = [
             'https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__sony.jpg',
             'https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__canon_1.jpg',
@@ -92,7 +74,7 @@ class CatalogSeeder extends Seeder
         ];
 
         foreach ($partnerUrls as $url) {
-            $uploaded = $this->uploadUrlToR2($url, "catalog/partners");
+            $uploaded = $this->uploadUrlToR2($url, 'catalog/partners');
 
             DB::table('catalog_partner_logos')->insert([
                 'catalog_setting_id' => $catalogId,
@@ -103,10 +85,6 @@ class CatalogSeeder extends Seeder
         }
     }
 
-
-    // ============================================================
-    // UPLOAD FILE LOKAL → R2
-    // ============================================================
     private function uploadLocalToR2(string $filename, string $localDir, string $prefix): string
     {
         $source = $localDir . DIRECTORY_SEPARATOR . $filename;
@@ -115,63 +93,18 @@ class CatalogSeeder extends Seeder
             throw new \RuntimeException("Seeder image not found: {$source}");
         }
 
-        // Hash isi file → nama file selalu konsisten
-        $hash = sha1_file($source);
-        $ext = strtolower(pathinfo($source, PATHINFO_EXTENSION));
-        $remoteName = "{$hash}.{$ext}";
-        $remotePath = "{$prefix}/{$remoteName}";
-
-        // Jika sudah ada → return
-        if (Storage::disk('r2')->exists($remotePath)) {
-            return $remotePath;
-        }
-
-        Storage::disk('r2')->putFileAs(
-            $prefix,
-            new File($source),
-            $remoteName,
-            [
-                'visibility' => 'public',
-                'CacheControl' => 'public, max-age=31536000, immutable'
-            ]
-        );
-
-        return $remotePath;
+        return ImageUpload::upload($source, $prefix);
     }
 
-
-    // ============================================================
-    // UPLOAD FILE DARI URL → R2
-    // ============================================================
     private function uploadUrlToR2(string $url, string $prefix): string
     {
         $temp = tempnam(sys_get_temp_dir(), 'img_');
         file_put_contents($temp, file_get_contents($url));
 
-        // Hash isi file
-        $hash = sha1_file($temp);
-        $ext = pathinfo(parse_url($url, PHP_URL_PATH), PATHINFO_EXTENSION) ?: 'jpg';
-        $remoteName = "{$hash}.{$ext}";
-        $remotePath = "{$prefix}/{$remoteName}";
-
-        // Jika sudah ada → cleanup + return
-        if (Storage::disk('r2')->exists($remotePath)) {
-            @unlink($temp);
-            return $remotePath;
-        }
-
-        Storage::disk('r2')->putFileAs(
-            $prefix,
-            new File($temp),
-            $remoteName,
-            [
-                'visibility' => 'public',
-                'CacheControl' => 'public, max-age=31536000, immutable'
-            ]
-        );
+        $path = ImageUpload::upload($temp, $prefix);
 
         @unlink($temp);
 
-        return $remotePath;
+        return $path;
     }
 }

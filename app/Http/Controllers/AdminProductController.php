@@ -320,16 +320,9 @@ class AdminProductController extends Controller
             // Prefix folder per product
             $prefix = 'product/' . $produk->id;
 
-            // 2. Upload & save images
+            // 2. Upload & save images (compress + WebP + cache)
             foreach ($validated['images'] as $index => $image) {
-
-                $ext = $image->getClientOriginalExtension();
-                $filename = Str::uuid() . '.' . $ext;
-
-                $path = Storage::disk('r2')->putFileAs($prefix, $image, $filename, [
-                    'visibility' => 'public',
-                    'CacheControl' => 'public, max-age=31536000, immutable'
-                ]);
+                $path = ImageUpload::upload($image, $prefix);
 
                 GambarProduk::create([
                     'id_produk' => $produk->id,
@@ -430,14 +423,7 @@ class AdminProductController extends Controller
             $prefix = 'product/' . $product->id;
 
             foreach ($newImages as $index => $image) {
-
-                $ext = $image->getClientOriginalExtension();
-                $filename = Str::uuid() . '.' . $ext;
-
-                $path = Storage::disk('r2')->putFileAs($prefix, $image, $filename, [
-                    'visibility' => 'public',
-                    'CacheControl' => 'public, max-age=31536000, immutable'
-                ]);
+                $path = ImageUpload::upload($image, $prefix);
 
                 GambarProduk::create([
                     'id_produk'   => $product->id,
