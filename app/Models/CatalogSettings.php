@@ -24,9 +24,17 @@ class CatalogSettings extends Model
     ];
     public function getLogoUrlAttribute()
     {
-        return $this->logo_path
-            ? Storage::disk('r2')->url($this->logo_path)
-            : null;
+        if (!$this->logo_path) {
+            return null;
+        }
+
+        $base = rtrim(env('CDN_BASE_URL', 'https://sidika.qurrotul-ainii0266.workers.dev'), '/');
+
+        if ($base) {
+            return $base . '/' . ltrim($this->logo_path, '/');
+        }
+
+        return Storage::disk('r2')->url($this->logo_path);
     }
     protected $appends = ['logo_url'];
 

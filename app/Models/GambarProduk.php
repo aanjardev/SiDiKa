@@ -32,6 +32,12 @@ class GambarProduk extends Model
 
     public function getUrlAttribute(): string
     {
+        $base = rtrim(env('CDN_BASE_URL', 'https://sidika.qurrotul-ainii0266.workers.dev'), '/');
+
+        if ($base) {
+            return $base . '/' . ltrim($this->path_gambar, '/');
+        }
+
         return Storage::disk('r2')->url($this->path_gambar);
     }
 }

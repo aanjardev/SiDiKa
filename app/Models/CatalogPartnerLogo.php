@@ -19,6 +19,16 @@ class CatalogPartnerLogo extends Model
 
     public function getUrlAttribute()
     {
+        if (!$this->logo_path) {
+            return null;
+        }
+
+        $base = rtrim(env('CDN_BASE_URL', 'https://sidika.qurrotul-ainii0266.workers.dev'), '/');
+
+        if ($base) {
+            return $base . '/' . ltrim($this->logo_path, '/');
+        }
+
         return Storage::disk('r2')->url($this->logo_path);
     }
 }
