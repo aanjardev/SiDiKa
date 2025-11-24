@@ -37,12 +37,16 @@
     $items = $items ?? [];
     $daftar_produk = $daftar_produk ?? collect();
     $produkUntukJs = $daftar_produk->map(function ($produk) {
+        $imageUrl = $produk->gambarUtama->url
+            ?? $produk->gambar->first()?->url
+            ?? null;
         return [
             'id' => $produk->id,
             'nama_produk' => $produk->nama_produk,
             'kode_sku' => $produk->kode_sku,
             'harga_jual' => $produk->harga_jual,
             'stok_produk' => is_null($produk->stok_produk) ? null : (int) $produk->stok_produk,
+            'image_url' => $imageUrl,
         ];
     })->values()->toArray();
 @endphp
@@ -133,10 +137,23 @@
                             </thead>
                             <tbody id="tableItemsBody">
                                 @forelse ($items as $item)
+                                    @php
+                                        $product = $item['product'] ?? null;
+                                        $productImage = $product?->gambarUtama?->url
+                                            ?? $product?->gambar?->first()?->url;
+                                    @endphp
                                     <tr data-product-id="{{ $item['product']->id ?? '' }}">
+                                        <td>
+                                            
+                                        </td>
                                         <td class="ps-3">
-                                            <div class="fw-semibold text-dark">{{ $item['product']->nama_produk ?? 'Produk tidak tersedia' }}</div>
-                                            <small class="text-muted font-monospace">{{ $item['product']->kode_sku ?? '-' }}</small>
+                                            @if($productImage)
+                                                <img src="{{ $productImage }}" loading="lazy" alt="Img"
+                                                    class="rounded-3 shadow-sm me-2"
+                                                    style="width: 45px; height: 45px; object-fit: cover;">
+                                            @endif
+                                            <div class="fw-semibold text-dark">{{ $product->nama_produk ?? 'Produk tidak tersedia' }}</div>
+                                            <small class="text-muted font-monospace">{{ $product->kode_sku ?? '-' }}</small>
                                         </td>
                                         <td class="text-center">
                                             @if(isset($item['product']->id))
@@ -422,12 +439,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             const price = Number(product.harga_jual) || 0;
+            const image = product.image_url ? `<img src="${product.image_url}" alt="" class="rounded-3 shadow-sm me-2" style="width: 45px; height: 45px; object-fit: cover;">` : '';
             const row = document.createElement('tr');
             row.dataset.productId = item.id;
             row.innerHTML = `
                 <td class="ps-3">
-                    <div class="fw-semibold text-dark">${product.nama_produk}</div>
-                    <small class="text-muted font-monospace">${product.kode_sku ?? '-'}</small>
+                    <div class="d-flex align-items-center">
+                        ${image}
+                        <div>
+                            <div class="fw-semibold text-dark">${product.nama_produk}</div>
+                            <small class="text-muted font-monospace">${product.kode_sku ?? '-'}</small>
+                        </div>
+                    </div>
                 </td>
                 <td class="text-center">
                     <div class="input-group input-group-sm qty-control justify-content-center" data-product-id="${item.id}" style="width: 100px; margin: auto;">
