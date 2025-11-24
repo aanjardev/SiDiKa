@@ -112,11 +112,6 @@ class AdminProductController extends Controller
         ]);
     }
 
-    /**
-     * Store uploaded photos for a product
-     */
-    use App\Helpers\ImageUpload;
-
     public function photosUploadStore(Request $request, $id)
     {
         $product = Produk::findOrFail($id);
