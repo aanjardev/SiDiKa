@@ -397,7 +397,7 @@
                     parentCollapse.classList.add('show');
                     const parentToggle = parentCollapse.previousElementSibling;
                     if (parentToggle && parentToggle.classList.contains('menu-toggle')) {
-                        parentToggle.classList.add('active');
+                        // Keep parent toggle expanded but DO NOT mark it as 'active'.
                         parentToggle.classList.remove('collapsed');
                         parentToggle.setAttribute('aria-expanded', 'true');
                     }
@@ -412,15 +412,13 @@
                 }
 
                 collapse.addEventListener('shown.bs.collapse', function() {
-                    toggle.classList.add('active');
+                    // When expanded, only remove the 'collapsed' state; do not add 'active'
                     toggle.classList.remove('collapsed');
                 });
 
                 collapse.addEventListener('hidden.bs.collapse', function() {
+                    // When collapsed, restore collapsed state. Parent toggle stays without 'active'.
                     toggle.classList.add('collapsed');
-                    if (!collapse.querySelector('.submenu-link.active')) {
-                        toggle.classList.remove('active');
-                    }
                 });
             });
         });

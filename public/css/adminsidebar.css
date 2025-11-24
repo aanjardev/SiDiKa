@@ -117,6 +117,18 @@ body {
     transform: translateY(-1px);
     box-shadow: 0 10px 20px rgba(78, 107, 255, 0.15);
 }
+
+/* Active state for top-level menu links (e.g., Dashboard) */
+.menu-link.active {
+    background: var(--brand-blue);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(78, 107, 255, 0.15);
+}
+.menu-link.active .menu-icon,
+.menu-link.active .menu-arrow {
+    color: #fff;
+}
 .menu-icon {
     width: 22px;
     font-size: 1rem;
@@ -145,6 +157,18 @@ body {
 .menu-toggle:hover .menu-icon,
 .menu-toggle:hover .menu-arrow {
     color: var(--text-muted);
+}
+
+/* Active state for collapse toggles (when child submenu contains active link) */
+.menu-toggle.active {
+    background: var(--brand-blue);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(78, 107, 255, 0.12);
+}
+.menu-toggle.active .menu-icon,
+.menu-toggle.active .menu-arrow {
+    color: #fff;
 }
 
 .menu-arrow {
