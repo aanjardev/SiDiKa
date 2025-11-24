@@ -879,7 +879,10 @@ Kode Barang : #1298_DK'
             $folder,
             new File($source),
             $remoteName,
-            ['visibility' => 'public']
+            [
+                'visibility' => 'public',
+                'CacheControl' => 'public, max-age=31536000, immutable'
+            ]
         );
     }
 }

@@ -1,3 +1,7 @@
+@php
+$setting = \App\Models\CatalogSettings::first();
+@endphp
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -41,12 +45,8 @@
                     <div class="carousel-inner">
                         @foreach ($cat_banners as $index => $banner)
                             @php
-                                $path = $banner->banner_path;
-                                if (Str::startsWith($path, 'photos/')) {
-                                    $url = asset('storage/' . $path); // dari storage
-                                } else {
-                                    $url = asset($path); // misal mainIMG/...
-                                }
+                                $path = $banner->banner_url;
+                                $url = $path;
                                 $alt = basename($path);
                             @endphp
                             <div class="carousel-item {{ $index == 0 ? 'active' : '' }}">
@@ -255,35 +255,14 @@
             <div class="row row-cols-2 row-cols-md-4 row-cols-lg-8 g-3">
             @foreach ($cat_partner as $index => $partner)
                 @php
-                    $path = $partner->logo_path;
-
-                    if (Str::startsWith($path, 'http')) {
-                        $url = $path;
-                    } else {
-                        $url = asset('storage/' . $path);
-                    }
-
+                    $path = $partner->url;
+                    $url = $path;
                     $alt = basename($path);
                 @endphp
                 <div class="col">
                     <img src="{{ $url }}" alt="{{ $alt }}" class="img-fluid">
                 </div>
             @endforeach
-                <!-- <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__canon_1.jpg" alt="Canon" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__fujifilm.jpg" alt="Fujifilm" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__nikon.jpg" alt="Nikon" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__lumix.jpg" alt="Lumix" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__DJI.jpg" alt="DJI" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__godox.jpg" alt="Godox" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__hollyland.jpg" alt="Hollyland" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__phottix.jpg" alt="Phottix" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__thinktank.jpg" alt="Thinktank" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__om_system_update.jpg" alt="OM System" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__tamron.jpg" alt="Tamron" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__samyang.jpg" alt="Samyang" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__saramonic.jpg" alt="Saramonic" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__insta360.jpg" alt="Insta360" class="img-fluid"></div>
-                <div class="col"><img src="https://admin.focusnusantara.com/media/wysiwyg/brands/Logo_All_Brand_Home_-__sigma.jpg" alt="Sigma" class="img-fluid"></div> -->
             </div>
         </div>
     </section>

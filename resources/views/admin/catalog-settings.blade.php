@@ -3,7 +3,6 @@
 @section('title', 'Setting Web Katalog')
 
 @push('page-actions')
-    {{-- Tombol Simpan di Atas (Opsional, menggunakan JS untuk submit form) --}}
     <button type="button" onclick="document.getElementById('settingsForm').submit()" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
         <i class="fas fa-save fa-fw"></i>
         <span>Simpan Perubahan</span>
@@ -121,7 +120,7 @@
                             $path = $cat_setting->logo_path;
                             $url = Str::startsWith($path, 'photos/') ? asset('storage/' . $path) : asset($path);
                         @endphp
-                        <img src="{{ $url }}" alt="Logo Utama" class="img-fluid" style="max-height: 100px;">
+                        <img src="{{ $cat_setting->logo_url }}" class="img-fluid">
                     </div>
                     <input type="file" class="form-control form-control-sm" name="photo_logo" accept="image/*">
                     <div class="form-text small text-muted">Format: PNG/JPG. Max: 2MB.</div>
@@ -151,11 +150,7 @@
                                 @foreach ($cat_banners as $index => $banner)
                                 <tr data-id="{{ $banner->id }}" data-type="banner">
                                     <td class="p-2">
-                                        @php
-                                            $path = $banner->banner_path;
-                                            $url = Str::startsWith($path, 'photos/') ? asset('storage/' . $path) : asset($path);
-                                        @endphp
-                                        <img src="{{ $url }}" class="rounded shadow-sm w-100" style="height: 60px; object-fit: cover;">
+                                        <img src="{{ $banner->banner_url }}" class="rounded shadow-sm w-100" style="height:60px;object-fit:cover;">
                                     </td>
                                     <td class="text-center align-middle">
                                         <button type="button" class="btn-action btn-action-delete btn-remove mx-auto" title="Hapus Banner">
@@ -195,7 +190,7 @@
                                 <tr data-id="{{ $partner->id }}" data-type="partner">
                                     <td class="p-2 align-middle">
                                         <div class="bg-light rounded p-1 text-center border border-dashed">
-                                            <img src="{{ Str::startsWith($partner->logo_path, 'http') ? $partner->logo_path : asset('storage/' . $partner->logo_path) }}" 
+                                            <img src="{{ Str::startsWith($partner->url, 'http') ? $partner->url : asset('storage/' . $partner->logo_path) }}" 
                                                  class="img-fluid" 
                                                  style="max-height: 40px;">
                                         </div>
@@ -226,12 +221,11 @@
 
 @push('scripts')
 <script>
-    // Logic Penghapusan (Sama seperti sebelumnya, hanya selector disesuaikan)
+    // Logic Penghapusan
     let deletedPartnersArr = [];
     let deletedBannersArr = [];
 
     document.addEventListener("click", function(e) {
-        // Mencari tombol btn-remove atau parentnya (karena ada icon <i> di dalamnya)
         const btn = e.target.closest('.btn-remove');
         
         if (btn) {
@@ -248,7 +242,6 @@
                     document.getElementById("deletedBanners").value = JSON.stringify(deletedBannersArr);
                 }
                 
-                // Efek fade out sebelum hapus
                 row.style.transition = "all 0.3s";
                 row.style.opacity = "0";
                 setTimeout(() => row.remove(), 300);
@@ -257,4 +250,3 @@
     });
 </script>
 @endpush
-
