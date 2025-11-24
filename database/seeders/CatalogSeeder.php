@@ -130,7 +130,10 @@ class CatalogSeeder extends Seeder
             $prefix,
             new File($source),
             $remoteName,
-            ['visibility' => 'public']
+            [
+                'visibility' => 'public',
+                'CacheControl' => 'public, max-age=31536000, immutable'
+            ]
         );
 
         return $remotePath;
@@ -161,7 +164,10 @@ class CatalogSeeder extends Seeder
             $prefix,
             new File($temp),
             $remoteName,
-            ['visibility' => 'public']
+            [
+                'visibility' => 'public',
+                'CacheControl' => 'public, max-age=31536000, immutable'
+            ]
         );
 
         @unlink($temp);

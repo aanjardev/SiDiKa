@@ -8,6 +8,7 @@ use App\Models\CatalogPartnerLogo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Helpers\ImageUpload;
 
 class CatalogSettingsController extends Controller
 {
@@ -83,15 +84,7 @@ class CatalogSettingsController extends Controller
 
         if ($request->hasFile('banner')) {
 
-            $ext = $request->file('banner')->getClientOriginalExtension();
-            $filename = Str::uuid() . '.' . $ext;
-
-            $path = Storage::disk('r2')->putFileAs(
-                'catalog/banners',
-                $request->file('banner'),
-                $filename,
-                ['visibility' => 'public']
-            );
+            $path = ImageUpload::upload($request->file('banner'), 'catalog/banners');
 
             CatalogBanners::create([
                 'banner_path' => $path,
@@ -101,15 +94,7 @@ class CatalogSettingsController extends Controller
 
         if ($request->hasFile('brand_logos')) {
 
-            $ext = $request->file('brand_logos')->getClientOriginalExtension();
-            $filename = Str::uuid() . '.' . $ext;
-
-            $path = Storage::disk('r2')->putFileAs(
-                'catalog/partners',
-                $request->file('brand_logos'),
-                $filename,
-                ['visibility' => 'public']
-            );
+            $path = ImageUpload::upload($request->file('brand_logos'), 'catalog/partners');
 
             CatalogPartnerLogo::create([
                 'logo_path' => $path,
@@ -119,24 +104,13 @@ class CatalogSettingsController extends Controller
 
         if ($request->hasFile('photo_logo')) {
 
-            // hapus file lama
             if ($cat_setting->logo_path && Storage::disk('r2')->exists($cat_setting->logo_path)) {
                 Storage::disk('r2')->delete($cat_setting->logo_path);
             }
 
-            $ext = $request->file('photo_logo')->getClientOriginalExtension();
-            $filename = Str::uuid() . '.' . $ext;
+            $path = ImageUpload::upload($request->file('photo_logo'), 'catalog/logo');
 
-            $path = Storage::disk('r2')->putFileAs(
-                'catalog/logo',
-                $request->file('photo_logo'),
-                $filename,
-                ['visibility' => 'public']
-            );
-
-            $cat_setting->update([
-                'logo_path' => $path,
-            ]);
+            $cat_setting->update(['logo_path' => $path]);
         }
 
 
@@ -145,4 +119,3 @@ class CatalogSettingsController extends Controller
             ->with('success', 'Pengaturan katalog berhasil diperbarui.');
     }
 }
-
