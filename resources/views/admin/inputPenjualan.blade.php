@@ -75,19 +75,24 @@
                         {{-- Customer --}}
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium text-secondary small">Customer</label>
-                            <div class="input-group">
+                            <div class="input-group position-relative">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-user"></i></span>
-                                <select class="form-select border-start-0 ps-2 @error('customer_id') is-invalid @enderror" id="customer_id" name="customer_id" required style="height: 45px;">
-                                    <option value="" disabled {{ old('customer_id', $penjualan->customer_id ?? '') ? '' : 'selected' }}>Pilih customer...</option>
-                                    @foreach($semua_customer as $customer)
-                                    <option value="{{ $customer->id }}" {{ (string) old('customer_id', $penjualan->customer_id ?? '') === (string) $customer->id ? 'selected' : '' }}>
-                                        {{ $customer->nama }} ({{ $customer->no_telp }})
-                                    </option>
-                                    @endforeach
-                                </select>
+                                <input
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 @error('customer_id') is-invalid @enderror"
+                                    id="customer_search"
+                                    placeholder="Cari nama atau no. telp customer..."
+                                    value="{{ old('customer_search', isset($penjualan) && $penjualan->customer ? $penjualan->customer->nama . ' (' . $penjualan->customer->no_telp . ')' : '') }}"
+                                    data-search-url="{{ route('admin.customers.search') }}"
+                                    autocomplete="off"
+                                >
+                                <input type="hidden" id="customer_id" name="customer_id" value="{{ old('customer_id', $penjualan->customer_id ?? '') }}" required>
+                                <div id="customer_suggestions" class="dropdown-menu" style="width: 100%;"></div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-1">
-                                @error('customer_id') <div class="text-danger small">{{ $message }}</div> @enderror
+                                <div id="customer_search_error" class="text-danger small @error('customer_id') @else d-none @enderror">
+                                    @error('customer_id') {{ $message }} @enderror
+                                </div>
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modalTambahCustomer" class="small text-decoration-none fw-bold text-primary">
                                     <i class="fa-solid fa-plus-circle me-1"></i>Customer Baru
                                 </a>

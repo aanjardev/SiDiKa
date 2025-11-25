@@ -1,6 +1,7 @@
 import Checkout from "./checkout.js";
 import Totals from "./totals.js";
 import ProductSelector from "./product-selector.js";
+import CustomerSearch from "../utils/customer-search.js";
 import CustomerModal from "../utils/modal-customer.js";
 import { maskRupiah } from "../utils/rupiah.js";
 import { syncHiddenRaw } from "../utils/form.js";
@@ -42,7 +43,35 @@ document.addEventListener("DOMContentLoaded", () => {
         stockInfo: document.getElementById("infoStokProduk")
     });
 
-    new CustomerModal();
+    const customerSearchInput = document.getElementById("customer_search");
+    const customerIdInput = document.getElementById("customer_id");
+    const customerSuggestions = document.getElementById("customer_suggestions");
+    const customerSearchError = document.getElementById("customer_search_error");
+
+    const clearCustomerError = () => {
+        if (customerSearchInput) customerSearchInput.classList.remove("is-invalid");
+        if (customerSearchError) customerSearchError.classList.add("d-none");
+    };
+
+    new CustomerSearch({
+        input: customerSearchInput,
+        hiddenInput: customerIdInput,
+        suggestions: customerSuggestions,
+        searchUrl: customerSearchInput?.dataset.searchUrl,
+        onSelect: clearCustomerError,
+        onInput: clearCustomerError
+    });
+
+    new CustomerModal({
+        onSuccess: (customer) => {
+            if (customerSearchInput && customerIdInput) {
+                customerSearchInput.value = `${customer.nama} (${customer.no_telp})`;
+                customerIdInput.value = customer.id;
+                clearCustomerError();
+            }
+            if (customerSuggestions) customerSuggestions.style.display = "none";
+        }
+    });
 
     // Tambah item dari modal
     document.getElementById("formTambahItem")?.addEventListener("submit", e => {
@@ -89,7 +118,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // Before submit → sync hidden raw values
-    document.getElementById("formPenjualan").addEventListener("submit", () => {
+    document.getElementById("formPenjualan").addEventListener("submit", (e) => {
+        if (customerSearchInput && customerIdInput && !customerIdInput.value) {
+            e.preventDefault();
+            customerSearchInput.classList.add("is-invalid");
+            if (customerSearchError) {
+                customerSearchError.classList.remove("d-none");
+                customerSearchError.textContent = "Customer wajib dipilih.";
+            }
+            return;
+        }
+
         document.querySelectorAll(".rupiah-mask").forEach(syncHiddenRaw);
     });
 

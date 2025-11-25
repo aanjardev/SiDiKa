@@ -19,7 +19,10 @@ function parseJSONFromScript(id) {
 
 class PurchaseDraftController {
     constructor({ data, elements, routes }) {
-        this.currentPembelianId = data.currentPembelianId || "";
+        // Gunakan ID dari JSON, fallback ke hidden input jika ada
+        this.currentPembelianId =
+            data.currentPembelianId ||
+            (elements.hiddenPembelianIdInput?.value || "");
         this.items = Array.isArray(data.initialItems) ? data.initialItems : [];
         this.kategoriMap = data.kategoriMap || {};
         this.routes = routes;
@@ -221,11 +224,15 @@ class PurchaseDraftController {
 
         formValues.nama_item = namaItem;
 
+        const pembelianId =
+            this.currentPembelianId ||
+            (this.el.hiddenPembelianIdInput?.value || "");
+
         const isEditing = Boolean(this.editingItemId);
         const payload = isEditing
             ? formValues
             : {
-                pembelian_id: this.currentPembelianId,
+                pembelian_id: pembelianId,
                 customer_id: this.el.customerIdInput.value,
                 perusahaan_cabang_id: this.el.cabangSelect.value,
                 user_id: this.el.userIdInput?.value || "",
