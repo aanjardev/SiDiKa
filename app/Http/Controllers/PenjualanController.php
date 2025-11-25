@@ -68,7 +68,7 @@ class PenjualanController extends Controller
         }
 
 
-        return view('admin.dataPenjualan', [
+        return view('admin.Datapenjualan', [
             'data_penjualan' => $data_penjualan,
             'semua_kategori' => $semua_kategori,
             'search' => $search,
@@ -88,7 +88,7 @@ class PenjualanController extends Controller
         // $penjualan = Penjualan::latest()->get(); // 'latest()' -> urutkan dari yg terbaru
 
         // 5. Kirim kedua data tersebut ke view
-        return view('admin.dataPenjualan', [
+        return view('admin.Datapenjualan', [
             'kategori' => $kategori,
             // 'data_penjualan' => $penjualan
         ]);
