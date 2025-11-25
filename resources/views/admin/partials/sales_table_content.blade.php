@@ -1,5 +1,5 @@
 @forelse ($data_penjualan as $index => $penjualan)
-<tr>
+<tr class="sales-row" data-detail-url="{{ route('admin.sales.show', $penjualan->id) }}">
     <td class="text-center text-muted fw-bold">{{ ($data_penjualan->firstItem() ?? 0) + $index }}</td>
 
     <td>
@@ -53,13 +53,13 @@
 
     <td class="text-center">
         <div class="d-flex justify-content-center gap-2">
-            <a href="{{ route('admin.sales.edit', $penjualan->id) }}" class="btn-action btn-action-edit" title="Edit">
+            <a href="{{ route('admin.sales.edit', $penjualan->id) }}" class="btn-action btn-action-edit no-row-navigation" title="Edit">
                 <i class="fa-solid fa-pen-to-square"></i>
             </a>
             <form action="{{ route('admin.sales.destroy', $penjualan->id) }}" method="POST" class="d-inline">
                 @csrf
                 @method('DELETE')
-                <button type="button" class="btn-action btn-action-delete" title="Hapus" onclick="confirmDelete(this)">
+                <button type="button" class="btn-action btn-action-delete no-row-navigation" title="Hapus" onclick="confirmDelete(this)">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </form>
