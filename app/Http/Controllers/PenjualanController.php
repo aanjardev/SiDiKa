@@ -68,7 +68,7 @@ class PenjualanController extends Controller
         }
 
 
-        return view('admin.dataPenjualan', [
+        return view('admin.Datapenjualan', [
             'data_penjualan' => $data_penjualan,
             'semua_kategori' => $semua_kategori,
             'search' => $search,
@@ -88,7 +88,7 @@ class PenjualanController extends Controller
         // $penjualan = Penjualan::latest()->get(); // 'latest()' -> urutkan dari yg terbaru
 
         // 5. Kirim kedua data tersebut ke view
-        return view('admin.dataPenjualan', [
+        return view('admin.Datapenjualan', [
             'kategori' => $kategori,
             // 'data_penjualan' => $penjualan
         ]);
@@ -120,7 +120,7 @@ class PenjualanController extends Controller
         }
 
         $productIds = collect($decoded)->pluck('id')->unique()->values()->all();
-        $products = Produk::with('gambarUtama', 'kategori')->whereIn('id', $productIds)->get();
+        $products = Produk::with(['gambarUtama', 'gambar', 'kategori'])->whereIn('id', $productIds)->get();
 
         $items = [];
         $total = 0;
@@ -152,7 +152,8 @@ class PenjualanController extends Controller
 
         $data_customer = Customer::orderBy('nama', 'asc')->get();
         $data_cabang = PerusahaanCabang::orderBy('nama', 'asc')->get();
-        $daftar_produk = Produk::orderBy('nama_produk', 'asc')
+        $daftar_produk = Produk::with(['gambarUtama', 'gambar'])
+            ->orderBy('nama_produk', 'asc')
             ->get(['id', 'nama_produk', 'kode_sku', 'harga_jual', 'stok_produk']);
 
         return view('admin.inputPenjualan', [
@@ -227,7 +228,7 @@ class PenjualanController extends Controller
 
     public function edit(Penjualan $sale)
     {
-        $sale->loadMissing(['detail_penjualan.produk']);
+        $sale->loadMissing(['detail_penjualan.produk.gambarUtama', 'detail_penjualan.produk.gambar']);
 
         if ($sale->detail_penjualan->isEmpty()) {
             return redirect()->route('admin.sales.index')
@@ -262,7 +263,8 @@ class PenjualanController extends Controller
         $semua_customer = Customer::orderBy('nama', 'asc')->get();
         $semua_cabang = PerusahaanCabang::orderBy('nama', 'asc')->get();
 
-        $daftar_produk = Produk::orderBy('nama_produk', 'asc')
+        $daftar_produk = Produk::with(['gambarUtama', 'gambar'])
+            ->orderBy('nama_produk', 'asc')
             ->get(['id', 'nama_produk', 'kode_sku', 'harga_jual', 'stok_produk'])
             ->keyBy('id');
 

@@ -391,6 +391,67 @@ class PembelianController extends Controller
         }
     }
 
+    public function ajaxUpdateItemDraft(Request $request, $item_id)
+    {
+        $itemRules = [
+            'nama_item' => 'required|string|max:200',
+            'kategori_id' => 'required|exists:kategori,id',
+            'serial_number' => 'nullable|string|max:50',
+            'serial_lens' => 'nullable|string|max:50',
+            'kondisi_fisik' => 'nullable|string|max:100',
+            'kondisi_baut' => 'nullable|string|max:50',
+            'kondisi_tutup_usb' => 'nullable|string|max:50',
+            'kondisi_grip' => 'nullable|string|max:50',
+            'kondisi_jamur_lensa' => 'nullable|string|max:100',
+            'kondisi_view_finder' => 'nullable|string|max:50',
+            'kondisi_mounting' => 'nullable|string|max:50',
+            'kondisi_slot_memori' => 'nullable|string|max:50',
+            'kondisi_jamur_sensor' => 'nullable|string|max:100',
+            'kondisi_lcd' => 'nullable|string|max:100',
+            'kondisi_tombol' => 'nullable|string|max:50',
+            'kondisi_zoom_lensa' => 'nullable|string|max:50',
+            'kondisi_af_lensa' => 'nullable|string|max:50',
+            'kondisi_diafragma_lensa' => 'nullable|string|max:50',
+            'kondisi_kalibrasi_fokus' => 'nullable|string|max:50',
+            'kondisi_flash' => 'nullable|string|max:100',
+            'kondisi_sound_mic' => 'nullable|string|max:50',
+            'kondisi_lain_lain' => 'nullable|string|max:255',
+            'kelengkapan' => 'nullable|string',
+        ];
+
+        if ($request->has('kelengkapan_awal') && !$request->has('kelengkapan')) {
+            $request->merge(['kelengkapan' => $request->input('kelengkapan_awal')]);
+        }
+
+        $validator = Validator::make($request->all(), $itemRules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $item = ItemPembelian::findOrFail($item_id);
+            $fields = array_keys($itemRules);
+            $item->fill($request->only($fields));
+            $item->save();
+            $item->load('kategori');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Item berhasil diperbarui.',
+                'item' => $item
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui item: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function edit($id)
     {
         // 1. Ambil data pembelian beserta item draft-nya

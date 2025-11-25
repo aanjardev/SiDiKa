@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Helpers\ImageUpload;
 
 class AdminProductController extends Controller
 {
@@ -23,9 +24,9 @@ class AdminProductController extends Controller
         // Search by nama produk or SKU
         if ($request->filled('search')) {
             $search = $request->input('search');
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nama_produk', 'like', "%{$search}%")
-                  ->orWhere('kode_sku', 'like', "%{$search}%");
+                    ->orWhere('kode_sku', 'like', "%{$search}%");
             });
         }
 
@@ -37,7 +38,7 @@ class AdminProductController extends Controller
         // Sort by
         $sortBy = $request->input('sort_by', 'updated_at');
         $sortOrder = $request->input('sort_order', 'desc');
-        
+
         if ($sortBy === 'nama') {
             $query->orderBy('nama_produk', $sortOrder);
         } else {
@@ -65,13 +66,13 @@ class AdminProductController extends Controller
     public function photos(Request $request)
     {
         $query = Produk::with('kategori')
-                    ->whereDoesntHave('gambar');
+            ->whereDoesntHave('gambar');
 
         if ($request->filled('search')) {
             $s = $request->input('search');
-            $query->where(function($q) use ($s) {
+            $query->where(function ($q) use ($s) {
                 $q->where('nama_produk', 'like', "%{$s}%")
-                  ->orWhere('kode_sku', 'like', "%{$s}%");
+                    ->orWhere('kode_sku', 'like', "%{$s}%");
             });
         }
 
@@ -113,12 +114,10 @@ class AdminProductController extends Controller
         ]);
     }
 
-    /**
-     * Store uploaded photos for a product (Using Queue for Background Processing)
-     */
-    public function photosUploadStore(Request $request, int $id)
+    public function photosUploadStore(Request $request, $id)
     {
         $product = Produk::findOrFail($id);
+
         $validated = $request->validate([
             'images' => ['sometimes', 'array', 'min:1'],
             'images.*' => ['image', 'max:5120'],
@@ -127,49 +126,65 @@ class AdminProductController extends Controller
 
         try {
             $images = $request->file('images', []);
-            if (empty($images)) {
-                return back()->withInput()->withErrors(['error' => 'Tidak ada gambar yang diunggah.']);
+            $createdIds = [];
+            $hasMain = $product->gambarUtama()->exists();
+
+            foreach ($images as $index => $image) {
+
+                // 🔥 Pakai HELPER baru kita (compress + webp + hash)
+                $path = ImageUpload::upload($image, "product/{$product->id}");
+
+                $g = \App\Models\GambarProduk::create([
+                    'id_produk' => $product->id,
+                    'path_gambar' => $path,
+                    'is_main' => false,
+                ]);
+
+                $createdIds[] = $g->id;
             }
 
-            // Store images temporarily in local storage
-            $temporaryPaths = [];
-            foreach ($images as $image) {
-                $tempPath = $image->store('temp/product-uploads', 'local');
-                $temporaryPaths[] = $tempPath;
-            }
+            // --- HANDLE SET MAIN IMAGE ---
+            if (!empty($validated['main_image'])) {
+                $main = $validated['main_image'];
 
-            // Extract main image index if provided (format: 'new_{index}')
-            $mainImageIndex = null;
-            if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'new_')) {
-                $mainImageIndex = intval(substr($validated['main_image'], strlen('new_')));
-            }
+                if (str_starts_with($main, 'existing_')) {
+                    $idToSet = intval(substr($main, 9));
 
-            // Dispatch job to process images in background
-            ProcessProductImage::dispatch(
-                $product->id,
-                $temporaryPaths,
-                $mainImageIndex,
-                Auth::id()
-            );
+                    GambarProduk::where('id_produk', $product->id)
+                        ->update(['is_main' => false]);
 
-            return redirect()
-                ->route('admin.products.photos')
-                ->with('success', 'Foto sedang diproses di latar belakang. Anda akan menerima notifikasi ketika selesai.');
+                    GambarProduk::where('id_produk', $product->id)
+                        ->where('id', $idToSet)
+                        ->update(['is_main' => true]);
+                } elseif (str_starts_with($main, 'new_')) {
+                    $idx = intval(substr($main, 4));
+                    if (isset($createdIds[$idx])) {
+                        GambarProduk::where('id_produk', $product->id)
+                            ->update(['is_main' => false]);
 
-        } catch (\Throwable $th) {
-            // Clean up any temporary files if error occurs before dispatch
-            if (isset($temporaryPaths)) {
-                foreach ($temporaryPaths as $tempPath) {
-                    if (Storage::disk('local')->exists($tempPath)) {
-                        Storage::disk('local')->delete($tempPath);
+                        GambarProduk::where('id_produk', $product->id)
+                            ->where('id', $createdIds[$idx])
+                            ->update(['is_main' => true]);
                     }
+                }
+            } else {
+                // kalau tidak memilih main → atur otomatis
+                if (!$hasMain && !empty($createdIds)) {
+                    GambarProduk::where('id', $createdIds[0])->update(['is_main' => true]);
                 }
             }
 
-            return back()
-                ->withInput()
-                ->withErrors(['error' => 'Gagal memproses upload: ' . $th->getMessage()]);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return back()->withInput()->withErrors([
+                'error' => 'Gagal mengunggah gambar: ' . $th->getMessage()
+            ]);
         }
+
+        return redirect()
+            ->route('admin.products.photos')
+            ->with('success', 'Gambar berhasil diunggah.');
     }
 
     /**
@@ -185,19 +200,17 @@ class AdminProductController extends Controller
 
         DB::beginTransaction();
         try {
+
             $image = $request->file('image');
-            $extension = $image->getClientOriginalExtension();
-            $filename = Str::uuid()->toString() . ($extension ? '.' . $extension : '');
-            $path = Storage::disk('r2')->putFileAs('product', $image, $filename, [
-                'visibility' => 'public',
-            ]);
+
+            $path = ImageUpload::upload($image, "product/{$product->id}");
 
             $hasMain = $product->gambarUtama()->exists();
 
             $gambar = GambarProduk::create([
                 'id_produk' => $product->id,
                 'path_gambar' => $path,
-                'is_main' => $hasMain ? false : true,
+                'is_main' => !$hasMain,
             ]);
 
             DB::commit();
@@ -212,7 +225,10 @@ class AdminProductController extends Controller
             ]);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return response()->json(['success' => false, 'message' => 'Gagal mengunggah gambar: ' . $th->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => $th->getMessage(),
+            ], 500);
         }
     }
 
@@ -305,15 +321,9 @@ class AdminProductController extends Controller
             // Prefix folder per product
             $prefix = 'product/' . $produk->id;
 
-            // 2. Upload & save images
+            // 2. Upload & save images (compress + WebP + cache)
             foreach ($validated['images'] as $index => $image) {
-
-                $ext = $image->getClientOriginalExtension();
-                $filename = Str::uuid() . '.' . $ext;
-
-                $path = Storage::disk('r2')->putFileAs($prefix, $image, $filename, [
-                    'visibility' => 'public'
-                ]);
+                $path = ImageUpload::upload($image, $prefix);
 
                 GambarProduk::create([
                     'id_produk' => $produk->id,
@@ -348,107 +358,100 @@ class AdminProductController extends Controller
         ]);
     }
 
-public function update(Request $request, Produk $product)
-{
-    $validated = $request->validate([
-        'nama_produk'      => ['required', 'string', 'max:200'],
-        'kode_sku'         => ['required', 'string', 'max:20', Rule::unique('produk', 'kode_sku')->ignore($product->id)],
-        'id_kategori'      => ['required', 'exists:kategori,id'],
-        'harga_jual'       => ['nullable', 'integer', 'min:0'],
-        'harga_beli'       => ['nullable', 'integer', 'min:0'],
-        'harga_servis'     => ['nullable', 'integer', 'min:0'],
-        'stok_produk'      => ['nullable', 'integer', 'min:0'],
-        'deskripsi_produk' => ['nullable', 'string'],
-        'status'           => ['required', 'in:Second,Baru'],
-        'grade'            => ['required', 'in:Unggulan,Standar,Minus'],
+    public function update(Request $request, Produk $product)
+    {
+        $validated = $request->validate([
+            'nama_produk'      => ['required', 'string', 'max:200'],
+            'kode_sku'         => ['required', 'string', 'max:20', Rule::unique('produk', 'kode_sku')->ignore($product->id)],
+            'id_kategori'      => ['required', 'exists:kategori,id'],
+            'harga_jual'       => ['nullable', 'integer', 'min:0'],
+            'harga_beli'       => ['nullable', 'integer', 'min:0'],
+            'harga_servis'     => ['nullable', 'integer', 'min:0'],
+            'stok_produk'      => ['nullable', 'integer', 'min:0'],
+            'deskripsi_produk' => ['nullable', 'string'],
+            'status'           => ['required', 'in:Second,Baru'],
+            'grade'            => ['required', 'in:Unggulan,Standar,Minus'],
 
-        // file baru
-        'images'   => ['nullable', 'array'],
-        'images.*' => ['image', 'max:5120'],
+            // file baru
+            'images'   => ['nullable', 'array'],
+            'images.*' => ['image', 'max:5120'],
 
-        // hidden input dari gambar lama
-        'remove_images'   => ['array'],
-        'remove_images.*' => ['nullable', 'integer'],
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        $product->update([
-            'nama_produk'      => $validated['nama_produk'],
-            'kode_sku'         => $validated['kode_sku'],
-            'id_kategori'      => $validated['id_kategori'],
-            'harga_jual'       => $validated['harga_jual'] ?? null,
-            'harga_beli'       => $validated['harga_beli'] ?? null,
-            'harga_servis'     => $validated['harga_servis'] ?? null,
-            'stok_produk'      => $validated['stok_produk'] ?? null,
-            'deskripsi_produk' => $validated['deskripsi_produk'] ?? null,
-            'status'           => $validated['status'],
-            'grade'            => $validated['grade'],
+            // hidden input dari gambar lama
+            'remove_images'   => ['array'],
+            'remove_images.*' => ['nullable', 'integer'],
         ]);
 
-        $removeIds = array_filter($request->remove_images ?? [], fn($v) => !empty($v));
+        DB::beginTransaction();
 
-        if (!empty($removeIds)) {
+        try {
+            $product->update([
+                'nama_produk'      => $validated['nama_produk'],
+                'kode_sku'         => $validated['kode_sku'],
+                'id_kategori'      => $validated['id_kategori'],
+                'harga_jual'       => $validated['harga_jual'] ?? null,
+                'harga_beli'       => $validated['harga_beli'] ?? null,
+                'harga_servis'     => $validated['harga_servis'] ?? null,
+                'stok_produk'      => $validated['stok_produk'] ?? null,
+                'deskripsi_produk' => $validated['deskripsi_produk'] ?? null,
+                'status'           => $validated['status'],
+                'grade'            => $validated['grade'],
+            ]);
 
-            $imagesToDelete = GambarProduk::whereIn('id', $removeIds)
-                ->where('id_produk', $product->id)
-                ->get();
+            $removeIds = array_filter($request->remove_images ?? [], fn($v) => !empty($v));
 
-            foreach ($imagesToDelete as $img) {
+            if (!empty($removeIds)) {
 
-                // hapus file di Cloudflare R2
-                if (Storage::disk('r2')->exists($img->path_gambar)) {
-                    Storage::disk('r2')->delete($img->path_gambar);
+                $imagesToDelete = GambarProduk::whereIn('id', $removeIds)
+                    ->where('id_produk', $product->id)
+                    ->get();
+
+                foreach ($imagesToDelete as $img) {
+
+                    // hapus file di Cloudflare R2
+                    if (Storage::disk('r2')->exists($img->path_gambar)) {
+                        Storage::disk('r2')->delete($img->path_gambar);
+                    }
+
+                    // hapus database entry
+                    $img->delete();
                 }
-
-                // hapus database entry
-                $img->delete();
             }
-        }
 
-        $newImages = $request->file('images', []);
-        $hasMain = $product->gambarUtama()->exists();
+            $newImages = $request->file('images', []);
+            $hasMain = $product->gambarUtama()->exists();
 
-        // folder milik produk ini
-        $prefix = 'product/' . $product->id;
+            // folder milik produk ini
+            $prefix = 'product/' . $product->id;
 
-        foreach ($newImages as $index => $image) {
+            foreach ($newImages as $index => $image) {
+                $path = ImageUpload::upload($image, $prefix);
 
-            $ext = $image->getClientOriginalExtension();
-            $filename = Str::uuid() . '.' . $ext;
-
-            $path = Storage::disk('r2')->putFileAs($prefix, $image, $filename, [
-                'visibility' => 'public'
-            ]);
-
-            GambarProduk::create([
-                'id_produk'   => $product->id,
-                'path_gambar' => $path,
-                'is_main'     => $hasMain ? false : $index === 0,
-            ]);
-        }
-        if (!$product->gambarUtama()->exists()) {
-            $first = $product->gambar()->first();
-            if ($first) {
-                $first->update(['is_main' => true]);
+                GambarProduk::create([
+                    'id_produk'   => $product->id,
+                    'path_gambar' => $path,
+                    'is_main'     => $hasMain ? false : $index === 0,
+                ]);
             }
+            if (!$product->gambarUtama()->exists()) {
+                $first = $product->gambar()->first();
+                if ($first) {
+                    $first->update(['is_main' => true]);
+                }
+            }
+            DB::commit();
+        } catch (\Throwable $th) {
+
+            DB::rollBack();
+
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Terjadi kesalahan: ' . $th->getMessage()]);
         }
-        DB::commit();
 
-    } catch (\Throwable $th) {
-
-        DB::rollBack();
-
-        return back()
-            ->withInput()
-            ->withErrors(['error' => 'Terjadi kesalahan: ' . $th->getMessage()]);
+        return redirect()
+            ->route('admin.products.index')
+            ->with('success', 'Produk berhasil diperbarui.');
     }
-
-    return redirect()
-        ->route('admin.products.index')
-        ->with('success', 'Produk berhasil diperbarui.');
-}
 
     public function destroy(Produk $product)
     {

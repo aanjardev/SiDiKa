@@ -3,9 +3,11 @@
     <td class="text-center text-muted fw-bold">{{ ($data_penjualan->firstItem() ?? 0) + $index }}</td>
 
     <td>
-        <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
-            #{{ $penjualan->id }}
-        </span>
+        <a href="{{ route('admin.sales.show', $penjualan->id) }}"
+            class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none">
+            {{ $penjualan->kode_transaksi }}
+        </a>
+
     </td>
 
     <td>
@@ -26,11 +28,11 @@
 
     <td>
         <span class="text-secondary small d-block"
-              title="{{ $penjualan->detail_penjualan->pluck('produk.nama_produk')->implode(', ') }}"
-              style="line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+            title="{{ $penjualan->detail_penjualan->pluck('produk.nama_produk')->implode(', ') }}"
+            style="line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
             @php
-                $itemNames = $penjualan->detail_penjualan->pluck('produk.nama_produk')->implode(', ');
-                echo $itemNames ?: '-';
+            $itemNames = $penjualan->detail_penjualan->pluck('produk.nama_produk')->implode(', ');
+            echo $itemNames ?: '-';
             @endphp
         </span>
     </td>
@@ -41,19 +43,16 @@
 
     <td class="fw-bold text-dark">
         @php
-            $fallbackTotal = $penjualan->detail_penjualan->sum(function($d){
-                return ($d->qty ?? 0) * ($d->harga_jual_satuan ?? 0);
-            });
-            $totalNominal = ($penjualan->harga_total ?? 0) > 0 ? $penjualan->harga_total : $fallbackTotal;
+        $fallbackTotal = $penjualan->detail_penjualan->sum(function($d){
+        return ($d->qty ?? 0) * ($d->harga_jual_satuan ?? 0);
+        });
+        $totalNominal = ($penjualan->harga_total ?? 0) > 0 ? $penjualan->harga_total : $fallbackTotal;
         @endphp
         Rp{{ number_format($totalNominal, 0, ',', '.') }}
     </td>
 
     <td class="text-center">
         <div class="d-flex justify-content-center gap-2">
-            <a href="#" class="btn-action btn-action-view" title="Lihat Detail">
-                <i class="fa-solid fa-eye"></i>
-            </a>
             <a href="{{ route('admin.sales.edit', $penjualan->id) }}" class="btn-action btn-action-edit" title="Edit">
                 <i class="fa-solid fa-pen-to-square"></i>
             </a>

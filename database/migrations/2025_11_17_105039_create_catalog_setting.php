@@ -16,7 +16,7 @@ return new class extends Migration
         $table->string('nama_website')->nullable();
         $table->string('nomor_telfon')->nullable();
         $table->text('description')->nullable();
-        $table->string('logo_path');
+        $table->string('logo_path')->nullable();
         $table->string('facebook_link')->nullable();
         $table->string('youtube_link')->nullable();
         $table->string('instagram_link')->nullable();
@@ -31,7 +31,7 @@ return new class extends Migration
     Schema::create('catalog_banners', function (Blueprint $table) {
         $table->id();
         $table->foreignId('catalog_setting_id')->constrained()->onDelete('cascade'); // relasi ke catalog_settings
-        $table->string('banner_path');
+        $table->string('banner_path')->nullable();
         $table->timestamps();
         });
 
@@ -39,7 +39,7 @@ return new class extends Migration
     Schema::create('catalog_partner_logos', function (Blueprint $table) {
         $table->id();
         $table->foreignId('catalog_setting_id')->constrained()->onDelete('cascade'); // relasi ke catalog_settings
-        $table->string('logo_path');
+        $table->string('logo_path')->nullable();
         $table->timestamps();
         });
     }

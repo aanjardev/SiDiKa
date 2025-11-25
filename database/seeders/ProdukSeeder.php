@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\File;
 use App\Models\Produk;
 use App\Models\GambarProduk;
+use App\Helpers\ImageUpload;
 
 class ProdukSeeder extends Seeder
 {
@@ -870,16 +871,7 @@ Kode Barang : #1298_DK'
             throw new \RuntimeException("Seeder image not found: {$source}");
         }
 
-        $ext = pathinfo($source, PATHINFO_EXTENSION);
-        $remoteName = Str::uuid() . '.' . $ext;
-
-        $folder = "product/{$productId}";
-
-        return Storage::disk('r2')->putFileAs(
-            $folder,
-            new File($source),
-            $remoteName,
-            ['visibility' => 'public']
-        );
+        // Reuse runtime pipeline: resize + WebP + hash + cache headers
+        return ImageUpload::upload($source, "product/{$productId}");
     }
 }
