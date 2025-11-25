@@ -8,6 +8,7 @@ $setting = \App\Models\CatalogSettings::first();
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>@yield('title', 'Admin Panel') | SiDiKa</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- @vite([
           'resources/admin_theme/css/core/libs.min.css',

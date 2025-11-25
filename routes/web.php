@@ -63,8 +63,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/products/store', [AdminProductController::class, 'store'])->name('products.store');
     Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('products.destroy');
     Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('products.update');
+
+    // pastikan jalur pencarian tidak tertelan oleh route resource (/customers/{id})
+    Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
     Route::resource('/customers', CustomerController::class)->names('customers');
-    Route::get('admin/customers/search', [CustomerController::class, 'search'])->name('customers.search');
     Route::resource('/categories', CategoryController::class)->names('categories');
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
     Route::post('/categories/store', [CategoryController::class, 'store'])->name('categories.store');
