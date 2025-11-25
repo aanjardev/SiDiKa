@@ -39,24 +39,26 @@ export default class ItemTable {
                     <div class="d-flex flex-column">
                         <span class="fw-bold text-dark">${item.nama_item}</span>
                         <span class="small text-muted">
-                            <i class="fa-solid fa-circle-info me-1 text-info"></i>${summary}
+                            <i class="fa-solid fa-circle-info me-1 text-info" style="font-size: 0.7rem;"></i>${summary}
                         </span>
                     </div>
                 </td>
 
                 <td class="py-3">
-                    <span class="badge bg-white text-dark border px-3 py-2">${kategoriNama}</span>
+                    <span class="badge rounded-pill bg-white text-dark border border-secondary-subtle fw-normal px-3 py-2">${kategoriNama}</span>
                 </td>
 
                 <td class="py-3 font-monospace small text-secondary">${item.serial_number || "-"}</td>
 
                 <td class="text-center py-3">
-                    <button class="btn-action-icon" data-edit="${item.id}">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
-                    <button class="btn-action-icon" data-delete="${item.id}">
-                        <i class="fa-solid fa-trash-can"></i>
-                    </button>
+                    <div class="d-flex justify-content-center gap-2">
+                        <button type="button" class="btn-action-icon" data-edit="${item.id}">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                        <button type="button" class="btn-action-icon" data-delete="${item.id}">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
                 </td>
             `;
 
