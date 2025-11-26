@@ -36,6 +36,8 @@ return new class extends Migration
             $table->id();
             $table->string('nama', 50);
             $table->string('alamat', 100);
+            $table->time('jam_buka');   
+            $table->time('jam_tutup');  
             $table->string('nomor_telepon', 20);
             $table->timestamps();
         });

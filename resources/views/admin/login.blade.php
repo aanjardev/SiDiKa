@@ -124,7 +124,8 @@
                                     name="email"
                                     value="{{ old('email') }}"
                                     placeholder="contoh@email.com"
-                                    required autofocus>
+                                    required 
+                                    autofocus>
                             </div>
                             @error('email')
                             <div class="text-danger small mt-1">{{ $message }}</div>

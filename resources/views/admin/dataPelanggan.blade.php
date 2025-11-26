@@ -2,6 +2,12 @@
 
 @section('title', 'Data Pelanggan')
 
+
+@push('page-actions')
+
+@endpush
+
+
 @section('content')
 
 {{-- Search & Filter (Resolved: Visual HEAD + Logic Main) --}}
@@ -19,7 +25,8 @@
                        name="search"
                        placeholder="Cari pelanggan berdasarkan nama, telepon, atau NIK"
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;">
+                       style="font-size: 0.95rem;"
+                       autofocus>
             </div>
 
             {{-- Bagian Kanan: Dropdown Sort --}}

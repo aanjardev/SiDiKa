@@ -72,7 +72,8 @@
                                     name="nama_produk"
                                     value="{{ old('nama_produk', $isEdit ? $product->nama_produk : '') }}"
                                     placeholder="Contoh: Kamera Canon EOS 600D"
-                                    required>
+                                    required
+                                    autofocus>
                             </div>
                         </div>
 

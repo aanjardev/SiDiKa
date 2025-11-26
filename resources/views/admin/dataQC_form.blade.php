@@ -50,7 +50,7 @@
                         <label class="form-label fw-medium text-secondary small">Nama Item <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-tag"></i></span>
-                            <input type="text" name="nama_item" class="form-control border-start-0 ps-2 required-field" value="{{ old('nama_item', $item->nama_item) }}">
+                            <input type="text" name="nama_item" class="form-control border-start-0 ps-2 required-field" value="{{ old('nama_item', $item->nama_item) }}" autofocus>
                         </div>
                         {{-- Logic Main: Error Message --}}
                         <div class="invalid-feedback d-block-none" id="nama_item_error">

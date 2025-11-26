@@ -40,7 +40,8 @@
                        class="form-control border-0 shadow-none bg-transparent"
                        placeholder="Cari Kode Pembelian atau Nama Customer..."
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;">
+                       style="font-size: 0.95rem;"
+                       autofocus>
             </div>
 
             {{-- Bagian Kanan: Dropdown --}}
