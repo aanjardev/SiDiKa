@@ -19,6 +19,20 @@ class DashboardController extends Controller
         // =======================================================
         $selectedYear = $request->input('year', now()->year);
         $selectedMonth = $request->input('month', now()->month);
+        $allBranches = Branch::orderBy('nama', 'asc')->get(['id', 'nama']);
+        $selectedBranch = $request->input('branch_id');
+        $selectedBranch = $selectedBranch === 'all' ? null : $selectedBranch;
+        if (!empty($selectedBranch)) {
+            $selectedBranch = (int) $selectedBranch;
+            if (!$allBranches->pluck('id')->contains($selectedBranch)) {
+                $selectedBranch = null;
+            }
+        } else {
+            $selectedBranch = null;
+        }
+        $selectedBranchName = $selectedBranch
+            ? optional($allBranches->firstWhere('id', $selectedBranch))->nama ?? 'Cabang'
+            : 'Semua Cabang';
         
         // Validasi input
         $selectedYear = (int) $selectedYear;
@@ -39,6 +53,10 @@ class DashboardController extends Controller
             $queryPenjualan->whereMonth('created_at', $selectedMonth);
             $queryDetailPenjualan->whereMonth('penjualan.created_at', $selectedMonth);
         }
+        if ($selectedBranch) {
+            $queryPenjualan->where('perusahaan_cabang_id', $selectedBranch);
+            $queryDetailPenjualan->where('penjualan.perusahaan_cabang_id', $selectedBranch);
+        }
 
         // =======================================================
         // STATISTIK UTAMA: Total Pendapatan, Laba Bersih, Total Transaksi
@@ -56,6 +74,9 @@ class DashboardController extends Controller
         $queryPembelian = Pembelian::whereYear('created_at', $selectedYear);
         if ($selectedMonth) {
             $queryPembelian->whereMonth('created_at', $selectedMonth);
+        }
+        if ($selectedBranch) {
+            $queryPembelian->where('perusahaan_cabang_id', $selectedBranch);
         }
         $totalPembelian = $queryPembelian->count();
         $totalTransaksi = $totalPenjualan + $totalPembelian;
@@ -103,17 +124,21 @@ class DashboardController extends Controller
         // =======================================================
         // CHART DATA: Area Chart (Pendapatan & HPP per bulan)
         // =======================================================
-        $pendapatanBulanan = Penjualan::selectRaw('MONTH(created_at) as bulan, SUM(harga_total) as total')
-            ->whereYear('created_at', $selectedYear)
-            ->groupBy('bulan')
-            ->pluck('total', 'bulan');
+        $pendapatanBulananQuery = Penjualan::selectRaw('MONTH(created_at) as bulan, SUM(harga_total) as total')
+            ->whereYear('created_at', $selectedYear);
+        if ($selectedBranch) {
+            $pendapatanBulananQuery->where('perusahaan_cabang_id', $selectedBranch);
+        }
+        $pendapatanBulanan = $pendapatanBulananQuery->groupBy('bulan')->pluck('total', 'bulan');
 
-        $hppBulanan = DetailPenjualan::selectRaw('MONTH(penjualan.created_at) as bulan, SUM(detail_penjualan.qty * COALESCE(produk.harga_beli, 0)) as total')
+        $hppBulananQuery = DetailPenjualan::selectRaw('MONTH(penjualan.created_at) as bulan, SUM(detail_penjualan.qty * COALESCE(produk.harga_beli, 0)) as total')
             ->join('penjualan', 'detail_penjualan.penjualan_id', '=', 'penjualan.id')
             ->leftJoin('produk', 'detail_penjualan.produk_id', '=', 'produk.id')
-            ->whereYear('penjualan.created_at', $selectedYear)
-            ->groupBy('bulan')
-            ->pluck('total', 'bulan');
+            ->whereYear('penjualan.created_at', $selectedYear);
+        if ($selectedBranch) {
+            $hppBulananQuery->where('penjualan.perusahaan_cabang_id', $selectedBranch);
+        }
+        $hppBulanan = $hppBulananQuery->groupBy('bulan')->pluck('total', 'bulan');
 
         $dataPendapatanChart = [];
         $dataHppChart = [];
@@ -125,15 +150,21 @@ class DashboardController extends Controller
         // =======================================================
         // CHART DATA: Donut Chart (Proporsi Penjualan vs Pembelian)
         // =======================================================
+        $countPenjualan = Penjualan::whereYear('created_at', $selectedYear);
+        $countPembelian = Pembelian::whereYear('created_at', $selectedYear);
+        if ($selectedBranch) {
+            $countPenjualan->where('perusahaan_cabang_id', $selectedBranch);
+            $countPembelian->where('perusahaan_cabang_id', $selectedBranch);
+        }
         $dataTransaksiChart = [
-            Penjualan::whereYear('created_at', $selectedYear)->count(),
-            Pembelian::whereYear('created_at', $selectedYear)->count(),
+            $countPenjualan->count(),
+            $countPembelian->count(),
         ];
 
         // =======================================================
         // WIDGET DATA: Top 5 Products (berdasarkan qty penjualan tahun ini)
         // =======================================================
-        $topProducts = DetailPenjualan::selectRaw('
+        $topProductsQuery = DetailPenjualan::selectRaw('
                 produk.id,
                 produk.nama_produk,
                 produk.harga_jual,
@@ -141,7 +172,11 @@ class DashboardController extends Controller
             ')
             ->join('penjualan', 'detail_penjualan.penjualan_id', '=', 'penjualan.id')
             ->join('produk', 'detail_penjualan.produk_id', '=', 'produk.id')
-            ->whereYear('penjualan.created_at', $selectedYear)
+            ->whereYear('penjualan.created_at', $selectedYear);
+        if ($selectedBranch) {
+            $topProductsQuery->where('penjualan.perusahaan_cabang_id', $selectedBranch);
+        }
+        $topProducts = $topProductsQuery
             ->groupBy('produk.id', 'produk.nama_produk', 'produk.harga_jual')
             ->orderBy('total_qty', 'desc')
             ->limit(5)
@@ -162,6 +197,7 @@ class DashboardController extends Controller
         // =======================================================
         $recentSales = Penjualan::with(['customer', 'branch'])
             ->whereYear('created_at', $selectedYear)
+            ->when($selectedBranch, fn ($q) => $q->where('perusahaan_cabang_id', $selectedBranch))
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
@@ -182,6 +218,7 @@ class DashboardController extends Controller
         // =======================================================
         $recentPurchases = Pembelian::with(['customer', 'perusahaan_cabang'])
             ->whereYear('created_at', $selectedYear)
+            ->when($selectedBranch, fn ($q) => $q->where('perusahaan_cabang_id', $selectedBranch))
             ->orderBy('created_at', 'desc')
             ->limit(5)
             ->get()
@@ -200,11 +237,18 @@ class DashboardController extends Controller
         // =======================================================
         // BRANCH DATA: Performa per cabang (tetap dipertahankan)
         // =======================================================
-        $branches = Branch::withSum([
-            'sales as pendapatanCabang' => function ($query) use ($selectedYear, $selectedMonth) {
+        $branchesQuery = Branch::query();
+        if ($selectedBranch) {
+            $branchesQuery->where('id', $selectedBranch);
+        }
+        $branches = $branchesQuery->withSum([
+            'sales as pendapatanCabang' => function ($query) use ($selectedYear, $selectedMonth, $selectedBranch) {
                 $query->whereYear('created_at', $selectedYear);
                 if ($selectedMonth) {
                     $query->whereMonth('created_at', $selectedMonth);
+                }
+                if ($selectedBranch) {
+                    $query->where('perusahaan_cabang_id', $selectedBranch);
                 }
             }
         ], 'harga_total')->get();
@@ -216,6 +260,9 @@ class DashboardController extends Controller
         
         if ($selectedMonth) {
             $hppPerBranch->whereMonth('penjualan.created_at', $selectedMonth);
+        }
+        if ($selectedBranch) {
+            $hppPerBranch->where('penjualan.perusahaan_cabang_id', $selectedBranch);
         }
         
         $hppPerBranch = $hppPerBranch->groupBy('penjualan.perusahaan_cabang_id')
@@ -248,6 +295,8 @@ class DashboardController extends Controller
             'selectedYear' => $selectedYear,
             'selectedMonth' => $selectedMonth,
             'labelBulan' => $labelBulan,
+            'selectedBranch' => $selectedBranch,
+            'allBranches' => $allBranches,
             
             // Statistik Utama
             'totalPendapatan' => $totalPendapatan,
@@ -270,6 +319,7 @@ class DashboardController extends Controller
             'dataCabang' => $dataCabang,
             'namaCabangTerbaik' => $namaCabangTerbaik,
             'omzetCabangTerbaik' => $omzetCabangTerbaik,
+            'selectedBranchName' => $selectedBranchName,
         ]);
     }
 }
