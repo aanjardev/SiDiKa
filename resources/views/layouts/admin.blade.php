@@ -267,6 +267,9 @@ $setting = \App\Models\CatalogSettings::first();
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
+    <!-- Clickable rows script -->
+    <script src="{{ asset('js/clickable-rows.js') }}"></script>
+
     <script>
         // Hide loader when page is loaded
         window.addEventListener('load', function() {

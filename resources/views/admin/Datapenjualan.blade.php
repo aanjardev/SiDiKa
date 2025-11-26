@@ -62,13 +62,13 @@
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 5%;">No</th>
-                            <th style="width: 15%;">ID Transaksi</th>
-                            <th style="width: 20%;">Customer</th>
+                            <th>Kode Transaksi</th>
+                            <th>Customer</th>
                             <th>Tanggal</th>
-                            <th style="width: 20%;">Item Terjual</th>
+                            <th style="width: 25%;">Item Terjual</th>
                             <th>Cabang</th>
                             <th>Total</th>
-                            <th class="text-center" style="width: 100px;">Aksi</th>
+                            <th class="text-center" style="width: 120px;">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="sales-table-body">

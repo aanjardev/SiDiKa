@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     {{-- ID qc-table-body PENTING untuk script AJAX --}}
                     <tbody id="qc-table-body">
                         @forelse ($data_qc as $index => $item)
-                        <tr>
+                        <tr class="clickable-row" data-detail-url="{{ route('admin.quality-control.edit', $item->id) }}">
                             <td class="text-center text-muted fw-bold">{{ ($data_qc->firstItem() ?? 0) + $index }}</td>
 
                             {{-- ID Pembelian --}}
@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             </td>
 
                             {{-- Aksi --}}
-                            <td class="text-center">
+                            <td class="text-center no-row-navigation">
                                 <a href="{{ route('admin.quality-control.edit', $item->id) }}"
                                    class="btn btn-sm btn-primary shadow-sm px-3 rounded-3 fw-medium"
                                    style="font-size: 0.85rem;"
