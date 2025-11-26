@@ -40,7 +40,9 @@ document.addEventListener("DOMContentLoaded", () => {
     new ProductSelector({
         select: document.getElementById("produkBaru"),
         qtyInput: document.getElementById("qtyProdukBaru"),
-        stockInfo: document.getElementById("infoStokProduk")
+        stockInfo: document.getElementById("infoStokProduk"),
+        qtyWrapper: document.getElementById("qtyProdukWrapper"),
+        searchInput: document.getElementById("produkSearchInput")
     });
 
     const customerSearchInput = document.getElementById("customer_search");
@@ -73,6 +75,18 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    const hideModalSafely = (modalEl) => {
+        if (!modalEl) return;
+        const instance = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+        instance.hide();
+        setTimeout(() => {
+            document.querySelectorAll(".modal-backdrop").forEach((el) => el.remove());
+            document.body.classList.remove("modal-open");
+            document.body.style.removeProperty("overflow");
+            document.body.style.removeProperty("padding-right");
+        }, 300);
+    };
+
     // Tambah item dari modal
     document.getElementById("formTambahItem")?.addEventListener("submit", e => {
         e.preventDefault();
@@ -92,7 +106,7 @@ document.addEventListener("DOMContentLoaded", () => {
         totals.recalc();
 
         const modalEl = document.getElementById("modalTambahItem");
-        bootstrap.Modal.getInstance(modalEl)?.hide();
+        hideModalSafely(modalEl);
 
         if (qtyInput) qtyInput.value = "1";
     });

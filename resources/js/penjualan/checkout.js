@@ -89,6 +89,8 @@ export default class Checkout {
             const product = this.products[item.id];
             const price = Number(product.harga_jual || 0);
             const total = item.qty * price;
+            const limit = this.getLimitQty(item.id);
+            const atLimit = Number.isFinite(limit) && item.qty >= limit;
 
             return `
                 <tr data-product-id="${item.id}">
@@ -108,7 +110,7 @@ export default class Checkout {
                                 <i class="fa-solid fa-minus"></i>
                             </button>
                             <span class="input-group-text bg-white border-start-0 border-end-0 fw-bold qty-value" style="min-width:30px;">${item.qty}</span>
-                            <button class="btn btn-light border btn-qty-inc" data-product-id="${item.id}">
+                            <button class="btn btn-light border btn-qty-inc" data-product-id="${item.id}" ${atLimit ? "disabled" : ""}>
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>

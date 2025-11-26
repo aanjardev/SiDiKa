@@ -19,6 +19,7 @@ class PenjualanController extends Controller
         // Ambil semua parameter filter
         $search = $request->query('search');
         $filterKategori = $request->query('kategori');
+        $filterCabang = $request->query('cabang');
         $status = $request->query('status');
         $sort = $request->query('sort', 'terbaru'); // default = terbaru
 
@@ -40,10 +41,8 @@ class PenjualanController extends Controller
             });
         }
 
-        if (!empty($filterKategori)) {
-            $query->whereHas('detail_penjualan.produk.kategori', function ($qK) use ($filterKategori) {
-                $qK->where('id', $filterKategori);
-            });
+        if (!empty($filterCabang)) {
+            $query->where('perusahaan_cabang_id', $filterCabang);
         }
 
         if (!empty($status)) {
@@ -58,7 +57,7 @@ class PenjualanController extends Controller
 
         $data_penjualan = $query->paginate(10)->withQueryString();
 
-        $semua_kategori = Kategori::orderBy('nama_kategori')->get();
+        $semua_cabang = PerusahaanCabang::orderBy('nama')->get();
 
         if ($request->ajax()) {
             return response()->json([
@@ -70,9 +69,9 @@ class PenjualanController extends Controller
 
         return view('admin.Datapenjualan', [
             'data_penjualan' => $data_penjualan,
-            'semua_kategori' => $semua_kategori,
+            'semua_cabang' => $semua_cabang,
             'search' => $search,
-            'filterKategori' => $filterKategori,
+            'filterCabang' => $filterCabang,
             'status' => $status,
             'sort' => $sort,
         ]);
@@ -99,7 +98,7 @@ class PenjualanController extends Controller
         $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
         $products = Produk::with(['gambarUtama', 'kategori'])
             ->orderBy('updated_at', 'desc')
-            ->paginate(12);
+            ->paginate(15);
 
         return view('admin.listProdukJual', [
             'products' => $products,
