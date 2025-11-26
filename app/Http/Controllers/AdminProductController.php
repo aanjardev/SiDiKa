@@ -292,6 +292,15 @@ class AdminProductController extends Controller
             'images.*' => ['image', 'max:5120'],
         ]);
 
+        $temporaryPaths = [];
+        $uploadedImages = $request->file('images', []);
+
+        foreach ($uploadedImages as $image) {
+            $temporaryPaths[] = $image->store('temp/product-creates', 'local');
+        }
+
+        $produk = null;
+
         DB::beginTransaction();
 
         try {
@@ -309,35 +318,32 @@ class AdminProductController extends Controller
                 'grade' => $validated['grade'],
             ]);
 
-            // Prefix folder per product
-            $prefix = 'product/' . $produk->id;
-
-            // 2. Upload & save images (compress + WebP + cache)
-            // Check if images exist and is not empty
-            if (!empty($validated['images']) && is_array($validated['images'])) {
-                foreach ($validated['images'] as $index => $image) {
-                    $path = ImageUpload::upload($image, $prefix);
-
-                    GambarProduk::create([
-                        'id_produk' => $produk->id,
-                        'path_gambar' => $path,
-                        'is_main' => $index === 0,
-                    ]);
-                }
-            }
-
             DB::commit();
         } catch (\Throwable $th) {
 
             DB::rollBack();
+            $this->cleanupTemporaryUploads($temporaryPaths);
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Terjadi kesalahan saat menyimpan produk: ' . $th->getMessage()]);
         }
 
+        if (!empty($temporaryPaths)) {
+            ProcessProductImage::dispatch(
+                $produk->id,
+                $temporaryPaths,
+                0,
+                Auth::id()
+            );
+
+            return redirect()
+                ->route('admin.products.index')
+                ->with('success', 'Produk berhasil ditambahkan. Foto sedang diproses di latar belakang.');
+        }
+
         return redirect()
             ->route('admin.products.index')
-            ->with('success', 'Produk berhasil ditambahkan');
+            ->with('success', 'Produk berhasil ditambahkan.');
     }
 
 

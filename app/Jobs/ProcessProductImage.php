@@ -115,11 +115,18 @@ class ProcessProductImage implements ShouldQueue
             }
 
             // Handle main image selection
-            if (!empty($this->mainImageIndex)) {
-                $mainIndex = $this->mainImageIndex;
-                if (isset($createdIds[$mainIndex])) {
+            if ($this->mainImageIndex !== null) {
+                $mainRecord = null;
+                foreach ($createdIds as $created) {
+                    if (($created['index'] ?? null) === $this->mainImageIndex) {
+                        $mainRecord = $created;
+                        break;
+                    }
+                }
+
+                if ($mainRecord) {
                     GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
-                    GambarProduk::where('id', $createdIds[$mainIndex]['id'])->update(['is_main' => true]);
+                    GambarProduk::where('id', $mainRecord['id'])->update(['is_main' => true]);
                 }
             } elseif (!$hasMain && !empty($createdIds)) {
                 // Set first image as main if no main exists
