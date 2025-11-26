@@ -2,13 +2,6 @@
 
 @section('title', 'Data Pelanggan')
 
-@push('page-actions')
-<a href="{{ route('admin.customers.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
-    <i class="fas fa-plus fa-fw"></i>
-    <span>Tambah Pelanggan</span>
-</a>
-@endpush
-
 @section('content')
 
 {{-- Search & Filter (Resolved: Visual HEAD + Logic Main) --}}
