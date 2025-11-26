@@ -211,10 +211,8 @@ $setting = \App\Models\CatalogSettings::first();
 
             <!-- Dropdown Menu -->
             <ul class="dropdown-menu dropdown-menu-end" style="width: calc(100% - 2rem); margin: 0.5rem 1rem;">
-                <li><a class="dropdown-item" href="{{ route('admin.profile.index') }}"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
-                <li>
-                    <hr class="dropdown-divider">
-                </li>
+                <li><a class="dropdown-item" href="{{ route('admin.profile') }}"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
+                <li><hr class="dropdown-divider"></li>
                 <li>
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf

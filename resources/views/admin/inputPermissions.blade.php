@@ -50,6 +50,23 @@
 
                     {{-- Email --}}
                     <div class="mb-3">
+                        <label for="email" class="form-label fw-medium text-secondary small">Role atau Jabatan</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
+                                <i class="fa-solid fa-envelope"></i>
+                            </span>
+                            <select name="role" class="form-select border-start-0 ps-2" style="height: 45px;" required {{ isset($user) ? 'disabled' : '' }}>
+                                <option selected disabled value="">-- Pilih Role --</option>
+                                    <option value="admin">
+                                        admin 
+                                    </option>
+                                    <option value="manager">
+                                        manager 
+                                    </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mb-3">
                         <label for="email" class="form-label fw-medium text-secondary small">Alamat Email</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">

@@ -93,7 +93,8 @@ class CatalogSeeder extends Seeder
             throw new \RuntimeException("Seeder image not found: {$source}");
         }
 
-        return ImageUpload::upload($source, $prefix);
+        $paths = ImageUpload::upload($source, $prefix);
+        return $paths['large_path'];
     }
 
     private function uploadUrlToR2(string $url, string $prefix): string
@@ -101,7 +102,8 @@ class CatalogSeeder extends Seeder
         $temp = tempnam(sys_get_temp_dir(), 'img_');
         file_put_contents($temp, file_get_contents($url));
 
-        $path = ImageUpload::upload($temp, $prefix);
+        $paths = ImageUpload::upload($temp, $prefix);
+        $path = $paths['large_path'];
 
         @unlink($temp);
 

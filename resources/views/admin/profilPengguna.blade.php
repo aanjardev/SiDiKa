@@ -106,7 +106,7 @@
                             <div class="form-text small text-muted">Password disembunyikan demi keamanan.</div>
                         </div>
                         <div class="col-md-4 mb-3 d-flex align-items-end">
-                            <a href="#" class="btn btn-light border w-100 text-primary fw-medium">
+                            <a href="{{ route('admin.profile.resetPassword') }}" class="btn btn-light border w-100 text-primary fw-medium">
                                 <i class="fa-solid fa-key me-1"></i> Ganti Password
                             </a>
                         </div>
