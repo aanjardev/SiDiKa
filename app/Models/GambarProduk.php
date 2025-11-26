@@ -24,9 +24,7 @@ class GambarProduk extends Model
     protected static function booted(): void
     {
         static::deleting(function (GambarProduk $gambar) {
-            if ($gambar->path_gambar) {
-                Storage::disk('r2')->delete($gambar->path_gambar);
-            }
+            $gambar->deleteVariants($gambar->path_gambar);
         });
     }
 
@@ -39,5 +37,30 @@ class GambarProduk extends Model
         }
 
         return Storage::disk('r2')->url($this->path_gambar);
+    }
+
+    private function deleteVariants(?string $path): void
+    {
+        if (!$path) {
+            return;
+        }
+
+        $disk = Storage::disk('r2');
+
+        if (preg_match('#^(.*)/(thumb|medium|large)/([^/]+)$#', $path, $m)) {
+            $base = $m[1];
+            $file = $m[3];
+            foreach (['thumb', 'medium', 'large'] as $size) {
+                $candidate = "{$base}/{$size}/{$file}";
+                if ($disk->exists($candidate)) {
+                    $disk->delete($candidate);
+                }
+            }
+            return;
+        }
+
+        if ($disk->exists($path)) {
+            $disk->delete($path);
+        }
     }
 }

@@ -59,9 +59,7 @@ class CatalogSettingsController extends Controller
 
             foreach ($partners as $partner) {
 
-                if ($partner->logo_path && Storage::disk('r2')->exists($partner->logo_path)) {
-                    Storage::disk('r2')->delete($partner->logo_path);
-                }
+                $this->deleteImageVariants($partner->logo_path);
             }
 
             CatalogPartnerLogo::whereIn('id', $ids)->delete();
@@ -74,9 +72,7 @@ class CatalogSettingsController extends Controller
 
             foreach ($banners as $banner) {
 
-                if ($banner->banner_path && Storage::disk('r2')->exists($banner->banner_path)) {
-                    Storage::disk('r2')->delete($banner->banner_path);
-                }
+                $this->deleteImageVariants($banner->banner_path);
             }
 
             CatalogBanners::whereIn('id', $ids)->delete();
@@ -84,38 +80,64 @@ class CatalogSettingsController extends Controller
 
         if ($request->hasFile('banner')) {
 
-            $path = ImageUpload::upload($request->file('banner'), 'catalog/banners');
+            $paths = ImageUpload::upload($request->file('banner'), 'catalog/banners');
 
             CatalogBanners::create([
-                'banner_path' => $path,
+                'banner_path' => $paths['large_path'],
                 'catalog_setting_id' => 1,
             ]);
         }
 
         if ($request->hasFile('brand_logos')) {
 
-            $path = ImageUpload::upload($request->file('brand_logos'), 'catalog/partners');
+            $paths = ImageUpload::upload($request->file('brand_logos'), 'catalog/partners');
 
             CatalogPartnerLogo::create([
-                'logo_path' => $path,
+                'logo_path' => $paths['large_path'],
                 'catalog_setting_id' => 1,
             ]);
         }
 
         if ($request->hasFile('photo_logo')) {
 
-            if ($cat_setting->logo_path && Storage::disk('r2')->exists($cat_setting->logo_path)) {
-                Storage::disk('r2')->delete($cat_setting->logo_path);
-            }
+            $this->deleteImageVariants($cat_setting->logo_path);
 
-            $path = ImageUpload::upload($request->file('photo_logo'), 'catalog/logo');
+            $paths = ImageUpload::upload($request->file('photo_logo'), 'catalog/logo');
 
-            $cat_setting->update(['logo_path' => $path]);
+            $cat_setting->update(['logo_path' => $paths['large_path']]);
         }
 
 
         return redirect()
             ->route('admin.catalog-settings.index')
             ->with('success', 'Pengaturan katalog berhasil diperbarui.');
+    }
+
+    /**
+     * Delete all size variants (thumb/medium/large) of a stored image.
+     */
+    private function deleteImageVariants(?string $path): void
+    {
+        if (!$path) {
+            return;
+        }
+
+        $disk = Storage::disk('r2');
+
+        if (preg_match('#^(.*)/(thumb|medium|large)/([^/]+)$#', $path, $m)) {
+            $base = $m[1];
+            $file = $m[3];
+            foreach (['thumb', 'medium', 'large'] as $size) {
+                $candidate = "{$base}/{$size}/{$file}";
+                if ($disk->exists($candidate)) {
+                    $disk->delete($candidate);
+                }
+            }
+            return;
+        }
+
+        if ($disk->exists($path)) {
+            $disk->delete($path);
+        }
     }
 }

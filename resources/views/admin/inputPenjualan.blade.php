@@ -389,75 +389,9 @@
     </div>
 </div>
 
-<<<<<<< HEAD
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const btnSimpanCustomer = document.getElementById('btnSimpanCustomer');
-    const formTambahCustomer = document.getElementById('formTambahCustomer');
-
-    btnSimpanCustomer?.addEventListener('click', function() {
-        const nama = document.getElementById('customer_nama_modal').value.trim();
-        const no_telp = document.getElementById('customer_no_telp_modal').value.trim();
-        if (!nama || !no_telp) { 
-            window.showError('Nama dan No. Telepon wajib diisi.', 'Validasi Gagal'); 
-            return; 
-        }
-
-        const formData = new FormData(formTambahCustomer);
-        const data = Object.fromEntries(formData.entries());
-
-        btnSimpanCustomer.disabled = true;
-        btnSimpanCustomer.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Menyimpan...';
-
-        fetch("{{ route('admin.customers.store') }}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(err => { throw err; });
-            }
-            return response.json();
-        })
-        .then(result => {
-            if (result.success && result.customer) {
-                const customerSelect = document.getElementById('customer_id');
-                const newOption = new Option(`${result.customer.nama} (${result.customer.no_telp})`, result.customer.id, true, true);
-                customerSelect.appendChild(newOption);
-                formTambahCustomer.reset();
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalTambahCustomer'));
-                modal?.hide();
-            } else {
-                window.showError('Gagal menyimpan customer: ' + (result.message || 'Error tidak diketahui.'), 'Gagal Menyimpan');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            let errorMsg = 'Gagal menyimpan data.';
-            if (error.errors) {
-                errorMsg = Object.values(error.errors)[0][0];
-            } else if (error.message) {
-                errorMsg = error.message;
-            }
-            window.showError(errorMsg, 'Terjadi Kesalahan');
-        })
-        .finally(() => {
-            btnSimpanCustomer.disabled = false;
-            btnSimpanCustomer.innerHTML = 'Simpan Customer';
-        });
-    });
-
-});
-=======
 @push('scripts')
 <script type="application/json" id="produk-data-json">
     @json($produkUntukJs)
->>>>>>> 99e10f2c9d05daca8b76d5053a5782b85968abea
 </script>
 
 @vite(['resources/js/app.js', 'resources/js/penjualan/penjualan.js'])
