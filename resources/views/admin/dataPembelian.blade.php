@@ -44,7 +44,7 @@
             </div>
 
             {{-- Bagian Kanan: Dropdown --}}
-            <div class="d-flex align-items-center gap-2 pe-2">
+           <div class="d-flex align-items-center gap-2 pe-2">
 
                 {{-- Filter Status --}}
                 <select name="status" id="filter-status"
@@ -62,6 +62,18 @@
                         style="cursor: pointer;">
                     <option value="terbaru" {{ ($sort_filter ?? 'terbaru') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
                     <option value="terlama" {{ ($sort_filter ?? '') == 'terlama' ? 'selected' : '' }}>Terlama</option>
+                </select>
+
+                {{-- Filter Cabang --}}
+                <select name="cabang" id="filter-cabang"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
+                        style="cursor: pointer;">
+                    <option value="">Semua Cabang</option>
+                    @foreach($semua_cabang ?? [] as $cab)
+                        <option value="{{ $cab->id }}" {{ ($filter_cabang ?? '') == $cab->id ? 'selected' : '' }}>
+                            {{ $cab->nama }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
         </div>
@@ -216,7 +228,7 @@
             paginationSelector: '#pagination-links-container',
             baseUrl: urlIndex,
             searchInputSelector: '#search-input',
-            filterSelectors: ['#filter-status', '#filter-sort'],
+            filterSelectors: ['#filter-status', '#filter-sort', '#filter-cabang'],
             rowClick: {
                 selector: '.purchase-row',
                 ignoreSelector: '.no-row-navigation',

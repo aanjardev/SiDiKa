@@ -29,14 +29,14 @@
             </div>
 
             <div class="d-flex align-items-center gap-2 pe-2">
-                <select name="kategori"
-                    id="filter-kategori"
+                <select name="cabang"
+                    id="filter-cabang"
                     class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                     style="cursor: pointer;">
-                    <option value="">Semua Kategori</option>
-                    @foreach ($semua_kategori as $kat)
-                    <option value="{{ $kat->id }}" {{ request('kategori') == $kat->id ? 'selected' : '' }}>
-                        {{ $kat->nama_kategori }}
+                    <option value="">Semua Cabang</option>
+                    @foreach ($semua_cabang as $cab)
+                    <option value="{{ $cab->id }}" {{ request('cabang') == $cab->id ? 'selected' : '' }}>
+                        {{ $cab->nama }}
                     </option>
                     @endforeach
                 </select>
@@ -107,7 +107,7 @@
             paginationSelector: '#pagination-links-container',
             baseUrl: baseUrl,
             searchInputSelector: '#search-input',
-            filterSelectors: ['#filter-kategori', '#filter-sort'],
+            filterSelectors: ['#filter-cabang', '#filter-sort'],
             rowClick: {
                 selector: '.sales-row',
                 ignoreSelector: '.no-row-navigation',

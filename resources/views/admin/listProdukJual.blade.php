@@ -2,6 +2,19 @@
 
 @section('title', 'Katalog Penjualan')
 
+@push('page-actions')
+    @php
+        $backRoute = route('admin.sales.index');
+        if(isset($penjualan)) {
+            $backRoute = route('admin.sales.show', $penjualan->id);
+        }
+    @endphp
+
+    <a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
+        <i class="fas fa-arrow-left me-1"></i> Kembali
+    </a>
+@endpush
+
 @section('content')
 
 {{-- ======= Search & Filter ======= --}}
