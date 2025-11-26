@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Produk;
 use App\Models\Kategori;
 use App\Models\GambarProduk;
+use App\Jobs\CleanupProductAssets;
 use App\Jobs\ProcessProductImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -13,6 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Helpers\ImageUpload;
+
 
 class AdminProductController extends Controller
 {
@@ -126,65 +128,55 @@ class AdminProductController extends Controller
 
         try {
             $images = $request->file('images', []);
-            $createdIds = [];
-            $hasMain = $product->gambarUtama()->exists();
-
-            foreach ($images as $index => $image) {
-
-                // 🔥 Pakai HELPER baru kita (compress + webp + hash)
-                $path = ImageUpload::upload($image, "product/{$product->id}");
-
-                $g = \App\Models\GambarProduk::create([
-                    'id_produk' => $product->id,
-                    'path_gambar' => $path,
-                    'is_main' => false,
-                ]);
-
-                $createdIds[] = $g->id;
+            if (empty($images)) {
+                return back()->withInput()->withErrors(['error' => 'Tidak ada gambar yang diunggah.']);
             }
 
-            // --- HANDLE SET MAIN IMAGE ---
-            if (!empty($validated['main_image'])) {
-                $main = $validated['main_image'];
+            // Handle existing main image selection (before queue processing)
+            if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'existing_')) {
+                $idToSet = intval(substr($validated['main_image'], strlen('existing_')));
+                GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
+                GambarProduk::where('id_produk', $product->id)
+                    ->where('id', $idToSet)
+                    ->update(['is_main' => true]);
+            }
 
-                if (str_starts_with($main, 'existing_')) {
-                    $idToSet = intval(substr($main, 9));
+            // Store images temporarily in local storage
+            $temporaryPaths = [];
+            foreach ($images as $image) {
+                $tempPath = $image->store('temp/product-uploads', 'local');
+                $temporaryPaths[] = $tempPath;
+            }
 
-                    GambarProduk::where('id_produk', $product->id)
-                        ->update(['is_main' => false]);
+            // Extract main image index if provided (format: 'new_{index}')
+            $mainImageIndex = null;
+            if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'new_')) {
+                $mainImageIndex = intval(substr($validated['main_image'], strlen('new_')));
+            }
 
-                    GambarProduk::where('id_produk', $product->id)
-                        ->where('id', $idToSet)
-                        ->update(['is_main' => true]);
-                } elseif (str_starts_with($main, 'new_')) {
-                    $idx = intval(substr($main, 4));
-                    if (isset($createdIds[$idx])) {
-                        GambarProduk::where('id_produk', $product->id)
-                            ->update(['is_main' => false]);
+            // Dispatch job to process images in background
+            ProcessProductImage::dispatch(
+                $product->id,
+                $temporaryPaths,
+                $mainImageIndex,
+                Auth::id()
+            );
 
-                        GambarProduk::where('id_produk', $product->id)
-                            ->where('id', $createdIds[$idx])
-                            ->update(['is_main' => true]);
+            return redirect()
+                ->route('admin.products.photos')
+                ->with('success', 'Foto sedang diproses di latar belakang. Anda akan menerima notifikasi ketika selesai.');
+
+        } catch (\Throwable $th) {
+            // Clean up any temporary files if error occurs before dispatch
+            if (isset($temporaryPaths)) {
+                foreach ($temporaryPaths as $tempPath) {
+                    if (Storage::disk('local')->exists($tempPath)) {
+                        Storage::disk('local')->delete($tempPath);
                     }
                 }
-            } else {
-                // kalau tidak memilih main → atur otomatis
-                if (!$hasMain && !empty($createdIds)) {
-                    GambarProduk::where('id', $createdIds[0])->update(['is_main' => true]);
-                }
             }
-
-            DB::commit();
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return back()->withInput()->withErrors([
-                'error' => 'Gagal mengunggah gambar: ' . $th->getMessage()
-            ]);
+            return back()->withInput()->withErrors(['error' => 'Gagal mengunggah gambar: ' . $th->getMessage()]);
         }
-
-        return redirect()
-            ->route('admin.products.photos')
-            ->with('success', 'Gambar berhasil diunggah.');
     }
 
     /**
@@ -198,12 +190,13 @@ class AdminProductController extends Controller
             'image' => ['required', 'image', 'max:5120'],
         ]);
 
-        DB::beginTransaction();
-        try {
+            DB::beginTransaction();
+            try {
 
-            $image = $request->file('image');
+                $image = $request->file('image');
 
-            $path = ImageUpload::upload($image, "product/{$product->id}");
+                $paths = ImageUpload::upload($image, "product/{$product->id}");
+                $path = $paths['large_path'];
 
             $hasMain = $product->gambarUtama()->exists();
 
@@ -301,6 +294,15 @@ class AdminProductController extends Controller
             'images.*' => ['image', 'max:5120'],
         ]);
 
+        $temporaryPaths = [];
+        $uploadedImages = $request->file('images', []);
+
+        foreach ($uploadedImages as $image) {
+            $temporaryPaths[] = $image->store('temp/product-creates', 'local');
+        }
+
+        $produk = null;
+
         DB::beginTransaction();
 
         try {
@@ -318,32 +320,32 @@ class AdminProductController extends Controller
                 'grade' => $validated['grade'],
             ]);
 
-            // Prefix folder per product
-            $prefix = 'product/' . $produk->id;
-
-            // 2. Upload & save images (compress + WebP + cache)
-            foreach ($validated['images'] as $index => $image) {
-                $path = ImageUpload::upload($image, $prefix);
-
-                GambarProduk::create([
-                    'id_produk' => $produk->id,
-                    'path_gambar' => $path,
-                    'is_main' => $index === 0,
-                ]);
-            }
-
             DB::commit();
         } catch (\Throwable $th) {
 
             DB::rollBack();
+            $this->cleanupTemporaryUploads($temporaryPaths);
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Terjadi kesalahan saat menyimpan produk: ' . $th->getMessage()]);
         }
 
+        if (!empty($temporaryPaths)) {
+            ProcessProductImage::dispatch(
+                $produk->id,
+                $temporaryPaths,
+                0,
+                Auth::id()
+            );
+
+            return redirect()
+                ->route('admin.products.index')
+                ->with('success', 'Produk berhasil ditambahkan. Foto sedang diproses di latar belakang.');
+        }
+
         return redirect()
             ->route('admin.products.index')
-            ->with('success', 'Produk berhasil ditambahkan');
+            ->with('success', 'Produk berhasil ditambahkan.');
     }
 
 
@@ -381,6 +383,14 @@ class AdminProductController extends Controller
             'remove_images.*' => ['nullable', 'integer'],
         ]);
 
+        $temporaryPaths = [];
+        $pathsForCleanup = [];
+
+        $newImages = $request->file('images', []);
+        foreach ($newImages as $image) {
+            $temporaryPaths[] = $image->store('temp/product-updates', 'local');
+        }
+
         DB::beginTransaction();
 
         try {
@@ -397,7 +407,7 @@ class AdminProductController extends Controller
                 'grade'            => $validated['grade'],
             ]);
 
-            $removeIds = array_filter($request->remove_images ?? [], fn($v) => !empty($v));
+            $removeIds = array_filter($request->remove_images ?? [], fn ($v) => !empty($v));
 
             if (!empty($removeIds)) {
 
@@ -406,32 +416,12 @@ class AdminProductController extends Controller
                     ->get();
 
                 foreach ($imagesToDelete as $img) {
-
-                    // hapus file di Cloudflare R2
-                    if (Storage::disk('r2')->exists($img->path_gambar)) {
-                        Storage::disk('r2')->delete($img->path_gambar);
-                    }
-
+                    $pathsForCleanup[] = $img->path_gambar;
                     // hapus database entry
                     $img->delete();
                 }
             }
 
-            $newImages = $request->file('images', []);
-            $hasMain = $product->gambarUtama()->exists();
-
-            // folder milik produk ini
-            $prefix = 'product/' . $product->id;
-
-            foreach ($newImages as $index => $image) {
-                $path = ImageUpload::upload($image, $prefix);
-
-                GambarProduk::create([
-                    'id_produk'   => $product->id,
-                    'path_gambar' => $path,
-                    'is_main'     => $hasMain ? false : $index === 0,
-                ]);
-            }
             if (!$product->gambarUtama()->exists()) {
                 $first = $product->gambar()->first();
                 if ($first) {
@@ -442,10 +432,27 @@ class AdminProductController extends Controller
         } catch (\Throwable $th) {
 
             DB::rollBack();
+            $this->cleanupTemporaryUploads($temporaryPaths);
 
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Terjadi kesalahan: ' . $th->getMessage()]);
+        }
+
+        if (!empty($pathsForCleanup)) {
+            CleanupProductAssets::dispatch($pathsForCleanup);
+        }
+
+        if (!empty($temporaryPaths)) {
+            $product->refresh();
+            $productHasMain = $product->gambarUtama()->exists();
+
+            ProcessProductImage::dispatch(
+                $product->id,
+                $temporaryPaths,
+                $productHasMain ? null : 0,
+                Auth::id()
+            );
         }
 
         return redirect()
@@ -455,18 +462,12 @@ class AdminProductController extends Controller
 
     public function destroy(Produk $product)
     {
+        $pathsForCleanup = $product->gambar()->pluck('path_gambar')->filter()->all();
+
         DB::beginTransaction();
 
         try {
-            $product->load('gambar');
-
-            foreach ($product->gambar as $gambar) {
-                if (Storage::disk('r2')->exists($gambar->path_gambar)) {
-                    Storage::disk('r2')->delete($gambar->path_gambar);
-                }
-                $gambar->delete();
-            }
-
+            $product->gambar()->delete();
             $product->delete();
 
             DB::commit();
@@ -475,8 +476,34 @@ class AdminProductController extends Controller
             return back()->withErrors(['error' => 'Gagal menghapus produk: ' . $th->getMessage()]);
         }
 
+        if (!empty($pathsForCleanup)) {
+            CleanupProductAssets::dispatch($pathsForCleanup);
+        }
+
         return redirect()
             ->route('admin.products.index')
             ->with('success', 'Produk berhasil dihapus.');
+    }
+
+    /**
+     * Delete temporary uploads if the queue job is not dispatched.
+     *
+     * @param array<int, string> $paths
+     */
+    private function cleanupTemporaryUploads(array $paths): void
+    {
+        foreach ($paths as $tempPath) {
+            try {
+                if (Storage::disk('local')->exists($tempPath)) {
+                    Storage::disk('local')->delete($tempPath);
+                }
+            } catch (\Throwable $th) {
+                // log silently to avoid breaking user flow
+                \Log::warning('Failed deleting temporary upload', [
+                    'path' => $tempPath,
+                    'error' => $th->getMessage(),
+                ]);
+            }
+        }
     }
 }

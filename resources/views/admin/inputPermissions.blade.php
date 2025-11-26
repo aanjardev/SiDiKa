@@ -4,6 +4,7 @@
 
 @section('content')
 
+{{-- Route action seharusnya ke permissions.store/update, yang sudah benar di kedua branch. --}}
 <form action="{{ isset($user) ? route('admin.permissions.update', $user->id) : route('admin.permissions.store') }}" method="POST" data-validate-form>
     @csrf
     @if(isset($user))
@@ -30,6 +31,7 @@
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-user-tie"></i>
                             </span>
+                            {{-- Atribut disabled dipertahankan agar tidak bisa diubah saat edit. Autofocus juga dipertahankan. --}}
                             <select name="karyawan_name" class="form-select border-start-0 ps-2 required-field" style="height: 45px;" required {{ isset($user) ? 'disabled' : '' }} data-error-message="Karyawan wajib dipilih" autofocus>
                                 <option selected disabled value="">-- Pilih Karyawan --</option>
                                 @foreach ($karyawan_data as $k)
@@ -42,6 +44,7 @@
                         </div>
                         <div class="invalid-feedback">Karyawan wajib dipilih</div>
                         @if(isset($user))
+                            {{-- Field hidden untuk mengirimkan ID karyawan saat form disubmit (karena select di atas disabled) --}}
                             <input type="hidden" name="karyawan_name" value="{{ $user->id }}">
                             <div class="form-text small text-muted mt-1">
                                 <i class="fa-solid fa-circle-info me-1"></i>Nama karyawan terkunci pada mode edit.
@@ -49,13 +52,44 @@
                         @endif
                     </div>
 
-                    {{-- Email --}}
+                    {{-- Role atau Jabatan (Ditambahkan oleh teman Anda) --}}
+                    <div class="mb-3">
+                        <label for="role" class="form-label fw-medium text-secondary small">Role atau Jabatan <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
+                                <i class="fa-solid fa-user-tag"></i> {{-- Mengganti ikon ke yang lebih sesuai --}}
+                            </span>
+                            {{-- Menambahkan required-field dan old value --}}
+                            <select name="role" id="role" class="form-select border-start-0 ps-2 required-field @error('role') is-invalid @enderror" style="height: 45px;" required {{ isset($user) ? 'disabled' : '' }} data-error-message="Role wajib dipilih">
+                                <option selected disabled value="">-- Pilih Role --</option>
+                                {{-- Saya asumsikan role yang valid adalah 'admin' dan 'manager', atau harusnya diambil dari database. 
+                                    Menggunakan logic old/user role yang benar. --}}
+                                <option value="admin" {{ (old('role') == 'admin' || (isset($user) && $user->role == 'admin')) ? 'selected' : '' }}>
+                                    Admin 
+                                </option>
+                                <option value="manager" {{ (old('role') == 'manager' || (isset($user) && $user->role == 'manager')) ? 'selected' : '' }}>
+                                    Manager 
+                                </option>
+                            </select>
+                        </div>
+                        <div class="invalid-feedback">Role wajib dipilih</div>
+                        @error('role')
+                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                        @if(isset($user))
+                            {{-- Field hidden untuk mengirimkan ROLE saat form disubmit (karena select di atas disabled) --}}
+                            <input type="hidden" name="role" value="{{ $user->role }}">
+                        @endif
+                    </div>
+                    
+                    {{-- Alamat Email --}}
                     <div class="mb-3">
                         <label for="email" class="form-label fw-medium text-secondary small">Alamat Email <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-envelope"></i>
                             </span>
+                            {{-- Menggabungkan input type email dan validasi dari input-pembelian --}}
                             <input type="email" class="form-control border-start-0 ps-2 required-field @error('email') is-invalid @enderror"
                                 id="email" name="email"
                                 style="height: 45px;"
@@ -63,7 +97,8 @@
                                 value="{{ old('email', isset($user) ? $user->email : '') }}"
                                 required
                                 data-error-message="Email wajib diisi"
-                                data-validate="email">
+                                data-validate="email"
+                                {{ isset($user) ? 'readonly' : '' }}> {{-- Tambahkan readonly jika edit untuk email --}}
                         </div>
                         <div class="invalid-feedback">Email wajib diisi dengan format yang benar</div>
                         @error('email')

@@ -21,7 +21,8 @@
             </span>
             <input type="text" class="form-control border-0 shadow-none bg-transparent"
                 placeholder="Cari user berdasarkan nama..."
-                style="font-size: 0.95rem;">
+                style="font-size: 0.95rem;"
+                autofocus>
         </div>
 
         {{-- Bagian Kanan: Dropdown --}}
@@ -111,7 +112,7 @@
                                     <button type="button"
                                         class="btn-action btn-action-delete"
                                         title="Hapus"
-                                        onclick="confirmDelete(this)">
+                                        onclick="handleDeletePermission(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -135,10 +136,22 @@
 
 @push('scripts')
 <script>
-    function confirmDelete(button) {
-        if (confirm('Yakin mau hapus data ini?')) {
-            button.form.submit();
+    function handleDeletePermission(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Yakin mau hapus data ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Yakin mau hapus data ini?')) {
+                button.form.submit();
+            }
         }
     }
+    
+    // Export ke window
+    window.handleDeletePermission = handleDeletePermission;
 </script>
 @endpush

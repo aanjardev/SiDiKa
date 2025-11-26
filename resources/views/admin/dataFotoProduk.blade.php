@@ -11,7 +11,7 @@
                 <span class="input-group-text" style="background: #fff; border-right: 0;">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                <input type="text" name="search" id="search-input-photo" class="form-control" placeholder="Cari SKU atau Nama Produk..." style="border-left: 0; box-shadow: none;" value="{{ $search_term ?? '' }}">
+                <input type="text" name="search" id="search-input-photo" class="form-control" placeholder="Cari SKU atau Nama Produk..." style="border-left: 0; box-shadow: none;" value="{{ $search_term ?? '' }}" autofocus>
             </div>
         </div>
 

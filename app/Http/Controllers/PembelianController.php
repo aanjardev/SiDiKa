@@ -71,8 +71,10 @@ class PembelianController extends Controller
 
         // LOGIKA BARU UNTUK AJAX: RENDERING LANGSUNG
         if ($request->ajax()) {
+
             // Render partial Blade yang sama seperti pada tampilan non-AJAX
             $tableHtml = view('admin.partials.purchase_table_content', ['data_pembelian' => $data_pembelian])->render();
+
 
             return response()->json([
                 'table_html' => $tableHtml,

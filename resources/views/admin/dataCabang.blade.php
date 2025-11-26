@@ -21,7 +21,8 @@
             </span>
             <input type="text" class="form-control border-0 shadow-none bg-transparent"
                 placeholder="Cari cabang berdasarkan nama atau alamat..."
-                style="font-size: 0.95rem;">
+                style="font-size: 0.95rem;"
+                autofocus>
         </div>
 
         {{-- Bagian Kanan: Dropdown --}}
@@ -104,7 +105,7 @@
                                     <button type="button"
                                         class="btn-action btn-action-delete"
                                         title="Hapus"
-                                        onclick="confirmDelete(this)">
+                                        onclick="handleDeleteCabang(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -136,10 +137,24 @@
 
 @push('scripts')
 <script>
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus data cabang ini?')) {
-            button.form.submit();
+    // Gunakan nama yang berbeda untuk menghindari konflik dengan window.confirmDelete
+    function handleDeleteCabang(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data cabang ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            // Fallback jika alert.js belum load
+            if (confirm('Apakah Anda yakin ingin menghapus data cabang ini?')) {
+                button.form.submit();
+            }
         }
     }
+    
+    // Export ke window untuk bisa dipanggil dari mana saja
+    window.handleDeleteCabang = handleDeleteCabang;
 </script>
 @endpush

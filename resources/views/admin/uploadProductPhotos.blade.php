@@ -286,7 +286,8 @@ document.addEventListener('DOMContentLoaded', function() {
             method: 'POST',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': csrf
+                'X-CSRF-TOKEN': csrf,
+                'Accept': 'application/json'
             },
             body: fd,
             redirect: 'follow'

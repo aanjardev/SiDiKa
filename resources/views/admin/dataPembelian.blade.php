@@ -40,7 +40,8 @@
                        class="form-control border-0 shadow-none bg-transparent"
                        placeholder="Cari Kode Pembelian atau Nama Customer..."
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;">
+                       style="font-size: 0.95rem;"
+                       autofocus>
             </div>
 
             {{-- Bagian Kanan: Dropdown --}}
@@ -101,7 +102,9 @@
                     </thead>
                     {{-- ID Body dari Main untuk AJAX Replacement --}}
                     <tbody id="purchase-table-body">
+
                     @include('admin.partials.purchase_table_content', ['data_pembelian' => $data_pembelian])
+
                 </table>
             </div>
         </div>
@@ -121,9 +124,46 @@
 @push('scripts')
 <script src="{{ asset('js/admin-ajax-table.js') }}"></script>
 <script>
-    function confirmDelete(button) {
-        confirmDeleteRecord(button, 'Apakah Anda yakin ingin menghapus data pembelian ini?');
+    function handleDeletePembelian(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data pembelian ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
+                button.form.submit();
+            }
+        }
     }
+
+    // Fungsi helper untuk delete di partial dan controller
+    function handleDeletePembelian(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data pembelian ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
+                button.form.submit();
+            }
+        }
+    }
+    
+    // Alias untuk kompatibilitas dengan partial
+    function confirmDeletePurchase(button) {
+        handleDeletePembelian(button);
+    }
+    
+    // Export ke window
+    window.handleDeletePembelian = handleDeletePembelian;
+    window.confirmDeletePurchase = confirmDeletePurchase;
+</script>
 
     document.addEventListener("DOMContentLoaded", function() {
         const urlIndex = '{{ route('admin.purchases.index') }}';

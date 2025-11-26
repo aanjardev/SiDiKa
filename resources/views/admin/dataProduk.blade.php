@@ -26,7 +26,8 @@
                        name="search"
                        placeholder="Cari produk berdasarkan nama atau SKU"
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;">
+                       style="font-size: 0.95rem;"
+                       autofocus>
             </div>
 
             {{-- Bagian Kanan: Dropdown Filter --}}
@@ -156,7 +157,7 @@
                                     <button type="button"
                                             class="btn-action btn-action-delete"
                                             title="Hapus"
-                                            onclick="confirmDelete(this)">
+                                            onclick="handleDeleteProduk(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -188,12 +189,24 @@
 
 @push('scripts')
 <script>
-    // Fungsi Delete
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
-            button.form.submit();
+    // Fungsi Delete menggunakan sistem alert (nama berbeda untuk menghindari konflik)
+    function handleDeleteProduk(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus produk ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+                button.form.submit();
+            }
         }
     }
+    
+    // Export ke window
+    window.handleDeleteProduk = handleDeleteProduk;
 
     // Fungsi Auto Search (Debounce)
     document.addEventListener('DOMContentLoaded', function() {

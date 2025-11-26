@@ -125,10 +125,12 @@
                                     name="email"
                                     value="{{ old('email') }}"
                                     placeholder="contoh@email.com"
+
                                     required
                                     autofocus
                                     data-error-message="Email wajib diisi"
                                     data-validate="email">
+
                             </div>
                             <div class="invalid-feedback">Email wajib diisi dengan format yang benar</div>
                             @error('email')

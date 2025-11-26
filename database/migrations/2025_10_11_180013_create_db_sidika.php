@@ -36,6 +36,8 @@ return new class extends Migration
             $table->id();
             $table->string('nama', 50);
             $table->string('alamat', 100);
+            $table->time('jam_buka');   
+            $table->time('jam_tutup');  
             $table->string('nomor_telepon', 20);
             $table->timestamps();
         });
@@ -106,7 +108,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained('customer')->onDelete('restrict');
             $table->foreignId('perusahaan_cabang_id')->constrained('perusahaan_cabang')->onDelete('restrict');
             $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
-            $table->enum('kas', ['transfer', 'cash']);
+            // $table->enum('kas', ['transfer', 'cash']);
 
             $table->string('keterangan', 200)->nullable();
             $table->integer('harga_tawaran_customer')->nullable();

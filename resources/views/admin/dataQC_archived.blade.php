@@ -11,6 +11,59 @@
 
 @section('content')
 
+{{-- Search & Filter --}}
+<form method="GET" action="{{ route('admin.quality-control.archived') }}" id="searchForm">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+            
+            {{-- Bagian Kiri: Input Search --}}
+            <div class="d-flex align-items-center flex-grow-1 ps-2">
+                <span class="text-muted ms-2 me-3">
+                    <i class="fa-solid fa-search text-muted"></i>
+                </span>
+                <input type="text" 
+                       class="form-control border-0 shadow-none bg-transparent"
+                       name="search"
+                       placeholder="Cari berdasarkan nama item atau serial number"
+                       value="{{ $search_term ?? '' }}"
+                       style="font-size: 0.95rem;"
+                       autofocus>
+            </div>
+
+            {{-- Bagian Kanan: Dropdown Filter --}}
+            <div class="d-flex align-items-center gap-2 pe-2">
+                
+                {{-- Dropdown Kategori --}}
+                <select name="kategori" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="all" {{ ($selected_kategori ?? 'all') == 'all' ? 'selected' : '' }}>Semua Kategori</option>
+                    @foreach($semua_kategori ?? [] as $kat)
+                        <option value="{{ $kat->id }}" {{ ($selected_kategori ?? 'all') == $kat->id ? 'selected' : '' }}>
+                            {{ $kat->nama_kategori }}
+                        </option>
+                    @endforeach
+                </select>
+
+                {{-- Dropdown Sort --}}
+                <select name="sort_by" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="updated_at" {{ ($sort_by ?? 'updated_at') == 'updated_at' ? 'selected' : '' }}>Urutkan: Terakhir diubah</option>
+                    <option value="nama_item" {{ ($sort_by ?? 'updated_at') == 'nama_item' ? 'selected' : '' }}>Nama Item (A-Z)</option>
+                    <option value="nama_item_desc" {{ ($sort_by ?? 'updated_at') == 'nama_item_desc' ? 'selected' : '' }}>Nama Item (Z-A)</option>
+                    <option value="pembelian_id" {{ ($sort_by ?? 'updated_at') == 'pembelian_id' ? 'selected' : '' }}>ID Pembelian</option>
+                </select>
+
+                {{-- Hidden Input --}}
+                <input type="hidden" name="sort_order" value="{{ $sort_order ?? 'desc' }}">
+            </div>
+        </div>
+    </div>
+</form>
+
 {{-- Table Card --}}
 <div class="card shadow-sm border-0" style="border-radius: 10px; overflow: hidden; min-height: 700px;">
     <div class="card-body p-0">
@@ -81,8 +134,20 @@
                         <td colspan="7" class="text-center py-5">
                             <div class="d-flex flex-column align-items-center opacity-50">
                                 <i class="fa-solid fa-box-archive fa-3x mb-3 text-muted"></i>
-                                <h6 class="text-muted">Belum Ada Item Diarsipkan</h6>
-                                <p class="small text-muted">Item yang ditandai "Tidak Layak Jual" akan muncul di sini.</p>
+                                <h6 class="text-muted">
+                                    @if($search_term ?? false)
+                                        Tidak ada hasil untuk "{{ $search_term }}"
+                                    @else
+                                        Belum Ada Item Diarsipkan
+                                    @endif
+                                </h6>
+                                <p class="small text-muted">
+                                    @if($search_term ?? false)
+                                        Coba gunakan kata kunci lain
+                                    @else
+                                        Item yang ditandai "Tidak Layak Jual" akan muncul di sini.
+                                    @endif
+                                </p>
                             </div>
                         </td>
                     </tr>
@@ -94,7 +159,7 @@
 
     @if ($data_qc->hasPages())
     <div class="card-footer bg-white border-0 d-flex justify-content-end py-3 px-4">
-        {{ $data_qc->links('pagination::bootstrap-5') }}
+        {{ $data_qc->appends(request()->query())->links('pagination::bootstrap-5') }}
     </div>
     @endif
 </div>
@@ -104,6 +169,29 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // ===== AUTO SEARCH (DEBOUNCE) =====
+    const searchInput = document.querySelector('input[name="search"]');
+    const searchForm = document.getElementById('searchForm');
+    let searchTimeout;
+
+    if (searchInput && searchForm) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                searchForm.submit();
+            }, 500); // Submit setelah 500ms idle
+        });
+
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(searchTimeout);
+                searchForm.submit();
+            }
+        });
+    }
+
+    // ===== RESTORE CONFIRMATION =====
     let formToRestore = null;
     
     // Modal Konfirmasi (Bootstrap 5)

@@ -67,52 +67,67 @@ class ProcessProductImage implements ShouldQueue
                 // Get file from temporary storage
                 $tempFilePath = Storage::disk('local')->path($tempPath);
                 
-                // Get extension from original filename
-                $extension = pathinfo($tempPath, PATHINFO_EXTENSION);
-                if (empty($extension)) {
-                    // Try to detect from MIME type as fallback
-                    $mimeType = mime_content_type($tempFilePath);
-                    $extension = match($mimeType) {
-                        'image/jpeg' => 'jpg',
-                        'image/png' => 'png',
-                        'image/gif' => 'gif',
-                        'image/webp' => 'webp',
-                        default => 'jpg'
-                    };
+                try {
+                    // Use ImageUpload helper to process and optimize image
+                    // This will handle resizing, compression, WebP conversion, and memory management
+                    // ImageUpload will automatically increase memory limit and use Imagick if available
+                    $prefix = 'product/' . $product->id;
+                    $paths = \App\Helpers\ImageUpload::upload(
+                        $tempFilePath,
+                        $prefix
+                    );
+                    $permanentPath = $paths['large_path'];
+
+                    // Delete temporary file
+                    Storage::disk('local')->delete($tempPath);
+
+                    // Create database record
+                    $gambar = GambarProduk::create([
+                        'id_produk' => $product->id,
+                        'path_gambar' => $permanentPath,
+                        'is_main' => false,
+                    ]);
+
+                    $createdIds[] = [
+                        'id' => $gambar->id,
+                        'index' => $index
+                    ];
+                } catch (\Throwable $e) {
+                    Log::error("Failed to process image: {$tempPath}", [
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    
+                    // Delete temporary file even if processing failed
+                    try {
+                        if (Storage::disk('local')->exists($tempPath)) {
+                            Storage::disk('local')->delete($tempPath);
+                        }
+                    } catch (\Throwable $deleteError) {
+                        Log::warning("Failed to delete temporary file: {$tempPath}", [
+                            'error' => $deleteError->getMessage()
+                        ]);
+                    }
+                    
+                    // Continue with next image instead of failing entire job
+                    // But log the error so user knows which images failed
+                    continue;
                 }
-                
-                $filename = Str::uuid()->toString() . '.' . $extension;
-
-                // Read file content and upload to permanent storage (R2)
-                $fileContent = file_get_contents($tempFilePath);
-                $permanentPath = 'product/' . $product->id . '/' . $filename;
-                
-                Storage::disk('r2')->put($permanentPath, $fileContent, [
-                    'visibility' => 'public'
-                ]);
-
-                // Delete temporary file
-                Storage::disk('local')->delete($tempPath);
-
-                // Create database record
-                $gambar = GambarProduk::create([
-                    'id_produk' => $product->id,
-                    'path_gambar' => $permanentPath,
-                    'is_main' => false,
-                ]);
-
-                $createdIds[] = [
-                    'id' => $gambar->id,
-                    'index' => $index
-                ];
             }
 
             // Handle main image selection
-            if (!empty($this->mainImageIndex)) {
-                $mainIndex = $this->mainImageIndex;
-                if (isset($createdIds[$mainIndex])) {
+            if ($this->mainImageIndex !== null) {
+                $mainRecord = null;
+                foreach ($createdIds as $created) {
+                    if (($created['index'] ?? null) === $this->mainImageIndex) {
+                        $mainRecord = $created;
+                        break;
+                    }
+                }
+
+                if ($mainRecord) {
                     GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
-                    GambarProduk::where('id', $createdIds[$mainIndex]['id'])->update(['is_main' => true]);
+                    GambarProduk::where('id', $mainRecord['id'])->update(['is_main' => true]);
                 }
             } elseif (!$hasMain && !empty($createdIds)) {
                 // Set first image as main if no main exists
@@ -196,5 +211,31 @@ class ProcessProductImage implements ShouldQueue
                 ]);
             }
         }
+    }
+
+    /**
+     * Convert memory limit string to bytes
+     * 
+     * @param string $value Memory limit string (e.g., "128M", "512M", "1G")
+     * @return int Memory limit in bytes
+     */
+    private static function convertToBytes(string $value): int
+    {
+        $value = trim($value);
+        $last = strtolower($value[strlen($value) - 1]);
+        $value = (int) $value;
+
+        switch ($last) {
+            case 'g':
+                $value *= 1024;
+                // no break
+            case 'm':
+                $value *= 1024;
+                // no break
+            case 'k':
+                $value *= 1024;
+        }
+
+        return $value;
     }
 }

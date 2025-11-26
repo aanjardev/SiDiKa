@@ -59,7 +59,10 @@
             <form action="{{ route('admin.sales.destroy', $penjualan->id) }}" method="POST" class="d-inline">
                 @csrf
                 @method('DELETE')
-                <button type="button" class="btn-action btn-action-delete no-row-navigation" title="Hapus" onclick="confirmDelete(this)">
+                <button type="button"
+                    class="btn-action btn-action-delete no-row-navigation"
+                    title="Hapus"
+                    onclick="handleDeletePenjualan(this)">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </form>

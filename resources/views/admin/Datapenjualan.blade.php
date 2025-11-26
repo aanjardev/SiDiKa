@@ -25,7 +25,8 @@
                     class="form-control border-0 shadow-none bg-transparent"
                     placeholder="Cari ID Penjualan atau Nama Customer..."
                     value="{{ request('search') }}"
-                    style="font-size: 0.95rem;">
+                    style="font-size: 0.95rem;"
+                    autofocus>
             </div>
 
             <div class="d-flex align-items-center gap-2 pe-2">
@@ -93,9 +94,24 @@
 @push('scripts')
 <script src="{{ asset('js/admin-ajax-table.js') }}"></script>
 <script>
-    function confirmDelete(button) {
-        confirmDeleteRecord(button, 'Apakah Anda yakin ingin menghapus data penjualan ini?');
+    // Fungsi untuk delete penjualan (bisa dipanggil dari partial)
+    function handleDeletePenjualan(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data penjualan ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data penjualan ini?')) {
+                button.form.submit();
+            }
+        }
     }
+
+    // Export ke window untuk bisa dipanggil dari partial
+    window.handleDeletePenjualan = handleDeletePenjualan;
 
     document.addEventListener("DOMContentLoaded", function() {
         const baseUrl = "{{ route('admin.sales.index') }}";

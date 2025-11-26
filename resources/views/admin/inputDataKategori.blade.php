@@ -45,7 +45,9 @@
                                         placeholder="Contoh: Kamera DSLR, Lensa, Tripod..."
                                         value="{{ old('nama_kategori', isset($category) ? $category->nama_kategori : '') }}"
                                         required
+
                                         data-error-message="Nama kategori wajib diisi"
+
                                         autofocus>
                                 </div>
                                 <div class="invalid-feedback">Nama kategori wajib diisi</div>

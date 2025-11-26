@@ -52,11 +52,13 @@
                                     class="form-control border-start-0 ps-2 required-field @error('nama_lengkap') is-invalid @enderror"
                                     name="nama_lengkap"
                                     style="height: 45px;"
+
                                     value="{{ old('nama_lengkap', $employee->nama_lengkap ?? '') }}"
                                     placeholder="Nama lengkap sesuai KTP"
                                     {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
                                     data-error-message="Nama lengkap wajib diisi"
                                     {{ !isset($readOnly) || !$readOnly ? 'autofocus' : '' }}>
+
                             </div>
                             <div class="invalid-feedback">Nama lengkap wajib diisi</div>
                             @error('nama_lengkap') <div class="text-danger small mt-1">{{ $message }}</div> @enderror

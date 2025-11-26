@@ -2,12 +2,11 @@
 
 @section('title', 'Data Pelanggan')
 
+
 @push('page-actions')
-<a href="{{ route('admin.customers.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
-    <i class="fas fa-plus fa-fw"></i>
-    <span>Tambah Pelanggan</span>
-</a>
+
 @endpush
+
 
 @section('content')
 
@@ -26,7 +25,8 @@
                        name="search"
                        placeholder="Cari pelanggan berdasarkan nama, telepon, atau NIK"
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;">
+                       style="font-size: 0.95rem;"
+                       autofocus>
             </div>
 
             {{-- Bagian Kanan: Dropdown Sort --}}
@@ -134,7 +134,7 @@
                                     <button type="button"
                                             class="btn-action btn-action-delete"
                                             title="Hapus"
-                                            onclick="confirmDelete(this)">
+                                            onclick="handleDeletePelanggan(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -166,12 +166,24 @@
 
 @push('scripts')
 <script>
-    // Fungsi Delete (Standard)
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus data pelanggan ini?')) {
-            button.form.submit();
+    // Fungsi Delete menggunakan sistem alert (nama berbeda untuk menghindari konflik)
+    function handleDeletePelanggan(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data pelanggan ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data pelanggan ini?')) {
+                button.form.submit();
+            }
         }
     }
+    
+    // Export ke window
+    window.handleDeletePelanggan = handleDeletePelanggan;
 
     // Fungsi Auto Search (Dari Branch Main)
     document.addEventListener('DOMContentLoaded', function() {

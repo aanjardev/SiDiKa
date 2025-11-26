@@ -112,7 +112,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="bi bi-upc"></i></span>
                                         <input type="text" class="form-control" id="kode_sku" name="kode_sku"
-                                            value="{{ old('kode_sku', isset($product) ? $product->kode_sku : '') }}" required>
+                                            value="{{ old('kode_sku', isset($product) ? $product->kode_sku : '') }}" required autofocus>
                                     </div>
                                     @error('kode_sku')
                                         <div class="text-danger">{{ $message }}</div>
@@ -330,8 +330,8 @@
                                                         method="POST" class="d-inline">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm"
-                                                            onclick="return confirm('Apakah Anda yakin ingin menghapus produk ini?')">
+                                                        <button type="button" class="btn btn-danger btn-sm"
+                                                            onclick="confirmDeleteProduct(this)">
                                                             <i class="bi bi-trash"></i>
                                                         </button>
                                                     </form>
@@ -430,7 +430,9 @@
                 const imageId = button.dataset.imageId;
                 const container = button.closest('.image-container');
 
-                if (confirm('Apakah Anda yakin ingin menghapus gambar ini?')) { // Konfirmasi hapus
+                window.confirmDelete('Apakah Anda yakin ingin menghapus gambar ini?', 'Konfirmasi Hapus')
+                    .then((result) => {
+                        if (result.isConfirmed) {
                     // GUNAKAN NAMA RUTE YANG BENAR 'admin.delete.image'
                     const url = '{{ route("admin.delete.image", ["id" => ":imageId"]) }}';
                     const finalUrl = url.replace(':imageId', imageId);
@@ -450,15 +452,17 @@
                                   // Jika tidak ada gambar utama yang terpilih, pilih yang pertama jika ada
                                   document.querySelector('.image-container input[type="radio"]').checked = true;
                               }
-                              alert('Gambar berhasil dihapus');
+                              window.showSuccess('Gambar berhasil dihapus');
                           } else {
-                              alert('Gagal menghapus gambar: ' + (data.message || 'Unknown error'));
+                              window.showError('Gagal menghapus gambar: ' + (data.message || 'Unknown error'));
                           }
                       })
                       .catch(error => {
                           console.error('Error during fetch:', error);
-                          alert('Terjadi kesalahan jaringan atau server.');
+                          window.showError('Terjadi kesalahan jaringan atau server.');
                       });
+                        }
+                    });
                 }
             }
             // Logic for main_image_index for existing images (radio button click)
@@ -481,6 +485,16 @@
                 row.style.display = text.includes(searchQuery) ? '' : 'none';
             });
         });
+
+        // Fungsi helper untuk delete produk
+        function confirmDeleteProduct(button) {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus produk ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        }
     </script>
 </body>
 

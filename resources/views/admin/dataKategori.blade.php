@@ -21,7 +21,8 @@
             </span>
             <input type="text" class="form-control border-0 shadow-none bg-transparent"
                 placeholder="Cari kategori..."
-                style="font-size: 0.95rem;">
+                style="font-size: 0.95rem;"
+                autofocus>
         </div>
 
         {{-- Bagian Kanan: Dropdown --}}
@@ -76,7 +77,7 @@
                                     <button type="button"
                                         class="btn-action btn-action-delete"
                                         title="Hapus"
-                                        onclick="confirmDelete(this)">
+                                        onclick="handleDeleteKategori(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -108,10 +109,22 @@
 
 @push('scripts')
 <script>
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus kategori ini?')) {
-            button.form.submit();
+    function handleDeleteKategori(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus kategori ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus kategori ini?')) {
+                button.form.submit();
+            }
         }
     }
+    
+    // Export ke window
+    window.handleDeleteKategori = handleDeleteKategori;
 </script>
 @endpush

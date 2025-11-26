@@ -50,7 +50,9 @@
                         <label class="form-label fw-medium text-secondary small">Nama Item <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-tag"></i></span>
+
                             <input type="text" name="nama_item" class="form-control border-start-0 ps-2 required-field" value="{{ old('nama_item', $item->nama_item) }}" data-error-message="Nama Item wajib diisi" autofocus>
+
                         </div>
                         {{-- Logic Main: Error Message --}}
                         <div class="invalid-feedback" id="nama_item_error">
@@ -562,7 +564,14 @@ document.addEventListener('DOMContentLoaded', function() {
         btnKembali.addEventListener('click', function(e) {
             if (isFormDirty) {
                 e.preventDefault();
-                openUnsavedModal(btnKembali.href);
+                window.confirmAction("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?", "Konfirmasi", "Ya, tinggalkan", "Batal")
+                    .then((result) => {
+                        if (result.isConfirmed) {
+                            isFormDirty = false; // Reset flag sebelum redirect
+                            window.location.href = btnKembali.href;
+                        }
+                    });
+
             }
         });
     }
@@ -577,11 +586,19 @@ document.addEventListener('DOMContentLoaded', function() {
             link.addEventListener('click', function(e) {
                 if (isFormDirty) {
                     e.preventDefault();
-                    openUnsavedModal(link.href);
+
+                    window.confirmAction("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?", "Konfirmasi", "Ya, tinggalkan", "Batal")
+                        .then((result) => {
+                            if (result.isConfirmed) {
+                                isFormDirty = false; // Reset flag sebelum redirect
+                                window.location.href = link.href;
+                            }
+                        });
                 }
             });
         });
     }
+                   
 
     const rupiahInputs = document.querySelectorAll('.rupiah-mask');
 

@@ -14,6 +14,8 @@ class Branch extends Model
         'alamat',
         'nomor_telepon',
         'link_maps',
+        'jam_buka',
+        'jam_tutup',
     ];
 
     public function sales()

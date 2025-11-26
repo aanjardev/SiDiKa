@@ -26,7 +26,8 @@
                        name="search"
                        placeholder="Cari karyawan berdasarkan nama..."
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;">
+                       style="font-size: 0.95rem;"
+                       autofocus>
             </div>
 
             {{-- Bagian Kanan: Dropdown Filter --}}
@@ -128,7 +129,7 @@
                                     <button type="button"
                                             class="btn-action btn-action-delete"
                                             title="Hapus"
-                                            onclick="confirmDelete(this)">
+                                            onclick="handleDeleteKaryawan(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -160,12 +161,24 @@
 
 @push('scripts')
 <script>
-    // Fungsi Delete (Bawaan Logic)
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus data karyawan ini?')) {
-            button.form.submit();
+    // Fungsi Delete menggunakan sistem alert (nama berbeda untuk menghindari konflik)
+    function handleDeleteKaryawan(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data karyawan ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data karyawan ini?')) {
+                button.form.submit();
+            }
         }
     }
+    
+    // Export ke window
+    window.handleDeleteKaryawan = handleDeleteKaryawan;
 
     // Fungsi Auto Search (Ditambahkan dari Logic Main untuk UX)
     document.addEventListener('DOMContentLoaded', function() {

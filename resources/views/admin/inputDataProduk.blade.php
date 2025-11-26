@@ -74,7 +74,9 @@
                                     value="{{ old('nama_produk', $isEdit ? $product->nama_produk : '') }}"
                                     placeholder="Contoh: Kamera Canon EOS 600D"
                                     required
+
                                     data-error-message="Nama produk wajib diisi"
+
                                     autofocus>
                             </div>
                             <div class="invalid-feedback">Nama produk wajib diisi</div>
