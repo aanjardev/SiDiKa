@@ -40,7 +40,8 @@ class PermissionsController extends Controller
     public function store(Request $request){
     $request->validate([
         'password' => 'required|min:6',
-        'email' => 'required|email|unique:users,email'
+        'email' => 'required|email|unique:users,email',
+        'role' => 'required'
     ]);
 
     $karyawan = Employee::findOrFail($request->karyawan_name);
@@ -50,7 +51,7 @@ class PermissionsController extends Controller
         'name' => $karyawan->nama_lengkap,
         'email' => $request->email,
         'password' => Hash::make($request->password),
-        'role' => $karyawan->jabatan
+        'role' => $request->role,
     ]);
 
     return redirect()->route('admin.permissions')->with('success', 'User berhasil dibuat!');

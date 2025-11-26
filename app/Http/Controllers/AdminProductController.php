@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Helpers\ImageUpload;
 
+
 class AdminProductController extends Controller
 {
     public function index(Request $request)
