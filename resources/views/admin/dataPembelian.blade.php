@@ -200,124 +200,28 @@
 @endsection
 
 @push('scripts')
-{{-- Script Hapus Sederhana (Visual HEAD) --}}
+<script src="{{ asset('js/admin-ajax-table.js') }}"></script>
 <script>
     function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
-            button.form.submit();
-        }
+        confirmDeleteRecord(button, 'Apakah Anda yakin ingin menghapus data pembelian ini?');
     }
-</script>
 
-{{-- Script AJAX Search (Logic Main) --}}
-<script>
     document.addEventListener("DOMContentLoaded", function() {
-        const container = document.getElementById('purchase-list-container');
-        const tableBody = document.getElementById('purchase-table-body');
-        const paginationContainer = document.getElementById('pagination-links-container');
-        const form = document.getElementById('filterForm');
-        const searchInput = form.querySelector('input[name="search"]');
-        const statusFilter = form.querySelector('select[name="status"]');
-        const sortFilter = form.querySelector('select[name="sort"]');
         const urlIndex = '{{ route('admin.purchases.index') }}';
 
-        let isFetching = false;
-        let searchTimeout;
-
-        function fetchPurchases(url) {
-            if (isFetching) return;
-            isFetching = true;
-
-            // Efek Loading Visual
-            container.style.opacity = '0.6';
-            container.style.transition = 'opacity 0.3s';
-
-            fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                // Update Tabel & Pagination
-                tableBody.innerHTML = data.table_html || '';
-                paginationContainer.innerHTML = data.pagination_html ?
-                    `<div class="card-footer bg-white border-0 d-flex justify-content-end py-3 px-4">${data.pagination_html}</div>` : '';
-
-                // Update URL Browser
-                window.history.pushState(null, null, url);
-
-                // Re-attach event listeners untuk pagination baru
-                attachPaginationListeners();
-            })
-            .catch(error => {
-                console.error('Fetch error:', error);
-            })
-            .finally(() => {
-                isFetching = false;
-                container.style.opacity = '1';
-            });
-        }
-
-        function buildUrl() {
-            const params = new URLSearchParams();
-            const search = searchInput.value;
-            const status = statusFilter.value;
-            const sort = sortFilter.value;
-
-            if (search) params.append('search', search);
-            if (status && status !== 'semua') params.append('status', status);
-            if (sort) params.append('sort', sort);
-
-            return `${urlIndex}?${params.toString()}`;
-        }
-
-        // Event Listeners
-        searchInput.addEventListener('keyup', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                fetchPurchases(buildUrl());
-            }, 500);
-        });
-
-        statusFilter.addEventListener('change', function() {
-            fetchPurchases(buildUrl());
-        });
-
-        sortFilter.addEventListener('change', function() {
-            fetchPurchases(buildUrl());
-        });
-
-        function attachPaginationListeners() {
-            paginationContainer.querySelectorAll('.pagination a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    fetchPurchases(this.href);
-                });
-            });
-        }
-
-        tableBody.addEventListener('click', function(e) {
-            if (e.target.closest('.no-row-navigation')) return;
-            const row = e.target.closest('.purchase-row');
-            if (!row) return;
-            const url = row.dataset.detailUrl;
-            if (url) {
-                window.location.href = url;
-            }
-        });
-
-        // Init Pagination Listener
-        attachPaginationListeners();
-
-        // Prevent Form Submit Refresh
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            fetchPurchases(buildUrl());
+        TableAjax.init({
+            formSelector: '#filterForm',
+            containerSelector: '#purchase-list-container',
+            tableBodySelector: '#purchase-table-body',
+            paginationSelector: '#pagination-links-container',
+            baseUrl: urlIndex,
+            searchInputSelector: '#search-input',
+            filterSelectors: ['#filter-status', '#filter-sort'],
+            rowClick: {
+                selector: '.purchase-row',
+                ignoreSelector: '.no-row-navigation',
+                urlFrom: (row) => row.dataset.detailUrl,
+            },
         });
     });
 </script>

@@ -91,82 +91,29 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/admin-ajax-table.js') }}"></script>
 <script>
     function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus data penjualan ini?')) {
-            button.form.submit();
-        }
+        confirmDeleteRecord(button, 'Apakah Anda yakin ingin menghapus data penjualan ini?');
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        const form = document.getElementById('filterForm');
-        const searchInput = document.getElementById('search-input');
-        const kategori = document.getElementById('filter-kategori');
-        const sort = document.getElementById('filter-sort');
-        const tableBody = document.getElementById('sales-table-body');
-        const paginationContainer = document.getElementById('pagination-links-container');
         const baseUrl = "{{ route('admin.sales.index') }}";
 
-        let typingTimeout = null;
-        let isFetching = false;
-
-        function formToParams() {
-            const data = new FormData(form);
-            return new URLSearchParams(data).toString();
-        }
-
-        function buildUrl() {
-            return `${baseUrl}?${formToParams()}`;
-        }
-
-        function fetchSales(url) {
-            if (isFetching) return;
-            isFetching = true;
-
-            fetch(url, {
-                    headers: {
-                        "X-Requested-With": "XMLHttpRequest"
-                    }
-                })
-                .then(res => res.json())
-                .then(data => {
-                    tableBody.innerHTML = data.table_html;
-
-                    const paginationHtml = data.pagination_html
-                        ? `<div class="card-footer bg-white border-0 d-flex justify-content-end py-3 px-4">${data.pagination_html}</div>`
-                        : '';
-                    paginationContainer.innerHTML = paginationHtml;
-
-                    attachPaginationEvents();
-                })
-                .finally(() => {
-                    isFetching = false;
-                });
-        }
-
-        function attachPaginationEvents() {
-            paginationContainer.querySelectorAll("a").forEach(a => {
-                a.addEventListener("click", function(e) {
-                    e.preventDefault();
-                    fetchSales(this.href);
-                });
-            });
-        }
-
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            fetchSales(buildUrl());
+        TableAjax.init({
+            formSelector: '#filterForm',
+            containerSelector: '#sales-list-container',
+            tableBodySelector: '#sales-table-body',
+            paginationSelector: '#pagination-links-container',
+            baseUrl: baseUrl,
+            searchInputSelector: '#search-input',
+            filterSelectors: ['#filter-kategori', '#filter-sort'],
+            rowClick: {
+                selector: '.sales-row',
+                ignoreSelector: '.no-row-navigation',
+                urlFrom: (row) => row.dataset.detailUrl,
+            },
         });
-
-        searchInput.addEventListener('keyup', () => {
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => fetchSales(buildUrl()), 400);
-        });
-
-        kategori.addEventListener('change', () => fetchSales(buildUrl()));
-        sort.addEventListener('change', () => fetchSales(buildUrl()));
-
-        attachPaginationEvents();
     });
 </script>
 @endpush
