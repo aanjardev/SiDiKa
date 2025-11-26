@@ -4,7 +4,15 @@
 
 @section('content')
 
-<form action="{{ isset($branch) && (!isset($isShow) || !$isShow) ? route('admin.branches.update', $branch->id) : '#' }}" method="POST">
+{{-- 
+    Keputusan: Menggabungkan logika action dari 'main' dengan validasi dari 'input-pembelian'.
+    Action form hanya diisi jika mode EDIT (!isset($isShow) || !$isShow). Jika mode SHOW, action = '#'.
+    Menambahkan kembali atribut data-validate-form untuk validasi JS.
+--}}
+<form action="{{ isset($branch) && (!isset($isShow) || !$isShow) ? route('admin.branches.update', $branch->id) : route('admin.branches.store') }}" 
+    method="POST"
+    {{ (!isset($isShow) || !$isShow) ? 'data-validate-form' : '' }}
+    >
     @csrf
     @if(isset($branch) && (!isset($isShow) || !$isShow))
         @method('PUT')
@@ -27,20 +35,25 @@
                 <div class="card-body p-4">
                     {{-- Nama Cabang --}}
                     <div class="mb-4">
-                        <label for="namaCabang" class="form-label fw-medium text-secondary small">Nama Cabang</label>
+                        <label for="namaCabang" class="form-label fw-medium text-secondary small">Nama Cabang <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-shop"></i>
                             </span>
-                            <input type="text" 
-                                class="form-control border-start-0 ps-2 @error('nama') is-invalid @enderror" 
-                                id="namaCabang" 
-                                name="nama" 
+                            {{-- Keputusan: Menggabungkan readonly dari 'main' dan validasi dari 'input-pembelian' --}}
+                            <input type="text"
+                                class="form-control border-start-0 ps-2 required-field @error('nama') is-invalid @enderror"
+                                id="namaCabang"
+                                name="nama"
                                 style="height: 45px;"
-                                value="{{ old('nama', $branch->nama ?? '') }}" 
+                                value="{{ old('nama', $branch->nama ?? '') }}"
                                 placeholder="Contoh: Dinoyo Kamera Pusat"
-                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }} autofocus>
+                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }} 
+                                {{ !isset($isShow) || !$isShow ? 'data-error-message="Nama cabang wajib diisi"' : '' }}
+                                autofocus>
+                            {{-- Jika mode Show, required-field tidak diperlukan --}}
                         </div>
+                        <div class="invalid-feedback">Nama cabang wajib diisi</div>
                         @error('nama')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -53,12 +66,13 @@
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-map-location-dot"></i>
                             </span>
-                            <textarea 
-                                class="form-control border-start-0 ps-2 @error('alamat') is-invalid @enderror" 
-                                id="Alamat" 
-                                name="alamat" 
-                                rows="5" 
-                                placeholder="Masukkan alamat lengkap cabang..."
+                            {{-- Keputusan: Menggunakan tag textarea yang lebih rapi dari 'main' dan menambahkan placeholder yang lebih deskriptif dari 'input-pembelian' --}}
+                            <textarea
+                                class="form-control border-start-0 ps-2 @error('alamat') is-invalid @enderror"
+                                id="Alamat"
+                                name="alamat"
+                                rows="5"
+                                placeholder="Masukkan alamat lengkap cabang (Jalan, No, RT/RW, Kota)..."
                                 {{ isset($isShow) && $isShow ? 'readonly' : '' }}>{{ old('alamat', $branch->alamat ?? '') }}</textarea>
                         </div>
                         @error('alamat')
@@ -71,7 +85,7 @@
 
         {{-- KOLOM KANAN: Kontak & Aksi --}}
         <div class="col-lg-4">
-            
+
             {{-- Card Kontak --}}
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
                 <div class="card-header bg-white border-0 pt-4 ps-4 pe-4 pb-0">
@@ -87,14 +101,14 @@
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-phone"></i>
                             </span>
-                            <input type="text" 
-                                class="form-control border-start-0 ps-2 @error('nomor_telepon') is-invalid @enderror" 
-                                id="NomorTelepon" 
-                                name="nomor_telepon" 
+                            <input type="text"
+                                class="form-control border-start-0 ps-2 @error('nomor_telepon') is-invalid @enderror"
+                                id="NomorTelepon"
+                                name="nomor_telepon"
                                 style="height: 45px;"
-                                value="{{ old('nomor_telepon', $branch->nomor_telepon ?? '') }}" 
+                                value="{{ old('nomor_telepon', $branch->nomor_telepon ?? '') }}"
                                 placeholder="0812-xxxx-xxxx"
-                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}> {{-- Menggunakan readonly dari 'main' --}}
                         </div>
                         @error('nomor_telepon')
                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -108,14 +122,14 @@
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-link"></i>
                             </span>
-                            <input type="text" 
-                                class="form-control border-start-0 ps-2 @error('link_maps') is-invalid @enderror" 
-                                id="LinkMaps" 
-                                name="link_maps" 
+                            <input type="text"
+                                class="form-control border-start-0 ps-2 @error('link_maps') is-invalid @enderror"
+                                id="LinkMaps"
+                                name="link_maps"
                                 style="height: 45px;"
-                                value="{{ old('link_maps', $branch->link_maps ?? '') }}" 
-                                placeholder="https://maps.google.com/..."
-                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                                value="{{ old('link_maps', $branch->link_maps ?? '') }}"
+                                placeholder="https://maps.google.com/..." {{-- Menggunakan placeholder yang lebih deskriptif dari 'main' --}}
+                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}> {{-- Menggunakan readonly dari 'main' --}}
                         </div>
                         @if(isset($isShow) && $isShow)
                             <div class="form-text small">
@@ -144,7 +158,7 @@
                                 name="jam_buka" 
                                 placeholder="HH:MM" 
                                 value="{{ old('jam_buka', $branch->jam_buka ?? '') }}"
-                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}>
+                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}> {{-- Menggunakan readonly/required dari 'main' --}}
                         </div>
                         @error('jam_buka')
                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -164,7 +178,7 @@
                                 name="jam_tutup" 
                                 placeholder="HH:MM" 
                                 value="{{ old('jam_tutup', $branch->jam_tutup ?? '') }}"
-                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}>
+                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}> {{-- Menggunakan readonly/required dari 'main' --}}
                         </div>
                         @error('jam_tutup')
                             <div class="text-danger small mt-1">{{ $message }}</div>

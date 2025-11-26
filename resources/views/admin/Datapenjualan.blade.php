@@ -63,7 +63,7 @@
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 5%;">No</th>
-                            <th>Kode Transaksi</th>
+                            <th>Kode</th>
                             <th>Customer</th>
                             <th>Tanggal</th>
                             <th style="width: 25%;">Item Terjual</th>

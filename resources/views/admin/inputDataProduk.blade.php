@@ -38,7 +38,8 @@
 
     <form action="{{ $isEdit ? route('admin.products.update', $product->id) : route('admin.products.store') }}"
           method="POST"
-          enctype="multipart/form-data">
+          enctype="multipart/form-data"
+          data-validate-form>
         @csrf
         @if ($isEdit)
             @method('PUT')
@@ -61,20 +62,27 @@
 
                         {{-- Nama Produk --}}
                         <div class="mb-4">
-                            <label class="form-label text-secondary small fw-medium">Nama Produk</label>
+                            <label class="form-label text-secondary small fw-medium">Nama Produk <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">
                                     <i class="fa-solid fa-tag"></i>
                                 </span>
                                 <input
                                     type="text"
-                                    class="form-control border-start-0 ps-2 py-2 @error('nama_produk') is-invalid @enderror"
+                                    class="form-control border-start-0 ps-2 py-2 required-field @error('nama_produk') is-invalid @enderror"
                                     name="nama_produk"
                                     value="{{ old('nama_produk', $isEdit ? $product->nama_produk : '') }}"
                                     placeholder="Contoh: Kamera Canon EOS 600D"
                                     required
+
+                                    data-error-message="Nama produk wajib diisi"
+
                                     autofocus>
                             </div>
+                            <div class="invalid-feedback">Nama produk wajib diisi</div>
+                            @error('nama_produk')
+                                <div class="text-danger small mt-1">{{ $message }}</div>
+                            @enderror
                         </div>
 
                         {{-- Deskripsi --}}

@@ -12,11 +12,11 @@
 @section('content')
 <form action="{{ route('admin.catalog-settings.update') }}" method="POST" enctype="multipart/form-data" id="settingsForm">
     @csrf
-    
+
     <div class="row">
         {{-- KOLOM KIRI: Informasi Umum, Kontak, & Sosmed --}}
         <div class="col-lg-7 mb-4">
-            
+
             {{-- Card: Identitas & Kontak --}}
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
                 <div class="card-header bg-white py-3">
@@ -108,7 +108,7 @@
 
         {{-- KOLOM KANAN: Aset Visual (Logo, Banner, Partner) --}}
         <div class="col-lg-5 mb-4">
-            
+
             {{-- Card: Logo Utama --}}
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
                 <div class="card-header bg-white py-3">
@@ -190,8 +190,8 @@
                                 <tr data-id="{{ $partner->id }}" data-type="partner">
                                     <td class="p-2 align-middle">
                                         <div class="bg-light rounded p-1 text-center border border-dashed">
-                                            <img src="{{ Str::startsWith($partner->url, 'http') ? $partner->url : asset('storage/' . $partner->logo_path) }}" 
-                                                 class="img-fluid" 
+                                            <img src="{{ Str::startsWith($partner->url, 'http') ? $partner->url : asset('storage/' . $partner->logo_path) }}"
+                                                 class="img-fluid"
                                                  style="max-height: 40px;">
                                         </div>
                                     </td>
@@ -211,7 +211,7 @@
 
         </div>
     </div>
-    
+
     {{-- Tombol Simpan Mobile / Bottom --}}
     <div class="d-block d-md-none fixed-bottom bg-white border-top p-3 shadow-lg">
         <button type="submit" class="btn btn-primary w-100">Simpan Semua Pengaturan</button>
@@ -227,7 +227,7 @@
 
     document.addEventListener("click", function(e) {
         const btn = e.target.closest('.btn-remove');
-        
+
         if (btn) {
             let row = btn.closest("tr");
             let id = row.getAttribute("data-id");
@@ -241,7 +241,7 @@
                     deletedBannersArr.push(id);
                     document.getElementById("deletedBanners").value = JSON.stringify(deletedBannersArr);
                 }
-                
+
                 row.style.transition = "all 0.3s";
                 row.style.opacity = "0";
                 setTimeout(() => row.remove(), 300);

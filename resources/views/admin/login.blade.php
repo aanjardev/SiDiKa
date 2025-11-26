@@ -10,6 +10,7 @@
     {{-- Fonts & Icons --}}
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ asset('css/form-validation.css') }}" rel="stylesheet">
     <script src="https://kit.fontawesome.com/8794378048.js" crossorigin="anonymous"></script>
 
     <style>
@@ -110,23 +111,28 @@
                         <p class="text-muted small">Silakan masuk untuk mengelola data Dinoyo Kamera.</p>
                     </div>
 
-                    <form method="POST" action="{{ route('login') }}">
+                    <form method="POST" action="{{ route('login') }}" id="loginForm">
                         @csrf
 
                         {{-- Input Email --}}
                         <div class="mb-3">
-                            <label for="email" class="form-label fw-medium text-secondary small">Email Address</label>
+                            <label for="email" class="form-label fw-medium text-secondary small">Email Address <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
                                 <input type="email"
-                                    class="form-control @error('email') is-invalid @enderror"
+                                    class="form-control required-field @error('email') is-invalid @enderror"
                                     id="email"
                                     name="email"
                                     value="{{ old('email') }}"
                                     placeholder="contoh@email.com"
-                                    required 
-                                    autofocus>
+
+                                    required
+                                    autofocus
+                                    data-error-message="Email wajib diisi"
+                                    data-validate="email">
+
                             </div>
+                            <div class="invalid-feedback">Email wajib diisi dengan format yang benar</div>
                             @error('email')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -134,19 +140,21 @@
 
                         {{-- Input Password --}}
                         <div class="mb-3">
-                            <label for="password" class="form-label fw-medium text-secondary small">Password</label>
+                            <label for="password" class="form-label fw-medium text-secondary small">Password <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
                                 <input type="password"
-                                    class="form-control border-end-0 @error('password') is-invalid @enderror"
+                                    class="form-control border-end-0 required-field @error('password') is-invalid @enderror"
                                     id="password"
                                     name="password"
                                     placeholder="Masukkan password"
-                                    required>
+                                    required
+                                    data-error-message="Password wajib diisi">
                                 <button class="btn btn-outline-secondary btn-toggle-password border-start-0" type="button" id="togglePassword">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
+                            <div class="invalid-feedback">Password wajib diisi</div>
                             @error('password')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
@@ -191,7 +199,10 @@
     {{-- Bootstrap JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-    {{-- Logic Toggle Password (Tidak diubah) --}}
+    {{-- Form Validation JS --}}
+    <script src="{{ asset('js/form-validation.js') }}"></script>
+
+    {{-- Logic Toggle Password & Form Validation --}}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const togglePassword = document.querySelector("#togglePassword");
@@ -210,6 +221,12 @@
                     icon.classList.add("fa-eye-slash");
                 }
             });
+
+            // Initialize form validation
+            const loginForm = document.getElementById('loginForm');
+            if (loginForm && window.FormValidator) {
+                FormValidator.initForm(loginForm);
+            }
         });
     </script>
 </body>

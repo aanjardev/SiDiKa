@@ -1,48 +1,55 @@
-{{-- @forelse ($data_qc as $item)
-    <tr>
-        <td class="text-center" style="width: 60px;">{{ $loop->iteration + (($data_qc->currentPage()-1) * $data_qc->perPage()) }}</td>
-        <td>{{ $item->pembelian->kode_transaksi}}</td>
-        <td>{{ $item->nama_item }}</td>
-        <td>{{ $item->serial_number ?? '-' }}/{{ $item->serial_lens ?? '-'}}</td>
-        <td>{{ $item->kategori->nama_kategori ?? '-' }}</td>
+@forelse ($data_qc as $index => $item)
+    <tr class="clickable-row" data-detail-url="{{ route('admin.quality-control.edit', $item->id) }}">
+        <td class="text-center text-muted fw-bold">{{ ($data_qc->firstItem() ?? 0) + $index }}</td>
+
+        {{-- ID Pembelian --}}
+        <td>
+            <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
+                #{{ $item->pembelian->kode_transaksi ?? '' }}
+            </span>
+        </td>
+
+        {{-- Nama Item --}}
+        <td>
+            <span class="text-dark fw-semibold" style="font-size: 0.95rem;">{{ $item->nama_item }}</span>
+        </td>
+
+        {{-- Serial Number --}}
+        <td class="text-secondary font-monospace small">{{ $item->serial_number ?? '-' }}</td>
+
+        {{-- SN Lensa --}}
+        <td class="text-secondary font-monospace small">{{ $item->serial_lens ?? '-' }}</td>
+
+        {{-- Kategori --}}
+        <td class="text-dark">{{ $item->kategori->nama_kategori ?? '-' }}</td>
+
+        {{-- Progress QC --}}
         <td>
             @php $persen = round($item->persentase_lengkap); @endphp
-            <div class="progress" role="progressbar" style="height: 12px;" aria-valuenow="{{ $persen }}" aria-valuemin="0" aria-valuemax="100">
-                <div class="progress-bar bg-primary" style="width: {{ $persen }}%"></div>
+            <div class="d-flex align-items-center gap-2">
+                <div class="progress flex-grow-1 shadow-sm" style="height: 6px; border-radius: 10px; background-color: #f0f2f5;">
+                    <div class="progress-bar {{ $persen == 100 ? 'bg-success' : 'bg-primary' }}" role="progressbar" style="width: {{ $persen }}%; border-radius: 10px;" aria-valuenow="{{ $persen }}" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <span class="small fw-bold text-muted" style="font-size: 0.8rem; min-width: 35px; text-align: right;">{{ $persen }}%</span>
             </div>
-            <span class="small text-muted">{{ $persen }}% Lengkap</span>
         </td>
-        <td class="text-center">
-            <div class="d-flex justify-content-center gap-2">
-                @if(!empty($show_restore))
-                    <form action="{{ route('admin.quality-control.restore', $item->id) }}" method="POST" class="d-inline restore-form">
-                        @csrf
-                        <button type="submit" class="btn btn-success btn-sm" title="Kembalikan dari Arsip">
-                            <i class="fa-solid fa-rotate-left"></i>
-                            <span class="ms-1">Restore</span>
-                        </button>
-                    </form>
-                @else
-                    <a href="{{ route('admin.quality-control.edit', $item->id) }}" class="btn btn-warning btn-sm d-flex align-items-center gap-1 px-2" title="Proses QC">
-                        <i class="fa-solid fa-clipboard-check fa-fw"></i>
-                        <span>Proses</span>
-                    </a>
-                @endif
-            </div>
+
+        {{-- Aksi --}}
+        <td class="text-center no-row-navigation">
+            <a href="{{ route('admin.quality-control.edit', $item->id) }}" class="btn btn-sm btn-primary shadow-sm px-3 rounded-3 fw-medium" style="font-size: 0.85rem;" title="Proses QC">
+                <i class="fa-solid fa-clipboard-check me-1"></i> Proses
+            </a>
         </td>
     </tr>
 @empty
-    <tr class="tr-empty">
-        <td colspan="7" class="p-0">
-            <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
-                <i class="fa-solid fa-check-circle fa-2x text-muted mb-3"></i>
-                @php
-                    $emptyHeading = $empty_heading ?? 'Tidak Ada Item Menunggu QC';
-                    $emptyText = $empty_text ?? "Semua item dari transaksi 'Deal' akan muncul di sini.";
-                @endphp
-                <h5 class="mb-1">{{ $emptyHeading }}</h5>
-                <p class="text-muted mb-0">{{ $emptyText }}</p>
+    <tr>
+        <td colspan="8" class="text-center py-5">
+            <div class="d-flex flex-column align-items-center opacity-50">
+                <i class="fa-solid fa-clipboard-list fa-3x mb-3 text-muted"></i>
+                <h6 class="text-muted">Tidak Ada Item Menunggu QC</h6>
+                <p class="small text-muted">Semua item dari transaksi 'Deal' akan muncul di sini.</p>
             </div>
         </td>
     </tr>
-@endforelse --}}
+@endforelse
+

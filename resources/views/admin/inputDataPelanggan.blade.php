@@ -7,11 +7,11 @@
     <div class="col-12">
         <div class="card shadow-sm">
             <div class="card-body">
-                
+
                 @if(isset($readOnly) && $readOnly)
                     {{-- Mode Read-Only untuk melihat detail --}}
                 @else
-                <form method="POST" action="{{ route('admin.customers.update', $pelanggan->id) }}">
+                <form method="POST" action="{{ route('admin.customers.update', $pelanggan->id) }}" data-validate-form>
                     @csrf
                     @method('PUT')
                 @endif
@@ -20,20 +20,16 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="nama" class="form-label">Nama Pelanggan</label>
-                                <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" value="{{ old('nama', $pelanggan->nama ?? '') }}" placeholder="Masukkan nama pelanggan" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }} autofocus>
-                                @error('nama')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <label for="nama" class="form-label">Nama Pelanggan <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control required-field @error('nama') is-invalid @enderror" id="nama" name="nama" value="{{ old('nama', $pelanggan->nama ?? '') }}" placeholder="Masukkan nama pelanggan" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }} data-error-message="Nama pelanggan wajib diisi" {{ !isset($readOnly) || !$readOnly ? 'autofocus' : '' }}>
+                                <div class="invalid-feedback">@error('nama') {{ $message }} @else Nama pelanggan wajib diisi @enderror</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="no_telp" class="form-label">Nomor Telepon</label>
-                                <input type="text" class="form-control @error('no_telp') is-invalid @enderror" id="no_telp" name="no_telp" value="{{ old('no_telp', $pelanggan->no_telp ?? '') }}" placeholder="Masukkan nomor telepon" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
-                                @error('no_telp')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <label for="no_telp" class="form-label">Nomor Telepon <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control required-field @error('no_telp') is-invalid @enderror" id="no_telp" name="no_telp" value="{{ old('no_telp', $pelanggan->no_telp ?? '') }}" placeholder="Masukkan nomor telepon" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }} data-error-message="Nomor telepon wajib diisi">
+                                <div class="invalid-feedback">@error('no_telp') {{ $message }} @else Nomor telepon wajib diisi @enderror</div>
                             </div>
                         </div>
                     </div>
@@ -42,15 +38,13 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="jenis_kelamin" class="form-label">Jenis Kelamin</label>
-                                <select class="form-select @error('jenis_kelamin') is-invalid @enderror" id="jenis_kelamin" name="jenis_kelamin" {{ isset($readOnly) && $readOnly ? 'disabled' : 'required' }}>
+                                <label for="jenis_kelamin" class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
+                                <select class="form-select required-field @error('jenis_kelamin') is-invalid @enderror" id="jenis_kelamin" name="jenis_kelamin" {{ isset($readOnly) && $readOnly ? 'disabled' : 'required' }} data-error-message="Jenis kelamin wajib dipilih">
                                     <option value="" selected disabled>Pilih Jenis Kelamin</option>
                                     <option value="L" {{ old('jenis_kelamin', $pelanggan->jenis_kelamin ?? '') === 'L' ? 'selected' : '' }}>Laki-laki</option>
                                     <option value="P" {{ old('jenis_kelamin', $pelanggan->jenis_kelamin ?? '') === 'P' ? 'selected' : '' }}>Perempuan</option>
                                 </select>
-                                @error('jenis_kelamin')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                                <div class="invalid-feedback">@error('jenis_kelamin') {{ $message }} @else Jenis kelamin wajib dipilih @enderror</div>
                             </div>
                         </div>
                         <div class="col-md-6">

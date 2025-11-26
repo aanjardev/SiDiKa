@@ -27,7 +27,7 @@
     </div>
 @endif
 
-<form action="{{ route('admin.quality-control.update', $item->id) }}" method="POST" id="qcForm">
+<form action="{{ route('admin.quality-control.update', $item->id) }}" method="POST" id="qcForm" data-validate-form>
     @csrf
     @method('PUT')
 
@@ -50,10 +50,12 @@
                         <label class="form-label fw-medium text-secondary small">Nama Item <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-tag"></i></span>
-                            <input type="text" name="nama_item" class="form-control border-start-0 ps-2 required-field" value="{{ old('nama_item', $item->nama_item) }}" autofocus>
+
+                            <input type="text" name="nama_item" class="form-control border-start-0 ps-2 required-field" value="{{ old('nama_item', $item->nama_item) }}" data-error-message="Nama Item wajib diisi" autofocus>
+
                         </div>
                         {{-- Logic Main: Error Message --}}
-                        <div class="invalid-feedback d-block-none" id="nama_item_error">
+                        <div class="invalid-feedback" id="nama_item_error">
                             Nama Item wajib diisi
                         </div>
                     </div>
@@ -64,7 +66,7 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-layer-group"></i></span>
                                 {{-- Logic Main: Added required-field class --}}
-                                <select name="kategori_id" class="form-select border-start-0 ps-2 required-field">
+                                <select name="kategori_id" class="form-select border-start-0 ps-2 required-field" data-error-message="Kategori wajib dipilih">
                                     <option value="">Pilih Kategori</option>
                                     @foreach($semua_kategori as $kat)
                                         <option value="{{ $kat->id }}" {{ (old('kategori_id', $item->kategori_id) == $kat->id) ? 'selected' : '' }}>{{ $kat->nama_kategori }}</option>
@@ -72,7 +74,7 @@
                                 </select>
                             </div>
                             {{-- Logic Main: Error Message --}}
-                            <div class="invalid-feedback d-block-none" id="kategori_id_error">
+                            <div class="invalid-feedback" id="kategori_id_error">
                                 Kategori wajib dipilih
                             </div>
                         </div>
@@ -81,10 +83,10 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-barcode"></i></span>
                                 {{-- Logic Main: Added required-field class --}}
-                                <input type="text" name="kode_sku" class="form-control border-start-0 ps-2 required-field" value="{{ old('kode_sku', $item->kode_sku) }}">
+                                <input type="text" name="kode_sku" class="form-control border-start-0 ps-2 required-field" value="{{ old('kode_sku', $item->kode_sku) }}" data-error-message="Kode SKU wajib diisi">
                             </div>
                             {{-- Logic Main: Error Message --}}
-                            <div class="invalid-feedback d-block-none" id="kode_sku_error">
+                            <div class="invalid-feedback" id="kode_sku_error">
                                 Kode SKU wajib diisi
                             </div>
                         </div>
@@ -245,7 +247,7 @@
 
                     <div class="mb-0 mt-4">
                         <label class="form-label fw-medium text-secondary small">Deskripsi Produk (Final) <span class="text-danger">*</span></label>
-                        <textarea name="deskripsi_produk" class="form-control required-field" rows="4">{{ old('deskripsi_produk', $item->deskripsi_produk) }}</textarea>
+                        <textarea name="deskripsi_produk" class="form-control required-field" rows="4" data-error-message="Deskripsi Produk wajib diisi">{{ old('deskripsi_produk', $item->deskripsi_produk) }}</textarea>
                          {{-- Logic Main: Error Message --}}
                         <div class="invalid-feedback" id="deskripsi_produk_error">
                             Deskripsi Produk wajib diisi
@@ -290,7 +292,7 @@
                         <label class="form-label fw-medium text-secondary small">Rencana Harga Jual <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">Rp</span>
-                            <input type="text" name="harga_jual" id="harga_jual" class="form-control border-start-0 ps-2 rupiah-mask required-field" value="{{ old('harga_jual', $item->harga_jual) }}">
+                            <input type="text" name="harga_jual" id="harga_jual" class="form-control border-start-0 ps-2 rupiah-mask required-field" value="{{ old('harga_jual', $item->harga_jual) }}" data-error-message="Harga Jual wajib diisi dan harus berupa angka lebih dari 0" data-validate="price">
                         </div>
                         {{-- Logic Main: Error Message --}}
                         <div class="invalid-feedback" id="harga_jual_error">
@@ -562,7 +564,6 @@ document.addEventListener('DOMContentLoaded', function() {
         btnKembali.addEventListener('click', function(e) {
             if (isFormDirty) {
                 e.preventDefault();
-<<<<<<< HEAD
                 window.confirmAction("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?", "Konfirmasi", "Ya, tinggalkan", "Batal")
                     .then((result) => {
                         if (result.isConfirmed) {
@@ -570,9 +571,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             window.location.href = btnKembali.href;
                         }
                     });
-=======
-                openUnsavedModal(btnKembali.href);
->>>>>>> 99e10f2c9d05daca8b76d5053a5782b85968abea
+
             }
         });
     }
@@ -587,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function() {
             link.addEventListener('click', function(e) {
                 if (isFormDirty) {
                     e.preventDefault();
-<<<<<<< HEAD
+
                     window.confirmAction("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?", "Konfirmasi", "Ya, tinggalkan", "Batal")
                         .then((result) => {
                             if (result.isConfirmed) {
@@ -599,15 +598,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
-                        window.location.href = link.href;
-                    }
-=======
-                    openUnsavedModal(link.href);
->>>>>>> 99e10f2c9d05daca8b76d5053a5782b85968abea
-                }
-            });
-        });
-    }
+                   
 
     const rupiahInputs = document.querySelectorAll('.rupiah-mask');
 
@@ -648,7 +639,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Reset semua error state
         form.querySelectorAll('.required-field').forEach(field => {
-            field.classList.remove('is-invalid');
+            if (window.FormValidator) {
+                FormValidator.clearValidation(field);
+            } else {
+                field.classList.remove('is-invalid');
+            }
         });
 
         // Jika action adalah draft, skip validasi
@@ -660,38 +655,52 @@ document.addEventListener('DOMContentLoaded', function() {
         let isValid = true;
         const errors = [];
 
+        // Helper function untuk set invalid
+        function setFieldInvalid(field) {
+            if (window.FormValidator) {
+                FormValidator.setInvalid(field);
+            } else {
+                field.classList.add('is-invalid');
+            }
+        }
+
         // Validasi Nama Item
-        const nama = form.querySelector('[name="nama_item"]')?.value.trim() || '';
+        const namaField = form.querySelector('[name="nama_item"]');
+        const nama = namaField?.value.trim() || '';
         if (!nama) {
-            form.querySelector('[name="nama_item"]').classList.add('is-invalid');
+            setFieldInvalid(namaField);
             isValid = false;
         }
 
         // Validasi Kategori
-        const kategori = form.querySelector('[name="kategori_id"]')?.value || '';
+        const kategoriField = form.querySelector('[name="kategori_id"]');
+        const kategori = kategoriField?.value || '';
         if (!kategori) {
-            form.querySelector('[name="kategori_id"]').classList.add('is-invalid');
+            setFieldInvalid(kategoriField);
             isValid = false;
         }
 
         // Validasi Kode SKU
-        const kodeSku = form.querySelector('[name="kode_sku"]')?.value.trim() || '';
+        const kodeSkuField = form.querySelector('[name="kode_sku"]');
+        const kodeSku = kodeSkuField?.value.trim() || '';
         if (!kodeSku) {
-            form.querySelector('[name="kode_sku"]').classList.add('is-invalid');
+            setFieldInvalid(kodeSkuField);
             isValid = false;
         }
 
         // Validasi Deskripsi Produk
-        const deskripsi = form.querySelector('[name="deskripsi_produk"]')?.value.trim() || '';
+        const deskripsiField = form.querySelector('[name="deskripsi_produk"]');
+        const deskripsi = deskripsiField?.value.trim() || '';
         if (!deskripsi) {
-            form.querySelector('[name="deskripsi_produk"]').classList.add('is-invalid');
+            setFieldInvalid(deskripsiField);
             isValid = false;
         }
 
         // Validasi Harga Jual
-        const hargaJual = form.querySelector('[name="harga_jual"]')?.value.trim() || '';
+        const hargaJualField = form.querySelector('[name="harga_jual"]');
+        const hargaJual = hargaJualField?.value.trim() || '';
         if (!hargaJual || !/^\d+$/.test(hargaJual) || parseInt(hargaJual) <= 0) {
-            form.querySelector('[name="harga_jual"]').classList.add('is-invalid');
+            setFieldInvalid(hargaJualField);
             isValid = false;
         }
 
@@ -701,6 +710,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const firstError = form.querySelector('.is-invalid');
             if (firstError) {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => firstError.focus(), 300);
             }
             return false;
         }
@@ -710,9 +720,28 @@ document.addEventListener('DOMContentLoaded', function() {
     form.querySelectorAll('.required-field').forEach(field => {
         field.addEventListener('blur', function() {
             if (this.value.trim() === '') {
-                this.classList.add('is-invalid');
+                if (window.FormValidator) {
+                    FormValidator.setInvalid(this);
+                } else {
+                    this.classList.add('is-invalid');
+                }
             } else {
-                this.classList.remove('is-invalid');
+                if (window.FormValidator) {
+                    FormValidator.clearValidation(this);
+                } else {
+                    this.classList.remove('is-invalid');
+                }
+            }
+        });
+
+        // Clear error on input
+        field.addEventListener('input', function() {
+            if (this.classList.contains('is-invalid')) {
+                if (window.FormValidator) {
+                    FormValidator.clearValidation(this);
+                } else {
+                    this.classList.remove('is-invalid');
+                }
             }
         });
 
@@ -721,9 +750,17 @@ document.addEventListener('DOMContentLoaded', function() {
             field.addEventListener('blur', function() {
                 const value = this.value.replace(/\./g, '');
                 if (!value || !/^\d+$/.test(value) || parseInt(value) <= 0) {
-                    this.classList.add('is-invalid');
+                    if (window.FormValidator) {
+                        FormValidator.setInvalid(this, 'Harga Jual wajib diisi dan harus berupa angka lebih dari 0');
+                    } else {
+                        this.classList.add('is-invalid');
+                    }
                 } else {
-                    this.classList.remove('is-invalid');
+                    if (window.FormValidator) {
+                        FormValidator.clearValidation(this);
+                    } else {
+                        this.classList.remove('is-invalid');
+                    }
                 }
             });
         }
