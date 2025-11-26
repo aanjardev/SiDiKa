@@ -120,10 +120,10 @@ class PembelianController extends Controller
                     // Tombol Aksi
                     $html .= '<a href="' . route('admin.purchases.show', $pembelian->id) . '" title="Lihat Detail Transaksi"><i class="fa-solid fa-eye" style="color: black;"></i></a>';
                     $html .= '<a href="' . route('admin.purchases.edit', $pembelian->id) . '" title="Edit Transaksi"><i class="fa-solid fa-pen-to-square"></i></a>';
-                    $html .= '<form action="' . route('admin.purchases.destroy', $pembelian->id) . '" method="POST" onsubmit="return confirm(\'Yakin mau hapus data ini?\')" class="d-inline">';
+                    $html .= '<form action="' . route('admin.purchases.destroy', $pembelian->id) . '" method="POST" class="d-inline">';
                     $html .= csrf_field(); // Helper untuk CSRF token
                     $html .= method_field('DELETE'); // Helper untuk DELETE method
-                    $html .= '<button type="submit" class="btn-icon" title="Hapus"><i class="fa-solid fa-trash"></i></button>';
+                    $html .= '<button type="button" class="btn-icon" title="Hapus" onclick="confirmDeletePurchase(this)"><i class="fa-solid fa-trash"></i></button>';
                     $html .= '</form>';
                     $html .= '</div>';
                     $html .= '</td>';

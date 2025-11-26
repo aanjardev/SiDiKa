@@ -35,10 +35,10 @@
                     <a href="{{ route('admin.purchases.edit', $pembelian->id) }}" title="Edit Transaksi">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </a>
-                    <form action="{{ route('admin.purchases.destroy', $pembelian->id) }}" method="POST" onsubmit="return confirm('Yakin mau hapus data ini?')" class="d-inline">
+                    <form action="{{ route('admin.purchases.destroy', $pembelian->id) }}" method="POST" class="d-inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn-icon" title="Hapus">
+                        <button type="button" class="btn-icon" title="Hapus" onclick="confirmDeletePurchase(this)">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </form>

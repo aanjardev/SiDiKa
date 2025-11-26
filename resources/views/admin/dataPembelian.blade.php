@@ -164,7 +164,7 @@
                                         <button type="button"
                                                 class="btn-action btn-action-delete no-row-navigation"
                                                 title="Hapus"
-                                                onclick="confirmDelete(this)">
+                                                onclick="handleDeletePembelian(this)">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
@@ -202,11 +202,45 @@
 @push('scripts')
 {{-- Script Hapus Sederhana (Visual HEAD) --}}
 <script>
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
-            button.form.submit();
+    function handleDeletePembelian(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data pembelian ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
+                button.form.submit();
+            }
         }
     }
+
+    // Fungsi helper untuk delete di partial dan controller
+    function handleDeletePembelian(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data pembelian ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
+                button.form.submit();
+            }
+        }
+    }
+    
+    // Alias untuk kompatibilitas dengan partial
+    function confirmDeletePurchase(button) {
+        handleDeletePembelian(button);
+    }
+    
+    // Export ke window
+    window.handleDeletePembelian = handleDeletePembelian;
+    window.confirmDeletePurchase = confirmDeletePurchase;
 </script>
 
 {{-- Script AJAX Search (Logic Main) --}}

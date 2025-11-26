@@ -446,11 +446,13 @@ document.addEventListener('DOMContentLoaded', function() {
         btnKembali.addEventListener('click', function(e) {
             if (isFormDirty) {
                 e.preventDefault();
-                const confirmation = confirm("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?");
-                if (confirmation) {
-                    isFormDirty = false; // Reset flag sebelum redirect
-                    window.location.href = btnKembali.href;
-                }
+                window.confirmAction("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?", "Konfirmasi", "Ya, tinggalkan", "Batal")
+                    .then((result) => {
+                        if (result.isConfirmed) {
+                            isFormDirty = false; // Reset flag sebelum redirect
+                            window.location.href = btnKembali.href;
+                        }
+                    });
             }
         });
     }
@@ -474,9 +476,17 @@ document.addEventListener('DOMContentLoaded', function() {
             link.addEventListener('click', function(e) {
                 if (isFormDirty) {
                     e.preventDefault();
-                    const confirmation = confirm("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?");
-                    if (confirmation) {
-                        isFormDirty = false; // Reset flag sebelum redirect
+                    window.confirmAction("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?", "Konfirmasi", "Ya, tinggalkan", "Batal")
+                        .then((result) => {
+                            if (result.isConfirmed) {
+                                isFormDirty = false; // Reset flag sebelum redirect
+                                window.location.href = link.href;
+                            }
+                        });
+                }
+            });
+        });
+    }
                         window.location.href = link.href;
                     }
                 }

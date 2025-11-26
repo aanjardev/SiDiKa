@@ -648,7 +648,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btnSimpanCustomer?.addEventListener('click', function() {
         const nama = document.getElementById('customer_nama_modal').value.trim();
         const no_telp = document.getElementById('customer_no_telp_modal').value.trim();
-        if (!nama || !no_telp) { alert('Nama dan No. Telepon wajib diisi.'); return; }
+        if (!nama || !no_telp) { 
+            window.showError('Nama dan No. Telepon wajib diisi.', 'Validasi Gagal'); 
+            return; 
+        }
 
         const formData = new FormData(formTambahCustomer);
         const data = Object.fromEntries(formData.entries());
@@ -680,7 +683,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const modal = bootstrap.Modal.getInstance(document.getElementById('modalTambahCustomer'));
                 modal?.hide();
             } else {
-                alert('Gagal menyimpan customer: ' + (result.message || 'Error tidak diketahui.'));
+                window.showError('Gagal menyimpan customer: ' + (result.message || 'Error tidak diketahui.'), 'Gagal Menyimpan');
             }
         })
         .catch(error => {
@@ -691,7 +694,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (error.message) {
                 errorMsg = error.message;
             }
-            alert(errorMsg);
+            window.showError(errorMsg, 'Terjadi Kesalahan');
         })
         .finally(() => {
             btnSimpanCustomer.disabled = false;

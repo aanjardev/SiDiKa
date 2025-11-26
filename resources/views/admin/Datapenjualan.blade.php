@@ -92,11 +92,24 @@
 
 @push('scripts')
 <script>
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus data penjualan ini?')) {
-            button.form.submit();
+    // Fungsi untuk delete penjualan (bisa dipanggil dari partial)
+    function handleDeletePenjualan(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data penjualan ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data penjualan ini?')) {
+                button.form.submit();
+            }
         }
     }
+    
+    // Export ke window untuk bisa dipanggil dari partial
+    window.handleDeletePenjualan = handleDeletePenjualan;
 
     document.addEventListener("DOMContentLoaded", function() {
         const form = document.getElementById('filterForm');

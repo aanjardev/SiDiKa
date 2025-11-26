@@ -884,7 +884,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
             const kategoriId = formValues.kategori_id;
 
             if (!namaItem || !kategoriId) {
-                alert('Nama Item dan Kategori wajib diisi.');
+                window.showError('Nama Item dan Kategori wajib diisi.', 'Validasi Gagal');
                 return;
             }
 
@@ -923,7 +923,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                 .then(response => { if (!response.ok) throw new Error('Gagal'); return response.json(); })
                 .then(result => {
                     if (!result.success) {
-                        alert('Gagal: ' + (result.message || 'Terjadi kesalahan.'));
+                        window.showError('Gagal: ' + (result.message || 'Terjadi kesalahan.'), 'Gagal Menyimpan');
                         return;
                     }
 
@@ -941,7 +941,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         modalTambahItem?.hide();
                     }
                 })
-                .catch(() => alert('Gagal menyimpan data.'))
+                .catch(() => window.showError('Gagal menyimpan data.', 'Terjadi Kesalahan'))
                 .finally(() => {
                     btnSimpanItem.disabled = false;
                     setItemModalMode(isEditing ? 'edit' : 'add');
@@ -1026,10 +1026,10 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         resetCustomerValidation();
                         modalTambahCustomer.hide();
                     } else {
-                    alert('Gagal menyimpan customer: ' + (result.message || 'Terjadi kesalahan.'));
-                }
-            })
-            .catch(err => alert('Gagal menyimpan customer. Silakan coba lagi.'))
+                        window.showError('Gagal menyimpan customer: ' + (result.message || 'Terjadi kesalahan.'), 'Gagal Menyimpan');
+                    }
+                })
+                .catch(err => window.showError('Gagal menyimpan customer. Silakan coba lagi.', 'Terjadi Kesalahan'))
             .finally(() => {
                 btnSimpanCustomer.disabled = false;
                 btnSimpanCustomer.innerHTML = '<i class="fa-solid fa-save me-2"></i> Simpan';
@@ -1038,19 +1038,26 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
 
         // ********** HAPUS ITEM **********
         window.hapusItem = function(id) {
-            if (confirm('Yakin ingin menghapus item ini?')) {
-                fetch(`/admin/purchases/delete-item-draft/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
-                })
-                .then(res => res.json())
-                .then(result => {
-                    if(result.success) {
-                        itemsPembelian = itemsPembelian.filter(item => item.id !== id);
-                        renderItemList();
-                    } else alert('Gagal menghapus');
+            window.confirmDelete('Yakin ingin menghapus item ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        fetch(`/admin/purchases/delete-item-draft/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json' }
+                        })
+                        .then(res => res.json())
+                        .then(result => {
+                            if(result.success) {
+                                itemsPembelian = itemsPembelian.filter(item => item.id !== id);
+                                renderItemList();
+                                window.showSuccess('Item berhasil dihapus');
+                            } else {
+                                window.showError('Gagal menghapus', 'Terjadi Kesalahan');
+                            }
+                        })
+                        .catch(() => window.showError('Gagal menghapus item', 'Terjadi Kesalahan'));
+                    }
                 });
-            }
         }
 
         window.editItem = function(id) {
