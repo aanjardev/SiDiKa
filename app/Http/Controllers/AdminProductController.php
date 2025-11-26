@@ -126,65 +126,55 @@ class AdminProductController extends Controller
 
         try {
             $images = $request->file('images', []);
-            $createdIds = [];
-            $hasMain = $product->gambarUtama()->exists();
-
-            foreach ($images as $index => $image) {
-
-                // 🔥 Pakai HELPER baru kita (compress + webp + hash)
-                $path = ImageUpload::upload($image, "product/{$product->id}");
-
-                $g = \App\Models\GambarProduk::create([
-                    'id_produk' => $product->id,
-                    'path_gambar' => $path,
-                    'is_main' => false,
-                ]);
-
-                $createdIds[] = $g->id;
+            if (empty($images)) {
+                return back()->withInput()->withErrors(['error' => 'Tidak ada gambar yang diunggah.']);
             }
 
-            // --- HANDLE SET MAIN IMAGE ---
-            if (!empty($validated['main_image'])) {
-                $main = $validated['main_image'];
+            // Handle existing main image selection (before queue processing)
+            if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'existing_')) {
+                $idToSet = intval(substr($validated['main_image'], strlen('existing_')));
+                GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
+                GambarProduk::where('id_produk', $product->id)
+                    ->where('id', $idToSet)
+                    ->update(['is_main' => true]);
+            }
 
-                if (str_starts_with($main, 'existing_')) {
-                    $idToSet = intval(substr($main, 9));
+            // Store images temporarily in local storage
+            $temporaryPaths = [];
+            foreach ($images as $image) {
+                $tempPath = $image->store('temp/product-uploads', 'local');
+                $temporaryPaths[] = $tempPath;
+            }
 
-                    GambarProduk::where('id_produk', $product->id)
-                        ->update(['is_main' => false]);
+            // Extract main image index if provided (format: 'new_{index}')
+            $mainImageIndex = null;
+            if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'new_')) {
+                $mainImageIndex = intval(substr($validated['main_image'], strlen('new_')));
+            }
 
-                    GambarProduk::where('id_produk', $product->id)
-                        ->where('id', $idToSet)
-                        ->update(['is_main' => true]);
-                } elseif (str_starts_with($main, 'new_')) {
-                    $idx = intval(substr($main, 4));
-                    if (isset($createdIds[$idx])) {
-                        GambarProduk::where('id_produk', $product->id)
-                            ->update(['is_main' => false]);
+            // Dispatch job to process images in background
+            ProcessProductImage::dispatch(
+                $product->id,
+                $temporaryPaths,
+                $mainImageIndex,
+                Auth::id()
+            );
 
-                        GambarProduk::where('id_produk', $product->id)
-                            ->where('id', $createdIds[$idx])
-                            ->update(['is_main' => true]);
+            return redirect()
+                ->route('admin.products.photos')
+                ->with('success', 'Foto sedang diproses di latar belakang. Anda akan menerima notifikasi ketika selesai.');
+
+        } catch (\Throwable $th) {
+            // Clean up any temporary files if error occurs before dispatch
+            if (isset($temporaryPaths)) {
+                foreach ($temporaryPaths as $tempPath) {
+                    if (Storage::disk('local')->exists($tempPath)) {
+                        Storage::disk('local')->delete($tempPath);
                     }
                 }
-            } else {
-                // kalau tidak memilih main → atur otomatis
-                if (!$hasMain && !empty($createdIds)) {
-                    GambarProduk::where('id', $createdIds[0])->update(['is_main' => true]);
-                }
             }
-
-            DB::commit();
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return back()->withInput()->withErrors([
-                'error' => 'Gagal mengunggah gambar: ' . $th->getMessage()
-            ]);
+            return back()->withInput()->withErrors(['error' => 'Gagal mengunggah gambar: ' . $th->getMessage()]);
         }
-
-        return redirect()
-            ->route('admin.products.photos')
-            ->with('success', 'Gambar berhasil diunggah.');
     }
 
     /**
@@ -322,14 +312,17 @@ class AdminProductController extends Controller
             $prefix = 'product/' . $produk->id;
 
             // 2. Upload & save images (compress + WebP + cache)
-            foreach ($validated['images'] as $index => $image) {
-                $path = ImageUpload::upload($image, $prefix);
+            // Check if images exist and is not empty
+            if (!empty($validated['images']) && is_array($validated['images'])) {
+                foreach ($validated['images'] as $index => $image) {
+                    $path = ImageUpload::upload($image, $prefix);
 
-                GambarProduk::create([
-                    'id_produk' => $produk->id,
-                    'path_gambar' => $path,
-                    'is_main' => $index === 0,
-                ]);
+                    GambarProduk::create([
+                        'id_produk' => $produk->id,
+                        'path_gambar' => $path,
+                        'is_main' => $index === 0,
+                    ]);
+                }
             }
 
             DB::commit();
