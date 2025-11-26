@@ -47,6 +47,17 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="branch_id" class="form-label mb-0 text-muted small">Cabang:</label>
+                        <select name="branch_id" id="branch_id" class="form-select form-select-sm" style="width: auto; min-width: 150px;">
+                            <option value="">Semua Cabang</option>
+                            @foreach($allBranches as $branchOption)
+                                <option value="{{ $branchOption->id }}" {{ $selectedBranch === $branchOption->id ? 'selected' : '' }}>
+                                    {{ $branchOption->nama }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                     <button type="submit" class="btn btn-primary btn-sm">
                         <i class="fas fa-filter fa-fw"></i> Filter
                     </button>
@@ -56,6 +67,11 @@
                         </a>
                     @endif
                 </form>
+                <div class="mt-3">
+                    <span class="badge bg-light text-dark fw-semibold px-3 py-2">
+                        Mode: {{ $selectedBranch ? 'Cabang ' . $selectedBranchName : 'Semua Cabang' }}
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -167,7 +183,7 @@
     <div class="col-md-12 col-lg-7 mb-4">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap p-3">
-                <h5 class="card-title fw-bold mb-0">Grafik Annual ({{ $selectedYear }})</h5>
+                <h5 class="card-title fw-bold mb-0 text-dark">Grafik Annual ({{ $selectedYear }})</h5>
                 <div class="d-flex align-items-center gap-3">
                     <div class="d-flex align-items-center">
                         <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
@@ -193,7 +209,7 @@
     <div class="col-md-12 col-lg-5 mb-4">
         <div class="card shadow-sm border-0">
             <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center p-3">
-                <h5 class="card-title fw-bold mb-0">Komposisi Transaksi</h5>
+                <h5 class="card-title fw-bold mb-0 text-dark">Komposisi Transaksi</h5>
             </div>
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
@@ -536,6 +552,13 @@
         document.getElementById('month').addEventListener('change', function() {
             document.getElementById('filterForm').submit();
         });
+
+        const branchSelect = document.getElementById('branch_id');
+        if (branchSelect) {
+            branchSelect.addEventListener('change', function() {
+                document.getElementById('filterForm').submit();
+            });
+        }
     });
 </script>
 @endpush
