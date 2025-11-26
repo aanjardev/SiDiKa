@@ -58,7 +58,8 @@
                                         class="form-control border-start-0 border-end-0 ps-2 @error('current_password') is-invalid @enderror" 
                                         style="height: 50px;" 
                                         placeholder="Masukkan password lama Anda"
-                                        required>
+                                        required
+                                        autofocus>
                                     
                                     <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePasswordVisibility('current_password', 'eyeIconCurrent')">
                                         <i class="fa-solid fa-eye" id="eyeIconCurrent"></i>

@@ -44,7 +44,8 @@
                                         style="height: 45px;"
                                         placeholder="Contoh: Kamera DSLR, Lensa, Tripod..." 
                                         value="{{ old('nama_kategori', isset($category) ? $category->nama_kategori : '') }}"
-                                        required>
+                                        required
+                                        autofocus>
                                 </div>
                                 @error('nama_kategori')
                                     <div class="text-danger small mt-1">{{ $message }}</div>

@@ -26,7 +26,8 @@
                        name="search"
                        placeholder="Cari berdasarkan nama item atau serial number"
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;">
+                       style="font-size: 0.95rem;"
+                       autofocus>
             </div>
 
             {{-- Bagian Kanan: Dropdown Filter --}}

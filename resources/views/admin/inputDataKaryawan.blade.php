@@ -54,7 +54,7 @@
                                     style="height: 45px;"
                                     value="{{ old('nama_lengkap', $employee->nama_lengkap ?? '') }}" 
                                     placeholder="Nama lengkap sesuai KTP" 
-                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }} autofocus>
                             </div>
                             @error('nama_lengkap') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>

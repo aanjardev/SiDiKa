@@ -85,6 +85,7 @@
                                     value="{{ old('customer_search', isset($penjualan) && $penjualan->customer ? $penjualan->customer->nama . ' (' . $penjualan->customer->no_telp . ')' : '') }}"
                                     data-search-url="{{ route('admin.customers.search') }}"
                                     autocomplete="off"
+                                    autofocus
                                 >
                                 <input type="hidden" id="customer_id" name="customer_id" value="{{ old('customer_id', $penjualan->customer_id ?? '') }}" required>
                                 <div id="customer_suggestions" class="dropdown-menu" style="width: 100%;"></div>

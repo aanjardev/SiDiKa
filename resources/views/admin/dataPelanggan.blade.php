@@ -3,10 +3,10 @@
 @section('title', 'Data Pelanggan')
 
 @push('page-actions')
-<a href="{{ route('admin.customers.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+<!-- <a href="{{ route('admin.customers.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
     <i class="fas fa-plus fa-fw"></i>
     <span>Tambah Pelanggan</span>
-</a>
+</a> -->
 @endpush
 
 @section('content')
@@ -26,7 +26,8 @@
                        name="search"
                        placeholder="Cari pelanggan berdasarkan nama, telepon, atau NIK"
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;">
+                       style="font-size: 0.95rem;"
+                       autofocus>
             </div>
 
             {{-- Bagian Kanan: Dropdown Sort --}}

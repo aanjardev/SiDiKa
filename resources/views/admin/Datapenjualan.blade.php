@@ -25,7 +25,8 @@
                     class="form-control border-0 shadow-none bg-transparent"
                     placeholder="Cari ID Penjualan atau Nama Customer..."
                     value="{{ request('search') }}"
-                    style="font-size: 0.95rem;">
+                    style="font-size: 0.95rem;"
+                    autofocus>
             </div>
 
             <div class="d-flex align-items-center gap-2 pe-2">

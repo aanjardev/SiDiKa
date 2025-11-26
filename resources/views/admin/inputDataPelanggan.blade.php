@@ -21,7 +21,7 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="nama" class="form-label">Nama Pelanggan</label>
-                                <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" value="{{ old('nama', $pelanggan->nama ?? '') }}" placeholder="Masukkan nama pelanggan" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
+                                <input type="text" class="form-control @error('nama') is-invalid @enderror" id="nama" name="nama" value="{{ old('nama', $pelanggan->nama ?? '') }}" placeholder="Masukkan nama pelanggan" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }} autofocus>
                                 @error('nama')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror

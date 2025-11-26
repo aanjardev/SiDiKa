@@ -67,7 +67,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // pastikan jalur pencarian tidak tertelan oleh route resource (/customers/{id})
     Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
     Route::resource('/customers', CustomerController::class)->names('customers');
-    Route::resource('/categories', CategoryController::class)->names('categories');
+    Route::resource('/categories'   , CategoryController::class)->names('categories');
     Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
     Route::post('/categories/store', [CategoryController::class, 'store'])->name('categories.store');
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
