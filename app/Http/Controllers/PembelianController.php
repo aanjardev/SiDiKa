@@ -71,78 +71,11 @@ class PembelianController extends Controller
 
         // LOGIKA BARU UNTUK AJAX: RENDERING LANGSUNG
         if ($request->ajax()) {
-            $html = '';
+            // Render partial Blade yang sama seperti pada tampilan non-AJAX
+            $tableHtml = view('admin.partials.purchase_table_content', ['data_pembelian' => $data_pembelian])->render();
 
-            // Render TR (Baris Tabel)
-            if ($data_pembelian->isEmpty()) {
-                // Render Empty State (pastikan colspan 9)
-                $html .= '<tr class="tr-empty">';
-                $html .= '<td colspan="9" class="p-0">';
-                $html .= '<div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">';
-                $html .= '<i class="fa-solid fa-shopping-bag fa-2x text-muted mb-3"></i>';
-                $html .= '<h5 class="mb-1">Tidak Ada Data Pembelian</h5>';
-                $html .= '<p class="text-muted mb-0">Silakan <a href="' . route('admin.purchases.create') . '">tambah transaksi pembelian</a> baru.</p>';
-                $html .= '</div>';
-                $html .= '</td>';
-                $html .= '</tr>';
-            } else {
-                foreach ($data_pembelian as $idx => $pembelian) {
-                    $iteration = $data_pembelian->firstItem() ? $data_pembelian->firstItem() + $idx : $idx + 1;
-
-                    $kodeTransaksi = $pembelian->kode_transaksi ?? $pembelian->id;
-                    $customerName = $pembelian->customer->nama ?? '-';
-                    $createdAt = $pembelian->created_at->format('d M Y, H:i');
-                    $cabangName = $pembelian->perusahaan_cabang->nama ?? '-';
-
-                    $itemNames = $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ');
-                    $itemSummary = Str::limit($itemNames, 40, '...');
-
-
-                    // Logika Status Badge
-                    $statusClass = '';
-                    $statusText = '';
-                    if ($pembelian->status_pembelian == 'deal') {
-                        $statusClass = 'bg-success-subtle text-success-emphasis';
-                        $statusText = 'Deal';
-                    } elseif ($pembelian->status_pembelian == 'tidak_deal') {
-                        $statusClass = 'bg-danger-subtle text-danger-emphasis';
-                        $statusText = 'Tidak Deal';
-                    } else {
-                        $statusClass = 'bg-secondary-subtle text-secondary-emphasis';
-                        $statusText = 'Draft';
-                    }
-
-                    // Logika Harga Deal
-                    $hargaDeal = $pembelian->harga_deal ? 'Rp ' . number_format($pembelian->harga_deal, 0, ',', '.') : '-';
-
-                    $html .= '<tr>';
-                    $html .= '<td class="text-center" style="width: 60px;">' . $iteration . '</td>'; // Menggunakan $loop->iteration dari Blade (perlu diperbaiki jika ini bukan loop Blade)
-                    $html .= '<td>' . $kodeTransaksi . '</td>';
-                    $html .= '<td>' . $customerName . '</td>';
-                    $html .= '<td>' . $createdAt . '</td>';
-                    $html .= '<td>' . $cabangName . '</td>';
-                    $html .= '<td>' . $itemSummary . '</td>';
-                    $html .= '<td><span class="badge ' . $statusClass . '">' . $statusText . '</span></td>';
-                    $html .= '<td>' . $hargaDeal . '</td>';
-                    $html .= '<td class="text-center">';
-                    $html .= '<div class="d-flex justify-content-center gap-2">';
-                    // Tombol Aksi
-                    $html .= '<a href="' . route('admin.purchases.show', $pembelian->id) . '" title="Lihat Detail Transaksi"><i class="fa-solid fa-eye" style="color: black;"></i></a>';
-                    $html .= '<a href="' . route('admin.purchases.edit', $pembelian->id) . '" title="Edit Transaksi"><i class="fa-solid fa-pen-to-square"></i></a>';
-                    $html .= '<form action="' . route('admin.purchases.destroy', $pembelian->id) . '" method="POST" onsubmit="return confirm(\'Yakin mau hapus data ini?\')" class="d-inline">';
-                    $html .= csrf_field(); // Helper untuk CSRF token
-                    $html .= method_field('DELETE'); // Helper untuk DELETE method
-                    $html .= '<button type="submit" class="btn-icon" title="Hapus"><i class="fa-solid fa-trash"></i></button>';
-                    $html .= '</form>';
-                    $html .= '</div>';
-                    $html .= '</td>';
-                    $html .= '</tr>';
-                }
-            }
-
-            // Kembalikan respons JSON dengan HTML dan link pagination
             return response()->json([
-                'table_html' => $html,
+                'table_html' => $tableHtml,
                 'pagination_html' => $data_pembelian->links()->render(),
             ]);
         }

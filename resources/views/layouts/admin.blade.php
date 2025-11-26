@@ -33,6 +33,8 @@ $setting = \App\Models\CatalogSettings::first();
     <!-- Admin CSS -->
     <link href="{{ asset('css/adminsidebar.css') }}" rel="stylesheet">
     <link href="{{ asset('css/adminpage.css') }}" rel="stylesheet">
+    <!-- Form Validation CSS -->
+    <link href="{{ asset('css/form-validation.css') }}" rel="stylesheet">
 
     <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/8794378048.js" crossorigin="anonymous"></script>
@@ -269,6 +271,8 @@ $setting = \App\Models\CatalogSettings::first();
 
     <!-- Clickable rows script -->
     <script src="{{ asset('js/clickable-rows.js') }}"></script>
+    <!-- Form Validation JS -->
+    <script src="{{ asset('js/form-validation.js') }}"></script>
 
     <script>
         // Hide loader when page is loaded

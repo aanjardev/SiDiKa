@@ -175,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 5%;">No</th>
-                            <th style="width: 100px;">ID Beli</th>
+                            <th style="width: 100px;">Kode</th>
                             <th style="width: 25%;">Nama Item</th>
                             <th>Serial Number</th>
                             <th>SN Lensa</th>
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             {{-- ID Pembelian --}}
                             <td>
                                 <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
-                                    #{{ $item->pembelian->kode_transaksi }}
+                                    {{ $item->pembelian->kode_transaksi }}
                                 </span>
                             </td>
 

@@ -59,7 +59,7 @@
     @endif
 
     <div class="row">
-        
+
         {{-- KOLOM KIRI: Informasi & Item --}}
         <div class="col-lg-8">
 
@@ -74,7 +74,7 @@
                     <div class="row">
                         {{-- Customer --}}
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Customer</label>
+                            <label class="form-label fw-medium text-secondary small">Customer <span class="text-danger">*</span></label>
                             <div class="input-group position-relative">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-user"></i></span>
                                 <input
@@ -85,14 +85,15 @@
                                     value="{{ old('customer_search', isset($penjualan) && $penjualan->customer ? $penjualan->customer->nama . ' (' . $penjualan->customer->no_telp . ')' : '') }}"
                                     data-search-url="{{ route('admin.customers.search') }}"
                                     autocomplete="off"
+                                    autofocus
                                 >
                                 <input type="hidden" id="customer_id" name="customer_id" value="{{ old('customer_id', $penjualan->customer_id ?? '') }}" required>
                                 <div id="customer_suggestions" class="dropdown-menu" style="width: 100%;"></div>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center mt-1">
-                                <div id="customer_search_error" class="text-danger small @error('customer_id') @else d-none @enderror">
-                                    @error('customer_id') {{ $message }} @enderror
-                                </div>
+                            <div class="invalid-feedback" id="customer_search_error">
+                                @error('customer_id') {{ $message }} @else Customer wajib dipilih @enderror
+                            </div>
+                            <div class="d-flex justify-content-end mt-1">
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modalTambahCustomer" class="small text-decoration-none fw-bold text-primary">
                                     <i class="fa-solid fa-plus-circle me-1"></i>Customer Baru
                                 </a>
@@ -128,7 +129,7 @@
                         <i class="fa-solid fa-plus fa-fw"></i> Tambah Item
                     </button>
                 </div>
-                
+
                 <div class="card-body p-4">
                     <div class="table-responsive border rounded-3">
                         <table class="table table-hover align-middle mb-0">
@@ -149,7 +150,7 @@
                                     @endphp
                                     <tr data-product-id="{{ $item['product']->id ?? '' }}">
                                         <td>
-                                            
+
                                         </td>
                                         <td class="ps-3">
                                             @if($productImage)
@@ -199,7 +200,7 @@
                     </h6>
                 </div>
                 <div class="card-body p-4">
-                    
+
                     {{-- Metode Pembayaran --}}
                     <div class="mb-3">
                         <label class="form-label fw-medium text-secondary small">Metode Pembayaran</label>
@@ -300,7 +301,7 @@
                 <div class="modal-body pt-3">
                     <div class="mb-3">
                         <label class="form-label fw-medium text-secondary small">Pilih Produk</label>
-                        <input type="text" class="form-control mb-2" id="produkSearchInput" placeholder="Cari nama atau SKU produk...">
+                        <input type="text" class="form-control mb-2" id="produkSearchInput" placeholder="Cari nama atau SKU produk..." autofocus>
                         <select class="form-select" id="produkBaru" style="height: 45px;">
                             <option value="" selected disabled>-- Cari Produk --</option>
                             @foreach(($daftar_produk ?? collect()) as $produk)
@@ -341,15 +342,17 @@
             </div>
             <div class="modal-body">
                 {{-- PERBAIKAN: Semua input di sini HARUS punya atribut 'name' --}}
-                <form id="formTambahCustomer" data-store-url="{{ route('admin.customers.store') }}">
+                <form id="formTambahCustomer" data-store-url="{{ route('admin.customers.store') }}" data-validate-form>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_nama_modal">Nama Customer*</label>
-                            <input type="text" class="form-control" id="customer_nama_modal" name="nama" required>
+                            <label class="form-label" for="customer_nama_modal">Nama Customer <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control required-field" id="customer_nama_modal" name="nama" required data-error-message="Nama customer wajib diisi" autofocus>
+                            <div class="invalid-feedback">Nama customer wajib diisi</div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_no_telp_modal">Nomor Telepon*</label>
-                            <input type="text" class="form-control" id="customer_no_telp_modal" name="no_telp" required>
+                            <label class="form-label" for="customer_no_telp_modal">Nomor Telepon <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control required-field" id="customer_no_telp_modal" name="no_telp" required data-error-message="Nomor telepon wajib diisi">
+                            <div class="invalid-feedback">Nomor telepon wajib diisi</div>
                         </div>
                     </div>
                     <div class="row">
@@ -358,11 +361,13 @@
                             <input type="text" class="form-control" id="customer_identitas_modal" name="identitas">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_jenis_kelamin_modal">Jenis Kelamin</label>
-                            <select class="form-select" id="customer_jenis_kelamin_modal" name="jenis_kelamin" style="height: calc(2.5rem + 9px);">
+                            <label class="form-label" for="customer_jenis_kelamin_modal">Jenis Kelamin <span class="text-danger">*</span></label>
+                            <select class="form-select required-field" id="customer_jenis_kelamin_modal" name="jenis_kelamin" style="height: calc(2.5rem + 9px);" required data-error-message="Jenis kelamin wajib dipilih">
+                                <option value="" selected disabled>Pilih</option>
                                 <option value="L">Laki-laki</option>
                                 <option value="P">Perempuan</option>
                             </select>
+                            <div class="invalid-feedback">Jenis kelamin wajib dipilih</div>
                         </div>
                     </div>
                     <div class="mb-3">

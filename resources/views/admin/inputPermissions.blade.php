@@ -4,7 +4,7 @@
 
 @section('content')
 
-<form action="{{ isset($user) ? route('admin.permissions.update', $user->id) : route('admin.permissions.store') }}" method="POST">
+<form action="{{ isset($user) ? route('admin.permissions.update', $user->id) : route('admin.permissions.store') }}" method="POST" data-validate-form>
     @csrf
     @if(isset($user))
         @method('PUT')
@@ -25,21 +25,22 @@
                 <div class="card-body p-4">
                     {{-- Nama Karyawan --}}
                     <div class="mb-4">
-                        <label class="form-label fw-medium text-secondary small">Nama Karyawan</label>
+                        <label class="form-label fw-medium text-secondary small">Nama Karyawan <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-user-tie"></i>
                             </span>
-                            <select name="karyawan_name" class="form-select border-start-0 ps-2" style="height: 45px;" required {{ isset($user) ? 'disabled' : '' }}>
+                            <select name="karyawan_name" class="form-select border-start-0 ps-2 required-field" style="height: 45px;" required {{ isset($user) ? 'disabled' : '' }} data-error-message="Karyawan wajib dipilih" autofocus>
                                 <option selected disabled value="">-- Pilih Karyawan --</option>
                                 @foreach ($karyawan_data as $k)
-                                    <option value="{{ $k->id }}" 
+                                    <option value="{{ $k->id }}"
                                         {{ (old('karyawan_name') == $k->id || (isset($user) && $user->id == $k->id)) ? 'selected' : '' }}>
                                         {{ $k->nama_lengkap }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
+                        <div class="invalid-feedback">Karyawan wajib dipilih</div>
                         @if(isset($user))
                             <input type="hidden" name="karyawan_name" value="{{ $user->id }}">
                             <div class="form-text small text-muted mt-1">
@@ -50,17 +51,21 @@
 
                     {{-- Email --}}
                     <div class="mb-3">
-                        <label for="email" class="form-label fw-medium text-secondary small">Alamat Email</label>
+                        <label for="email" class="form-label fw-medium text-secondary small">Alamat Email <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-envelope"></i>
                             </span>
-                            <input type="email" class="form-control border-start-0 ps-2 @error('email') is-invalid @enderror" 
+                            <input type="email" class="form-control border-start-0 ps-2 required-field @error('email') is-invalid @enderror"
                                 id="email" name="email"
                                 style="height: 45px;"
                                 placeholder="contoh@email.com"
-                                value="{{ old('email', isset($user) ? $user->email : '') }}" required>
+                                value="{{ old('email', isset($user) ? $user->email : '') }}"
+                                required
+                                data-error-message="Email wajib diisi"
+                                data-validate="email">
                         </div>
+                        <div class="invalid-feedback">Email wajib diisi dengan format yang benar</div>
                         @error('email')
                             <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
@@ -71,7 +76,7 @@
 
         {{-- KOLOM KANAN: Keamanan & Aksi --}}
         <div class="col-lg-4">
-            
+
             {{-- Card Keamanan --}}
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
                 <div class="card-header bg-white border-0 pt-4 ps-4 pe-4 pb-0">
@@ -87,18 +92,18 @@
                         </span>
                         <input type="password"
                             name="password"
-                            id="password" 
-                            class="form-control border-start-0 border-end-0 ps-2 @error('password') is-invalid @enderror" 
-                            style="height: 45px;" 
+                            id="password"
+                            class="form-control border-start-0 border-end-0 ps-2 @error('password') is-invalid @enderror"
+                            style="height: 45px;"
                             value="{{ old('password', isset($user) ? '' : 'admin123') }}"
                             placeholder="{{ isset($user) ? 'Biarkan kosong...' : 'Default: admin123' }}">
-                        
+
                         {{-- Tombol Mata (Show/Hide) --}}
                         <button class="btn btn-light border border-start-0 text-muted" type="button" id="togglePassword">
                             <i class="fa-solid fa-eye" id="eyeIcon"></i>
                         </button>
                     </div>
-                    
+
                     @error('password')
                         <div class="text-danger small mt-1 mb-2">{{ $message }}</div>
                     @enderror
@@ -145,7 +150,7 @@
                 // Toggle type attribute
                 const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
                 password.setAttribute('type', type);
-                
+
                 // Toggle icon
                 if (type === 'text') {
                     eyeIcon.classList.remove('fa-eye');

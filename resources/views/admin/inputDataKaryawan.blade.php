@@ -7,7 +7,7 @@
 <div class="row">
     {{-- UBAHAN: Ubah jadi col-12 agar Card memenuhi lebar layar --}}
     <div class="col-12">
-        
+
         <div class="card shadow-sm border-0" style="border-radius: 10px;">
             {{-- Card Header --}}
             <div class="card-header bg-white border-0 pt-4 ps-4 pe-4 pb-0">
@@ -31,10 +31,10 @@
             </div>
 
             <div class="card-body p-4">
-                
+
                 {{-- Pembuka Form --}}
                 @if(!(isset($readOnly) && $readOnly))
-                    <form method="POST" action="{{ isset($employee) ? route('admin.employees.update', $employee->id) : route('admin.employees.store') }}">
+                    <form method="POST" action="{{ isset($employee) ? route('admin.employees.update', $employee->id) : route('admin.employees.store') }}" data-validate-form>
                     @csrf
                     @if(isset($employee))
                         @method('PUT')
@@ -45,32 +45,37 @@
                     {{-- Karena Card sudah full width, col-md-6 ini akan membagi layar jadi 2 kolom yang proporsional --}}
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Nama Lengkap</label>
+                            <label class="form-label fw-medium text-secondary small">Nama Lengkap <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-user"></i></span>
-                                <input type="text" 
-                                    class="form-control border-start-0 ps-2 @error('nama_lengkap') is-invalid @enderror" 
-                                    name="nama_lengkap" 
+                                <input type="text"
+                                    class="form-control border-start-0 ps-2 required-field @error('nama_lengkap') is-invalid @enderror"
+                                    name="nama_lengkap"
                                     style="height: 45px;"
-                                    value="{{ old('nama_lengkap', $employee->nama_lengkap ?? '') }}" 
-                                    placeholder="Nama lengkap sesuai KTP" 
-                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
+                                    value="{{ old('nama_lengkap', $employee->nama_lengkap ?? '') }}"
+                                    placeholder="Nama lengkap sesuai KTP"
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
+                                    data-error-message="Nama lengkap wajib diisi"
+                                    {{ !isset($readOnly) || !$readOnly ? 'autofocus' : '' }}>
                             </div>
+                            <div class="invalid-feedback">Nama lengkap wajib diisi</div>
                             @error('nama_lengkap') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">NIK</label>
+                            <label class="form-label fw-medium text-secondary small">NIK <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-fingerprint"></i></span>
-                                <input type="text" 
-                                    class="form-control border-start-0 ps-2 @error('nik') is-invalid @enderror" 
-                                    name="nik" 
+                                <input type="text"
+                                    class="form-control border-start-0 ps-2 required-field @error('nik') is-invalid @enderror"
+                                    name="nik"
                                     style="height: 45px;"
-                                    value="{{ old('nik', $employee->nik ?? '') }}" 
-                                    placeholder="16 Digit NIK" 
-                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
+                                    value="{{ old('nik', $employee->nik ?? '') }}"
+                                    placeholder="16 Digit NIK"
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
+                                    data-error-message="NIK wajib diisi">
                             </div>
+                            <div class="invalid-feedback">NIK wajib diisi</div>
                             @error('nik') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                     </div>
@@ -78,13 +83,13 @@
                     {{-- Baris 2: Jabatan & No Telp --}}
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Jabatan</label>
+                            <label class="form-label fw-medium text-secondary small">Jabatan <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-briefcase"></i></span>
                                 @if(isset($readOnly) && $readOnly)
                                     <input type="text" class="form-control border-start-0 ps-2" value="{{ $employee->jabatan ?? '-' }}" readonly style="height: 45px;">
                                 @else
-                                    <select class="form-select border-start-0 ps-2 @error('jabatan') is-invalid @enderror" name="jabatan" style="height: 45px;" required>
+                                    <select class="form-select border-start-0 ps-2 required-field @error('jabatan') is-invalid @enderror" name="jabatan" style="height: 45px;" required data-error-message="Jabatan wajib dipilih">
                                         <option value="" selected disabled>-- Pilih Jabatan --</option>
                                         <option value="Manager" {{ old('jabatan', $employee->jabatan ?? '') === 'Manager' ? 'selected' : '' }}>Manager</option>
                                         <option value="Staff Operasional" {{ old('jabatan', $employee->jabatan ?? '') === 'Staff Operasional' ? 'selected' : '' }}>Staff Operasional</option>
@@ -92,21 +97,24 @@
                                     </select>
                                 @endif
                             </div>
+                            <div class="invalid-feedback">Jabatan wajib dipilih</div>
                             @error('jabatan') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">No. Telepon</label>
+                            <label class="form-label fw-medium text-secondary small">No. Telepon <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-phone"></i></span>
-                                <input type="text" 
-                                    class="form-control border-start-0 ps-2 @error('nomor_telepon') is-invalid @enderror" 
-                                    name="nomor_telepon" 
+                                <input type="text"
+                                    class="form-control border-start-0 ps-2 required-field @error('nomor_telepon') is-invalid @enderror"
+                                    name="nomor_telepon"
                                     style="height: 45px;"
-                                    value="{{ old('nomor_telepon', $employee->nomor_telepon ?? '') }}" 
-                                    placeholder="08xx-xxxx-xxxx" 
-                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
+                                    value="{{ old('nomor_telepon', $employee->nomor_telepon ?? '') }}"
+                                    placeholder="08xx-xxxx-xxxx"
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
+                                    data-error-message="Nomor telepon wajib diisi">
                             </div>
+                            <div class="invalid-feedback">Nomor telepon wajib diisi</div>
                             @error('nomor_telepon') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                     </div>
@@ -114,32 +122,36 @@
                     {{-- Baris 3: Gaji & Tanggal Masuk --}}
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Gaji Pokok</label>
+                            <label class="form-label fw-medium text-secondary small">Gaji Pokok <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3">Rp</span>
-                                <input type="number" 
-                                    class="form-control border-start-0 ps-2 @error('gaji') is-invalid @enderror" 
-                                    name="gaji" 
+                                <input type="number"
+                                    class="form-control border-start-0 ps-2 required-field @error('gaji') is-invalid @enderror"
+                                    name="gaji"
                                     style="height: 45px;"
-                                    value="{{ old('gaji', $employee->gaji ?? '') }}" 
-                                    placeholder="0" 
-                                    min="0" 
-                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
+                                    value="{{ old('gaji', $employee->gaji ?? '') }}"
+                                    placeholder="0"
+                                    min="0"
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
+                                    data-error-message="Gaji pokok wajib diisi">
                             </div>
+                            <div class="invalid-feedback">Gaji pokok wajib diisi</div>
                             @error('gaji') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Tanggal Masuk</label>
+                            <label class="form-label fw-medium text-secondary small">Tanggal Masuk <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-regular fa-calendar"></i></span>
-                                <input type="date" 
-                                    class="form-control border-start-0 ps-2 @error('tanggal_masuk') is-invalid @enderror" 
-                                    name="tanggal_masuk" 
+                                <input type="date"
+                                    class="form-control border-start-0 ps-2 required-field @error('tanggal_masuk') is-invalid @enderror"
+                                    name="tanggal_masuk"
                                     style="height: 45px;"
-                                    value="{{ old('tanggal_masuk', isset($employee) && $employee->tanggal_masuk ? $employee->tanggal_masuk->format('Y-m-d') : '') }}" 
-                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
+                                    value="{{ old('tanggal_masuk', isset($employee) && $employee->tanggal_masuk ? $employee->tanggal_masuk->format('Y-m-d') : '') }}"
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
+                                    data-error-message="Tanggal masuk wajib diisi">
                             </div>
+                            <div class="invalid-feedback">Tanggal masuk wajib diisi</div>
                             @error('tanggal_masuk') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                     </div>
@@ -147,34 +159,37 @@
                     {{-- Baris 4: Status & Alamat --}}
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Status Karyawan</label>
+                            <label class="form-label fw-medium text-secondary small">Status Karyawan <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-toggle-on"></i></span>
                                 @if(isset($readOnly) && $readOnly)
-                                    <input type="text" class="form-control border-start-0 ps-2" 
-                                        value="{{ $employee->status == 'aktif' ? 'Aktif' : 'Non Aktif' }}" 
+                                    <input type="text" class="form-control border-start-0 ps-2"
+                                        value="{{ $employee->status == 'aktif' ? 'Aktif' : 'Non Aktif' }}"
                                         readonly style="height: 45px;">
                                 @else
-                                    <select class="form-select border-start-0 ps-2 @error('status') is-invalid @enderror" name="status" style="height: 45px;" required>
+                                    <select class="form-select border-start-0 ps-2 required-field @error('status') is-invalid @enderror" name="status" style="height: 45px;" required data-error-message="Status karyawan wajib dipilih">
                                         <option value="" selected disabled>-- Pilih Status --</option>
                                         <option value="aktif" {{ old('status', $employee->status ?? '') === 'aktif' ? 'selected' : '' }}>Aktif</option>
                                         <option value="non-aktif" {{ old('status', $employee->status ?? '') === 'non-aktif' ? 'selected' : '' }}>Non Aktif</option>
                                     </select>
                                 @endif
                             </div>
+                            <div class="invalid-feedback">Status karyawan wajib dipilih</div>
                             @error('status') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-12 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Alamat Lengkap</label>
+                            <label class="form-label fw-medium text-secondary small">Alamat Lengkap <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-map-location-dot"></i></span>
-                                <textarea class="form-control border-start-0 ps-2 @error('alamat') is-invalid @enderror" 
-                                    name="alamat" 
-                                    rows="3" 
-                                    placeholder="Masukkan alamat domisili..." 
-                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>{{ old('alamat', $employee->alamat ?? '') }}</textarea>
+                                <textarea class="form-control border-start-0 ps-2 required-field @error('alamat') is-invalid @enderror"
+                                    name="alamat"
+                                    rows="3"
+                                    placeholder="Masukkan alamat domisili..."
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
+                                    data-error-message="Alamat wajib diisi">{{ old('alamat', $employee->alamat ?? '') }}</textarea>
                             </div>
+                            <div class="invalid-feedback">Alamat wajib diisi</div>
                             @error('alamat') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                     </div>
@@ -213,7 +228,7 @@
 @push('styles')
 <style>
     /* Styling khusus untuk ReadOnly agar terlihat jelas */
-    .form-control[readonly], 
+    .form-control[readonly],
     .form-select[disabled] {
         background-color: #f9fafb; /* Abu-abu sangat muda */
         color: #6c757d;
@@ -223,7 +238,7 @@
     .input-group:focus-within .input-group-text {
         border-color: #86b7fe;
     }
-    .input-group:focus-within .form-control, 
+    .input-group:focus-within .form-control,
     .input-group:focus-within .form-select {
         border-color: #86b7fe;
         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);

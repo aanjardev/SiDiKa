@@ -6,13 +6,29 @@ export default class CustomerModal {
         this.modal = this.modalEl ? new bootstrap.Modal(this.modalEl) : null;
         this.onSuccess = onSuccess;
         this.storeUrl = storeUrl;
-        this.requiredIds = ["customer_nama_modal", "customer_no_telp_modal", "customer_jenis_kelamin_modal"];
+        this.requiredIds = [
+            "customer_nama_modal",
+            "customer_no_telp_modal",
+            "customer_jenis_kelamin_modal",
+        ];
 
         this.init();
     }
 
     init() {
         if (!this.btn || !this.form) return;
+
+        // Autofocus pada input pertama saat modal ditampilkan
+        if (this.modalEl) {
+            this.modalEl.addEventListener("shown.bs.modal", () => {
+                const firstInput = document.getElementById(this.requiredIds[0]);
+                if (firstInput) {
+                    setTimeout(() => {
+                        firstInput.focus();
+                    }, 100);
+                }
+            });
+        }
 
         this.requiredIds.forEach((id) => {
             const el = document.getElementById(id);
@@ -34,18 +50,38 @@ export default class CustomerModal {
     async save() {
         if (!this.form || !this.btn) return;
 
-        // simple required validation similar to old inline logic
+        // Validate using FormValidator if available, otherwise use simple validation
         const invalid = [];
         this.requiredIds.forEach((id) => {
             const el = document.getElementById(id);
             if (!el) return;
             const isEmpty = !el.value;
-            el.classList.toggle("is-invalid", isEmpty);
-            if (isEmpty) invalid.push(id);
+
+            if (isEmpty) {
+                if (window.FormValidator) {
+                    FormValidator.setInvalid(el);
+                } else {
+                    el.classList.add("is-invalid");
+                }
+                invalid.push(id);
+            } else {
+                if (window.FormValidator) {
+                    FormValidator.clearValidation(el);
+                } else {
+                    el.classList.remove("is-invalid");
+                }
+            }
         });
+
         if (invalid.length) {
             const firstInvalid = document.getElementById(invalid[0]);
-            firstInvalid?.focus();
+            if (firstInvalid) {
+                firstInvalid.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+                setTimeout(() => firstInvalid.focus(), 300);
+            }
             return;
         }
 
@@ -58,10 +94,12 @@ export default class CustomerModal {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Accept": "application/json",
-                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content
+                Accept: "application/json",
+                "X-CSRF-TOKEN": document.querySelector(
+                    'meta[name="csrf-token"]'
+                )?.content,
             },
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
         });
 
         const result = await res.json();

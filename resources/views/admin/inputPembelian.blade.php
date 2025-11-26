@@ -66,26 +66,6 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
 <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 @endpush
 
-{{-- Tampilkan Error Validasi (Dari Main)
-@if ($errors->any())
-<div class="alert alert-danger alert-dismissible fade show mb-4 rounded-3 border-0 shadow-sm" role="alert" style="background-color: #fff5f5; border-left: 5px solid #dc3545 !important;">
-    <div class="d-flex align-items-center gap-3">
-        <div class="bg-danger bg-opacity-10 p-2 rounded-circle text-danger">
-            <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
-        </div>
-        <div>
-            <h6 class="fw-bold text-danger mb-1">Terjadi Kesalahan Input</h6>
-            <ul class="mb-0 small text-secondary ps-3">
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    </div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif --}}
-
 {{-- Form Wrapper (Logic Main + ID HEAD) --}}
 <form action="{{ isset($pembelian) ? route('admin.purchases.update', $pembelian->id) : route('admin.purchases.store') }}" method="POST" id="formPembelian">
     @csrf
@@ -118,13 +98,13 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                                 <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
 
                                 {{-- Visible search input + hidden customer_id (single input area) --}}
-                                <input type="text" class="form-control" id="customer_search" placeholder="Cari Nama atau No. Telp Customer..." aria-label="Cari Nama atau No. Telp Customer" value="{{ isset($pembelian) && $pembelian->customer ? $pembelian->customer->nama . ' (' . $pembelian->customer->no_telp . ')' : '' }}">
+                                <input type="text" class="form-control" id="customer_search" placeholder="Cari Nama atau No. Telp Customer..." aria-label="Cari Nama atau No. Telp Customer" value="{{ isset($pembelian) && $pembelian->customer ? $pembelian->customer->nama . ' (' . $pembelian->customer->no_telp . ')' : '' }}" autofocus>
                                 <input type="hidden" id="customer_id" name="customer_id" value="{{ isset($pembelian) && $pembelian->customer ? $pembelian->customer->id : '' }}">
                                 {{-- Container for autocomplete suggestions --}}
                                 <div id="customer_suggestions" class="dropdown-menu" style="width:100%;"></div>
 
                             </div>
-                            <div class="invalid-feedback" id="customer_search_error" style="display:none;">
+                            <div class="invalid-feedback" id="customer_search_error">
                                 Customer wajib dipilih sebelum menambah item.
                             </div>
                             <div class="d-flex justify-content-between">
@@ -321,16 +301,18 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         <div class="row g-3 px-2">
                             <div class="col-md-8">
                                 <label class="form-label fw-semibold text-secondary small">Nama Item <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-lg fs-6 shadow-none" id="item_nama_item" placeholder="Contoh: Canon EOS 60D Body Only">
+                                <input type="text" class="form-control form-control-lg fs-6 shadow-none required-field" id="item_nama_item" placeholder="Contoh: Canon EOS 60D Body Only" data-error-message="Nama item wajib diisi" autofocus>
+                                <div class="invalid-feedback">Nama item wajib diisi</div>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold text-secondary small">Kategori <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-lg fs-6 shadow-none" id="item_kategori_id" style="height: calc(2.5rem + 10px);">
+                                <select class="form-select form-select-lg fs-6 shadow-none required-field" id="item_kategori_id" style="height: calc(2.5rem + 10px);" data-error-message="Kategori wajib dipilih">
                                     <option value="" selected disabled>Pilih...</option>
                                     @foreach($semua_kategori as $kat)
                                     <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
                                     @endforeach
                                 </select>
+                                <div class="invalid-feedback">Kategori wajib dipilih</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-secondary small">Serial Number (Body)</label>
@@ -510,27 +492,27 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                 </h5>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formTambahCustomer">
+            <form id="formTambahCustomer" data-validate-form>
                 <div class="modal-body p-4">
                     @csrf
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label fw-semibold text-secondary small">Nama Customer <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control required-field" id="customer_nama_modal" name="nama" required>
+                            <input type="text" class="form-control required-field" id="customer_nama_modal" name="nama" required data-error-message="Nama customer wajib diisi" autofocus>
                             <div class="invalid-feedback">
                                 Nama customer wajib diisi.
                             </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-secondary small">No. Telepon <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control required-field" id="customer_no_telp_modal" name="no_telp" required>
+                            <input type="text" class="form-control required-field" id="customer_no_telp_modal" name="no_telp" required data-error-message="Nomor telepon wajib diisi">
                             <div class="invalid-feedback">
                                 Nomor telepon wajib diisi.
                             </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-secondary small">Jenis Kelamin <span class="text-danger">*</span></label>
-                            <select class="form-select required-field" id="customer_jenis_kelamin_modal" name="jenis_kelamin" required style="height:calc(2.5rem + 10px);">
+                            <select class="form-select required-field" id="customer_jenis_kelamin_modal" name="jenis_kelamin" required style="height:calc(2.5rem + 10px);" data-error-message="Jenis kelamin wajib dipilih">
                                 <option value="" selected disabled>Pilih</option>
                                 <option value="L">Laki-laki</option>
                                 <option value="P">Perempuan</option>
