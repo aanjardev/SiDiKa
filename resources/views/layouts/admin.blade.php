@@ -163,6 +163,13 @@ $setting = \App\Models\CatalogSettings::first();
                             <span>Foto Produk</span>
                         </a>
                     </div>
+
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.smart-stock.index') }}" class="submenu-link">
+                            <i class="fas fa-chart-line submenu-icon"></i>
+                            <span>Smart Stock Analysis</span>
+                        </a>
+                    </div>
                 </div>
             </div>
 
