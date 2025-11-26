@@ -189,12 +189,13 @@ class AdminProductController extends Controller
             'image' => ['required', 'image', 'max:5120'],
         ]);
 
-        DB::beginTransaction();
-        try {
+            DB::beginTransaction();
+            try {
 
-            $image = $request->file('image');
+                $image = $request->file('image');
 
-            $path = ImageUpload::upload($image, "product/{$product->id}");
+                $paths = ImageUpload::upload($image, "product/{$product->id}");
+                $path = $paths['large_path'];
 
             $hasMain = $product->gambarUtama()->exists();
 

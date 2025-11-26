@@ -872,6 +872,7 @@ Kode Barang : #1298_DK'
         }
 
         // Reuse runtime pipeline: resize + WebP + hash + cache headers
-        return ImageUpload::upload($source, "product/{$productId}");
+        $paths = ImageUpload::upload($source, "product/{$productId}");
+        return $paths['large_path'];
     }
 }

@@ -72,10 +72,11 @@ class ProcessProductImage implements ShouldQueue
                     // This will handle resizing, compression, WebP conversion, and memory management
                     // ImageUpload will automatically increase memory limit and use Imagick if available
                     $prefix = 'product/' . $product->id;
-                    $permanentPath = \App\Helpers\ImageUpload::upload(
+                    $paths = \App\Helpers\ImageUpload::upload(
                         $tempFilePath,
                         $prefix
                     );
+                    $permanentPath = $paths['large_path'];
 
                     // Delete temporary file
                     Storage::disk('local')->delete($tempPath);

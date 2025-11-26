@@ -52,7 +52,16 @@ class CleanupProductAssets implements ShouldQueue
 
             try {
                 $storage = Storage::disk($this->disk);
-                if ($storage->exists($path)) {
+                if (preg_match('#^(.*)/(thumb|medium|large)/([^/]+)$#', $path, $m)) {
+                    $base = $m[1];
+                    $file = $m[3];
+                    foreach (['thumb', 'medium', 'large'] as $size) {
+                        $candidate = "{$base}/{$size}/{$file}";
+                        if ($storage->exists($candidate)) {
+                            $storage->delete($candidate);
+                        }
+                    }
+                } elseif ($storage->exists($path)) {
                     $storage->delete($path);
                 }
             } catch (\Throwable $e) {
@@ -65,4 +74,3 @@ class CleanupProductAssets implements ShouldQueue
         }
     }
 }
-
