@@ -44,7 +44,7 @@
             </div>
 
             {{-- Bagian Kanan: Dropdown --}}
-            <div class="d-flex align-items-center gap-2 pe-2">
+           <div class="d-flex align-items-center gap-2 pe-2">
 
                 {{-- Filter Status --}}
                 <select name="status" id="filter-status"
@@ -62,6 +62,18 @@
                         style="cursor: pointer;">
                     <option value="terbaru" {{ ($sort_filter ?? 'terbaru') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
                     <option value="terlama" {{ ($sort_filter ?? '') == 'terlama' ? 'selected' : '' }}>Terlama</option>
+                </select>
+
+                {{-- Filter Cabang --}}
+                <select name="cabang" id="filter-cabang"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
+                        style="cursor: pointer;">
+                    <option value="">Semua Cabang</option>
+                    @foreach($semua_cabang ?? [] as $cab)
+                        <option value="{{ $cab->id }}" {{ ($filter_cabang ?? '') == $cab->id ? 'selected' : '' }}>
+                            {{ $cab->nama }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
         </div>
@@ -81,7 +93,7 @@
                             <th>Customer</th>
                             <th>Tanggal</th>
                             <th>Cabang</th>
-                            <th style="width: 20%;">Item Dibeli</th>
+                            <th style="width: 25%;">Item Dibeli</th>
                             <th class="text-center">Status</th>
                             <th>Harga Deal</th>
                             <th class="text-center" style="width: 120px;">Aksi</th>
@@ -103,19 +115,19 @@
                             {{-- Customer --}}
                             <td>
                                 <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
-                                    {{ $pembelian->customer->nama ?? 'N/A' }}
+                                    {{ $pembelian->customer->nama ?? '-' }}
                                 </span>
                             </td>
 
                             {{-- Tanggal --}}
-                            <td class="text-muted small">
+                            <td class="text-muted small opacity-90">
                                 <span class="fw-medium text-dark">{{ $pembelian->created_at->format('d M Y') }}</span>
-                                <br>
+                                {{-- <br> --}}
                                 <span class="opacity-75">{{ $pembelian->created_at->format('H:i') }} WIB</span>
                             </td>
 
                             {{-- Cabang --}}
-                            <td class="text-dark fw-medium">
+                            <td class="text-dark small">
                                 {{ $pembelian->perusahaan_cabang->nama ?? '-' }}
                             </td>
 
@@ -136,7 +148,7 @@
                                 @if($pembelian->status_pembelian == 'deal')
                                     <span class="badge rounded-pill bg-success bg-opacity-10 text-success">Deal</span>
                                 @elseif($pembelian->status_pembelian == 'tidak_deal')
-                                    <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger">Batal</span>
+                                    <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger">No-Deal</span>
                                 @else
                                     <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary">Draft</span>
                                 @endif
@@ -164,7 +176,7 @@
                                         <button type="button"
                                                 class="btn-action btn-action-delete no-row-navigation"
                                                 title="Hapus"
-                                                onclick="confirmDelete(this)">
+                                                onclick="handleDeletePembelian(this)">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
@@ -200,124 +212,65 @@
 @endsection
 
 @push('scripts')
-{{-- Script Hapus Sederhana (Visual HEAD) --}}
+<script src="{{ asset('js/admin-ajax-table.js') }}"></script>
 <script>
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
-            button.form.submit();
+    function handleDeletePembelian(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data pembelian ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
+                button.form.submit();
+            }
         }
     }
+
+    // Fungsi helper untuk delete di partial dan controller
+    function handleDeletePembelian(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data pembelian ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
+                button.form.submit();
+            }
+        }
+    }
+    
+    // Alias untuk kompatibilitas dengan partial
+    function confirmDeletePurchase(button) {
+        handleDeletePembelian(button);
+    }
+    
+    // Export ke window
+    window.handleDeletePembelian = handleDeletePembelian;
+    window.confirmDeletePurchase = confirmDeletePurchase;
 </script>
 
-{{-- Script AJAX Search (Logic Main) --}}
-<script>
     document.addEventListener("DOMContentLoaded", function() {
-        const container = document.getElementById('purchase-list-container');
-        const tableBody = document.getElementById('purchase-table-body');
-        const paginationContainer = document.getElementById('pagination-links-container');
-        const form = document.getElementById('filterForm');
-        const searchInput = form.querySelector('input[name="search"]');
-        const statusFilter = form.querySelector('select[name="status"]');
-        const sortFilter = form.querySelector('select[name="sort"]');
         const urlIndex = '{{ route('admin.purchases.index') }}';
 
-        let isFetching = false;
-        let searchTimeout;
-
-        function fetchPurchases(url) {
-            if (isFetching) return;
-            isFetching = true;
-
-            // Efek Loading Visual
-            container.style.opacity = '0.6';
-            container.style.transition = 'opacity 0.3s';
-
-            fetch(url, {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                }
-            })
-            .then(response => {
-                if (!response.ok) throw new Error('Network response was not ok');
-                return response.json();
-            })
-            .then(data => {
-                // Update Tabel & Pagination
-                tableBody.innerHTML = data.table_html || '';
-                paginationContainer.innerHTML = data.pagination_html ?
-                    `<div class="card-footer bg-white border-0 d-flex justify-content-end py-3 px-4">${data.pagination_html}</div>` : '';
-
-                // Update URL Browser
-                window.history.pushState(null, null, url);
-
-                // Re-attach event listeners untuk pagination baru
-                attachPaginationListeners();
-            })
-            .catch(error => {
-                console.error('Fetch error:', error);
-            })
-            .finally(() => {
-                isFetching = false;
-                container.style.opacity = '1';
-            });
-        }
-
-        function buildUrl() {
-            const params = new URLSearchParams();
-            const search = searchInput.value;
-            const status = statusFilter.value;
-            const sort = sortFilter.value;
-
-            if (search) params.append('search', search);
-            if (status && status !== 'semua') params.append('status', status);
-            if (sort) params.append('sort', sort);
-
-            return `${urlIndex}?${params.toString()}`;
-        }
-
-        // Event Listeners
-        searchInput.addEventListener('keyup', function() {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                fetchPurchases(buildUrl());
-            }, 500);
-        });
-
-        statusFilter.addEventListener('change', function() {
-            fetchPurchases(buildUrl());
-        });
-
-        sortFilter.addEventListener('change', function() {
-            fetchPurchases(buildUrl());
-        });
-
-        function attachPaginationListeners() {
-            paginationContainer.querySelectorAll('.pagination a').forEach(link => {
-                link.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    fetchPurchases(this.href);
-                });
-            });
-        }
-
-        tableBody.addEventListener('click', function(e) {
-            if (e.target.closest('.no-row-navigation')) return;
-            const row = e.target.closest('.purchase-row');
-            if (!row) return;
-            const url = row.dataset.detailUrl;
-            if (url) {
-                window.location.href = url;
-            }
-        });
-
-        // Init Pagination Listener
-        attachPaginationListeners();
-
-        // Prevent Form Submit Refresh
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            fetchPurchases(buildUrl());
+        TableAjax.init({
+            formSelector: '#filterForm',
+            containerSelector: '#purchase-list-container',
+            tableBodySelector: '#purchase-table-body',
+            paginationSelector: '#pagination-links-container',
+            baseUrl: urlIndex,
+            searchInputSelector: '#search-input',
+            filterSelectors: ['#filter-status', '#filter-sort', '#filter-cabang'],
+            rowClick: {
+                selector: '.purchase-row',
+                ignoreSelector: '.no-row-navigation',
+                urlFrom: (row) => row.dataset.detailUrl,
+            },
         });
     });
 </script>

@@ -15,13 +15,13 @@
 <form method="GET" action="{{ route('admin.employees.index') }}" id="searchForm">
     <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
         <div class="card-body p-2 d-flex align-items-center flex-wrap">
-            
+
             {{-- Bagian Kiri: Input Search --}}
             <div class="d-flex align-items-center flex-grow-1 ps-2">
                 <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                <input type="text" 
+                <input type="text"
                        class="form-control border-0 shadow-none bg-transparent"
                        name="search"
                        placeholder="Cari karyawan berdasarkan nama..."
@@ -31,10 +31,10 @@
 
             {{-- Bagian Kanan: Dropdown Filter --}}
             <div class="d-flex align-items-center gap-2 pe-2">
-                
+
                 {{-- Dropdown Jabatan --}}
-                <select name="jabatan" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="jabatan"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="all" {{ ($selected_jabatan ?? 'all') == 'all' ? 'selected' : '' }}>Semua Jabatan</option>
@@ -43,8 +43,8 @@
                 </select>
 
                 {{-- Dropdown Status --}}
-                <select name="status" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="status"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="all" {{ ($selected_status ?? 'all') == 'all' ? 'selected' : '' }}>Semua Status</option>
@@ -73,7 +73,7 @@
                 </thead>
                 <tbody>
                     @forelse($employees as $index => $employee)
-                    <tr>
+                    <tr class="clickable-row" data-detail-url="{{ route('admin.employees.show', $employee->id) }}">
                         <td class="text-center text-muted fw-bold">{{ ($employees->firstItem() ?? 0) + $index }}</td>
 
                         <td>
@@ -114,7 +114,7 @@
                             @endif
                         </td>
 
-                        <td class="text-center">
+                        <td class="text-center no-row-navigation">
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="{{ route('admin.employees.edit', $employee->id) }}"
                                     class="btn-action btn-action-edit"
@@ -128,7 +128,7 @@
                                     <button type="button"
                                             class="btn-action btn-action-delete"
                                             title="Hapus"
-                                            onclick="confirmDelete(this)">
+                                            onclick="handleDeleteKaryawan(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -160,12 +160,24 @@
 
 @push('scripts')
 <script>
-    // Fungsi Delete (Bawaan Logic)
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus data karyawan ini?')) {
-            button.form.submit();
+    // Fungsi Delete menggunakan sistem alert (nama berbeda untuk menghindari konflik)
+    function handleDeleteKaryawan(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data karyawan ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data karyawan ini?')) {
+                button.form.submit();
+            }
         }
     }
+    
+    // Export ke window
+    window.handleDeleteKaryawan = handleDeleteKaryawan;
 
     // Fungsi Auto Search (Ditambahkan dari Logic Main untuk UX)
     document.addEventListener('DOMContentLoaded', function() {

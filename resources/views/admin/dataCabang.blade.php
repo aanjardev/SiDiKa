@@ -51,7 +51,7 @@
                 </thead>
                 <tbody>
                     @forelse($data_cabang as $index => $cabang)
-                    <tr>
+                    <tr class="clickable-row" data-detail-url="{{ route('admin.branches.show', $cabang->id) }}">
                         <td class="text-center text-muted fw-bold">{{ ($data_cabang->firstItem() ?? 0) + $index }}</td>
 
                         <td>
@@ -66,8 +66,8 @@
 
                         <td>
                             @if ($cabang->link_maps)
-                                <a href="{{ $cabang->link_maps }}" 
-                                   target="_blank" 
+                                <a href="{{ $cabang->link_maps }}"
+                                   target="_blank"
                                    rel="noopener noreferrer"
                                    class="text-decoration-none text-muted small d-flex align-items-start gap-2"
                                    title="Lihat di Google Maps">
@@ -90,7 +90,7 @@
                             {{ $cabang->nomor_telepon }}
                         </td>
 
-                        <td class="text-center">
+                        <td class="text-center no-row-navigation">
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="{{ route('admin.branches.edit', $cabang->id) }}"
                                     class="btn-action btn-action-edit"
@@ -104,7 +104,7 @@
                                     <button type="button"
                                         class="btn-action btn-action-delete"
                                         title="Hapus"
-                                        onclick="confirmDelete(this)">
+                                        onclick="handleDeleteCabang(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -136,10 +136,24 @@
 
 @push('scripts')
 <script>
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus data cabang ini?')) {
-            button.form.submit();
+    // Gunakan nama yang berbeda untuk menghindari konflik dengan window.confirmDelete
+    function handleDeleteCabang(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data cabang ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            // Fallback jika alert.js belum load
+            if (confirm('Apakah Anda yakin ingin menghapus data cabang ini?')) {
+                button.form.submit();
+            }
         }
     }
+    
+    // Export ke window untuk bisa dipanggil dari mana saja
+    window.handleDeleteCabang = handleDeleteCabang;
 </script>
 @endpush

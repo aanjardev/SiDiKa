@@ -3,14 +3,14 @@
 @endphp
 
 @forelse($products as $idx => $p)
-    <tr>
+    <tr class="clickable-row" data-detail-url="{{ route('admin.products.show', $p->id) }}">
         <td  style="width:60px;" class="text-center">{{ $first + $idx }}</td>
         <td>{{ $p->kode_sku }}</td>
         <td style="vertical-align: top">{{ $p->nama_produk }}</td>
         <td style="vertical-align: top">{{ $p->kategori->nama_kategori ?? '-' }}</td>
         <td style="vertical-align: top">{{ $p->stok_produk ?? 0 }}</td>
         <td style="vertical-align: top">Rp {{ number_format($p->harga_jual ?? 0, 0, ',', '.') }}</td>
-        <td class="text-center">
+        <td class="text-center no-row-navigation">
             <a href="{{ route('admin.products.photos.upload', $p->id) }}" class="btn btn-sm btn-outline-primary" title="Unggah Foto">
                 <i class="fas fa-upload"></i> Upload
             </a>

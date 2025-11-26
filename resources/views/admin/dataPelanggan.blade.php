@@ -134,7 +134,7 @@
                                     <button type="button"
                                             class="btn-action btn-action-delete"
                                             title="Hapus"
-                                            onclick="confirmDelete(this)">
+                                            onclick="handleDeletePelanggan(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -166,12 +166,24 @@
 
 @push('scripts')
 <script>
-    // Fungsi Delete (Standard)
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus data pelanggan ini?')) {
-            button.form.submit();
+    // Fungsi Delete menggunakan sistem alert (nama berbeda untuk menghindari konflik)
+    function handleDeletePelanggan(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus data pelanggan ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus data pelanggan ini?')) {
+                button.form.submit();
+            }
         }
     }
+    
+    // Export ke window
+    window.handleDeletePelanggan = handleDeletePelanggan;
 
     // Fungsi Auto Search (Dari Branch Main)
     document.addEventListener('DOMContentLoaded', function() {

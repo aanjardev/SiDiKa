@@ -1,5 +1,5 @@
 @forelse ($data_penjualan as $index => $penjualan)
-<tr>
+<tr class="sales-row" data-detail-url="{{ route('admin.sales.show', $penjualan->id) }}">
     <td class="text-center text-muted fw-bold">{{ ($data_penjualan->firstItem() ?? 0) + $index }}</td>
 
     <td>
@@ -14,15 +14,15 @@
         <div class="d-flex align-items-center gap-3">
             <div class="flex-grow-1">
                 <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
-                    {{ $penjualan->customer->nama ?? 'Umum / N/A' }}
+                    {{ $penjualan->customer->nama ?? '-' }}
                 </span>
             </div>
         </div>
     </td>
 
     <td class="text-muted small">
-        <span class="fw-medium text-dark">{{ $penjualan->created_at->format('d M Y') }}</span>
-        <br>
+        <span class="fw-medium text-dark opacity-90">{{ $penjualan->created_at->format('d M Y') }}</span>
+        {{-- <br> --}}
         <span class="opacity-75">{{ $penjualan->created_at->format('H:i') }} WIB</span>
     </td>
 
@@ -37,7 +37,7 @@
         </span>
     </td>
 
-    <td class="text-dark fw-medium">
+    <td class="text-dark small">
         {{ $penjualan->perusahaan_cabang->nama ?? '-' }}
     </td>
 
@@ -53,13 +53,16 @@
 
     <td class="text-center">
         <div class="d-flex justify-content-center gap-2">
-            <a href="{{ route('admin.sales.edit', $penjualan->id) }}" class="btn-action btn-action-edit" title="Edit">
+            <a href="{{ route('admin.sales.edit', $penjualan->id) }}" class="btn-action btn-action-edit no-row-navigation" title="Edit">
                 <i class="fa-solid fa-pen-to-square"></i>
             </a>
             <form action="{{ route('admin.sales.destroy', $penjualan->id) }}" method="POST" class="d-inline">
                 @csrf
                 @method('DELETE')
-                <button type="button" class="btn-action btn-action-delete" title="Hapus" onclick="confirmDelete(this)">
+                <button type="button"
+                    class="btn-action btn-action-delete no-row-navigation"
+                    title="Hapus"
+                    onclick="handleDeletePenjualan(this)">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </form>

@@ -15,13 +15,13 @@
 <form method="GET" action="{{ route('admin.products.index') }}" id="searchForm">
     <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
         <div class="card-body p-2 d-flex align-items-center flex-wrap">
-            
+
             {{-- Bagian Kiri: Input Search --}}
             <div class="d-flex align-items-center flex-grow-1 ps-2">
                 <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                <input type="text" 
+                <input type="text"
                        class="form-control border-0 shadow-none bg-transparent"
                        name="search"
                        placeholder="Cari produk berdasarkan nama atau SKU"
@@ -31,10 +31,10 @@
 
             {{-- Bagian Kanan: Dropdown Filter --}}
             <div class="d-flex align-items-center gap-2 pe-2">
-                
+
                 {{-- Dropdown Kategori --}}
-                <select name="kategori" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="kategori"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="all" {{ ($selected_kategori ?? 'all') == 'all' ? 'selected' : '' }}>Semua Kategori</option>
@@ -46,8 +46,8 @@
                 </select>
 
                 {{-- Dropdown Sort --}}
-                <select name="sort_by" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="sort_by"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="updated_at" {{ ($sort_by ?? 'updated_at') == 'updated_at' ? 'selected' : '' }}>Urutkan: Terakhir diubah</option>
@@ -80,7 +80,7 @@
                 </thead>
                 <tbody>
                     @forelse($products as $index => $product)
-                    <tr> 
+                    <tr class="clickable-row" data-detail-url="{{ route('admin.products.show', $product->id) }}">
                         <td class="text-center text-muted fw-bold">{{ ($products->firstItem() ?? 0) + $index }}</td>
 
                         <td>
@@ -103,7 +103,7 @@
 
                                 {{-- Bagian Teks --}}
                                 <div class="flex-grow-1" style="min-width: 200px; max-width: 320px;">
-                                    <span class="text-dark fw-semibold d-block" 
+                                    <span class="text-dark fw-semibold d-block"
                                           style="font-size: 0.95rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                         {{ $product->nama_produk }}
                                     </span>
@@ -142,7 +142,7 @@
                             <span class="opacity-75">{{ $product->updated_at->format('H:i') }}</span>
                         </td>
 
-                        <td class="text-center">
+                        <td class="text-center no-row-navigation">
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="{{ route('admin.products.edit', $product->id) }}"
                                     class="btn-action btn-action-edit"
@@ -156,7 +156,7 @@
                                     <button type="button"
                                             class="btn-action btn-action-delete"
                                             title="Hapus"
-                                            onclick="confirmDelete(this)">
+                                            onclick="handleDeleteProduk(this)">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -188,12 +188,24 @@
 
 @push('scripts')
 <script>
-    // Fungsi Delete
-    function confirmDelete(button) {
-        if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
-            button.form.submit();
+    // Fungsi Delete menggunakan sistem alert (nama berbeda untuk menghindari konflik)
+    function handleDeleteProduk(button) {
+        if (typeof window.confirmDelete === 'function') {
+            window.confirmDelete('Apakah Anda yakin ingin menghapus produk ini?', 'Konfirmasi Hapus')
+                .then((result) => {
+                    if (result.isConfirmed) {
+                        button.form.submit();
+                    }
+                });
+        } else {
+            if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+                button.form.submit();
+            }
         }
     }
+    
+    // Export ke window
+    window.handleDeleteProduk = handleDeleteProduk;
 
     // Fungsi Auto Search (Debounce)
     document.addEventListener('DOMContentLoaded', function() {

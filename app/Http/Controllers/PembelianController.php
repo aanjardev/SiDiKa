@@ -22,6 +22,7 @@ class PembelianController extends Controller
         // Ambil parameter dari request
         $search = $request->query('search');
         $status = $request->query('status');
+        $filterCabang = $request->query('cabang');
         $sort = $request->query('sort', 'terbaru');
 
         $query = Pembelian::with(['customer', 'perusahaan_cabang', 'user', 'item_pembelian_draft']);
@@ -31,11 +32,14 @@ class PembelianController extends Controller
             $query->where(function ($q) use ($search) {
                 // Menggunakan kode_transaksi jika ada, fallback ke id
                 $q->where('kode_transaksi', 'like', '%' . $search . '%')
-                  ->orWhere('id', 'like', '%' . $search . '%')
-                  ->orWhereHas('customer', function ($qC) use ($search) {
-                      $qC->where('nama', 'like', '%' . $search . '%');
-                  });
+                    ->orWhere('id', 'like', '%' . $search . '%')
+                    ->orWhereHas('customer', function ($qC) use ($search) {
+                        $qC->where('nama', 'like', '%' . $search . '%');
+                    });
             });
+        }
+        if (!empty($filterCabang)) {
+            $query->where('perusahaan_cabang_id', $filterCabang);
         }
 
         // Filter Status
@@ -53,11 +57,16 @@ class PembelianController extends Controller
         // Ambil data dengan pagination, pastikan query string dipertahankan untuk link pagination
         $data_pembelian = $query->paginate(10)->withQueryString();
 
+        $semua_cabang = Branch::orderBy('nama')->get();
+
         $data = [
             'data_pembelian' => $data_pembelian,
             'search_term' => $search,
             'status_filter' => $status,
             'sort_filter' => $sort,
+            'semua_cabang' => $semua_cabang,
+            'filter_cabang' => $filterCabang,
+            
         ];
 
         // LOGIKA BARU UNTUK AJAX: RENDERING LANGSUNG
@@ -120,10 +129,10 @@ class PembelianController extends Controller
                     // Tombol Aksi
                     $html .= '<a href="' . route('admin.purchases.show', $pembelian->id) . '" title="Lihat Detail Transaksi"><i class="fa-solid fa-eye" style="color: black;"></i></a>';
                     $html .= '<a href="' . route('admin.purchases.edit', $pembelian->id) . '" title="Edit Transaksi"><i class="fa-solid fa-pen-to-square"></i></a>';
-                    $html .= '<form action="' . route('admin.purchases.destroy', $pembelian->id) . '" method="POST" onsubmit="return confirm(\'Yakin mau hapus data ini?\')" class="d-inline">';
+                    $html .= '<form action="' . route('admin.purchases.destroy', $pembelian->id) . '" method="POST" class="d-inline">';
                     $html .= csrf_field(); // Helper untuk CSRF token
                     $html .= method_field('DELETE'); // Helper untuk DELETE method
-                    $html .= '<button type="submit" class="btn-icon" title="Hapus"><i class="fa-solid fa-trash"></i></button>';
+                    $html .= '<button type="button" class="btn-icon" title="Hapus" onclick="confirmDeletePurchase(this)"><i class="fa-solid fa-trash"></i></button>';
                     $html .= '</form>';
                     $html .= '</div>';
                     $html .= '</td>';
@@ -164,6 +173,7 @@ class PembelianController extends Controller
     public function store(Request $request)
     {
         $status = $request->input('status_pembelian', 'draft');
+        $max_int = 2147483647; // Batasan maksimum untuk tipe data INTEGER (32-bit signed) MySQL
 
         // Validasi
         $validator = Validator::make($request->all(), [
@@ -173,22 +183,25 @@ class PembelianController extends Controller
             'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
             'user_id' => 'required|exists:users,id',
             'status_pembelian' => 'required|in:draft,deal,tidak_deal',
-            'harga_tawaran_customer' => 'nullable|numeric|min:0',
-            'harga_tawaran_toko' => 'nullable|numeric|min:0',
-            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0',
+            'harga_tawaran_customer' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_tawaran_toko' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0|max:' . $max_int,
             // Kita tidak lagi memvalidasi 'items' di sini
         ], [
             'harga_deal.required' => 'Harga Deal wajib diisi jika status "Deal".',
+            'harga_tawaran_customer.max' => 'Harga Tawaran Customer melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_tawaran_toko.max' => 'Harga Tawaran Toko melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_deal.max' => 'Harga Deal melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
             'pembelian_id.required' => 'Terjadi kesalahan. Coba muat ulang halaman. (ID Pembelian tidak ditemukan)'
         ]);
 
-       if ($validator->fails()) {
+        if ($validator->fails()) {
             // PERBAIKAN 2: Jika validasi gagal, muat ulang data LENGKAP
             if ($request->pembelian_id) {
                 try {
                     // Muat ulang data Pembelian DENGAN item draft dan relasi kategori
                     $pembelian = Pembelian::with('item_pembelian_draft.kategori')
-                                            ->findOrFail($request->pembelian_id);
+                        ->findOrFail($request->pembelian_id);
 
                     // Muat ulang data dropdown
                     $data_customer = Customer::orderBy('nama', 'asc')->get();
@@ -202,8 +215,7 @@ class PembelianController extends Controller
                         'semua_cabang' => $data_cabang,
                         'semua_kategori' => $data_kategori
                     ])->withErrors($validator)
-                      ->withInput(); // Tetap sertakan old input untuk field utama (misal harga)
-
+                        ->withInput();
                 } catch (\Exception $e) {
                     // Jika ada error saat fetch, kembali ke mode normal
                 }
@@ -233,29 +245,28 @@ class PembelianController extends Controller
             // Logika Redirect Anda sudah benar
             if ($status == 'draft') {
                 return redirect()->route('admin.purchases.show', $pembelian->id)
-                                 ->with('success', 'Draft berhasil disimpan')
-                                 ->with('auto_copy_link', true);
+                    ->with('success', 'Draft berhasil disimpan')
+                    ->with('auto_copy_link', true);
             } else {
                 return redirect()->route('admin.purchases.index')
-                                 ->with('success', 'Transaksi pembelian telah difinalisasi.');
+                    ->with('success', 'Transaksi pembelian telah difinalisasi.');
             }
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage())->withInput();
         }
     }
-        /**
+    /**
      * Menampilkan detail 1 transaksi pembelian (Read-Only Link)
      */
     public function show($id)
     {
         $pembelian = Pembelian::with([
-                            'customer',
-                            'perusahaan_cabang', // Ganti ke 'branch' jika itu nama relasi Anda
-                            'user',
-                            'item_pembelian_draft.kategori'
-                        ])->findOrFail($id);
+            'customer',
+            'perusahaan_cabang', // Ganti ke 'branch' jika itu nama relasi Anda
+            'user',
+            'item_pembelian_draft.kategori'
+        ])->findOrFail($id);
 
         // Buat file view baru ini (Langkah 3)
         return view('admin.reviewPembelian', ['pembelian' => $pembelian]);
@@ -269,11 +280,11 @@ class PembelianController extends Controller
     {
         // 1. Ambil data pembelian dengan semua relasi yang dibutuhkan
         $pembelian = Pembelian::with([
-                            'customer',
-                            'perusahaan_cabang',
-                            'user',
-                            'item_pembelian_draft.kategori'
-                        ])->findOrFail($id);
+            'customer',
+            'perusahaan_cabang',
+            'user',
+            'item_pembelian_draft.kategori'
+        ])->findOrFail($id);
 
         // Pastikan transaksi sudah 'deal' sebelum mencetak nota resmi (opsional)
         if ($pembelian->status_pembelian !== 'deal') {
@@ -381,7 +392,6 @@ class PembelianController extends Controller
                 'pembelian_id' => $pembelian->id, // Kirim ID pembelian (baru atau lama)
                 'item' => $item // Kirim data item yg baru dibuat (lengkap dgn ID DB)
             ]);
-
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
@@ -474,6 +484,7 @@ class PembelianController extends Controller
     public function update(Request $request, $id)
     {
         $status = $request->input('status_pembelian', 'draft');
+        $max_int = 2147483647; // Batasan maksimum untuk tipe data INTEGER (32-bit signed) MySQL
 
         // Validasi
         // Perhatikan: Kita sekarang menggunakan $id dari URL route, bukan dari hidden input request
@@ -482,11 +493,14 @@ class PembelianController extends Controller
             'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
             'user_id' => 'required|exists:users,id',
             'status_pembelian' => 'required|in:draft,deal,tidak_deal',
-            'harga_tawaran_customer' => 'nullable|numeric|min:0',
-            'harga_tawaran_toko' => 'nullable|numeric|min:0',
-            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0',
+            'harga_tawaran_customer' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_tawaran_toko' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0|max:' . $max_int,
         ], [
             'harga_deal.required' => 'Harga Deal wajib diisi jika status "Deal".',
+            'harga_tawaran_customer.max' => 'Harga Tawaran Customer melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_tawaran_toko.max' => 'Harga Tawaran Toko melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_deal.max' => 'Harga Deal melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
         ]);
 
         if ($validator->fails()) {
@@ -494,7 +508,7 @@ class PembelianController extends Controller
             try {
                 // Muat ulang data Pembelian DENGAN item draft dan kategori
                 $pembelian = Pembelian::with('item_pembelian_draft.kategori')
-                                        ->findOrFail($id);
+                    ->findOrFail($id);
 
                 // Muat ulang data dropdown
                 $data_customer = Customer::orderBy('nama', 'asc')->get();
@@ -508,7 +522,7 @@ class PembelianController extends Controller
                     'semua_cabang' => $data_cabang,
                     'semua_kategori' => $data_kategori
                 ])->withErrors($validator)
-                  ->withInput();
+                    ->withInput();
             } catch (\Exception $e) {
                 return back()->withErrors($validator)->withInput();
             }
@@ -536,13 +550,12 @@ class PembelianController extends Controller
 
             if ($status == 'draft') {
                 return redirect()->route('admin.purchases.show', $pembelian->id)
-                                 ->with('success', 'Draft berhasil diupdate')
-                                 ->with('auto_copy_link', true);
+                    ->with('success', 'Draft berhasil diupdate')
+                    ->with('auto_copy_link', true);
             } else {
                 return redirect()->route('admin.purchases.index')
-                                 ->with('success', 'Transaksi pembelian telah diupdate dan difinalisasi.');
+                    ->with('success', 'Transaksi pembelian telah diupdate dan difinalisasi.');
             }
-
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal mengupdate transaksi: ' . $e->getMessage())->withInput();
@@ -560,8 +573,7 @@ class PembelianController extends Controller
             $pembelian->delete();
 
             return redirect()->route('admin.purchases.index')
-                             ->with('success', 'Transaksi Pembelian ' . $pembelian->kode_transaksi . ' berhasil dihapus.');
-
+                ->with('success', 'Transaksi Pembelian ' . $pembelian->kode_transaksi . ' berhasil dihapus.');
         } catch (\Exception $e) {
             return back()->with('error', 'Gagal menghapus transaksi: ' . $e->getMessage());
         }
@@ -582,7 +594,6 @@ class PembelianController extends Controller
             $item->delete();
 
             return response()->json(['success' => true, 'message' => 'Item berhasil dihapus.']);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -590,5 +601,4 @@ class PembelianController extends Controller
             ], 500);
         }
     }
-
 }

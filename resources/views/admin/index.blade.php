@@ -6,215 +6,214 @@
     <a href="{{ route('admin.sales.index') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
         <i class="fas fa-plus fa-fw"></i>
         <span>Penjualan</span>
-</a>
-    <button class="btn btn-success btn-sm d-flex align-items-center gap-2" style="background-color: #198754; border-color: #198754;">
-        <i class="fas fa-plus fa-fw"></i>
-        <span>Pembelian</span>
-    </button>
+    </a>
+    @if(Route::has('admin.purchases.index'))
+        <a href="{{ route('admin.purchases.index') }}" class="btn btn-success btn-sm d-flex align-items-center gap-2" style="background-color: #198754; border-color: #198754;">
+            <i class="fas fa-plus fa-fw"></i>
+            <span>Pembelian</span>
+        </a>
+    @else
+        <button class="btn btn-success btn-sm d-flex align-items-center gap-2" style="background-color: #198754; border-color: #198754;" disabled>
+            <i class="fas fa-plus fa-fw"></i>
+            <span>Pembelian</span>
+        </button>
+    @endif
 @endpush
-
 
 @section('content')
 
-{{-- Baris Pertama: Card Ringkasan Pendapatan --}}
-<div class="row">
-    {{-- Card 1: Pendapatan Utama (dengan HPP & Laba) --}}
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
-        <div class="card shadow-sm border-0 mb-4">
+{{-- ======================================================= --}}
+{{-- FILTER SECTION: Form dengan auto-submit --}}
+{{-- ======================================================= --}}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
             <div class="card-body">
-                {{-- Header Card --}}
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <p class="mb-0 text-muted">Total Pendapatan</p>
-
-                    {{-- PERBAIKAN 2: Dua Dropdown (Bulan & Tahun) --}}
-                    <div class="d-flex gap-1">
-                        {{-- Dropdown Bulan --}}
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-light btn-link text-decoration-none dropdown-toggle p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.75rem;">
-                                Semua Bulan
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" style="max-height: 200px; overflow-y: auto;">
-                                <li><a class="dropdown-item" href="#">Semua Bulan</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="#">Januari</a></li>
-                                <li><a class="dropdown-item" href="#">Februari</a></li>
-                                <li><a class="dropdown-item" href="#">Maret</a></li>
-                                <li><a class="dropdown-item" href="#">April</a></li>
-                                <li><a class="dropdown-item" href="#">Mei</a></li>
-                                <li><a class="dropdown-item" href="#">Juni</a></li>
-                                <li><a class="dropdown-item" href="#">Juli</a></li>
-                                <li><a class="dropdown-item" href="#">Agustus</a></li>
-                                <li><a class="dropdown-item" href="#">September</a></li>
-                                <li><a class="dropdown-item" href="#">Oktober</a></li>
-                                <li><a class="dropdown-item" href="#">November</a></li>
-                                <li><a class="dropdown-item" href="#">Desember</a></li>
-                            </ul>
-                        </div>
-                        {{-- Dropdown Tahun --}}
-                        <div class="dropdown">
-                            <button class="btn btn-sm btn-light btn-link text-decoration-none dropdown-toggle p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="font-size: 0.75rem;">
-                                2025
-                            </button>
-                            <ul class="dropdown-menu dropdown-menu-end" style="max-height: 200px; overflow-y: auto;">
-                                <li><a class="dropdown-item" href="#">2025</a></li>
-                                <li><a class="dropdown-item" href="#">2024</a></li>
-                                <li><a class="dropdown-item" href="#">2023</a></li>
-                                <li><a class="dropdown-item" href="#">2022</a></li>
-                                <li><a class="dropdown-item" href="#">2021</a></li>
-                                <li><a class="dropdown-item" href="#">2020</a></li>
-                            </ul>
-                        </div>
+                <form method="GET" action="{{ route('admin.dashboard') }}" id="filterForm" class="d-flex align-items-center gap-3 flex-wrap">
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="year" class="form-label mb-0 text-muted small">Tahun:</label>
+                        <select name="year" id="year" class="form-select form-select-sm" style="width: auto; min-width: 100px;">
+                            @for($y = now()->year; $y >= now()->year - 5; $y--)
+                                <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>{{ $y }}</option>
+                            @endfor
+                        </select>
                     </div>
-                </div>
-
-                {{-- Total Pendapatan --}}
-                <h3 class="mb-3 fw-bold">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h3>
-
-                <hr class="my-2">
-
-                {{-- Info HPP --}}
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-muted small">HPP</span>
-                    <div>
-                        <span class="fw-medium small me-2">Rp {{ number_format($totalHPP, 0, ',', '.') }}</span>
-                        <span class="badge bg-light text-dark small">{{ round($persentaseHPP) }}%</span>
+                    <div class="d-flex align-items-center gap-2">
+                        <label for="month" class="form-label mb-0 text-muted small">Bulan:</label>
+                        <select name="month" id="month" class="form-select form-select-sm" style="width: auto; min-width: 120px;">
+                            <option value="">Semua Bulan</option>
+                            @foreach(['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'] as $index => $bulan)
+                                <option value="{{ $index + 1 }}" {{ $selectedMonth == ($index + 1) ? 'selected' : '' }}>{{ $bulan }}</option>
+                            @endforeach
+                        </select>
                     </div>
-                </div>
-
-                {{-- Info Laba Kotor --}}
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted small">Laba Kotor</span>
-                    <div>
-                        <span class="fw-medium small me-2">Rp {{ number_format($totalLabaKotor, 0, ',', '.') }}</span>
-                        <span class="badge bg-light text-dark small">{{ round($persentaseLabaKotor) }}%</span>
-                    </div>
-                </div>
+                    <button type="submit" class="btn btn-primary btn-sm">
+                        <i class="fas fa-filter fa-fw"></i> Filter
+                    </button>
+                    @if($selectedMonth || $selectedYear != now()->year)
+                        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-times fa-fw"></i> Reset
+                        </a>
+                    @endif
+                </form>
             </div>
         </div>
     </div>
-
-    {{-- Card Cabang (Dibuat dinamis menggunakan @foreach) --}}
-    @foreach ($dataCabang as $cabang)
-    <div class="col-xl-3 col-lg-6 col-md-6 col-sm-12">
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                {{-- Header Card (Nama Cabang STATIS) --}}
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <p class="mb-0 text-muted">Pendapatan Cabang</p>
-                    <span class="badge bg-info-subtle text-info-emphasis fw-semibold">{{ $cabang['namaCabang'] }}</span>
-                </div>
-                {{-- Total Pendapatan Cabang --}}
-                <h3 class="mb-3 fw-bold">Rp {{ number_format($cabang['pendapatanCabang'], 0, ',', '.') }}</h3>
-                <hr class="my-2">
-                {{-- Info HPP Cabang (BARU) --}}
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span class="text-muted small">HPP</span>
-                    <span class="fw-medium small">Rp {{ number_format($cabang['hppCabang'], 0, ',', '.') }}</span>
-                </div>
-                {{-- Info Laba Bersih Cabang (BARU) --}}
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="text-muted small">Laba Bersih</span>
-                    <span class="fw-medium small">Rp {{ number_format($cabang['labaBersihCabang'], 0, ',', '.') }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endforeach
 </div>
 
-{{-- Baris Kedua: Grafik (Chart) --}}
-<div class="row">
-    {{-- Card Grafik Pendapatan Bulanan (Style "Gross Sales") --}}
-    <div class="col-md-12 col-lg-7">
-        <div class="card shadow-sm border-0 mb-4">
-            {{-- PERBAIKAN 3: Ganti 'card-header' dengan 'p-3 border-bottom' --}}
-            <div class="flex-wrap d-flex justify-content-between align-items-center p-3 border-bottom">
-                <div class="header-title">
-                    <h4 class="card-title fw-bold mb-0">Grafik Annual</h4>
-                </div>
-                <div class="d-flex align-items-center align-self-center">
-                    {{-- Legenda 1 --}}
-                    <div class="d-flex align-items-center text-primary">
-                        <svg class="icon-12" xmlns="http://www.w3.org/2000/svg" width="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8" fill="currentColor"></circle></svg>
-                        <div class="ms-2">
-                            <span class="text-muted">Pendapatan</span>
-                        </div>
+{{-- ======================================================= --}}
+{{-- SUMMARY CARDS: 4 Kolom (Total Pendapatan, Laba Bersih, Total Transaksi, Cabang Terbaik) --}}
+{{-- ======================================================= --}}
+<div class="row mb-4">
+    {{-- Card 1: Total Pendapatan --}}
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card shadow-sm border-0 h-100" style="border-left: 4px solid #4E6BFF !important;">
+            <div class="card-body position-relative" style="overflow: hidden;">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="text-muted small mb-1 fw-medium">Total Pendapatan</p>
+                        <h3 class="mb-0 fw-bold">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h3>
                     </div>
-                    {{-- Legenda 2 --}}
-                    <div class="d-flex align-items-center ms-3 text-info">
-                        <svg class="icon-12" xmlns="http://www.w3.org/2000/svg" width="12" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="8" fill="currentColor"></circle></svg>
-                        <div class="ms-2">
-                            <span class="text-muted">HPP</span>
-                        </div>
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-chart-line text-primary fa-lg"></i>
                     </div>
                 </div>
-                {{-- Dropdown Filter --}}
-                <div class="dropdown">
-                    <a href="#" class="text-muted dropdown-toggle text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
-                        2025
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" style="max-height: 200px; overflow-y: auto;">
-                        <li><a class="dropdown-item active" href="#">2025</a></li>
-                        <li><a class="dropdown-item" href="#">2024</a></li>
-                        <li><a class="dropdown-item" href="#">2023</a></li>
-                        <li><a class="dropdown-item" href="#">2022</a></li>
-                        <li><a class="dropdown-item" href="#">2021</a></li>
-                        <li><a class="dropdown-item" href="#">2020</a></li>
-                    </ul>
+                @if($growthPercentage != 0)
+                    <div class="d-flex align-items-center gap-2">
+                        @if($growthPercentage > 0)
+                            <span class="badge bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-arrow-up fa-xs"></i> {{ abs($growthPercentage) }}%
+                            </span>
+                            <span class="text-muted small">vs periode sebelumnya</span>
+                        @else
+                            <span class="badge bg-danger bg-opacity-10 text-danger">
+                                <i class="fas fa-arrow-down fa-xs"></i> {{ abs($growthPercentage) }}%
+                            </span>
+                            <span class="text-muted small">vs periode sebelumnya</span>
+                        @endif
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+
+    {{-- Card 2: Laba Bersih --}}
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card shadow-sm border-0 h-100" style="border-left: 4px solid #198754 !important;">
+            <div class="card-body position-relative" style="overflow: hidden;">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="text-muted small mb-1 fw-medium">Laba Bersih</p>
+                        <h3 class="mb-0 fw-bold">Rp {{ number_format($totalLabaBersih, 0, ',', '.') }}</h3>
+                    </div>
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-coins text-success fa-lg"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small">HPP: Rp {{ number_format($totalHPP, 0, ',', '.') }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Card 3: Total Transaksi --}}
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card shadow-sm border-0 h-100" style="border-left: 4px solid #0dcaf0 !important;">
+            <div class="card-body position-relative" style="overflow: hidden;">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="text-muted small mb-1 fw-medium">Total Transaksi</p>
+                        <h3 class="mb-0 fw-bold">{{ number_format($totalTransaksi, 0, ',', '.') }}</h3>
+                    </div>
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-shopping-cart text-info fa-lg"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small">Penjualan: {{ $dataTransaksiChart[0] ?? 0 }} | Pembelian: {{ $dataTransaksiChart[1] ?? 0 }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Card 4: Cabang Terbaik --}}
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card shadow-sm border-0 h-100" style="border-left: 4px solid #ffc107 !important;">
+            <div class="card-body position-relative" style="overflow: hidden;">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <p class="text-muted small mb-1 fw-medium">Cabang Terbaik</p>
+                        <h5 class="mb-1 fw-bold">{{ $namaCabangTerbaik }}</h5>
+                        <h6 class="mb-0 text-muted">Rp {{ number_format($omzetCabangTerbaik, 0, ',', '.') }}</h6>
+                    </div>
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-trophy text-warning fa-lg"></i>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="text-muted small">Omzet tertinggi</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ======================================================= --}}
+{{-- CHARTS SECTION: Area Chart & Donut Chart --}}
+{{-- ======================================================= --}}
+<div class="row mb-4">
+    {{-- Main Chart: Annual (Pendapatan & HPP) --}}
+    <div class="col-md-12 col-lg-7 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap p-3">
+                <h5 class="card-title fw-bold mb-0">Grafik Annual ({{ $selectedYear }})</h5>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center">
+                        <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                            <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
+                        </div>
+                        <span class="text-muted small">Pendapatan</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="bg-info bg-opacity-10 rounded-circle p-2 me-2" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                            <div class="bg-info rounded-circle" style="width: 8px; height: 8px;"></div>
+                        </div>
+                        <span class="text-muted small">HPP</span>
+                    </div>
                 </div>
             </div>
             <div class="card-body">
-                {{-- WADAH GRAFIK PENDAPATAN --}}
                 <div id="chartPendapatanBulanan" style="min-height: 300px;"></div>
             </div>
         </div>
     </div>
-    {{-- Card Grafik Total Transaksi (Style "Earnings") --}}
-    <div class="col-md-12 col-lg-5">
-        <div class="card shadow-sm border-0 mb-4">
-            {{-- PERBAIKAN 4: Ganti 'card-header' dengan 'p-3 border-bottom' --}}
-            <div class="flex-wrap d-flex justify-content-between p-3 border-bottom">
-                <div class="header-title">
-                    <h4 class="card-title fw-bold mb-0">Total Transaksi</h4>
-                </div>
-                <div class="dropdown">
-                    <a href="#" class="text-muted dropdown-toggle text-decoration-none" data-bs-toggle="dropdown" aria-expanded="false">
-                        Oktober 2025
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" style="max-height: 200px; overflow-y: auto;">
-                        <li><a class="dropdown-item" href="#">Januari 2025</a></li>
-                        <li><a class="dropdown-item" href="#">Februari 2025</a></li>
-                        <li><a class="dropdown-item" href="#">Maret 2025</a></li>
-                        <li><a class="dropdown-item" href="#">April 2025</a></li>
-                        <li><a class="dropdown-item" href="#">Mei 2025</a></li>
-                        <li><a class="dropdown-item" href="#">Juni 2025</a></li>
-                        <li><a class="dropdown-item" href="#">Juli 2025</a></li>
-                        <li><a class="dropdown-item" href="#">Agustus 2025</a></li>
-                        <li><a class="dropdown-item" href="#">September 2025</a></li>
-                        <li><a class="dropdown-item active" href="#">Oktober 2025</a></li>
-                        <li><a class="dropdown-item" href="#">November 2025</a></li>
-                        <li><a class="dropdown-item" href="#">Desember 2025</a></li>
-                    </ul>
-                </div>
+
+    {{-- Donut Chart: Total Transaksi --}}
+    <div class="col-md-12 col-lg-5 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center p-3">
+                <h5 class="card-title fw-bold mb-0">Komposisi Transaksi</h5>
             </div>
             <div class="card-body">
-                <div class="flex-wrap d-flex align-items-center justify-content-between">
-                    {{-- WADAH GRAFIK TRANSAKSI --}}
-                    <div id="chartTotalTransaksi" class="col-md-7 col-lg-7" style="min-height: 200px;"></div>
-
-                    {{-- Legenda Kustom Sebelah Kanan --}}
-                    <div class="d-grid gap-3 col-md-5 col-lg-5">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div id="chartTotalTransaksi" style="min-height: 250px; width: 60%;"></div>
+                    <div class="d-grid gap-3" style="width: 40%;">
                         <div class="d-flex align-items-start">
-                            <svg class="mt-1 icon-14" xmlns="http://www.w3.org/2000/svg" width="14" viewBox="0 0 24 24" fill="#4E6BFF"><circle cx="12" cy="12" r="8" fill="#4E6BFF"></circle></svg>
-                            <div class="ms-3">
-                                <span class="text-muted small">Penjualan</span>
+                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2 mt-1" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
+                            </div>
+                            <div>
+                                <span class="text-muted small d-block">Penjualan</span>
                                 <h6 class="fw-bold mb-0">{{ $dataTransaksiChart[0] ?? 0 }}</h6>
                             </div>
                         </div>
                         <div class="d-flex align-items-start">
-                            <svg class="mt-1 icon-14" xmlns="http://www.w3.org/2000/svg" width="14" viewBox="0 0 24 24" fill="#198754"><circle cx="12" cy="12" r="8" fill="#198754"></circle></svg>
-                            <div class="ms-3">
-                                <span class="text-muted small">Pembelian</span>
+                            <div class="bg-success bg-opacity-10 rounded-circle p-2 me-2 mt-1" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+                                <div class="bg-success rounded-circle" style="width: 8px; height: 8px;"></div>
+                            </div>
+                            <div>
+                                <span class="text-muted small d-block">Pembelian</span>
                                 <h6 class="fw-bold mb-0">{{ $dataTransaksiChart[1] ?? 0 }}</h6>
                             </div>
                         </div>
@@ -224,16 +223,172 @@
         </div>
     </div>
 </div>
+
+{{-- ======================================================= --}}
+{{-- WIDGET SECTION: Top Products (Full Width) --}}
+{{-- ======================================================= --}}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+            <div class="card-header bg-white border-bottom p-3">
+                <h5 class="card-title fw-bold mb-0 text-dark">
+                    <i class="fas fa-star text-warning me-2"></i>Top 5 Produk Terlaris
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                @if($topProducts->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table table-modern mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 5%;">No</th>
+                                    <th>Produk</th>
+                                    <th class="text-end">Harga</th>
+                                    <th class="text-end">Terjual</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($topProducts as $index => $product)
+                                    <tr>
+                                        <td class="text-center text-muted fw-bold">{{ $index + 1 }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-3">
+                                                @if($product['gambar'] && $product['gambar']->url)
+                                                    <img src="{{ $product['gambar']->url }}" alt="{{ $product['nama_produk'] }}" 
+                                                         class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                @else
+                                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                        <i class="fas fa-image text-muted"></i>
+                                                    </div>
+                                                @endif
+                                                <div>
+                                                    <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
+                                                        {{ $product['nama_produk'] }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="fw-bold text-dark">Rp {{ number_format($product['harga_jual'], 0, ',', '.') }}</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="badge bg-success bg-opacity-10 text-success fw-bold">{{ $product['total_qty'] }}</span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center py-5">
+                        <i class="fas fa-box-open fa-3x text-muted mb-3"></i>
+                        <p class="text-muted mb-0">Belum ada data produk</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- ======================================================= --}}
+{{-- TRANSACTION PURCHASES TABLE: Tabel Transaksi Pembelian --}}
+{{-- ======================================================= --}}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
+            <div class="card-header bg-white border-bottom p-3">
+                <h5 class="card-title fw-bold mb-0 text-dark">
+                    <i class="fas fa-shopping-bag text-success me-2"></i>Transaksi Pembelian Terakhir
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                @if(isset($recentPurchases) && $recentPurchases->count() > 0)
+                    <div class="table-responsive">
+                        <table class="table table-modern mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="width: 5%;">No</th>
+                                    <th>Kode Transaksi</th>
+                                    <th>Customer</th>
+                                    <th>Cabang</th>
+                                    <th class="text-end">Harga Deal</th>
+                                    <th class="text-center">Status</th>
+                                    <th>Waktu</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($recentPurchases as $index => $purchase)
+                                    <tr>
+                                        <td class="text-center text-muted fw-bold">{{ $index + 1 }}</td>
+                                        <td>
+                                            <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
+                                                {{ $purchase['kode_transaksi'] }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
+                                                {{ $purchase['customer'] }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="fw-medium text-secondary">
+                                                {{ $purchase['cabang'] }}
+                                            </span>
+                                        </td>
+                                        <td class="text-end">
+                                            @if($purchase['harga_deal'] > 0)
+                                                <span class="fw-bold text-dark">Rp {{ number_format($purchase['harga_deal'], 0, ',', '.') }}</span>
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            @if($purchase['status'] == 'deal')
+                                                <span class="badge bg-success bg-opacity-10 text-success">Deal</span>
+                                            @elseif($purchase['status'] == 'tidak_deal')
+                                                <span class="badge bg-danger bg-opacity-10 text-danger">Tidak Deal</span>
+                                            @else
+                                                <span class="badge bg-secondary bg-opacity-10 text-secondary">Draft</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <span class="text-muted small">{{ $purchase['waktu'] }}</span>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="text-center py-5">
+                        <i class="fas fa-shopping-bag fa-3x text-muted mb-3"></i>
+                        <p class="text-muted mb-0">Belum ada transaksi pembelian</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 {{-- ======================================================= --}}
-{{-- PERBAIKAN 5: Membersihkan SEMUA karakter aneh dari JavaScript --}}
+{{-- SCRIPTS: ApexCharts dengan format Rupiah --}}
 {{-- ======================================================= --}}
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
+        // Format Rupiah Helper
+        function formatRupiah(value) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(value);
+        }
 
-        // 1. GRAFIK PENDAPATAN BULANAN
+        // 1. GRAFIK PENDAPATAN BULANAN (Area Chart)
         var optionsPendapatan = {
             chart: {
                 type: 'area',
@@ -253,7 +408,7 @@
             ],
             colors: ['#4E6BFF', '#0dcaf0'],
             stroke: {
-                curve: 'straight',
+                curve: 'smooth',
                 width: 3,
             },
             fill: {
@@ -268,14 +423,29 @@
             },
             xaxis: {
                 categories: @json($labelBulan),
-                labels: { show: true },
-                axisBorder: { show: true },
-                axisTicks: { show: true },
+                labels: { 
+                    show: true,
+                    style: {
+                        colors: '#6c757d',
+                        fontSize: '12px'
+                    }
+                },
+                axisBorder: { show: true, color: '#e9ecef' },
+                axisTicks: { show: true, color: '#e9ecef' },
             },
             yaxis: {
                 labels: {
                     formatter: function (value) {
-                        return (value / 1000000) + " jt";
+                        if (value >= 1000000) {
+                            return (value / 1000000).toFixed(1) + " jt";
+                        } else if (value >= 1000) {
+                            return (value / 1000).toFixed(0) + " rb";
+                        }
+                        return value;
+                    },
+                    style: {
+                        colors: '#6c757d',
+                        fontSize: '12px'
                     }
                 }
             },
@@ -284,45 +454,34 @@
                 strokeDashArray: 3,
                 borderColor: '#e9ecef'
             },
-            legend: { show: false },
+            legend: { 
+                show: false
+            },
             tooltip: {
-                x: { show: true },
+                shared: true,
+                intersect: false,
+                x: { 
+                    show: true 
+                },
                 y: {
                     formatter: function (value) {
-                        return "Rp " + new Intl.NumberFormat('id-ID').format(value);
+                        return formatRupiah(value);
                     }
                 }
             },
             dataLabels: {
-                enabled: true,
-                formatter: function (value) {
-                    var val = Math.round(value / 1000000);
-                    return val + ' Jt';
-                },
-
-                style: {
-                    fontSize: '9px',
-                    fontWeight: 500,
-                    colors: ["#333"]
-                },
-
-                offsetY: -5,
-
-                background: {
-                    enabled: false,
-                }
+                enabled: false
             }
         };
 
         var chartPendapatan = new ApexCharts(document.querySelector("#chartPendapatanBulanan"), optionsPendapatan);
         chartPendapatan.render();
 
-
-        // 2. GRAFIK TOTAL TRANSAKSI
+        // 2. GRAFIK TOTAL TRANSAKSI (Donut Chart)
         var optionsTransaksi = {
             chart: {
                 type: 'donut',
-                height: 200
+                height: 250
             },
             series: @json($dataTransaksiChart),
             labels: ['Penjualan', 'Pembelian'],
@@ -346,6 +505,7 @@
                                 show: true,
                                 label: 'Total',
                                 color: '#6c757d',
+                                fontSize: '0.875rem',
                                 formatter: function (w) {
                                     return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
                                 }
@@ -368,6 +528,14 @@
         var chartTransaksi = new ApexCharts(document.querySelector("#chartTotalTransaksi"), optionsTransaksi);
         chartTransaksi.render();
 
+        // Auto-submit form saat dropdown berubah (optional)
+        document.getElementById('year').addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
+        
+        document.getElementById('month').addEventListener('change', function() {
+            document.getElementById('filterForm').submit();
+        });
     });
 </script>
 @endpush
