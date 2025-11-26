@@ -101,7 +101,6 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
         {{-- KOLOM KIRI: Form Utama --}}
         <div class="col-lg-8">
 
-            {{-- CARD 1: Informasi Transaksi --}}
             <div class="card card-modern mb-4">
                 <div class="card-header-modern d-flex align-items-center gap-3">
                     <i class="fa-solid fa-file-invoice fa-lg text-primary"></i>
