@@ -19,7 +19,7 @@
 @section('content')
 
     {{-- Error Alert --}}
-    @if ($errors->any())
+    {{-- @if ($errors->any())
         <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm border-0"
              role="alert"
              style="border-left: 5px solid #dc3545 !important;">
@@ -34,7 +34,7 @@
             </ul>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    @endif
+    @endif --}}
 
     <form action="{{ $isEdit ? route('admin.products.update', $product->id) : route('admin.products.store') }}"
           method="POST"
@@ -74,14 +74,14 @@
                                     value="{{ old('nama_produk', $isEdit ? $product->nama_produk : '') }}"
                                     placeholder="Contoh: Kamera Canon EOS 600D"
                                     required
-
+                                    maxlength="200"
                                     data-error-message="Nama produk wajib diisi"
-
                                     autofocus>
                             </div>
-                            <div class="invalid-feedback">Nama produk wajib diisi</div>
                             @error('nama_produk')
-                                <div class="text-danger small mt-1">{{ $message }}</div>
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @else
+                                <div class="invalid-feedback">Nama produk wajib diisi</div>
                             @enderror
                         </div>
 
@@ -191,10 +191,12 @@
 
                         {{-- Kategori --}}
                         <div class="mb-3">
-                            <label class="form-label text-secondary small fw-medium">Kategori</label>
+                            <label class="form-label text-secondary small fw-medium">Kategori <span class="text-danger">*</span></label>
                             <select
-                                class="form-select py-2 text-secondary @error('id_kategori') is-invalid @enderror"
-                                name="id_kategori">
+                                class="form-select py-2 text-secondary required-field @error('id_kategori') is-invalid @enderror"
+                                name="id_kategori"
+                                required
+                                data-error-message="Kategori wajib dipilih">
                                 <option value="" disabled
                                     {{ old('id_kategori', $isEdit ? $product->id_kategori : '') ? '' : 'selected' }}>
                                     -- Pilih Kategori --
@@ -207,22 +209,35 @@
                                     </option>
                                 @endforeach
                             </select>
+                            @error('id_kategori')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @else
+                                <div class="invalid-feedback">Kategori wajib dipilih</div>
+                            @enderror
                         </div>
 
                         {{-- SKU --}}
                         <div class="mb-3">
-                            <label class="form-label text-secondary small fw-medium">Kode SKU</label>
+                            <label class="form-label text-secondary small fw-medium">Kode SKU <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">
                                     <i class="fa-solid fa-barcode"></i>
                                 </span>
                                 <input
                                     type="text"
-                                    class="form-control border-start-0 ps-2 py-2 @error('kode_sku') is-invalid @enderror"
+                                    class="form-control border-start-0 ps-2 py-2 required-field @error('kode_sku') is-invalid @enderror"
                                     name="kode_sku"
                                     value="{{ old('kode_sku', $isEdit ? $product->kode_sku : '') }}"
-                                    placeholder="SKU-0000">
+                                    placeholder="SKU-0000"
+                                    required
+                                    maxlength="20"
+                                    data-error-message="Kode SKU wajib diisi">
                             </div>
+                            @error('kode_sku')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @else
+                                <div class="invalid-feedback">Kode SKU wajib diisi</div>
+                            @enderror
                         </div>
 
                         {{-- Stok --}}

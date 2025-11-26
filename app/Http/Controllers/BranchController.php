@@ -8,21 +8,21 @@ use Illuminate\Validation\Rule;
 
 class BranchController extends Controller
 {
-    
+
     public function index()
     {
         $data_cabang = Branch::latest()->paginate(10);
-        
+
         return view('admin.dataCabang', [
             'data_cabang' => $data_cabang
         ]);
     }
-    
+
     public function create()
     {
         return view('admin.inputDataCabang');
     }
-    
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -48,9 +48,9 @@ class BranchController extends Controller
                 'max:255',
                 Rule::unique('perusahaan_cabang', 'link_maps'),
             ],
-            'jam_buka' => ['required', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
-            'jam_tutup' => ['required', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
-        ], 
+            'jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+            'jam_tutup' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+        ],
         [
             'nama.regex' => 'Nama cabang hanya boleh mengandung huruf, angka, spasi, titik, koma, dan tanda hubung',
             'alamat.regex' => 'Alamat hanya boleh huruf, angka, spasi, titik, koma, garis miring, dan tanda hubung.',
@@ -58,9 +58,9 @@ class BranchController extends Controller
             'link_maps.url' => 'Link Maps harus berupa URL yang valid.',
             'link_maps.unique' => 'Link Google Maps sudah terdaftar.',
         ]);
-        
+
         Branch::create($validated);
-        
+
         return redirect()->route('admin.branches.index')
         ->with('success', 'Cabang berhasil ditambahkan.');
     }
@@ -79,7 +79,7 @@ class BranchController extends Controller
             'isShow' => false  // ← Flag untuk mode edit
         ]);
     }
-    
+
     public function destroy($id)
     {
         $branch = Branch::findOrFail($id);
@@ -114,8 +114,8 @@ class BranchController extends Controller
                 'max:255',
                 Rule::unique('perusahaan_cabang', 'link_maps')->ignore($branch->id),
             ],
-            'jam_buka' => ['required', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
-            'jam_tutup' => ['required', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+            'jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+            'jam_tutup' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
         ], [
             'nama.regex' => 'Nama cabang hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
             'alamat.regex' => 'Alamat hanya boleh huruf, angka, spasi, titik, koma, garis miring, dan tanda hubung.',

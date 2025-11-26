@@ -4,12 +4,12 @@
 
 @section('content')
 
-{{-- 
+{{--
     Keputusan: Menggabungkan logika action dari 'main' dengan validasi dari 'input-pembelian'.
     Action form hanya diisi jika mode EDIT (!isset($isShow) || !$isShow). Jika mode SHOW, action = '#'.
     Menambahkan kembali atribut data-validate-form untuk validasi JS.
 --}}
-<form action="{{ isset($branch) && (!isset($isShow) || !$isShow) ? route('admin.branches.update', $branch->id) : route('admin.branches.store') }}" 
+<form action="{{ isset($branch) && (!isset($isShow) || !$isShow) ? route('admin.branches.update', $branch->id) : route('admin.branches.store') }}"
     method="POST"
     {{ (!isset($isShow) || !$isShow) ? 'data-validate-form' : '' }}
     >
@@ -48,35 +48,41 @@
                                 style="height: 45px;"
                                 value="{{ old('nama', $branch->nama ?? '') }}"
                                 placeholder="Contoh: Dinoyo Kamera Pusat"
-                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }} 
-                                {{ !isset($isShow) || !$isShow ? 'data-error-message="Nama cabang wajib diisi"' : '' }}
+                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
+                                @if(!isset($isShow) || !$isShow)
+                                    data-error-message="Nama cabang wajib diisi"
+                                @endif
                                 autofocus>
-                            {{-- Jika mode Show, required-field tidak diperlukan --}}
                         </div>
-                        <div class="invalid-feedback">Nama cabang wajib diisi</div>
                         @error('nama')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Nama cabang wajib diisi</div>
                         @enderror
                     </div>
 
                     {{-- Alamat --}}
                     <div class="mb-3">
-                        <label for="Alamat" class="form-label fw-medium text-secondary small">Alamat Lengkap</label>
+                        <label for="Alamat" class="form-label fw-medium text-secondary small">Alamat Lengkap <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-map-location-dot"></i>
                             </span>
-                            {{-- Keputusan: Menggunakan tag textarea yang lebih rapi dari 'main' dan menambahkan placeholder yang lebih deskriptif dari 'input-pembelian' --}}
                             <textarea
-                                class="form-control border-start-0 ps-2 @error('alamat') is-invalid @enderror"
+                                class="form-control border-start-0 ps-2 required-field @error('alamat') is-invalid @enderror"
                                 id="Alamat"
                                 name="alamat"
                                 rows="5"
                                 placeholder="Masukkan alamat lengkap cabang (Jalan, No, RT/RW, Kota)..."
-                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}>{{ old('alamat', $branch->alamat ?? '') }}</textarea>
+                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
+                                @if(!isset($isShow) || !$isShow)
+                                    data-error-message="Alamat lengkap wajib diisi"
+                                @endif>{{ old('alamat', $branch->alamat ?? '') }}</textarea>
                         </div>
                         @error('alamat')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Alamat lengkap wajib diisi</div>
                         @enderror
                     </div>
                 </div>
@@ -96,22 +102,27 @@
                 <div class="card-body p-4">
                     {{-- Nomor Telepon --}}
                     <div class="mb-3">
-                        <label for="NomorTelepon" class="form-label fw-medium text-secondary small">Nomor Telepon / WA</label>
+                        <label for="NomorTelepon" class="form-label fw-medium text-secondary small">Nomor Telepon / WA <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-phone"></i>
                             </span>
                             <input type="text"
-                                class="form-control border-start-0 ps-2 @error('nomor_telepon') is-invalid @enderror"
+                                class="form-control border-start-0 ps-2 required-field @error('nomor_telepon') is-invalid @enderror"
                                 id="NomorTelepon"
                                 name="nomor_telepon"
                                 style="height: 45px;"
                                 value="{{ old('nomor_telepon', $branch->nomor_telepon ?? '') }}"
                                 placeholder="0812-xxxx-xxxx"
-                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}> {{-- Menggunakan readonly dari 'main' --}}
+                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
+                                @if(!isset($isShow) || !$isShow)
+                                    data-error-message="Nomor telepon wajib diisi"
+                                @endif>
                         </div>
                         @error('nomor_telepon')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @else
+                            <div class="invalid-feedback">Nomor telepon wajib diisi</div>
                         @enderror
                     </div>
 
@@ -152,13 +163,13 @@
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-clock"></i>
                             </span>
-                            <input type="text" 
-                                class="form-control border-start-0 ps-2 @error('jam_buka') is-invalid @enderror" 
-                                id="JamBuka" 
-                                name="jam_buka" 
-                                placeholder="HH:MM" 
+                            <input type="text"
+                                class="form-control border-start-0 ps-2 @error('jam_buka') is-invalid @enderror"
+                                id="JamBuka"
+                                name="jam_buka"
+                                placeholder="HH:MM"
                                 value="{{ old('jam_buka', $branch->jam_buka ?? '') }}"
-                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}> {{-- Menggunakan readonly/required dari 'main' --}}
+                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
                         </div>
                         @error('jam_buka')
                             <div class="text-danger small mt-1">{{ $message }}</div>
@@ -172,13 +183,13 @@
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-clock"></i>
                             </span>
-                            <input type="text" 
-                                class="form-control border-start-0 ps-2 @error('jam_tutup') is-invalid @enderror" 
-                                id="JamTutup" 
-                                name="jam_tutup" 
-                                placeholder="HH:MM" 
+                            <input type="text"
+                                class="form-control border-start-0 ps-2 @error('jam_tutup') is-invalid @enderror"
+                                id="JamTutup"
+                                name="jam_tutup"
+                                placeholder="HH:MM"
                                 value="{{ old('jam_tutup', $branch->jam_tutup ?? '') }}"
-                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}> {{-- Menggunakan readonly/required dari 'main' --}}
+                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
                         </div>
                         @error('jam_tutup')
                             <div class="text-danger small mt-1">{{ $message }}</div>
