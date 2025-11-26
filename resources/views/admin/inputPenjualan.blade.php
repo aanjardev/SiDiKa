@@ -300,6 +300,7 @@
                 <div class="modal-body pt-3">
                     <div class="mb-3">
                         <label class="form-label fw-medium text-secondary small">Pilih Produk</label>
+                        <input type="text" class="form-control mb-2" id="produkSearchInput" placeholder="Cari nama atau SKU produk...">
                         <select class="form-select" id="produkBaru" style="height: 45px;">
                             <option value="" selected disabled>-- Cari Produk --</option>
                             @foreach(($daftar_produk ?? collect()) as $produk)
@@ -311,12 +312,12 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 d-none" id="qtyProdukWrapper">
                         <label class="form-label fw-medium text-secondary small">Jumlah</label>
                         <div class="input-group">
-                            <button type="button" class="btn btn-light border" onclick="document.getElementById('qtyProdukBaru').stepDown()"><i class="fa-solid fa-minus"></i></button>
+                            <button type="button" class="btn btn-light border" data-action="dec"><i class="fa-solid fa-minus"></i></button>
                             <input type="number" class="form-control text-center" id="qtyProdukBaru" value="1" min="1">
-                            <button type="button" class="btn btn-light border" onclick="document.getElementById('qtyProdukBaru').stepUp()"><i class="fa-solid fa-plus"></i></button>
+                            <button type="button" class="btn btn-light border" data-action="inc"><i class="fa-solid fa-plus"></i></button>
                         </div>
                     </div>
                     <div class="alert alert-warning d-none small border-0 bg-warning bg-opacity-10 text-warning" id="infoStokProduk"></div>
