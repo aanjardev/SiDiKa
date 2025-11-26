@@ -75,19 +75,24 @@
                         {{-- Customer --}}
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium text-secondary small">Customer</label>
-                            <div class="input-group">
+                            <div class="input-group position-relative">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-user"></i></span>
-                                <select class="form-select border-start-0 ps-2 @error('customer_id') is-invalid @enderror" id="customer_id" name="customer_id" required style="height: 45px;">
-                                    <option value="" disabled {{ old('customer_id', $penjualan->customer_id ?? '') ? '' : 'selected' }}>Pilih customer...</option>
-                                    @foreach($semua_customer as $customer)
-                                    <option value="{{ $customer->id }}" {{ (string) old('customer_id', $penjualan->customer_id ?? '') === (string) $customer->id ? 'selected' : '' }}>
-                                        {{ $customer->nama }} ({{ $customer->no_telp }})
-                                    </option>
-                                    @endforeach
-                                </select>
+                                <input
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 @error('customer_id') is-invalid @enderror"
+                                    id="customer_search"
+                                    placeholder="Cari nama atau no. telp customer..."
+                                    value="{{ old('customer_search', isset($penjualan) && $penjualan->customer ? $penjualan->customer->nama . ' (' . $penjualan->customer->no_telp . ')' : '') }}"
+                                    data-search-url="{{ route('admin.customers.search') }}"
+                                    autocomplete="off"
+                                >
+                                <input type="hidden" id="customer_id" name="customer_id" value="{{ old('customer_id', $penjualan->customer_id ?? '') }}" required>
+                                <div id="customer_suggestions" class="dropdown-menu" style="width: 100%;"></div>
                             </div>
                             <div class="d-flex justify-content-between align-items-center mt-1">
-                                @error('customer_id') <div class="text-danger small">{{ $message }}</div> @enderror
+                                <div id="customer_search_error" class="text-danger small @error('customer_id') @else d-none @enderror">
+                                    @error('customer_id') {{ $message }} @enderror
+                                </div>
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modalTambahCustomer" class="small text-decoration-none fw-bold text-primary">
                                     <i class="fa-solid fa-plus-circle me-1"></i>Customer Baru
                                 </a>
@@ -295,6 +300,7 @@
                 <div class="modal-body pt-3">
                     <div class="mb-3">
                         <label class="form-label fw-medium text-secondary small">Pilih Produk</label>
+                        <input type="text" class="form-control mb-2" id="produkSearchInput" placeholder="Cari nama atau SKU produk...">
                         <select class="form-select" id="produkBaru" style="height: 45px;">
                             <option value="" selected disabled>-- Cari Produk --</option>
                             @foreach(($daftar_produk ?? collect()) as $produk)
@@ -306,12 +312,12 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="mb-3">
+                    <div class="mb-3 d-none" id="qtyProdukWrapper">
                         <label class="form-label fw-medium text-secondary small">Jumlah</label>
                         <div class="input-group">
-                            <button type="button" class="btn btn-light border" onclick="document.getElementById('qtyProdukBaru').stepDown()"><i class="fa-solid fa-minus"></i></button>
+                            <button type="button" class="btn btn-light border" data-action="dec"><i class="fa-solid fa-minus"></i></button>
                             <input type="number" class="form-control text-center" id="qtyProdukBaru" value="1" min="1">
-                            <button type="button" class="btn btn-light border" onclick="document.getElementById('qtyProdukBaru').stepUp()"><i class="fa-solid fa-plus"></i></button>
+                            <button type="button" class="btn btn-light border" data-action="inc"><i class="fa-solid fa-plus"></i></button>
                         </div>
                     </div>
                     <div class="alert alert-warning d-none small border-0 bg-warning bg-opacity-10 text-warning" id="infoStokProduk"></div>
@@ -325,263 +331,6 @@
     </div>
 </div>
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const itemsInput = document.getElementById('itemsInput');
-    const tableBody = document.getElementById('tableItemsBody');
-    const subtotalEl = document.getElementById('subtotalValue');
-    const submitBtn = document.querySelector('#formPenjualan button[type="submit"]');
-    const lineSubtotalEl = document.getElementById('lineSubtotal');
-    const lineDiskonRow = document.getElementById('lineDiskonRow');
-    const lineDiskon = document.getElementById('lineDiskon');
-    const lineDepresiasiRow = document.getElementById('lineDepresiasiRow');
-    const lineDepresiasi = document.getElementById('lineDepresiasi');
-    const lineBiayaRow = document.getElementById('lineBiayaRow');
-    const lineBiaya = document.getElementById('lineBiaya');
-    const diskonInput = document.querySelector('input[name=\"diskon\"]');
-    const biayaInput = document.querySelector('input[name=\"biaya_tambahan\"]');
-    const depresiasiInput = document.querySelector('input[name=\"depresiasi\"]');
-    const rupiahInputs = Array.from(document.querySelectorAll('.rupiah-mask'));
-
-    let cartItems = [];
-    try {
-        cartItems = JSON.parse(itemsInput.value || '[]');
-    } catch (error) {
-        cartItems = [];
-    }
-
-    if (!Array.isArray(cartItems)) {
-        cartItems = [];
-    }
-
-    const productCatalog = @json($produkUntukJs);
-
-    const productsMap = {};
-    productCatalog.forEach(prod => {
-        productsMap[String(prod.id)] = prod;
-    });
-
-    const formatRupiah = (value) => {
-        const number = Number(value || 0);
-        return 'Rp' + number.toLocaleString('id-ID');
-    };
-
-    const formatInputValue = (inputEl) => {
-        const cleanValue = (inputEl?.value || '').replace(/\D/g, '');
-        inputEl.value = cleanValue ? new Intl.NumberFormat('id-ID').format(cleanValue) : '';
-        inputEl.dataset.raw = cleanValue || '0';
-    };
-
-    const getInputNumber = (inputEl) => {
-        if (!inputEl) return 0;
-        const raw = inputEl.dataset?.raw ?? inputEl.value;
-        const clean = (raw || '').replace(/\D/g, '');
-        return Number(clean || 0);
-    };
-
-    const syncHiddenInput = () => {
-        itemsInput.value = JSON.stringify(cartItems);
-    };
-
-    const recalcTotals = () => {
-        let subtotal = 0;
-        cartItems.forEach(item => {
-            const product = productsMap[String(item.id)];
-            if (!product) {
-                return;
-            }
-            subtotal += item.qty * (Number(product.harga_jual) || 0);
-        });
-
-        const diskonVal = Math.max(0, getInputNumber(diskonInput));
-        const biayaVal = Math.max(0, getInputNumber(biayaInput));
-        const depresiasiVal = Math.max(0, getInputNumber(depresiasiInput));
-
-        const total = Math.max(0, subtotal - diskonVal - depresiasiVal + biayaVal);
-
-        if (lineSubtotalEl) lineSubtotalEl.textContent = formatRupiah(subtotal);
-        if (lineDiskon && lineDiskonRow) {
-            lineDiskon.textContent = `-` + formatRupiah(diskonVal);
-            lineDiskonRow.style.display = diskonVal > 0 ? 'flex' : 'none';
-        }
-        if (lineDepresiasi && lineDepresiasiRow) {
-            lineDepresiasi.textContent = `-` + formatRupiah(depresiasiVal);
-            lineDepresiasiRow.style.display = depresiasiVal > 0 ? 'flex' : 'none';
-        }
-        if (lineBiaya && lineBiayaRow) {
-            lineBiaya.textContent = formatRupiah(biayaVal);
-            lineBiayaRow.style.display = biayaVal > 0 ? 'flex' : 'none';
-        }
-
-        if (subtotalEl) {
-            subtotalEl.textContent = formatRupiah(total);
-        }
-        if (submitBtn) {
-            submitBtn.disabled = cartItems.length === 0;
-        }
-    };
-
-    const renderRows = () => {
-        if (!tableBody) {
-            return;
-        }
-        if (!cartItems.length) {
-            tableBody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-5"><i class="fa-solid fa-cart-plus fa-2x mb-2 opacity-50"></i><p class="small mb-0">Belum ada item yang dipilih.</p></td></tr>';
-            recalcTotals();
-            return;
-        }
-
-        const fragment = document.createDocumentFragment();
-        cartItems.forEach(item => {
-            const product = productsMap[String(item.id)];
-            if (!product) {
-                return;
-            }
-            const price = Number(product.harga_jual) || 0;
-            const image = product.image_url ? `<img src="${product.image_url}" alt="" class="rounded-3 shadow-sm me-2" style="width: 45px; height: 45px; object-fit: cover;">` : '';
-            const row = document.createElement('tr');
-            row.dataset.productId = item.id;
-            row.innerHTML = `
-                <td class="ps-3">
-                    <div class="d-flex align-items-center">
-                        ${image}
-                        <div>
-                            <div class="fw-semibold text-dark">${product.nama_produk}</div>
-                            <small class="text-muted font-monospace">${product.kode_sku ?? '-'}</small>
-                        </div>
-                    </div>
-                </td>
-                <td class="text-center">
-                    <div class="input-group input-group-sm qty-control justify-content-center" data-product-id="${item.id}" style="width: 100px; margin: auto;">
-                        <button type="button" class="btn btn-light border btn-qty-dec" data-product-id="${item.id}"><i class="fa-solid fa-minus"></i></button>
-                        <span class="input-group-text bg-white border-start-0 border-end-0 fw-bold qty-value" style="min-width: 30px; justify-content: center;" data-product-id="${item.id}">${item.qty}</span>
-                        <button type="button" class="btn btn-light border btn-qty-inc" data-product-id="${item.id}"><i class="fa-solid fa-plus"></i></button>
-                    </div>
-                </td>
-                <td class="text-end text-muted small">${formatRupiah(price)}</td>
-                <td class="text-end pe-3 fw-medium text-dark">${formatRupiah(item.qty * price)}</td>
-            `;
-            fragment.appendChild(row);
-        });
-
-        tableBody.innerHTML = '';
-        tableBody.appendChild(fragment);
-        recalcTotals();
-    };
-
-    const findIndex = (productId) => cartItems.findIndex(item => String(item.id) === String(productId));
-
-    const getLimitQty = (productId) => {
-        const product = productsMap[String(productId)];
-        if (!product) {
-            return Infinity;
-        }
-        if (product.stok_produk === null || product.stok_produk === undefined) {
-            return Infinity;
-        }
-        const stock = Number(product.stok_produk);
-        return isNaN(stock) ? Infinity : Math.max(stock, 0);
-    };
-
-    const updateQty = (productId, delta) => {
-        const index = findIndex(productId);
-        if (index === -1) {
-            return;
-        }
-        const limit = getLimitQty(productId);
-        const currentQty = Number(cartItems[index].qty || 0);
-        let nextQty = currentQty + delta;
-        if (nextQty < 1) {
-            cartItems.splice(index, 1);
-        } else {
-            if (limit !== Infinity && nextQty > limit) {
-                nextQty = limit;
-            }
-            cartItems[index].qty = nextQty;
-        }
-        syncHiddenInput();
-        renderRows();
-    };
-
-    tableBody?.addEventListener('click', (event) => {
-        const incTarget = event.target.closest('.btn-qty-inc');
-        const decTarget = event.target.closest('.btn-qty-dec');
-        if (incTarget) {
-            updateQty(incTarget.dataset.productId, 1);
-        } else if (decTarget) {
-            updateQty(decTarget.dataset.productId, -1);
-        }
-    });
-
-    const produkSelect = document.getElementById('produkBaru');
-    const qtyInput = document.getElementById('qtyProdukBaru');
-    const stockInfo = document.getElementById('infoStokProduk');
-
-    produkSelect?.addEventListener('change', () => {
-        if (!stockInfo) {
-            return;
-        }
-        const selectedOption = produkSelect.options[produkSelect.selectedIndex];
-        const stock = selectedOption?.dataset?.stock;
-        if (stock === undefined || stock === '') {
-            stockInfo.classList.add('d-none');
-            stockInfo.textContent = '';
-        } else {
-            stockInfo.innerHTML = `<i class="fa-solid fa-circle-info me-1"></i> Stok tersedia: <strong>${stock}</strong>`;
-            stockInfo.classList.remove('d-none');
-        }
-    });
-
-    document.getElementById('formTambahItem')?.addEventListener('submit', (event) => {
-        event.preventDefault();
-        const productId = produkSelect?.value;
-        let qty = Number(qtyInput?.value || 0);
-        if (!productId || qty < 1) {
-            return;
-        }
-
-        const limit = getLimitQty(productId);
-        if (limit !== Infinity) {
-            qty = Math.min(qty, limit);
-        }
-
-        const existingIndex = findIndex(productId);
-        if (existingIndex === -1) {
-            cartItems.push({ id: Number(productId), qty });
-        } else {
-            const combinedQty = cartItems[existingIndex].qty + qty;
-            cartItems[existingIndex].qty = limit === Infinity ? combinedQty : Math.min(combinedQty, limit);
-        }
-
-        syncHiddenInput();
-        renderRows();
-
-        const modalElement = document.getElementById('modalTambahItem');
-        const modalInstance = bootstrap.Modal.getInstance(modalElement);
-        modalInstance?.hide();
-
-        qtyInput.value = '1';
-    });
-
-    rupiahInputs.forEach(inputEl => {
-        formatInputValue(inputEl);
-        inputEl.addEventListener('input', () => {
-            formatInputValue(inputEl);
-            recalcTotals();
-        });
-    });
-
-    document.getElementById('formPenjualan')?.addEventListener('submit', () => {
-        rupiahInputs.forEach(inputEl => {
-            const cleanValue = getInputNumber(inputEl);
-            inputEl.value = cleanValue;
-        });
-    });
-
-    renderRows();
-});
-</script>
 {{-- Modal Tambah Customer (reuse dari inputPembelian) --}}
 <div class="modal fade" id="modalTambahCustomer" tabindex="-1" aria-labelledby="modalTambahCustomerLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -592,7 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="modal-body">
                 {{-- PERBAIKAN: Semua input di sini HARUS punya atribut 'name' --}}
-                <form id="formTambahCustomer">
+                <form id="formTambahCustomer" data-store-url="{{ route('admin.customers.store') }}">
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="customer_nama_modal">Nama Customer*</label>
@@ -640,6 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
 </div>
 
+<<<<<<< HEAD
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const btnSimpanCustomer = document.getElementById('btnSimpanCustomer');
@@ -703,6 +453,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 });
+=======
+@push('scripts')
+<script type="application/json" id="produk-data-json">
+    @json($produkUntukJs)
+>>>>>>> 99e10f2c9d05daca8b76d5053a5782b85968abea
 </script>
+
+@vite(['resources/js/app.js', 'resources/js/penjualan/penjualan.js'])
 @endpush
 @endsection

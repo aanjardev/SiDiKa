@@ -66,7 +66,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
 <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 @endpush
 
-{{-- Tampilkan Error Validasi (Dari Main) --}}
+{{-- Tampilkan Error Validasi (Dari Main)
 @if ($errors->any())
 <div class="alert alert-danger alert-dismissible fade show mb-4 rounded-3 border-0 shadow-sm" role="alert" style="background-color: #fff5f5; border-left: 5px solid #dc3545 !important;">
     <div class="d-flex align-items-center gap-3">
@@ -84,7 +84,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
     </div>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
-@endif
+@endif --}}
 
 {{-- Form Wrapper (Logic Main + ID HEAD) --}}
 <form action="{{ isset($pembelian) ? route('admin.purchases.update', $pembelian->id) : route('admin.purchases.store') }}" method="POST" id="formPembelian">
@@ -101,7 +101,6 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
         {{-- KOLOM KIRI: Form Utama --}}
         <div class="col-lg-8">
 
-            {{-- CARD 1: Informasi Transaksi --}}
             <div class="card card-modern mb-4">
                 <div class="card-header-modern d-flex align-items-center gap-3">
                     <i class="fa-solid fa-file-invoice fa-lg text-primary"></i>
@@ -216,12 +215,19 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         <label for="display_harga_tawaran_customer" class="form-label-modern">Tawaran Customer</label>
                         <div class="input-group input-group-modern">
                             <span class="input-group-text bg-light fw-medium">Rp</span>
-                            <input type="text" class="form-control fw-bold rupiah-mask"
+                            {{-- Tambahkan class is-invalid pada input yang terlihat --}}
+                            <input type="text" class="form-control fw-bold rupiah-mask @error('harga_tawaran_customer') is-invalid @enderror"
                                 id="display_harga_tawaran_customer" placeholder="0"
                                 value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
                             <input type="hidden" name="harga_tawaran_customer" id="harga_tawaran_customer"
                                 value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
                         </div>
+                        {{-- Tampilkan pesan error di bawah input group --}}
+                        @error('harga_tawaran_customer')
+                            <div class="invalid-feedback d-block">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     {{-- Tawaran Toko --}}
@@ -229,25 +235,40 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         <label for="display_harga_tawaran_toko" class="form-label-modern">Tawaran Toko</label>
                         <div class="input-group input-group-modern">
                             <span class="input-group-text bg-light fw-medium">Rp</span>
-                            <input type="text" class="form-control fw-bold rupiah-mask"
+                            {{-- Tambahkan class is-invalid pada input yang terlihat --}}
+                            <input type="text" class="form-control fw-bold rupiah-mask @error('harga_tawaran_toko') is-invalid @enderror"
                                 id="display_harga_tawaran_toko" placeholder="0"
                                 value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
                             <input type="hidden" name="harga_tawaran_toko" id="harga_tawaran_toko"
                                 value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
                         </div>
+                        {{-- Tampilkan pesan error di bawah input group --}}
+                        @error('harga_tawaran_toko')
+                            <div class="invalid-feedback d-block">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     {{-- FINAL DEAL --}}
+                    {{-- Pembungkus utama untuk Harga Deal --}}
                     <div class="bg-primary bg-opacity-10 p-3 rounded-3 mb-4 border border-primary border-opacity-25">
-                        <label for="display_harga_deal" class="form-label-modern mb-1 text-primary">HARGA DEAL (FINAL)</label>
+                        <label for="display_harga_deal" class="form-label-modern mb-1 text-primary">HARGA DEAL</label>
                         <div class="input-group shadow-sm rounded-3 overflow-hidden">
                             <span class="input-group-text bg-primary text-white border-0 fw-bold px-3">Rp</span>
-                            <input type="text" class="form-control border-0 fw-bold text-success fs-5 rupiah-mask"
+                            {{-- Tambahkan class is-invalid pada input yang terlihat --}}
+                            <input type="text" class="form-control border-0 fw-bold text-success fs-5 rupiah-mask @error('harga_deal') is-invalid @enderror"
                                 id="display_harga_deal" placeholder="0" style="height: 50px;"
                                 value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
                             <input type="hidden" name="harga_deal" id="harga_deal"
                                 value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
                         </div>
+                        {{-- Tampilkan pesan error di bawah input group --}}
+                        @error('harga_deal')
+                            <div class="invalid-feedback d-block">
+                                {{ $message }}
+                            </div>
+                        @enderror
                     </div>
 
                     {{-- Action Buttons (Revisi: 3 Kolom) --}}
@@ -590,25 +611,19 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
 @endsection
 
 @push('scripts')
-{{-- Langkah 1: Memuat JQuery --}}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-{{-- Langkah 2: Memuat Select2 JS --}}
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-<script>
-    // 1. Mapping Kategori (Logic Main) - TETAP
-    let kategoriMap = {};
-    @foreach($semua_kategori as $kat)
-    kategoriMap[{{ $kat->id }}] = '{{ $kat->nama_kategori }}';
-    @endforeach
-
-    let currentPembelianId = '{{ $pembelian->id ?? '' }}';
-    let initialItems = @json($pembelian->item_pembelian_draft ?? []);
-    let itemsPembelian = [];
-    let editingItemId = null;
-
-    if (initialItems.length > 0) {
-        itemsPembelian = initialItems;
+<script type="application/json" id="pembelian-data">
+{
+    "currentPembelianId": "{{ $pembelian->id ?? '' }}",
+    "initialItems": @json($pembelian->item_pembelian_draft ?? []),
+    "kategoriMap": @json($semua_kategori->pluck('nama_kategori','id')),
+    "routes": {
+        "storeItemDraft": "{{ route('admin.purchases.ajaxStoreItemDraft') }}",
+        "updateItemDraftPrefix": "{{ url('/admin/purchases/update-item-draft') }}",
+        "deleteItemDraftPrefix": "{{ url('/admin/purchases/delete-item-draft') }}",
+        "customerSearch": "{{ route('admin.customers.search') }}",
+        "customerStore": "{{ route('admin.customers.store') }}"
     }
+<<<<<<< HEAD
 
     // Variables
     const form = document.getElementById('formPembelian');
@@ -1135,5 +1150,9 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
         });
 
     });
+=======
+}
+>>>>>>> 99e10f2c9d05daca8b76d5053a5782b85968abea
 </script>
+@vite('resources/js/pembelian/pembelian.js')
 @endpush

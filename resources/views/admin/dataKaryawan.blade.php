@@ -15,13 +15,13 @@
 <form method="GET" action="{{ route('admin.employees.index') }}" id="searchForm">
     <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
         <div class="card-body p-2 d-flex align-items-center flex-wrap">
-            
+
             {{-- Bagian Kiri: Input Search --}}
             <div class="d-flex align-items-center flex-grow-1 ps-2">
                 <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                <input type="text" 
+                <input type="text"
                        class="form-control border-0 shadow-none bg-transparent"
                        name="search"
                        placeholder="Cari karyawan berdasarkan nama..."
@@ -31,10 +31,10 @@
 
             {{-- Bagian Kanan: Dropdown Filter --}}
             <div class="d-flex align-items-center gap-2 pe-2">
-                
+
                 {{-- Dropdown Jabatan --}}
-                <select name="jabatan" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="jabatan"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="all" {{ ($selected_jabatan ?? 'all') == 'all' ? 'selected' : '' }}>Semua Jabatan</option>
@@ -43,8 +43,8 @@
                 </select>
 
                 {{-- Dropdown Status --}}
-                <select name="status" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="status"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="all" {{ ($selected_status ?? 'all') == 'all' ? 'selected' : '' }}>Semua Status</option>
@@ -73,7 +73,7 @@
                 </thead>
                 <tbody>
                     @forelse($employees as $index => $employee)
-                    <tr>
+                    <tr class="clickable-row" data-detail-url="{{ route('admin.employees.show', $employee->id) }}">
                         <td class="text-center text-muted fw-bold">{{ ($employees->firstItem() ?? 0) + $index }}</td>
 
                         <td>
@@ -114,7 +114,7 @@
                             @endif
                         </td>
 
-                        <td class="text-center">
+                        <td class="text-center no-row-navigation">
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="{{ route('admin.employees.edit', $employee->id) }}"
                                     class="btn-action btn-action-edit"

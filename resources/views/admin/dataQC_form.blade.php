@@ -335,7 +335,7 @@
                             <option value="menunggu_qc" {{ (old('status_qc', $item->status_qc) == 'menunggu_qc') ? 'selected' : '' }}>Menunggu QC</option>
                             <option value="lolos_qc" {{ (old('status_qc', $item->status_qc) == 'lolos_qc') ? 'selected' : '' }}>Lolos QC</option>
                             <option value="gagal_qc" {{ (old('status_qc', $item->status_qc) == 'gagal_qc') ? 'selected' : '' }}>Gagal QC</option>
-                            <option value="diarsipkan" {{ (old('status_qc', $item->status_qc) == 'diarsipkan') ? 'selected' : '' }}>Diarsipkan</option>
+                            {{-- <option value="diarsipkan" {{ (old('status_qc', $item->status_qc) == 'diarsipkan') ? 'selected' : '' }}>Diarsipkan</option> --}}
                         </select>
                     </div>
 
@@ -344,24 +344,16 @@
                         <textarea name="catatan_qc" class="form-control" rows="2" placeholder="Catatan untuk tim internal...">{{ old('catatan_qc', $item->catatan_qc) }}</textarea>
                     </div>
 
-                    {{-- Action Buttons --}}
+                    {{-- Action Button (Smart - Auto maps status to action) --}}
                     <div class="d-grid gap-2">
-                        <button type="submit" name="action" value="save" class="btn btn-primary fw-medium py-2">
-                            <i class="fa-solid fa-save me-2"></i> Simpan Perubahan
+                        <button type="submit" id="smartActionBtn" class="btn fw-medium py-2" data-status="{{ $item->status_qc }}">
+                            <i id="smartActionIcon" class="fa-solid fa-save me-2"></i>
+                            <span id="smartActionText">Simpan Perubahan</span>
                         </button>
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <button type="submit" name="action" value="draft" class="btn btn-light border w-100 fw-medium text-secondary">
-                                    Draft
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button type="submit" name="action" value="archive" class="btn btn-outline-danger w-100 fw-medium">
-                                    Arsipkan
-                                </button>
-                            </div>
-                        </div>
                     </div>
+                    <small class="d-block text-muted mt-2 text-center" id="smartActionHint">
+                        Tombol akan menyesuaikan dengan status QC yang dipilih
+                    </small>
 
                 </div>
             </div>
@@ -369,6 +361,22 @@
     </div>
 
 </form>
+
+<!-- Unsaved changes confirmation modal (simple copy) -->
+<div class="modal fade" id="unsavedChangesModal" tabindex="-1" aria-labelledby="unsavedChangesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-3">
+                <strong>Perubahan belum disimpan</strong>
+                <div class="mt-2">Ada perubahan yang belum tersimpan. Tinggalkan halaman?</div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Tetap</button>
+                <button type="button" id="unsavedConfirmBtn" class="btn btn-primary">Tinggalkan</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @endsection
 
@@ -408,6 +416,17 @@
     .text-danger {
         color: #dc3545 !important;
     }
+    /* Subtle highlight for status selector without increasing font-size */
+    select[name="status_qc"] {
+        font-size: 0.95rem; /* slightly smaller than form-select-lg */
+    }
+    select[name="status_qc"].status-highlight {
+        box-shadow: 0 0 0 0.12rem rgba(78, 107, 255, 0.16);
+        border-color: #4e6bff;
+        color: #1f2d5a;
+        font-weight: 600;
+        background-color: rgba(78, 107, 255, 0.04);
+    }
 </style>
 @endpush
 
@@ -416,8 +435,77 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('qcForm');
-    const btnKembali = document.querySelector('a[href*="quality-control"]');
+    // Try to find the page's "Kembali" button robustly: prefer quality-control href,
+    // otherwise find any visible link/button whose text contains 'kembali'.
+    let btnKembali = document.querySelector('a[href*="quality-control"]');
+    if (!btnKembali) {
+        const candidates = Array.from(document.querySelectorAll('a, button'));
+        btnKembali = candidates.find(el => {
+            try {
+                const txt = (el.textContent || '').trim().toLowerCase();
+                // also ensure element is visible
+                const style = window.getComputedStyle(el);
+                const visible = style && style.display !== 'none' && style.visibility !== 'hidden' && el.offsetParent !== null;
+                return visible && txt.includes('kembali');
+            } catch (e) { return false; }
+        }) || null;
+    }
+    const smartActionBtn = document.getElementById('smartActionBtn');
+    const smartActionText = document.getElementById('smartActionText');
+    const smartActionIcon = document.getElementById('smartActionIcon');
+    const smartActionHint = document.getElementById('smartActionHint');
+    const statusQcSelect = form?.querySelector('[name="status_qc"]');
     let isFormDirty = false;
+
+    // ===== SMART ACTION BUTTON LOGIC =====
+    const statusToAction = {
+        'menunggu_qc': { action: 'draft', text: 'Simpan Draft', iconClass: 'fa-pen-to-square', btnClass: 'btn-light border text-secondary', hint: 'Menyimpan perubahan sebagai draft (status: Menunggu QC)' },
+        'lolos_qc': { action: 'save', text: 'Simpan & Loloskan', iconClass: 'fa-check-circle', btnClass: 'btn-success', hint: 'Menyimpan dan menandai produk lolos QC' },
+        'gagal_qc': { action: 'archive', text: 'Arsipkan Produk', iconClass: 'fa-archive', btnClass: 'btn-danger', hint: 'Menyimpan dan mengarsipkan produk (Gagal QC)' },
+        // 'diarsipkan': { action: 'archive', text: 'Tetap di Arsip', iconClass: 'fa-archive', btnClass: 'btn-secondary', hint: 'Tetap menyimpan dalam status arsip' }
+    };
+
+    function updateSmartButton() {
+        if (!statusQcSelect) return;
+        const status = statusQcSelect.value;
+        const config = statusToAction[status] || statusToAction['menunggu_qc'];
+
+        // Update button icon, text dan class
+        smartActionText.textContent = config.text;
+        smartActionIcon.className = `fa-solid ${config.iconClass} me-2`;
+        smartActionBtn.className = `btn fw-medium py-2 ${config.btnClass}`;
+        smartActionBtn.setAttribute('data-action', config.action);
+        smartActionHint.textContent = config.hint;
+
+        // subtle highlight on the select (no giant font)
+        if (statusQcSelect) {
+            statusQcSelect.classList.toggle('status-highlight', status !== 'menunggu_qc');
+        }
+    }
+
+    // Update saat status berubah
+    if (statusQcSelect) {
+        statusQcSelect.addEventListener('change', updateSmartButton);
+        // Initial update
+        updateSmartButton();
+    }
+
+    // Pass action ke form handler via data attribute
+    if (smartActionBtn) {
+        smartActionBtn.addEventListener('click', function(e) {
+            const action = this.getAttribute('data-action') || 'save';
+            // Create hidden input untuk membawa action ke backend
+            let actionInput = form.querySelector('input[name="action"]');
+            if (!actionInput) {
+                actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                form.appendChild(actionInput);
+            }
+            actionInput.value = action;
+        });
+    }
+    // ====== END SMART BUTTON LOGIC ======
 
     function markFormAsDirty() {
         if (!isFormDirty) {
@@ -441,11 +529,40 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Konfirmasi saat klik tombol kembali
+    // Konfirmasi saat klik tombol kembali — gunakan modal custom
+    // NOTE: native browser unload prompts (tab close / refresh) cannot be fully
+    // replaced by a custom modal. We removed the native beforeunload prompt so
+    // internal navigation shows a modal UX instead. Closing the tab or refreshing
+    // will NOT show this modal (browser limitation).
+    const unsavedModalEl = document.getElementById('unsavedChangesModal');
+    let unsavedModal = null;
+    let pendingNavigation = null;
+    if (unsavedModalEl && typeof bootstrap !== 'undefined') {
+        unsavedModal = new bootstrap.Modal(unsavedModalEl, { backdrop: 'static', keyboard: false });
+    }
+
+    function openUnsavedModal(href) {
+        // Normalize href: if undefined/empty -> null
+        pendingNavigation = (href && href !== '') ? href : null;
+        if (unsavedModal) {
+            unsavedModal.show();
+        } else {
+            // If bootstrap not available, navigate immediately if we have a URL,
+            // otherwise try to go back in history as a fallback.
+            if (pendingNavigation) {
+                window.location.href = pendingNavigation;
+            } else if (window.history && window.history.length > 1) {
+                window.history.back();
+            }
+        }
+    }
+
+    // tombol kembali di header/layout
     if (btnKembali) {
         btnKembali.addEventListener('click', function(e) {
             if (isFormDirty) {
                 e.preventDefault();
+<<<<<<< HEAD
                 window.confirmAction("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?", "Konfirmasi", "Ya, tinggalkan", "Batal")
                     .then((result) => {
                         if (result.isConfirmed) {
@@ -453,20 +570,14 @@ document.addEventListener('DOMContentLoaded', function() {
                             window.location.href = btnKembali.href;
                         }
                     });
+=======
+                openUnsavedModal(btnKembali.href);
+>>>>>>> 99e10f2c9d05daca8b76d5053a5782b85968abea
             }
         });
     }
 
-    // Konfirmasi saat pindah route (back button atau menu lain)
-    window.addEventListener('beforeunload', function(e) {
-        if (isFormDirty) {
-            e.preventDefault();
-            e.returnValue = 'Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?';
-            return e.returnValue;
-        }
-    });
-
-    // Intercept link di sidebar/menu (hanya yang ada di sidebar)
+    // Intercept link di sidebar/menu (hanya yang ada di sidebar) — show modal
     const sidebar = document.querySelector('.sidebar');
     if (sidebar) {
         sidebar.querySelectorAll('a[href]').forEach(link => {
@@ -476,6 +587,7 @@ document.addEventListener('DOMContentLoaded', function() {
             link.addEventListener('click', function(e) {
                 if (isFormDirty) {
                     e.preventDefault();
+<<<<<<< HEAD
                     window.confirmAction("Perubahan atau isian yang terjadi belum tersimpan. Apakah Anda yakin ingin meninggalkan halaman?", "Konfirmasi", "Ya, tinggalkan", "Batal")
                         .then((result) => {
                             if (result.isConfirmed) {
@@ -489,6 +601,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
                         window.location.href = link.href;
                     }
+=======
+                    openUnsavedModal(link.href);
+>>>>>>> 99e10f2c9d05daca8b76d5053a5782b85968abea
                 }
             });
         });
@@ -523,7 +638,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Validasi form
     form.addEventListener('submit', function(e){
-        const action = e.submitter?.value || form.querySelector('button[type="submit"][name="action"]:focus')?.value || 'save';
+        const actionInput = form.querySelector('input[name="action"]');
+        const action = actionInput?.value || 'save';
 
         // strip formatting to plain digits before submit
         rupiahInputs.forEach(function(input){
@@ -612,6 +728,31 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     });
+
+    // Modal confirm button: jika user pilih 'Tinggalkan Halaman'
+    const unsavedConfirmBtn = document.getElementById('unsavedConfirmBtn');
+    function closeUnsavedModal() {
+        if (unsavedModal) {
+            try { unsavedModal.hide(); } catch(e) { /* ignore */ }
+        }
+        pendingNavigation = null;
+    }
+
+    if (unsavedConfirmBtn) {
+        unsavedConfirmBtn.addEventListener('click', function() {
+            // User confirmed navigation: disable dirty flag and navigate
+            isFormDirty = false;
+            // hide modal first
+            closeUnsavedModal();
+            if (pendingNavigation) {
+                // navigate to stored pending URL
+                window.location.href = pendingNavigation;
+            } else if (window.history && window.history.length > 1) {
+                // fallback: go back to previous page
+                window.history.back();
+            }
+        });
+    }
 });
 </script>
 @endpush

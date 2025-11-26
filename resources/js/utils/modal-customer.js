@@ -1,0 +1,84 @@
+export default class CustomerModal {
+    constructor({ onSuccess, storeUrl = "/admin/customers" }) {
+        this.btn = document.getElementById("btnSimpanCustomer");
+        this.form = document.getElementById("formTambahCustomer");
+        this.modalEl = document.getElementById("modalTambahCustomer");
+        this.modal = this.modalEl ? new bootstrap.Modal(this.modalEl) : null;
+        this.onSuccess = onSuccess;
+        this.storeUrl = storeUrl;
+        this.requiredIds = ["customer_nama_modal", "customer_no_telp_modal", "customer_jenis_kelamin_modal"];
+
+        this.init();
+    }
+
+    init() {
+        if (!this.btn || !this.form) return;
+
+        this.requiredIds.forEach((id) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const eventType = el.tagName === "SELECT" ? "change" : "input";
+            el.addEventListener(eventType, () => {
+                if (el.value) {
+                    el.classList.remove("is-invalid");
+                }
+            });
+        });
+
+        this.btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            this.save();
+        });
+    }
+
+    async save() {
+        if (!this.form || !this.btn) return;
+
+        // simple required validation similar to old inline logic
+        const invalid = [];
+        this.requiredIds.forEach((id) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const isEmpty = !el.value;
+            el.classList.toggle("is-invalid", isEmpty);
+            if (isEmpty) invalid.push(id);
+        });
+        if (invalid.length) {
+            const firstInvalid = document.getElementById(invalid[0]);
+            firstInvalid?.focus();
+            return;
+        }
+
+        const data = Object.fromEntries(new FormData(this.form).entries());
+
+        this.btn.disabled = true;
+        this.btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Menyimpan...`;
+
+        const res = await fetch(this.storeUrl, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content
+            },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+            if (this.onSuccess) this.onSuccess(result.customer);
+
+            this.form.reset();
+            this.requiredIds.forEach((id) => {
+                document.getElementById(id)?.classList.remove("is-invalid");
+            });
+            this.modal.hide();
+        } else {
+            alert("Gagal menyimpan customer");
+        }
+
+        this.btn.disabled = false;
+        this.btn.innerHTML = `Simpan`;
+    }
+}

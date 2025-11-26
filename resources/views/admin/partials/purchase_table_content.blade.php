@@ -29,16 +29,17 @@
             </td>
             <td class="text-center">
                 <div class="d-flex justify-content-center gap-2">
-                    <a href="{{ route('admin.purchases.show', $pembelian->id) }}" title="Lihat Detail Transaksi">
-                        <i class="fa-solid fa-eye" style="color: black;"></i>
-                    </a>
-                    <a href="{{ route('admin.purchases.edit', $pembelian->id) }}" title="Edit Transaksi">
+                    <a href="{{ route('admin.purchases.edit', $pembelian->id) }}" class="btn-action btn-action-edit no-row-navigation" title="Edit Transaksi">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </a>
                     <form action="{{ route('admin.purchases.destroy', $pembelian->id) }}" method="POST" class="d-inline">
                         @csrf
                         @method('DELETE')
+<<<<<<< HEAD
                         <button type="button" class="btn-icon" title="Hapus" onclick="confirmDeletePurchase(this)">
+=======
+                        <button type="submit" class="btn-action btn-action-delete no-row-navigation" title="Hapus">
+>>>>>>> 99e10f2c9d05daca8b76d5053a5782b85968abea
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </form>
