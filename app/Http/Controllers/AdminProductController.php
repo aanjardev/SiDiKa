@@ -6,8 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\Produk;
 use App\Models\Kategori;
 use App\Models\GambarProduk;
+use App\Jobs\ProcessProductImage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use App\Helpers\ImageUpload;
@@ -122,7 +124,6 @@ class AdminProductController extends Controller
             'main_image' => ['nullable', 'string'],
         ]);
 
-        DB::beginTransaction();
         try {
             $images = $request->file('images', []);
             $createdIds = [];

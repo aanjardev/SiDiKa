@@ -164,6 +164,7 @@ class PembelianController extends Controller
     public function store(Request $request)
     {
         $status = $request->input('status_pembelian', 'draft');
+        $max_int = 2147483647; // Batasan maksimum untuk tipe data INTEGER (32-bit signed) MySQL
 
         // Validasi
         $validator = Validator::make($request->all(), [
@@ -173,12 +174,15 @@ class PembelianController extends Controller
             'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
             'user_id' => 'required|exists:users,id',
             'status_pembelian' => 'required|in:draft,deal,tidak_deal',
-            'harga_tawaran_customer' => 'nullable|numeric|min:0',
-            'harga_tawaran_toko' => 'nullable|numeric|min:0',
-            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0',
+            'harga_tawaran_customer' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_tawaran_toko' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0|max:' . $max_int,
             // Kita tidak lagi memvalidasi 'items' di sini
         ], [
             'harga_deal.required' => 'Harga Deal wajib diisi jika status "Deal".',
+            'harga_tawaran_customer.max' => 'Harga Tawaran Customer melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_tawaran_toko.max' => 'Harga Tawaran Toko melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_deal.max' => 'Harga Deal melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
             'pembelian_id.required' => 'Terjadi kesalahan. Coba muat ulang halaman. (ID Pembelian tidak ditemukan)'
         ]);
 
@@ -202,7 +206,7 @@ class PembelianController extends Controller
                         'semua_cabang' => $data_cabang,
                         'semua_kategori' => $data_kategori
                     ])->withErrors($validator)
-                      ->withInput(); // Tetap sertakan old input untuk field utama (misal harga)
+                      ->withInput(); 
 
                 } catch (\Exception $e) {
                     // Jika ada error saat fetch, kembali ke mode normal
@@ -261,33 +265,37 @@ class PembelianController extends Controller
         return view('admin.reviewPembelian', ['pembelian' => $pembelian]);
     }
 
+    /**
+     * Print nota pembelian (Synchronous - Direct Download)
+     * This method is kept for direct PDF download functionality
+     */
     public function printNota($id)
-        {
-            // 1. Ambil data pembelian dengan semua relasi yang dibutuhkan
-            $pembelian = Pembelian::with([
-                                'customer',
-                                'perusahaan_cabang',
-                                'user',
-                                'item_pembelian_draft.kategori'
-                            ])->findOrFail($id);
+    {
+        // 1. Ambil data pembelian dengan semua relasi yang dibutuhkan
+        $pembelian = Pembelian::with([
+                            'customer',
+                            'perusahaan_cabang',
+                            'user',
+                            'item_pembelian_draft.kategori'
+                        ])->findOrFail($id);
 
-            // Pastikan transaksi sudah 'deal' sebelum mencetak nota resmi (opsional)
-            if ($pembelian->status_pembelian !== 'deal') {
-                return back()->with('error', 'Nota hanya bisa dicetak untuk transaksi yang statusnya "Deal".');
-            }
-
-            $data = [
-                'pembelian' => $pembelian,
-                'title' => 'Nota Pembelian #' . $pembelian->kode_transaksi
-            ];
-
-            // 2. Load view template PDF
-            // Asumsi template ada di resources/views/admin/notaPembelian.blade.php
-            $pdf = Pdf::loadView('admin.notaPembelian', $data);
-
-            // 3. Kembalikan PDF untuk di-stream di browser
-            return $pdf->stream('Nota_Pembelian_' . $pembelian->kode_transaksi . '.pdf');
+        // Pastikan transaksi sudah 'deal' sebelum mencetak nota resmi (opsional)
+        if ($pembelian->status_pembelian !== 'deal') {
+            return back()->with('error', 'Nota hanya bisa dicetak untuk transaksi yang statusnya "Deal".');
         }
+
+        $data = [
+            'pembelian' => $pembelian,
+            'title' => 'Nota Pembelian #' . $pembelian->kode_transaksi
+        ];
+
+        // 2. Load view template PDF
+        // Asumsi template ada di resources/views/admin/notaPembelian.blade.php
+        $pdf = Pdf::loadView('admin.notaPembelian', $data);
+
+        // 3. Kembalikan PDF untuk di-stream di browser
+        return $pdf->stream('Nota_Pembelian_' . $pembelian->kode_transaksi . '.pdf');
+    }
 
     public function ajaxStoreItemDraft(Request $request)
     {
@@ -470,6 +478,7 @@ class PembelianController extends Controller
     public function update(Request $request, $id)
     {
         $status = $request->input('status_pembelian', 'draft');
+        $max_int = 2147483647; // Batasan maksimum untuk tipe data INTEGER (32-bit signed) MySQL
 
         // Validasi
         // Perhatikan: Kita sekarang menggunakan $id dari URL route, bukan dari hidden input request
@@ -478,11 +487,14 @@ class PembelianController extends Controller
             'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
             'user_id' => 'required|exists:users,id',
             'status_pembelian' => 'required|in:draft,deal,tidak_deal',
-            'harga_tawaran_customer' => 'nullable|numeric|min:0',
-            'harga_tawaran_toko' => 'nullable|numeric|min:0',
-            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0',
+            'harga_tawaran_customer' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_tawaran_toko' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0|max:' . $max_int,
         ], [
             'harga_deal.required' => 'Harga Deal wajib diisi jika status "Deal".',
+            'harga_tawaran_customer.max' => 'Harga Tawaran Customer melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_tawaran_toko.max' => 'Harga Tawaran Toko melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_deal.max' => 'Harga Deal melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
         ]);
 
         if ($validator->fails()) {
