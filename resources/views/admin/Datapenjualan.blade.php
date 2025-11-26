@@ -93,7 +93,6 @@
 @push('scripts')
 <script src="{{ asset('js/admin-ajax-table.js') }}"></script>
 <script>
-<<<<<<< HEAD
     // Fungsi untuk delete penjualan (bisa dipanggil dari partial)
     function handleDeletePenjualan(button) {
         if (typeof window.confirmDelete === 'function') {
@@ -108,12 +107,8 @@
                 button.form.submit();
             }
         }
-=======
-    function confirmDelete(button) {
-        confirmDeleteRecord(button, 'Apakah Anda yakin ingin menghapus data penjualan ini?');
->>>>>>> 99e10f2c9d05daca8b76d5053a5782b85968abea
     }
-    
+
     // Export ke window untuk bisa dipanggil dari partial
     window.handleDeletePenjualan = handleDeletePenjualan;
 
