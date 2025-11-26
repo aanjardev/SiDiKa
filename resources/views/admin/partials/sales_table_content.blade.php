@@ -14,15 +14,15 @@
         <div class="d-flex align-items-center gap-3">
             <div class="flex-grow-1">
                 <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
-                    {{ $penjualan->customer->nama ?? 'Umum / N/A' }}
+                    {{ $penjualan->customer->nama ?? '-' }}
                 </span>
             </div>
         </div>
     </td>
 
     <td class="text-muted small">
-        <span class="fw-medium text-dark">{{ $penjualan->created_at->format('d M Y') }}</span>
-        <br>
+        <span class="fw-medium text-dark opacity-90">{{ $penjualan->created_at->format('d M Y') }}</span>
+        {{-- <br> --}}
         <span class="opacity-75">{{ $penjualan->created_at->format('H:i') }} WIB</span>
     </td>
 
@@ -37,7 +37,7 @@
         </span>
     </td>
 
-    <td class="text-dark fw-medium">
+    <td class="text-dark small">
         {{ $penjualan->perusahaan_cabang->nama ?? '-' }}
     </td>
 

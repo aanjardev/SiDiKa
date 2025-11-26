@@ -56,7 +56,7 @@
                 </thead>
                 <tbody>
                     @foreach ($user_data as $k)
-                    <tr>
+                    <tr class="clickable-row" data-detail-url="{{ route('admin.permissions.edit', $k->id) }}">
                         <td class="text-center text-muted fw-bold">{{ $k->id }}</td>
 
                         <td>
@@ -97,7 +97,7 @@
                             @endif
                         </td>
 
-                        <td class="text-center">
+                        <td class="text-center no-row-navigation">
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="{{ route('admin.permissions.edit', $k->id) }}"
                                     class="btn-action btn-action-edit"
