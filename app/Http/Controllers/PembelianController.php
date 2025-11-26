@@ -164,6 +164,7 @@ class PembelianController extends Controller
     public function store(Request $request)
     {
         $status = $request->input('status_pembelian', 'draft');
+        $max_int = 2147483647; // Batasan maksimum untuk tipe data INTEGER (32-bit signed) MySQL
 
         // Validasi
         $validator = Validator::make($request->all(), [
@@ -173,12 +174,15 @@ class PembelianController extends Controller
             'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
             'user_id' => 'required|exists:users,id',
             'status_pembelian' => 'required|in:draft,deal,tidak_deal',
-            'harga_tawaran_customer' => 'nullable|numeric|min:0',
-            'harga_tawaran_toko' => 'nullable|numeric|min:0',
-            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0',
+            'harga_tawaran_customer' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_tawaran_toko' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0|max:' . $max_int,
             // Kita tidak lagi memvalidasi 'items' di sini
         ], [
             'harga_deal.required' => 'Harga Deal wajib diisi jika status "Deal".',
+            'harga_tawaran_customer.max' => 'Harga Tawaran Customer melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_tawaran_toko.max' => 'Harga Tawaran Toko melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_deal.max' => 'Harga Deal melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
             'pembelian_id.required' => 'Terjadi kesalahan. Coba muat ulang halaman. (ID Pembelian tidak ditemukan)'
         ]);
 
@@ -202,7 +206,7 @@ class PembelianController extends Controller
                         'semua_cabang' => $data_cabang,
                         'semua_kategori' => $data_kategori
                     ])->withErrors($validator)
-                      ->withInput(); // Tetap sertakan old input untuk field utama (misal harga)
+                      ->withInput(); 
 
                 } catch (\Exception $e) {
                     // Jika ada error saat fetch, kembali ke mode normal
@@ -470,6 +474,7 @@ class PembelianController extends Controller
     public function update(Request $request, $id)
     {
         $status = $request->input('status_pembelian', 'draft');
+        $max_int = 2147483647; // Batasan maksimum untuk tipe data INTEGER (32-bit signed) MySQL
 
         // Validasi
         // Perhatikan: Kita sekarang menggunakan $id dari URL route, bukan dari hidden input request
@@ -478,11 +483,14 @@ class PembelianController extends Controller
             'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
             'user_id' => 'required|exists:users,id',
             'status_pembelian' => 'required|in:draft,deal,tidak_deal',
-            'harga_tawaran_customer' => 'nullable|numeric|min:0',
-            'harga_tawaran_toko' => 'nullable|numeric|min:0',
-            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0',
+            'harga_tawaran_customer' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_tawaran_toko' => 'nullable|numeric|min:0|max:' . $max_int,
+            'harga_deal' => ($status == 'deal' ? 'required' : 'nullable') . '|numeric|min:0|max:' . $max_int,
         ], [
             'harga_deal.required' => 'Harga Deal wajib diisi jika status "Deal".',
+            'harga_tawaran_customer.max' => 'Harga Tawaran Customer melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_tawaran_toko.max' => 'Harga Tawaran Toko melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'harga_deal.max' => 'Harga Deal melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
         ]);
 
         if ($validator->fails()) {
