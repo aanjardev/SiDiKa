@@ -107,15 +107,16 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                             <div class="invalid-feedback" id="customer_search_error">
                                 Customer wajib dipilih sebelum menambah item.
                             </div>
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-end mt-1">
                                 {{-- Tombol Modal Customer Baru --}}
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modalTambahCustomer"
                                    class="small text-decoration-none fw-bold text-primary d-inline-flex align-items-center gap-1 ms-2">
-                                    <i class="fa-solid fa-plus-circle"></i> Customer Baru
+                                    <i class="fa-solid fa-plus-circle me-1"></i> Customer Baru
                                 </a>
                                 <span id="customer_info_display" class="small text-muted me-2">
                                     {{-- Ini tidak lagi digunakan dengan Select2, tapi biarkan saja untuk berjaga-jaga --}}
                                 </span>
+                                    
                             </div>
                         </div>
 

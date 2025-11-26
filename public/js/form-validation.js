@@ -57,7 +57,8 @@ window.FormValidator = (function () {
      */
     function setValid(field) {
         field.classList.remove("is-invalid");
-        field.classList.add("is-valid");
+        // Tidak menambahkan is-valid untuk menghindari icon centang di semua form
+        // field.classList.add("is-valid");
 
         // Remove class from input-group parent if exists
         const inputGroup = field.closest(".input-group");
@@ -244,7 +245,11 @@ window.FormValidator = (function () {
         }
 
         // Length validation
-        if (field.minLength && value.length < field.minLength) {
+        if (
+            field.minLength &&
+            field.minLength > 0 &&
+            value.length < field.minLength
+        ) {
             setInvalid(
                 field,
                 defaultMessages.minlength.replace(
@@ -255,7 +260,11 @@ window.FormValidator = (function () {
             return false;
         }
 
-        if (field.maxLength && value.length > field.maxLength) {
+        if (
+            field.maxLength &&
+            field.maxLength > 0 &&
+            value.length > field.maxLength
+        ) {
             setInvalid(
                 field,
                 defaultMessages.maxlength.replace(
