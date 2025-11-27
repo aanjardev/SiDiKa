@@ -871,8 +871,8 @@ Kode Barang : #1298_DK'
             throw new \RuntimeException("Seeder image not found: {$source}");
         }
 
-        // Reuse runtime pipeline: resize + WebP + hash + cache headers
+        // Reuse runtime pipeline: WebP + hash + cache headers
         $paths = ImageUpload::upload($source, "product/{$productId}");
-        return $paths['large_path'];
+        return $paths['path'];
     }
 }

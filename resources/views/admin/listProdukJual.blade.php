@@ -166,6 +166,10 @@
     <input type="hidden" name="items" id="checkoutItems">
 </form>
 
+<script type="application/json" id="cart-selections-json">
+    @json($cartSelections ?? [])
+</script>
+
 @endsection
 
 @push('styles')
@@ -199,11 +203,22 @@ document.addEventListener('DOMContentLoaded', () => {
         return 'Rp' + Number(number || 0).toLocaleString('id-ID');
     };
 
+    const initialSelectionsEl = document.getElementById('cart-selections-json');
+    const initialSelections = initialSelectionsEl ? JSON.parse(initialSelectionsEl.textContent || '[]') : [];
+
     const summaryEl = document.getElementById('cartSummary');
     const summaryItemsEl = document.getElementById('summaryItems');
     const summaryPriceEl = document.getElementById('summaryPrice');
     const checkoutBtn = document.getElementById('btnCheckout');
-    const selections = {};
+    const selections = initialSelections.reduce((acc, item) => {
+        const id = String(item.id || '');
+        const qty = Math.max(0, Number(item.qty || 0));
+        const price = Number(item.price || 0);
+        if (id && qty > 0) {
+            acc[id] = { qty, price };
+        }
+        return acc;
+    }, {});
 
     const updateSummary = () => {
         const totalItems = Object.values(selections).reduce((sum, item) => sum + item.qty, 0);
@@ -231,6 +246,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const qtyValue = card.querySelector('.qty-value');
 
         if (!btnAdd || !qtyControl) return;
+
+        const selected = selections[productId];
+        if (selected && selected.qty > 0) {
+            const safeQty = stock > 0 ? Math.min(selected.qty, stock) : selected.qty;
+            selections[productId].qty = safeQty;
+            selections[productId].price = selected.price || price;
+            qtyValue.textContent = safeQty;
+            btnAdd.classList.add('d-none');
+            qtyControl.classList.remove('d-none');
+            qtyControl.classList.add('d-flex');
+        }
 
         // Tambah ke keranjang
         btnAdd.addEventListener('click', () => {
@@ -274,6 +300,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updateSummary();
         });
     });
+
+    updateSummary();
 
     // Checkout Action
     checkoutBtn?.addEventListener('click', () => {
