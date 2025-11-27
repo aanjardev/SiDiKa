@@ -4,38 +4,55 @@
 
 @section('content')
 
+{{-- FILTER & SEARCH (diseragamkan dengan dataPembelian) --}}
 <form action="{{ route('admin.products.photos') }}" method="GET" id="filterFormPhoto">
-    <div class="d-flex flex-wrap gap-2 align-items-center mb-4">
-        <div class="flex-grow-1">
-            <div class="input-group shadow-sm">
-                <span class="input-group-text" style="background: #fff; border-right: 0;">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+
+            {{-- Search SKU / Nama Produk --}}
+            <div class="d-flex align-items-center flex-grow-1 ps-2">
+                <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                <input type="text" name="search" id="search-input-photo" class="form-control" placeholder="Cari SKU atau Nama Produk..." style="border-left: 0; box-shadow: none;" value="{{ $search_term ?? '' }}" autofocus>
+                <input type="text"
+                       name="search"
+                       id="search-input-photo"
+                       class="form-control border-0 shadow-none bg-transparent"
+                       placeholder="Cari SKU atau Nama Produk..."
+                       value="{{ $search_term ?? '' }}"
+                       style="font-size: 0.95rem;"
+                       autofocus>
+            </div>
+
+            {{-- Filter Kategori --}}
+            <div class="d-flex align-items-center gap-2 pe-2 mt-2 mt-md-0">
+                <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
+                        name="kategori" id="filter-kategori" style="cursor: pointer;">
+                    <option value="">Semua Kategori</option>
+                    @foreach($semua_kategori as $kat)
+                        <option value="{{ $kat->id }}" {{ (isset($selected_kategori) && $selected_kategori == $kat->id) ? 'selected' : '' }}>
+                            {{ $kat->nama_kategori }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
         </div>
-
-        <select class="form-select w-auto shadow-sm" style="height: calc(2.5rem + 10px);" name="kategori" id="filter-kategori">
-            <option value="">Semua Kategori</option>
-            @foreach($semua_kategori as $kat)
-                <option value="{{ $kat->id }}" {{ (isset($selected_kategori) && $selected_kategori == $kat->id) ? 'selected' : '' }}>{{ $kat->nama_kategori }}</option>
-            @endforeach
-        </select>
     </div>
 </form>
 
+{{-- LIST TABEL FOTO PRODUK (dibungkus card seperti dataPembelian) --}}
 <div id="photo-list-container">
-    <div class="card shadow-sm">
+    <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
         <div class="card-body p-0 table-wrapper">
             <div class="table-responsive">
-                <table class="table align-middle mb-0 table-product table-md">
+                <table class="table table-modern mb-0 table-product table-md">
                 <thead>
                     <tr>
                         <th style="width:60px" class="text-center">No</th>
                         <th>Kode SKU</th>
                         <th>Nama Produk</th>
                         <th>Kategori</th>
-                        <th>Stok</th>
+                        <th style="text-align: center;">Stok</th>
                         <th>Harga Jual</th>
                         <th class="text-center">Aksi</th>
                     </tr>
@@ -50,7 +67,7 @@
 
     <div id="pagination-links-container">
         @if ($products->hasPages())
-            <div class="card-footer bg-white">
+            <div class="card-footer bg-white border-0 d-flex justify-content-end py-3 px-4">
                 {{ $products->appends(request()->query())->links('pagination::bootstrap-5') }}
             </div>
         @endif
@@ -61,120 +78,15 @@
 
 @push('styles')
     <style>
-        .table {
-            border-radius: 5px;
-            overflow: hidden;
-            border-collapse: separate;
-            border-spacing: 0;
-        }
+        /* Seragam dengan halaman data lain, biarkan .table-modern dari CSS global yang bekerja */
 
-        .table-sm th, .table-sm td {
-            padding: 0.75rem 0.75rem;
-            font-size: 0.85rem;
-        }
-
-        .table-product tbody tr:nth-child(even) {
-            background-color: #F8F9FC;
-        }
-
-        .table-product tbody tr:hover {
-            background-color: #EFF3F9;
-            transition: 0.2s;
-        }
-        .table-md > :not(caption) > * > * {
-            padding: 0.75rem 0.75rem !important;
-            font-size: 0.95rem;
-        }
-
-        button.btn-icon,
-        .table-product button.btn-icon,
-        form .btn-icon {
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-            color: #dc3545 !important;
-            cursor: pointer !important;
-            font-size: 16px !important;
-            line-height: 1 !important;
-            -webkit-appearance: none !important;
-            -moz-appearance: none !important;
-            appearance: none !important;
-            box-shadow: none !important;
-            outline: none !important;
-        }
-
-        .btn-icon i,
-        .btn-icon svg,
-        .btn-icon .fa-solid {
-            color: inherit !important;
-            fill: currentColor !important;
-            stroke: currentColor !important;
-        }
-
-        button.btn-icon:focus,
-        button.btn-icon:active,
-        .btn-icon:focus,
-        .btn-icon:active {
-            outline: none !important;
-            box-shadow: none !important;
-        }
-
-        .btn-icon:hover {
-            color: #bb2d3b;
-        }
-
-        .card.shadow-sm {
-            min-height: 700px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .card.shadow-sm .card-body {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-wrapper {
-            /* Tabel mengambil tinggi natural sesuai konten */
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .table-responsive {
-            /* Normal table responsive behavior */
-            flex: 1;
-        }
-
-        .table-product {
-            /* Normal table behavior */
-            margin-bottom: 0;
-        }
-
-        .table-product tr.tr-empty {
-            /* Empty state row */
-            display: table-row;
-        }
-
-        .table-product tr.tr-empty td {
-            vertical-align: middle;
-            padding-top: 0;
-            padding-bottom: 0;
-        }
-
-        .table-product tr.tr-empty td .empty-message {
-            min-height: 400px;
+        .table-product tbody tr.tr-empty td .empty-message {
+            min-height: 250px;
             width: 100%;
-        }
-
-        .tr-empty td {
-            border: none;
         }
 
         .table-product tbody tr:not(.tr-empty) td {
             vertical-align: top !important;
-            padding: 0.75rem 0.75rem !important;
         }
     </style>
 @endpush

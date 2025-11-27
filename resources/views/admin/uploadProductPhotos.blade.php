@@ -58,12 +58,20 @@
                     </button>
                 </div>
 
-                {{-- Area Upload Grid --}}
-                <div id="upload-grid" class="d-flex flex-wrap gap-3">
-                    {{-- Upload boxes akan ditambahkan via JavaScript --}}
-                </div>
-                
-                <div id="upload-status" class="mt-3"></div>
+                <form id="upload-photos-form" action="{{ route('admin.products.photos.uploadStore', $product->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+
+                    {{-- Hidden file input yang akan diisi via JavaScript --}}
+                    <input type="file" name="images[]" id="hidden-images-input" class="d-none" multiple>
+                    <input type="hidden" name="main_image" id="hidden-main-image">
+
+                    {{-- Area Upload Grid --}}
+                    <div id="upload-grid" class="d-flex flex-wrap gap-3">
+                        {{-- Upload boxes akan ditambahkan via JavaScript --}}
+                    </div>
+
+                    <div id="upload-status" class="mt-3"></div>
+                </form>
 
                 {{-- Gambar Saat Ini (Komentar Asli) --}}
                 {{-- 
@@ -121,6 +129,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const uploadGrid = document.getElementById('upload-grid');
     const saveBtn = document.getElementById('save-uploads');
     const uploadStatus = document.getElementById('upload-status');
+    const form = document.getElementById('upload-photos-form');
+    const hiddenImagesInput = document.getElementById('hidden-images-input');
+    const hiddenMainImageInput = document.getElementById('hidden-main-image');
     const productId = '{{ $product->id }}';
     const csrf = '{{ csrf_token() }}';
 
@@ -268,68 +279,27 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        const fd = new FormData();
-        Object.keys(queuedFiles).forEach(idx => {
-            fd.append(`images[${idx}]`, queuedFiles[idx]);
+        // Siapkan FileList untuk input file hidden menggunakan DataTransfer
+        const dt = new DataTransfer();
+        Object.values(queuedFiles).forEach(file => {
+            dt.items.add(file);
         });
+        hiddenImagesInput.files = dt.files;
 
+        // Set main_image jika dipilih
         const mainChoice = document.querySelector('input[name="main_image_choice"]:checked');
         if (mainChoice) {
-            fd.append('main_image', mainChoice.value);
+            hiddenMainImageInput.value = mainChoice.value;
+        } else {
+            hiddenMainImageInput.value = '';
         }
 
         // Disable button dan show loading
         saveBtn.disabled = true;
         saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
 
-        fetch(`{{ route('admin.products.photos.uploadStore', $product->id) }}`, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': csrf,
-                'Accept': 'application/json'
-            },
-            body: fd,
-            redirect: 'follow'
-        })
-        .then(response => {
-            // Jika response redirect (status 302/301), berarti sukses
-            if (response.redirected || response.status === 302 || response.status === 301) {
-                showStatus('Gambar berhasil diunggah!', 'success');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-                return;
-            }
-
-            // Jika response tidak OK, coba parse error
-            if (!response.ok) {
-                return response.text().then(text => {
-                    let errorMsg = 'Gagal menyimpan gambar';
-                    try {
-                        const json = JSON.parse(text);
-                        errorMsg = json.message || json.error || errorMsg;
-                    } catch (e) {
-                        // Jika bukan JSON, gunakan text sebagai error
-                        if (text) errorMsg = text;
-                    }
-                    throw new Error(errorMsg);
-                });
-            }
-
-            // Jika OK, reload halaman
-            showStatus('Gambar berhasil diunggah!', 'success');
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            const message = error.message || 'Gagal menyimpan gambar';
-            showStatus(message, 'error');
-            saveBtn.disabled = false;
-            updateSaveButton();
-        });
+        // Submit form biasa agar redirect & flash alert bekerja
+        form.submit();
     });
 
     // Handle existing images actions
