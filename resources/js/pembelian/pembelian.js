@@ -22,7 +22,8 @@ class PurchaseDraftController {
         // Gunakan ID dari JSON, fallback ke hidden input jika ada
         this.currentPembelianId =
             data.currentPembelianId ||
-            (elements.hiddenPembelianIdInput?.value || "");
+            elements.hiddenPembelianIdInput?.value ||
+            "";
         this.items = Array.isArray(data.initialItems) ? data.initialItems : [];
         this.kategoriMap = data.kategoriMap || {};
         this.routes = routes;
@@ -77,10 +78,9 @@ class PurchaseDraftController {
             hiddenHargaDeal: this.el.hiddenHargaDeal,
         });
 
-        this.bootstrapModal =
-            this.el.modalTambahItemEl ?
-                new bootstrap.Modal(this.el.modalTambahItemEl) :
-                null;
+        this.bootstrapModal = this.el.modalTambahItemEl
+            ? new bootstrap.Modal(this.el.modalTambahItemEl)
+            : null;
 
         this.init();
     }
@@ -100,9 +100,12 @@ class PurchaseDraftController {
             this.el.modalTambahItemEl.addEventListener("shown.bs.modal", () => {
                 this.el.itemNamaInput?.focus();
             });
-            this.el.modalTambahItemEl.addEventListener("hidden.bs.modal", () => {
-                this.prepareNewItemForm();
-            });
+            this.el.modalTambahItemEl.addEventListener(
+                "hidden.bs.modal",
+                () => {
+                    this.prepareNewItemForm();
+                }
+            );
         }
 
         if (this.el.cabangSelect) {
@@ -111,9 +114,13 @@ class PurchaseDraftController {
             });
         }
 
-        this.el.btnBukaModalItem?.addEventListener("click", () => this.handleOpenItemModal());
+        this.el.btnBukaModalItem?.addEventListener("click", () =>
+            this.handleOpenItemModal()
+        );
 
-        this.el.btnSimpanItem?.addEventListener("click", () => this.handleSaveItem());
+        this.el.btnSimpanItem?.addEventListener("click", () =>
+            this.handleSaveItem()
+        );
 
         this.renderItemList();
         this.dealButtons.sync(this.items.length);
@@ -197,7 +204,8 @@ class PurchaseDraftController {
 
         try {
             const result = await this.itemAPI.delete(id);
-            if (!result.success) throw new Error(result.message || "Gagal menghapus");
+            if (!result.success)
+                throw new Error(result.message || "Gagal menghapus");
 
             this.items = this.items.filter((it) => it.id !== id);
             this.renderItemList();
@@ -217,8 +225,59 @@ class PurchaseDraftController {
         const namaItem = (formValues.nama_item || "").trim();
         const kategoriId = formValues.kategori_id;
 
-        if (!namaItem || !kategoriId) {
-            alert("Nama Item dan Kategori wajib diisi.");
+        // Clear previous validation errors
+        const namaInput = document.getElementById("item_nama_item");
+        const kategoriSelect = document.getElementById("item_kategori_id");
+
+        let hasError = false;
+
+        // Validate nama item
+        if (!namaItem) {
+            if (window.FormValidator) {
+                FormValidator.setInvalid(namaInput, "Nama item wajib diisi");
+            } else {
+                namaInput?.classList.add("is-invalid");
+            }
+            hasError = true;
+        } else {
+            if (window.FormValidator) {
+                FormValidator.clearValidation(namaInput);
+            } else {
+                namaInput?.classList.remove("is-invalid");
+            }
+        }
+
+        // Validate kategori
+        if (!kategoriId) {
+            if (window.FormValidator) {
+                FormValidator.setInvalid(
+                    kategoriSelect,
+                    "Kategori wajib dipilih"
+                );
+            } else {
+                kategoriSelect?.classList.add("is-invalid");
+            }
+            hasError = true;
+        } else {
+            if (window.FormValidator) {
+                FormValidator.clearValidation(kategoriSelect);
+            } else {
+                kategoriSelect?.classList.remove("is-invalid");
+            }
+        }
+
+        if (hasError) {
+            // Scroll to first error
+            const firstError = document.querySelector(
+                "#modalTambahItem .is-invalid"
+            );
+            if (firstError) {
+                firstError.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center",
+                });
+                firstError.focus();
+            }
             return;
         }
 
@@ -226,19 +285,20 @@ class PurchaseDraftController {
 
         const pembelianId =
             this.currentPembelianId ||
-            (this.el.hiddenPembelianIdInput?.value || "");
+            this.el.hiddenPembelianIdInput?.value ||
+            "";
 
         const isEditing = Boolean(this.editingItemId);
         const payload = isEditing
             ? formValues
             : {
-                pembelian_id: pembelianId,
-                customer_id: this.el.customerIdInput.value,
-                perusahaan_cabang_id: this.el.cabangSelect.value,
-                user_id: this.el.userIdInput?.value || "",
-                ...formValues,
-                kelengkapan_awal: formValues.kelengkapan,
-            };
+                  pembelian_id: pembelianId,
+                  customer_id: this.el.customerIdInput.value,
+                  perusahaan_cabang_id: this.el.cabangSelect.value,
+                  user_id: this.el.userIdInput?.value || "",
+                  ...formValues,
+                  kelengkapan_awal: formValues.kelengkapan,
+              };
 
         if (!this.el.btnSimpanItem) return;
         this.el.btnSimpanItem.disabled = true;
@@ -312,7 +372,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const customerSearchInput = document.getElementById("customer_search");
     const customerIdInput = document.getElementById("customer_id");
     const customerSuggestions = document.getElementById("customer_suggestions");
-    const customerSearchError = document.getElementById("customer_search_error");
+    const customerSearchError = document.getElementById(
+        "customer_search_error"
+    );
 
     let controller;
 
@@ -353,7 +415,9 @@ document.addEventListener("DOMContentLoaded", () => {
             modalTambahItemTitleText: document
                 .getElementById("modalTambahItemTitle")
                 ?.querySelector(".modal-title-text"),
-            hiddenPembelianIdInput: document.getElementById("pembelian_id_hidden"),
+            hiddenPembelianIdInput: document.getElementById(
+                "pembelian_id_hidden"
+            ),
             customerIdInput,
             customerSearchInput,
             customerSearchError,

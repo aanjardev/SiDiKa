@@ -26,7 +26,8 @@
                        name="search"
                        placeholder="Cari karyawan berdasarkan nama..."
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;">
+                       style="font-size: 0.95rem;"
+                       autofocus>
             </div>
 
             {{-- Bagian Kanan: Dropdown Filter --}}
@@ -78,6 +79,7 @@
                         <th style="width: 30%;">Nama Karyawan</th>
                         <th>Nomor Telepon</th>
                         <th>Jabatan</th>
+                        <th class="text-center">Lama Bekerja</th>
                         <th class="text-center">Status</th>
                         <th class="text-center" style="width: 100px;">Aksi</th>
                     </tr>
@@ -114,6 +116,52 @@
                         </td>
 
                         <td class="text-center">
+                            @php
+                                $lamaKerja = null;
+
+                                $start = $employee->tanggal_masuk ?? null;
+                                $end = null;
+
+                                if ($start) {
+                                    if ($employee->status === 'aktif') {
+                                        $end = now();
+                                    } else {
+                                        $end = $employee->tanggal_keluar ?? now();
+                                    }
+
+                                    $diff = $start->diff($end);
+
+                                    $parts = [];
+                                    if ($diff->y) {
+                                        $parts[] = $diff->y . ' th';
+                                    }
+                                    if ($diff->m) {
+                                        $parts[] = $diff->m . ' bln';
+                                    }
+                                    if (!$diff->y && !$diff->m) {
+                                        $parts[] = $diff->d . ' hr';
+                                    }
+
+                                    $lamaKerja = implode(' ', $parts);
+                                }
+                            @endphp
+
+                            @php
+                                $tooltip = null;
+                                if ($employee->tanggal_masuk) {
+                                    $tooltip = 'Mulai: ' . $employee->tanggal_masuk->format('d M Y');
+                                    if ($employee->tanggal_keluar) {
+                                        $tooltip .= ' · Selesai: ' . $employee->tanggal_keluar->format('d M Y');
+                                    }
+                                }
+                            @endphp
+
+                            <span @if($tooltip) title="{{ $tooltip }}" @endif>
+                                {{ $lamaKerja ?? '-' }}
+                            </span>
+                        </td>
+
+                        <td class="text-center">
                             @if ($employee->status === 'aktif')
                                 <span class="badge rounded-pill bg-success bg-opacity-10 text-success" style="font-size: 0.85rem;">
                                     Aktif
@@ -129,20 +177,10 @@
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="{{ route('admin.employees.edit', $employee->id) }}"
                                     class="btn-action btn-action-edit"
-                                    title="Edit">
+                                    title="Edit"
+                                    onclick="event.stopPropagation();">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
-
-                                <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button"
-                                            class="btn-action btn-action-delete"
-                                            title="Hapus"
-                                            onclick="handleDeleteKaryawan(this)">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
                             </div>
                         </td>
                     </tr>
@@ -171,25 +209,6 @@
 
 @push('scripts')
 <script>
-    // Fungsi Delete menggunakan sistem alert (nama berbeda untuk menghindari konflik)
-    function handleDeleteKaryawan(button) {
-        if (typeof window.confirmDelete === 'function') {
-            window.confirmDelete('Apakah Anda yakin ingin menghapus data karyawan ini?', 'Konfirmasi Hapus')
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        button.form.submit();
-                    }
-                });
-        } else {
-            if (confirm('Apakah Anda yakin ingin menghapus data karyawan ini?')) {
-                button.form.submit();
-            }
-        }
-    }
-    
-    // Export ke window
-    window.handleDeleteKaryawan = handleDeleteKaryawan;
-
     // Fungsi Auto Search (Ditambahkan dari Logic Main untuk UX)
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.querySelector('input[name="search"]');

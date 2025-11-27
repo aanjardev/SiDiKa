@@ -25,7 +25,8 @@
                     class="form-control border-0 shadow-none bg-transparent"
                     placeholder="Cari ID Penjualan atau Nama Customer..."
                     value="{{ request('search') }}"
-                    style="font-size: 0.95rem;">
+                    style="font-size: 0.95rem;"
+                    autofocus>
             </div>
 
             <div class="d-flex align-items-center gap-2 pe-2">
@@ -62,7 +63,7 @@
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 5%;">No</th>
-                            <th>Kode Transaksi</th>
+                            <th>Kode</th>
                             <th>Customer</th>
                             <th>Tanggal</th>
                             <th style="width: 25%;">Item Terjual</th>

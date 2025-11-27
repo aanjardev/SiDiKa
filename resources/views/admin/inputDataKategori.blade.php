@@ -5,10 +5,10 @@
 @section('content')
 
 {{-- Hapus 'justify-content-center' agar tidak di tengah --}}
-<div class="row"> 
+<div class="row">
     {{-- Ubah menjadi 'col-12' agar Card memenuhi lebar layar yang tersedia --}}
-    <div class="col-12"> 
-        
+    <div class="col-12">
+
         <div class="card shadow-sm border-0" style="border-radius: 10px;">
             {{-- Card Header --}}
             <div class="card-header bg-white border-0 pt-4 ps-4 pe-4 pb-0">
@@ -22,7 +22,7 @@
             </div>
 
             <div class="card-body p-4">
-                <form action="{{ isset($category) ? route('admin.categories.update', $category->id) : route('admin.categories.store') }}" method="POST">
+                <form action="{{ isset($category) ? route('admin.categories.update', $category->id) : route('admin.categories.store') }}" method="POST" data-validate-form>
                     @csrf
                     @if(isset($category))
                         @method('PUT')
@@ -32,20 +32,25 @@
                         {{-- Kolom Input: Saya set col-md-7 agar input tidak 'stretching' terlalu panjang secara visual (Good UX), tapi Card tetap full width --}}
                         <div class="col-md-7 col-lg-6">
                             <div class="mb-4">
-                                <label for="nama_kategori" class="form-label fw-medium text-secondary small">Nama Kategori</label>
+                                <label for="nama_kategori" class="form-label fw-medium text-secondary small">Nama Kategori <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                         <i class="fa-solid fa-tag"></i>
                                     </span>
-                                    <input type="text" 
-                                        name="nama_kategori" 
-                                        id="nama_kategori" 
-                                        class="form-control border-start-0 ps-2 @error('nama_kategori') is-invalid @enderror" 
+                                    <input type="text"
+                                        name="nama_kategori"
+                                        id="nama_kategori"
+                                        class="form-control border-start-0 ps-2 required-field @error('nama_kategori') is-invalid @enderror"
                                         style="height: 45px;"
-                                        placeholder="Contoh: Kamera DSLR, Lensa, Tripod..." 
+                                        placeholder="Contoh: Kamera DSLR, Lensa, Tripod..."
                                         value="{{ old('nama_kategori', isset($category) ? $category->nama_kategori : '') }}"
-                                        required>
+                                        required
+
+                                        data-error-message="Nama kategori wajib diisi"
+
+                                        autofocus>
                                 </div>
+                                <div class="invalid-feedback">Nama kategori wajib diisi</div>
                                 @error('nama_kategori')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror

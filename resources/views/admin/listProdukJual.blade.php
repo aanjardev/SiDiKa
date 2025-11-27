@@ -27,7 +27,9 @@
             </span>
             <input type="text" class="form-control border-0 shadow-none bg-transparent" 
                 placeholder="Cari produk berdasarkan nama atau SKU..."
-                style="font-size: 0.95rem;">
+                style="font-size: 0.95rem;"
+                autofocus>
+                
         </div>
 
         {{-- Dropdown Filter --}}

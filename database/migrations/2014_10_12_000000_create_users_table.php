@@ -22,7 +22,7 @@ return new class extends Migration
             $table->date('tanggal_keluar')->nullable();
             $table->enum('status', ['aktif', 'non-aktif'])->default('aktif');
             $table->string('nomor_telepon', 15);
-            $table->string('alamat', 100);
+            $table->string('alamat', 100)->nullable();
             $table->timestamps();
         });
 

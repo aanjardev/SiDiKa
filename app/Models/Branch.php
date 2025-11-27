@@ -14,10 +14,17 @@ class Branch extends Model
         'alamat',
         'nomor_telepon',
         'link_maps',
+        'jam_buka',
+        'jam_tutup',
     ];
 
     public function sales()
     {
         return $this->hasMany(Penjualan::class, 'perusahaan_cabang_id');
+    }
+
+    public function purchases()
+    {
+        return $this->hasMany(Pembelian::class, 'perusahaan_cabang_id');
     }
 }

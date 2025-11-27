@@ -309,6 +309,9 @@ class AdminProductController extends Controller
             'grade' => ['required', 'in:Unggulan,Standar,Minus'],
             'images' => ['nullable', 'array', 'min:1'],
             'images.*' => ['image', 'max:5120'],
+        ], [
+            'kode_sku.required' => 'Kode SKU wajib diisi.',
+            'kode_sku.unique' => 'Kode SKU sudah digunakan. Silakan gunakan kode SKU yang berbeda.',
         ]);
 
         $temporaryPaths = [];
@@ -396,8 +399,11 @@ class AdminProductController extends Controller
             'images.*' => ['image', 'max:5120'],
 
             // hidden input dari gambar lama
-            'remove_images'   => ['array'],
+            'remove_images'   => ['nullable', 'array'],
             'remove_images.*' => ['nullable', 'integer'],
+        ], [
+            'kode_sku.required' => 'Kode SKU wajib diisi.',
+            'kode_sku.unique' => 'Kode SKU sudah digunakan. Silakan gunakan kode SKU yang berbeda.',
         ]);
 
         $temporaryPaths = [];

@@ -9,6 +9,10 @@ $setting = \App\Models\CatalogSettings::first();
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>@yield('title', 'Admin Panel') | SiDiKa</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js',
+    ])
 
     {{-- @vite([
           'resources/admin_theme/css/core/libs.min.css',
@@ -33,6 +37,8 @@ $setting = \App\Models\CatalogSettings::first();
     <!-- Admin CSS -->
     <link href="{{ asset('css/adminsidebar.css') }}" rel="stylesheet">
     <link href="{{ asset('css/adminpage.css') }}" rel="stylesheet">
+    <!-- Form Validation CSS -->
+    <link href="{{ asset('css/form-validation.css') }}" rel="stylesheet">
 
     <!-- Font Awesome -->
     <script src="https://kit.fontawesome.com/8794378048.js" crossorigin="anonymous"></script>
@@ -274,6 +280,8 @@ $setting = \App\Models\CatalogSettings::first();
 
     <!-- Clickable rows script -->
     <script src="{{ asset('js/clickable-rows.js') }}"></script>
+    <!-- Form Validation JS -->
+    <script src="{{ asset('js/form-validation.js') }}"></script>
 
     <script>
         // Hide loader when page is loaded

@@ -19,7 +19,7 @@
 @section('content')
 
     {{-- Error Alert --}}
-    @if ($errors->any())
+    {{-- @if ($errors->any())
         <div class="alert alert-danger alert-dismissible fade show mb-4 shadow-sm border-0"
              role="alert"
              style="border-left: 5px solid #dc3545 !important;">
@@ -34,11 +34,12 @@
             </ul>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-    @endif
+    @endif --}}
 
     <form action="{{ $isEdit ? route('admin.products.update', $product->id) : route('admin.products.store') }}"
           method="POST"
-          enctype="multipart/form-data">
+          enctype="multipart/form-data"
+          data-validate-form>
         @csrf
         @if ($isEdit)
             @method('PUT')
@@ -61,19 +62,27 @@
 
                         {{-- Nama Produk --}}
                         <div class="mb-4">
-                            <label class="form-label text-secondary small fw-medium">Nama Produk</label>
+                            <label class="form-label text-secondary small fw-medium">Nama Produk <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">
                                     <i class="fa-solid fa-tag"></i>
                                 </span>
                                 <input
                                     type="text"
-                                    class="form-control border-start-0 ps-2 py-2 @error('nama_produk') is-invalid @enderror"
+                                    class="form-control border-start-0 ps-2 py-2 required-field @error('nama_produk') is-invalid @enderror"
                                     name="nama_produk"
                                     value="{{ old('nama_produk', $isEdit ? $product->nama_produk : '') }}"
                                     placeholder="Contoh: Kamera Canon EOS 600D"
-                                    required>
+                                    required
+                                    maxlength="200"
+                                    data-error-message="Nama produk wajib diisi"
+                                    autofocus>
                             </div>
+                            @error('nama_produk')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @else
+                                <div class="invalid-feedback">Nama produk wajib diisi</div>
+                            @enderror
                         </div>
 
                         {{-- Deskripsi --}}
@@ -182,10 +191,12 @@
 
                         {{-- Kategori --}}
                         <div class="mb-3">
-                            <label class="form-label text-secondary small fw-medium">Kategori</label>
+                            <label class="form-label text-secondary small fw-medium">Kategori <span class="text-danger">*</span></label>
                             <select
-                                class="form-select py-2 text-secondary @error('id_kategori') is-invalid @enderror"
-                                name="id_kategori">
+                                class="form-select py-2 text-secondary required-field @error('id_kategori') is-invalid @enderror"
+                                name="id_kategori"
+                                required
+                                data-error-message="Kategori wajib dipilih">
                                 <option value="" disabled
                                     {{ old('id_kategori', $isEdit ? $product->id_kategori : '') ? '' : 'selected' }}>
                                     -- Pilih Kategori --
@@ -198,22 +209,35 @@
                                     </option>
                                 @endforeach
                             </select>
+                            @error('id_kategori')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @else
+                                <div class="invalid-feedback">Kategori wajib dipilih</div>
+                            @enderror
                         </div>
 
                         {{-- SKU --}}
                         <div class="mb-3">
-                            <label class="form-label text-secondary small fw-medium">Kode SKU</label>
+                            <label class="form-label text-secondary small fw-medium">Kode SKU <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">
                                     <i class="fa-solid fa-barcode"></i>
                                 </span>
                                 <input
                                     type="text"
-                                    class="form-control border-start-0 ps-2 py-2 @error('kode_sku') is-invalid @enderror"
+                                    class="form-control border-start-0 ps-2 py-2 required-field @error('kode_sku') is-invalid @enderror"
                                     name="kode_sku"
                                     value="{{ old('kode_sku', $isEdit ? $product->kode_sku : '') }}"
-                                    placeholder="SKU-0000">
+                                    placeholder="SKU-0000"
+                                    required
+                                    maxlength="20"
+                                    data-error-message="Kode SKU wajib diisi">
                             </div>
+                            @error('kode_sku')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @else
+                                <div class="invalid-feedback">Kode SKU wajib diisi</div>
+                            @enderror
                         </div>
 
                         {{-- Stok --}}
@@ -224,12 +248,12 @@
                                     <i class="fa-solid fa-cubes"></i>
                                 </span>
                                 <input
-                                    type="number"
-                                    class="form-control border-start-0 ps-2 py-2 @error('stok_produk') is-invalid @enderror"
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 py-2 numeric-only @error('stok_produk') is-invalid @enderror"
                                     name="stok_produk"
                                     value="{{ old('stok_produk', $isEdit ? $product->stok_produk : '') }}"
                                     placeholder="0"
-                                    min="0">
+                                    data-maxdigits="4">
                             </div>
                         </div>
 
@@ -291,11 +315,11 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
                                 <input
-                                    type="number"
-                                    class="form-control border-start-0 ps-2 py-2"
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 py-2 rupiah-mask numeric-only"
                                     name="harga_beli"
                                     value="{{ old('harga_beli', $isEdit ? $product->harga_beli : '') }}"
-                                    placeholder="0">
+                                    placeholder="0" maxlength="11">
                             </div>
                         </div>
 
@@ -305,11 +329,11 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
                                 <input
-                                    type="number"
-                                    class="form-control border-start-0 ps-2 py-2"
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 py-2 rupiah-mask numeric-only"
                                     name="harga_jual"
                                     value="{{ old('harga_jual', $isEdit ? $product->harga_jual : '') }}"
-                                    placeholder="0">
+                                    placeholder="0" maxlength="11">
                             </div>
                         </div>
 
@@ -319,11 +343,11 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
                                 <input
-                                    type="number"
-                                    class="form-control border-start-0 ps-2 py-2"
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 py-2 rupiah-mask numeric-only"
                                     name="harga_servis"
                                     value="{{ old('harga_servis', $isEdit ? $product->harga_servis : '') }}"
-                                    placeholder="0">
+                                    placeholder="0" maxlength="11">
                             </div>
                         </div>
 

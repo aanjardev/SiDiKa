@@ -66,26 +66,6 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
 <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 @endpush
 
-{{-- Tampilkan Error Validasi (Dari Main)
-@if ($errors->any())
-<div class="alert alert-danger alert-dismissible fade show mb-4 rounded-3 border-0 shadow-sm" role="alert" style="background-color: #fff5f5; border-left: 5px solid #dc3545 !important;">
-    <div class="d-flex align-items-center gap-3">
-        <div class="bg-danger bg-opacity-10 p-2 rounded-circle text-danger">
-            <i class="fa-solid fa-triangle-exclamation fa-lg"></i>
-        </div>
-        <div>
-            <h6 class="fw-bold text-danger mb-1">Terjadi Kesalahan Input</h6>
-            <ul class="mb-0 small text-secondary ps-3">
-                @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    </div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif --}}
-
 {{-- Form Wrapper (Logic Main + ID HEAD) --}}
 <form action="{{ isset($pembelian) ? route('admin.purchases.update', $pembelian->id) : route('admin.purchases.store') }}" method="POST" id="formPembelian">
     @csrf
@@ -118,24 +98,25 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                                 <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
 
                                 {{-- Visible search input + hidden customer_id (single input area) --}}
-                                <input type="text" class="form-control" id="customer_search" placeholder="Cari Nama atau No. Telp Customer..." aria-label="Cari Nama atau No. Telp Customer" value="{{ isset($pembelian) && $pembelian->customer ? $pembelian->customer->nama . ' (' . $pembelian->customer->no_telp . ')' : '' }}">
+                                <input type="text" class="form-control" id="customer_search" placeholder="Cari Nama atau No. Telp Customer..." aria-label="Cari Nama atau No. Telp Customer" value="{{ isset($pembelian) && $pembelian->customer ? $pembelian->customer->nama . ' (' . $pembelian->customer->no_telp . ')' : '' }}" autofocus>
                                 <input type="hidden" id="customer_id" name="customer_id" value="{{ isset($pembelian) && $pembelian->customer ? $pembelian->customer->id : '' }}">
                                 {{-- Container for autocomplete suggestions --}}
                                 <div id="customer_suggestions" class="dropdown-menu" style="width:100%;"></div>
 
                             </div>
-                            <div class="invalid-feedback" id="customer_search_error" style="display:none;">
+                            <div class="invalid-feedback" id="customer_search_error">
                                 Customer wajib dipilih sebelum menambah item.
                             </div>
-                            <div class="d-flex justify-content-between">
+                            <div class="d-flex justify-content-end mt-1">
                                 {{-- Tombol Modal Customer Baru --}}
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modalTambahCustomer"
                                    class="small text-decoration-none fw-bold text-primary d-inline-flex align-items-center gap-1 ms-2">
-                                    <i class="fa-solid fa-plus-circle"></i> Customer Baru
+                                    <i class="fa-solid fa-plus-circle me-1"></i> Customer Baru
                                 </a>
                                 <span id="customer_info_display" class="small text-muted me-2">
                                     {{-- Ini tidak lagi digunakan dengan Select2, tapi biarkan saja untuk berjaga-jaga --}}
                                 </span>
+                                    
                             </div>
                         </div>
 
@@ -218,7 +199,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                             {{-- Tambahkan class is-invalid pada input yang terlihat --}}
                             <input type="text" class="form-control fw-bold rupiah-mask @error('harga_tawaran_customer') is-invalid @enderror"
                                 id="display_harga_tawaran_customer" placeholder="0"
-                                value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
+                                value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}" maxlength="11">
                             <input type="hidden" name="harga_tawaran_customer" id="harga_tawaran_customer"
                                 value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
                         </div>
@@ -238,7 +219,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                             {{-- Tambahkan class is-invalid pada input yang terlihat --}}
                             <input type="text" class="form-control fw-bold rupiah-mask @error('harga_tawaran_toko') is-invalid @enderror"
                                 id="display_harga_tawaran_toko" placeholder="0"
-                                value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
+                                value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}" maxlength="11">
                             <input type="hidden" name="harga_tawaran_toko" id="harga_tawaran_toko"
                                 value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
                         </div>
@@ -259,7 +240,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                             {{-- Tambahkan class is-invalid pada input yang terlihat --}}
                             <input type="text" class="form-control border-0 fw-bold text-success fs-5 rupiah-mask @error('harga_deal') is-invalid @enderror"
                                 id="display_harga_deal" placeholder="0" style="height: 50px;"
-                                value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
+                                value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}" maxlength="11">
                             <input type="hidden" name="harga_deal" id="harga_deal"
                                 value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
                         </div>
@@ -321,16 +302,18 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         <div class="row g-3 px-2">
                             <div class="col-md-8">
                                 <label class="form-label fw-semibold text-secondary small">Nama Item <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control form-control-lg fs-6 shadow-none" id="item_nama_item" placeholder="Contoh: Canon EOS 60D Body Only">
+                                <input type="text" class="form-control form-control-lg fs-6 shadow-none required-field" id="item_nama_item" placeholder="Contoh: Canon EOS 60D Body Only" data-error-message="Nama item wajib diisi" autofocus>
+                                <div class="invalid-feedback">Nama item wajib diisi</div>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold text-secondary small">Kategori <span class="text-danger">*</span></label>
-                                <select class="form-select form-select-lg fs-6 shadow-none" id="item_kategori_id" style="height: calc(2.5rem + 10px);">
+                                <select class="form-select form-select-lg fs-6 shadow-none required-field" id="item_kategori_id" style="height: calc(2.5rem + 10px);" data-error-message="Kategori wajib dipilih">
                                     <option value="" selected disabled>Pilih...</option>
                                     @foreach($semua_kategori as $kat)
                                     <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
                                     @endforeach
                                 </select>
+                                <div class="invalid-feedback">Kategori wajib dipilih</div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold text-secondary small">Serial Number (Body)</label>
@@ -510,13 +493,13 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                 </h5>
                 <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="formTambahCustomer">
+            <form id="formTambahCustomer" data-validate-form>
                 <div class="modal-body p-4">
                     @csrf
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label fw-semibold text-secondary small">Nama Customer <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control required-field" id="customer_nama_modal" name="nama" required>
+                            <input type="text" class="form-control required-field" id="customer_nama_modal" name="nama" required data-error-message="Nama customer wajib diisi" autofocus>
                             <div class="invalid-feedback">
                                 Nama customer wajib diisi.
                             </div>
@@ -538,7 +521,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-secondary small">Jenis Kelamin <span class="text-danger">*</span></label>
-                            <select class="form-select required-field" id="customer_jenis_kelamin_modal" name="jenis_kelamin" required style="height:calc(2.5rem + 10px);">
+                            <select class="form-select required-field" id="customer_jenis_kelamin_modal" name="jenis_kelamin" required style="height:calc(2.5rem + 10px);" data-error-message="Jenis kelamin wajib dipilih">
                                 <option value="" selected disabled>Pilih</option>
                                 <option value="L">Laki-laki</option>
                                 <option value="P">Perempuan</option>
@@ -639,5 +622,73 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
     }
 }
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const phoneInput = document.getElementById('customer_no_telp_modal');
+        if (!phoneInput) return;
+
+        function formatPhone(digits) {
+            if (!digits) return '';
+            const part1 = digits.slice(0, 4);
+            const part2 = digits.slice(4, 8);
+            const rest  = digits.slice(8);
+
+            let formatted = part1;
+            if (part2) formatted += '-' + part2;
+            if (rest)  formatted += '-' + rest;
+            return formatted;
+        }
+
+        (function initPhone() {
+            const raw = (phoneInput.value || '').replace(/\D/g, '');
+            const limited = raw.slice(0, 15);
+            phoneInput.value = formatPhone(limited);
+        })();
+
+        phoneInput.addEventListener('input', function () {
+            let digits = this.value.replace(/\D/g, '');
+            if (digits.length > 15) {
+                digits = digits.slice(0, 15);
+            }
+            this.value = formatPhone(digits);
+        });
+
+        phoneInput.addEventListener('blur', function () {
+            const digits = this.value.replace(/\D/g, '');
+            this.classList.remove('is-invalid');
+
+            if (!digits) {
+                this.classList.add('is-invalid');
+                const feedback = this.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Nomor telepon wajib diisi.';
+                }
+                return;
+            }
+
+            const regex = /^(?:0|62|\+62)[0-9]{8,15}$/;
+            const withPrefix = digits;
+
+            if (!regex.test(withPrefix)) {
+                this.classList.add('is-invalid');
+                const feedback = this.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.';
+                }
+                return;
+            }
+        });
+
+        const form = document.getElementById('formTambahCustomer');
+        if (form) {
+            form.addEventListener('submit', function () {
+                const digits = phoneInput.value.replace(/\D/g, '');
+                phoneInput.value = digits;
+            });
+        }
+    });
+</script>
+
 @vite('resources/js/pembelian/pembelian.js')
 @endpush

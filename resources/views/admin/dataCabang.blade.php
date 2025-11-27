@@ -107,6 +107,7 @@
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 
+                                @if(($cabang->sales_count ?? 0) == 0 && ($cabang->purchases_count ?? 0) == 0)
                                 <form action="{{ route('admin.branches.destroy', $cabang->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
@@ -117,6 +118,13 @@
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
+                                @else
+                                <span class="btn-action text-muted"
+                                      title="Cabang tidak dapat dihapus karena masih digunakan oleh transaksi penjualan atau pembelian"
+                                      style="cursor: not-allowed; opacity: 0.5;">
+                                    <i class="fa-solid fa-trash"></i>
+                                </span>
+                                @endif
                             </div>
                         </td>
                     </tr>

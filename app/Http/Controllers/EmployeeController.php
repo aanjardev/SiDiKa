@@ -74,7 +74,11 @@ class EmployeeController extends Controller
                 'max:20',
                 'unique:karyawan,nik'
             ],
-            'jabatan' => 'required|in:Manager,Staff Operasional',
+            'jabatan' => [
+                'required',
+                'string',
+                'max:50',
+            ],
             'nomor_telepon' => [
                 'required',
                 'string',
@@ -82,14 +86,14 @@ class EmployeeController extends Controller
                 'regex:/^(?:\+62|62|0)[0-9]{8,15}$/'
             ],
             'tanggal_masuk' => 'required|date',
-            'gaji' => 'required|integer|min:0',
+            'gaji' => 'nullable|integer|min:0',
             'status' => 'required|in:aktif,non-aktif',
-            'alamat' => 'required|string|max:100',
+            'alamat' => 'nullable|string|max:100',
+            'tanggal_keluar' => 'nullable|date|after_or_equal:tanggal_masuk',
         ], [
             'nama_lengkap.regex' => 'Nama karyawan hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
             'nik.unique' => 'NIK sudah terdaftar.',
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
-            'jabatan.in' => 'Jabatan harus dipilih dari opsi yang tersedia.',
         ]);
 
         // Simpan data karyawan
@@ -99,9 +103,10 @@ class EmployeeController extends Controller
             'jabatan' => $validated['jabatan'],
             'nomor_telepon' => $validated['nomor_telepon'],
             'tanggal_masuk' => $validated['tanggal_masuk'],
-            'gaji' => $validated['gaji'],
+            'gaji' => $validated['gaji'] ?? null,
             'status' => $validated['status'],
-            'alamat' => $validated['alamat'],
+            'alamat' => $validated['alamat'] ?? null,
+            'tanggal_keluar' => $validated['tanggal_keluar'] ?? null,
         ]);
 
         return redirect()->route('admin.employees.index')
@@ -137,7 +142,11 @@ class EmployeeController extends Controller
                 'max:20',
                 'unique:karyawan,nik,' . $id
             ],
-            'jabatan' => 'required|in:Manager,Staff Operasional',
+            'jabatan' => [
+                'required',
+                'string',
+                'max:50',
+            ],
             'nomor_telepon' => [
                 'required',
                 'string',
@@ -145,14 +154,14 @@ class EmployeeController extends Controller
                 'regex:/^(?:\+62|62|0)[0-9]{8,15}$/'
             ],
             'tanggal_masuk' => 'required|date',
-            'gaji' => 'required|integer|min:0',
+            'gaji' => 'nullable|integer|min:0',
             'status' => 'required|in:aktif,non-aktif',
-            'alamat' => 'required|string|max:100',
+            'alamat' => 'nullable|string|max:100',
+            'tanggal_keluar' => 'nullable|date|after_or_equal:tanggal_masuk',
         ], [
             'nama_lengkap.regex' => 'Nama karyawan hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
             'nik.unique' => 'NIK sudah terdaftar.',
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
-            'jabatan.in' => 'Jabatan harus dipilih dari opsi yang tersedia.',
         ]);
 
         // Update user
@@ -169,9 +178,10 @@ class EmployeeController extends Controller
             'jabatan' => $validated['jabatan'],
             'nomor_telepon' => $validated['nomor_telepon'],
             'tanggal_masuk' => $validated['tanggal_masuk'],
-            'gaji' => $validated['gaji'],
+            'gaji' => $validated['gaji'] ?? null,
             'status' => $validated['status'],
-            'alamat' => $validated['alamat'],
+            'alamat' => $validated['alamat'] ?? null,
+            'tanggal_keluar' => $validated['tanggal_keluar'] ?? null,
         ]);
 
         return redirect()->route('admin.employees.index')

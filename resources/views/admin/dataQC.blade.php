@@ -147,7 +147,8 @@ document.addEventListener('DOMContentLoaded', function() {
                        class="form-control border-0 shadow-none bg-transparent"
                        placeholder="Cari nama item, serial number atau kode pembelian..."
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;">
+                       style="font-size: 0.95rem;"
+                       autofocus>
             </div>
 
             {{-- Bagian Kanan: Dropdown --}}
@@ -188,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 5%;">No</th>
-                            <th style="width: 100px;">ID Beli</th>
+                            <th style="width: 100px;">Kode</th>
                             <th style="width: 25%;">Nama Item</th>
                             <th>Serial Number</th>
                             <th>SN Lensa</th>

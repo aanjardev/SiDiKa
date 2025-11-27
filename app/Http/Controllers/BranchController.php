@@ -55,7 +55,7 @@ class BranchController extends Controller
                 'required',
                 'string',
                 'max:50',
-                'regex:/^[A-Za-zÀ-ž\s\.,\-]+$/'
+                'regex:/^[A-Za-zÀ-ž0-9\s\.,\-]+$/'
             ],
             'alamat' => [
                 'required',
@@ -68,13 +68,17 @@ class BranchController extends Controller
                 'regex:/^(?:\+62|62|0)[0-9]{8,15}$/'
             ],
             'link_maps' => [
-                'required',
+                // 'required',
+                'nullable',
                 'url',
                 'max:255',
                 Rule::unique('perusahaan_cabang', 'link_maps'),
             ],
-        ], [
-            'nama.regex' => 'Nama cabang hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
+            'jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+            'jam_tutup' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+        ],
+        [
+            'nama.regex' => 'Nama cabang hanya boleh mengandung huruf, angka, spasi, titik, koma, dan tanda hubung',
             'alamat.regex' => 'Alamat hanya boleh huruf, angka, spasi, titik, koma, garis miring, dan tanda hubung.',
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
             'link_maps.url' => 'Link Maps harus berupa URL yang valid.',
@@ -84,12 +88,22 @@ class BranchController extends Controller
         Branch::create($validated);
 
         return redirect()->route('admin.branches.index')
-            ->with('success', 'Cabang berhasil ditambahkan.');
+        ->with('success', 'Cabang berhasil ditambahkan.');
     }
+    public function show(Branch $branch)
+    {
+        return view('admin.inputDataCabang', [
+            'branch' => $branch,
+            'isShow' => true  // ← Flag untuk mode view-only
+        ]);
+    }
+
     public function edit(Branch $branch)
     {
-        // Reuse view 'admin.inputDataCabang' tapi kirim data branch
-        return view('admin.inputDataCabang', compact('branch'));
+        return view('admin.inputDataCabang', [
+            'branch' => $branch,
+            'isShow' => false  // ← Flag untuk mode edit
+        ]);
     }
 
     public function destroy($id)
@@ -108,7 +122,7 @@ class BranchController extends Controller
                 'required',
                 'string',
                 'max:50',
-                'regex:/^[A-Za-zÀ-ž\s\.,\-]+$/'
+                'regex:/^[A-Za-zÀ-ž0-9\s\.,\-]+$/'
             ],
             'alamat' => [
                 'required',
@@ -121,11 +135,13 @@ class BranchController extends Controller
                 'regex:/^(?:\+62|62|0)[0-9]{8,15}$/'
             ],
             'link_maps' => [
-                'required',
+                'nullable',
                 'url',
                 'max:255',
                 Rule::unique('perusahaan_cabang', 'link_maps')->ignore($branch->id),
             ],
+            'jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+            'jam_tutup' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
         ], [
             'nama.regex' => 'Nama cabang hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
             'alamat.regex' => 'Alamat hanya boleh huruf, angka, spasi, titik, koma, garis miring, dan tanda hubung.',
