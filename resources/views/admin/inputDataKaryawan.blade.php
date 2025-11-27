@@ -51,7 +51,7 @@
                                 <input type="text"
                                     class="form-control border-start-0 ps-2 required-field @error('nama_lengkap') is-invalid @enderror"
                                     name="nama_lengkap"
-                                    style="height: 45px;"
+                                    style="height: 45px;" maxlength="50"
 
                                     value="{{ old('nama_lengkap', $employee->nama_lengkap ?? '') }}"
                                     placeholder="Nama lengkap sesuai KTP"
@@ -75,7 +75,7 @@
                                     value="{{ old('nik', $employee->nik ?? '') }}"
                                     placeholder="16 Digit NIK"
                                     {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
-                                    data-error-message="NIK wajib diisi">
+                                    data-error-message="NIK wajib diisi" maxlength="16">
                             </div>
                             <div class="invalid-feedback">NIK wajib diisi</div>
                             @error('nik') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
@@ -131,14 +131,13 @@
                             <label class="form-label fw-medium text-secondary small">Gaji Pokok</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3">Rp</span>
-                                <input type="number"
-                                    class="form-control border-start-0 ps-2 @error('gaji') is-invalid @enderror"
+                                <input type="text"
+                                    class="form-control border-start-0 ps-2 rupiah-mask numeric-only @error('gaji') is-invalid @enderror"
                                     name="gaji"
                                     style="height: 45px;"
                                     value="{{ old('gaji', $employee->gaji ?? '') }}"
-                                    placeholder="0"
-                                    min="0"
-                                    {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>
+                                    placeholder="0" maxlength="11"
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : '' }} >
                             </div>
                             @error('gaji') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>

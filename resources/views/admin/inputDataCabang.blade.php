@@ -102,22 +102,27 @@
                 <div class="card-body p-4">
                     {{-- Nomor Telepon --}}
                     <div class="mb-3">
-                        <label for="NomorTelepon" class="form-label fw-medium text-secondary small">Nomor Telepon / WA <span class="text-danger">*</span></label>
+                        <label for="branch_nomor_telepon_display" class="form-label fw-medium text-secondary small">Nomor Telepon / WA <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-phone"></i>
                             </span>
+                            {{-- Input tampilan (formatted 4-4-sisa) --}}
                             <input type="text"
                                 class="form-control border-start-0 ps-2 required-field @error('nomor_telepon') is-invalid @enderror"
-                                id="NomorTelepon"
-                                name="nomor_telepon"
+                                id="branch_nomor_telepon_display"
                                 style="height: 45px;"
                                 value="{{ old('nomor_telepon', $branch->nomor_telepon ?? '') }}"
-                                placeholder="0812-xxxx-xxxx"
+                                placeholder="08xx-xxxx-xxxx"
                                 {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
                                 @if(!isset($isShow) || !$isShow)
                                     data-error-message="Nomor telepon wajib diisi"
                                 @endif>
+                            {{-- Hidden untuk dikirim ke backend (hanya digit) --}}
+                            <input type="hidden"
+                                name="nomor_telepon"
+                                id="branch_nomor_telepon"
+                                value="{{ old('nomor_telepon', $branch->nomor_telepon ?? '') }}">
                         </div>
                         @error('nomor_telepon')
                             <div class="invalid-feedback d-block">{{ $message }}</div>
@@ -217,5 +222,73 @@
         </div>
     </div>
 </form>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const displayInput = document.getElementById('branch_nomor_telepon_display');
+        const hiddenInput  = document.getElementById('branch_nomor_telepon');
+
+        if (!displayInput || !hiddenInput) return;
+
+        function formatPhone(digits) {
+            if (!digits) return '';
+            const part1 = digits.slice(0, 4);
+            const part2 = digits.slice(4, 8);
+            const rest  = digits.slice(8);
+
+            let formatted = part1;
+            if (part2) formatted += '-' + part2;
+            if (rest)  formatted += '-' + rest;
+            return formatted;
+        }
+
+        (function initPhone() {
+            const raw = (hiddenInput.value || '').replace(/\D/g, '');
+            const limited = raw.slice(0, 15);
+            hiddenInput.value = limited;
+            displayInput.value = formatPhone(limited);
+        })();
+
+        displayInput.addEventListener('input', function () {
+            let digits = this.value.replace(/\D/g, '');
+            if (digits.length > 15) {
+                digits = digits.slice(0, 15);
+            }
+
+            hiddenInput.value  = digits;
+            displayInput.value = formatPhone(digits);
+        });
+
+        displayInput.addEventListener('blur', function () {
+            const digits = hiddenInput.value.replace(/\D/g, '');
+            const formControl = displayInput;
+
+            formControl.classList.remove('is-invalid');
+
+            if (!digits) {
+                formControl.classList.add('is-invalid');
+                const feedback = formControl.closest('.input-group').nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Nomor telepon wajib diisi.';
+                }
+                return;
+            }
+
+            const regex = /^(?:0|62|\+62)[0-9]{8,15}$/;
+            const withPrefix = digits;
+
+            if (!regex.test(withPrefix)) {
+                formControl.classList.add('is-invalid');
+                const feedback = formControl.closest('.input-group').nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.';
+                }
+                return;
+            }
+        });
+    });
+</script>
+@endpush
 
 @endsection
