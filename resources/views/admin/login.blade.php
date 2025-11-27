@@ -7,17 +7,24 @@
     <title>Login Admin | Dinoyo Kamera</title>
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
 
-    {{-- Fonts & Icons --}}
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    {{-- Bootstrap CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/form-validation.css') }}" rel="stylesheet">
     <script src="https://kit.fontawesome.com/8794378048.js" crossorigin="anonymous"></script>
 
     <style>
+        :root {
+            --bs-primary: #3B8AFF;
+            --bs-primary-rgb: 59, 138, 255;
+            --bs-secondary: #0048B3;
+            --bs-secondary-rgb: 0, 72, 179;
+        }
+
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: #fff;
             overflow-x: hidden;
+            height: 100vh;
         }
 
         /* KOLOM KIRI: FORM */
@@ -27,66 +34,236 @@
             align-items: center;
             justify-content: center;
             padding: 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
 
         .login-card {
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
         }
 
-        /* Styling Input agar sama dengan halaman Admin lainnya */
+        /* Hope UI Card Styling */
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            padding: 2.5rem;
+        }
+
+        /* Hope UI Input Styling */
+        .form-control {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background-color: #fff;
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 0.2rem rgba(59, 138, 255, 0.15);
+        }
+
         .input-group-text {
             background-color: #f8f9fa;
-            border-right: 0;
+            border: 1px solid #e9ecef;
             color: #6c757d;
+            transition: all 0.3s ease;
         }
 
-        .form-control {
-            background-color: #fff;
-            border-left: 0;
-            padding: 0.7rem 1rem;
-        }
-
-        /* Fix focus state */
         .input-group:focus-within .input-group-text {
-            border-color: #86b7fe;
             background-color: #fff;
-            color: #0d6efd;
+            border-color: var(--bs-primary);
+            color: var(--bs-primary);
         }
 
         .input-group:focus-within .form-control {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            background-color: #fff;
+            border-color: var(--bs-primary);
         }
 
         /* Toggle Password Button */
         .btn-toggle-password {
-            border-left: 0;
-            border-color: #dee2e6;
-            background-color: #fff;
+            border: 1px solid #e9ecef;
+            background-color: #f8f9fa;
             color: #6c757d;
-            z-index: 10;
+            transition: all 0.3s ease;
         }
 
         .btn-toggle-password:hover {
-            background-color: #f8f9fa;
-            color: #0d6efd;
-            border-color: #dee2e6;
+            background-color: #fff;
+            color: var(--bs-primary);
+            border-color: var(--bs-primary);
         }
 
-        .btn-toggle-password:focus {
-            box-shadow: none;
-            border-color: #86b7fe;
+        /* Hope UI Button Styling */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
 
-        /* KOLOM KANAN: BACKGROUND */
-        /* KOLOM KANAN: PURE FOTO */
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(59, 138, 255, 0.3);
+        }
+
+        /* KOLOM KANAN: BACKGROUND dengan SVG */
         .login-bg-side {
             min-height: 100vh;
-            background-image: url('{{ asset('../mainIMG/Graphic Side.svg') }}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background: linear-gradient(135deg, #3B8AFF 0%, #0048B3 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animated Background Elements */
+        .bg-element {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .bg-element-1 {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .bg-element-2 {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .bg-element-3 {
+            width: 150px;
+            height: 150px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Content di tengah background */
+        .bg-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            color: white;
+            padding: 2rem;
+        }
+
+        /* Logo Perusahaan Styling */
+        .brand-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 2rem;
+        }
+
+        .company-logo {
+            flex-shrink: 0;
+        }
+
+        .logo-img {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            /* filter: brightness(0) invert(1); */
+            transition: transform 0.3s ease;
+        }
+
+        .logo-img:hover {
+            transform: scale(1.05);
+        }
+
+        .brand-text {
+            text-align: left;
+        }
+
+        .company-name {
+            font-size: 5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 10px;
+        }
+
+        .company-tagline {
+            font-size: 1.5em;
+            opacity: 0.8;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .login-bg-side {
+                display: none;
+            }
+            
+            .login-wrapper {
+                background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
+            }
+            
+            .auth-card {
+                background: rgba(255, 255, 255, 0.98);
+            }
+        }
+
+        /* Logo Styling */
+        .auth-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        /* Form Label Styling */
+        .form-label {
+            font-weight: 500;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Link Styling */
+        .text-primary {
+            color: var(--bs-primary) !important;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .text-primary:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -97,116 +274,141 @@
     @include('partials.alerts')
 
     <div class="container-fluid g-0">
-        <div class="row g-0">
+        <div class="row g-0 min-vh-100">
 
             {{-- KOLOM KIRI (FORM) --}}
-            <div class="col-lg-6 bg-white login-wrapper">
+            <div class="col-lg-6 login-wrapper">
                 <div class="login-card">
+                    <div class="auth-card">
+                        
+                        <!-- {{-- Logo --}}
+                        <div class="auth-logo">
+                            DK
+                        </div> -->
 
-                    <div class="mb-4 text-center text-lg-start">
-                        {{-- Logo Mobile (Opsional) --}}
-                        {{-- <img src="{{ asset('mainIMG/logoDK.png') }}" alt="Logo" height="50" class="d-lg-none mb-3"> --}}
-
-                        <h2 class="fw-bold text-dark">Welcome Back!</h2>
-                        <p class="text-muted small">Silakan masuk untuk mengelola data Dinoyo Kamera.</p>
-                    </div>
-
-                    <form method="POST" action="{{ route('login') }}" id="loginForm">
-                        @csrf
-
-                        {{-- Input Email --}}
-                        <div class="mb-3">
-                            <label for="email" class="form-label fw-medium text-secondary small">Email Address <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fa-solid fa-envelope"></i></span>
-                                <input type="email"
-                                    class="form-control required-field @error('email') is-invalid @enderror"
-                                    id="email"
-                                    name="email"
-                                    value="{{ old('email') }}"
-                                    placeholder="contoh@email.com"
-
-                                    required
-                                    autofocus
-                                    data-error-message="Email wajib diisi"
-                                    data-validate="email">
-
-                            </div>
-                            <div class="invalid-feedback">
-                                @error('email')
-                                    {{ $message }}
-                                @else
-                                    Email wajib diisi dengan format yang benar
-                                @enderror
-                            </div>
+                        <div class="text-center mb-4">
+                            <h2 class="fw-bold text-dark mb-2">Welcome Back!</h2>
+                            <p class="text-muted small">Silakan masuk ke Sistem Informasi Dinoyo Kamera.</p>
                         </div>
 
-                        {{-- Input Password --}}
-                        <div class="mb-3">
-                            <label for="password" class="form-label fw-medium text-secondary small">Password <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
-                                <input type="password"
-                                    class="form-control border-end-0 required-field @error('password') is-invalid @enderror"
-                                    id="password"
-                                    name="password"
-                                    placeholder="Masukkan password"
-                                    required
-                                    data-error-message="Password wajib diisi">
-                                <button class="btn btn-outline-secondary btn-toggle-password border-start-0" type="button" id="togglePassword">
-                                    <i class="fas fa-eye"></i>
+                        <form method="POST" action="{{ route('login') }}" id="loginForm">
+                            @csrf
+
+                            {{-- Input Email --}}
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fa-solid fa-envelope"></i>
+                                    </span>
+                                    <input type="email"
+                                        class="form-control required-field @error('email') is-invalid @enderror"
+                                        id="email"
+                                        name="email"
+                                        value="{{ old('email') }}"
+                                        placeholder="contoh@email.com"
+                                        required
+                                        autofocus
+                                        data-error-message="Email wajib diisi"
+                                        data-validate="email">
+                                </div>
+                                <div class="invalid-feedback">
+                                    @error('email')
+                                        {{ $message }}
+                                    @else
+                                        Email wajib diisi dengan format yang benar
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- Input Password --}}
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fa-solid fa-lock"></i>
+                                    </span>
+                                    <input type="password"
+                                        class="form-control required-field @error('password') is-invalid @enderror"
+                                        id="password"
+                                        name="password"
+                                        placeholder="Masukkan password"
+                                        required
+                                        data-error-message="Password wajib diisi">
+                                    <button class="btn btn-toggle-password" type="button" id="togglePassword">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="invalid-feedback">
+                                    @error('password')
+                                        {{ $message }}
+                                    @else
+                                        Password wajib diisi
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- Remember & Forgot --}}
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                                    <label class="form-check-label small text-secondary" for="remember">
+                                        Ingat Saya
+                                    </label>
+                                </div>
+                                @if (Route::has('password.request'))
+                                <a href="{{ route('password.request') }}" class="small text-primary">Lupa Password?</a>
+                                @else
+                                <a href="#" class="small text-primary">Lupa Password?</a>
+                                @endif
+                            </div>
+
+                            {{-- Submit Button --}}
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fa-solid fa-right-to-bracket me-2"></i> Sign In
                                 </button>
                             </div>
-                            <div class="invalid-feedback">
-                                @error('password')
-                                    {{ $message }}
-                                @else
-                                    Password wajib diisi
-                                @enderror
+
+                        </form>
+
+                        <div class="mt-4 text-center">
+                            <div class="border-top pt-3">
+                                <p class="text-muted small mb-0">
+                                    Baru mendaftar? 
+                                    <a href="{{ route('activation.form') }}" class="text-primary">
+                                        Aktivasi Akun
+                                    </a>
+                                </p>
                             </div>
-                        </div>
-
-                        {{-- Remember & Forgot --}}
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                                <label class="form-check-label small text-secondary" for="remember">
-                                    Ingat Saya
-                                </label>
-                            </div>
-                            {{-- Jika ada route forgot password --}}
-                            @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}" class="small text-primary text-decoration-none fw-medium">Lupa Password?</a>
-                            @else
-                            <a href="#" class="small text-primary text-decoration-none fw-medium">Lupa Password?</a>
-                            @endif
-                        </div>
-
-                        {{-- Submit Button --}}
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary py-2 fw-bold shadow-sm">
-                                <i class="fa-solid fa-right-to-bracket me-2"></i> Sign In
-                            </button>
-                        </div>
-
-                    </form>
-
-                    <div class="mt-4 text-center">
-                        <!-- <p class="text-muted small mb-2">&copy; {{ date('Y') }} Dinoyo Kamera Admin Panel</p> -->
-                        <div class="border-top pt-3">
-                            <p class="text-muted small mb-0">
-                                Baru mendaftar? 
-                                <a href="{{ route('activation.form') }}" class="text-primary text-decoration-none fw-medium">
-                                    Aktivasi Akun
-                                </a>
-                            </p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {{-- KOLOM KANAN (IMAGE) --}}
-            <div class="col-lg-6 d-none d-lg-flex login-bg-side"></div>
+            {{-- KOLOM KANAN (BACKGROUND DESIGN) --}}
+            <div class="col-lg-6 d-none d-lg-flex login-bg-side">
+                {{-- Animated Background Elements --}}
+                <div class="bg-element bg-element-1"></div>
+                <div class="bg-element bg-element-2"></div>
+                <div class="bg-element bg-element-3"></div>
+                
+                {{-- Content di tengah --}}
+                <div class="bg-content">
+                    <div class="brand-container">
+                        {{-- Logo Perusahaan --}}
+                        <div class="company-logo">
+                            <img src="{{ asset('mainIMG/logoDK.png') }}" alt="Dinoyo Kamera" class="logo-img">
+                        </div>
+                        
+                        {{-- Brand Text --}}
+                        <div class="brand-text">
+                            <h1 class="company-name">SiDiKa</h1>
+                            <p class="company-tagline">Sistem Informasi Dinoyo Kamera</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -241,7 +443,29 @@
             if (loginForm && window.FormValidator) {
                 FormValidator.initForm(loginForm);
             }
+
+            // Add subtle animations
+            const authCard = document.querySelector('.auth-card');
+            if (authCard) {
+                authCard.style.animation = 'slideInUp 0.6s ease-out';
+            }
         });
+
+        // Add slideInUp animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
 </body>
 
