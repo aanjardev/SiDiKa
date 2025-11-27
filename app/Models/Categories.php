@@ -12,5 +12,20 @@ class Categories extends Model
     protected $fillable = [
         'nama_kategori',
     ];
-        
+
+    /**
+     * Relasi dengan Produk
+     */
+    public function produk()
+    {
+        return $this->hasMany(Produk::class, 'id_kategori', 'id');
+    }
+
+    /**
+     * Cek apakah kategori digunakan oleh produk
+     */
+    public function isUsed()
+    {
+        return $this->produk()->exists();
+    }
 }

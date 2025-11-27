@@ -9,7 +9,7 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Categories::latest()->paginate(10);
+        $categories = Categories::withCount('produk')->latest()->paginate(10);
         return view('admin.dataKategori', compact('categories'));
     }
 
@@ -27,7 +27,7 @@ class CategoryController extends Controller
         ], [
             'nama_kategori.regex' => 'Nama kategori hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
         ]);
-        
+
         Categories::create($validated);
         return redirect()->route('admin.categories.index')
             ->with('success', 'Kategori berhasil ditambahkan.');
@@ -36,6 +36,13 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         $category = Categories::findOrFail($id);
+
+        // Cek apakah kategori digunakan oleh produk
+        if ($category->isUsed()) {
+            return redirect()->route('admin.categories.index')
+                ->with('error', 'Kategori tidak dapat dihapus karena masih digunakan oleh produk.');
+        }
+
         $category->delete();
 
         return redirect()->route('admin.categories.index')

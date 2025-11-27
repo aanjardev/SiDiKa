@@ -119,20 +119,10 @@
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="{{ route('admin.employees.edit', $employee->id) }}"
                                     class="btn-action btn-action-edit"
-                                    title="Edit">
+                                    title="Edit"
+                                    onclick="event.stopPropagation();">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
-
-                                <form action="{{ route('admin.employees.destroy', $employee->id) }}" method="POST" class="d-inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="button"
-                                            class="btn-action btn-action-delete"
-                                            title="Hapus"
-                                            onclick="handleDeleteKaryawan(this)">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
-                                </form>
                             </div>
                         </td>
                     </tr>
@@ -161,25 +151,6 @@
 
 @push('scripts')
 <script>
-    // Fungsi Delete menggunakan sistem alert (nama berbeda untuk menghindari konflik)
-    function handleDeleteKaryawan(button) {
-        if (typeof window.confirmDelete === 'function') {
-            window.confirmDelete('Apakah Anda yakin ingin menghapus data karyawan ini?', 'Konfirmasi Hapus')
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        button.form.submit();
-                    }
-                });
-        } else {
-            if (confirm('Apakah Anda yakin ingin menghapus data karyawan ini?')) {
-                button.form.submit();
-            }
-        }
-    }
-    
-    // Export ke window
-    window.handleDeleteKaryawan = handleDeleteKaryawan;
-
     // Fungsi Auto Search (Ditambahkan dari Logic Main untuk UX)
     document.addEventListener('DOMContentLoaded', function() {
         const searchInput = document.querySelector('input[name="search"]');

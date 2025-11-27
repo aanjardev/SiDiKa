@@ -11,7 +11,7 @@ class BranchController extends Controller
 
     public function index()
     {
-        $data_cabang = Branch::latest()->paginate(10);
+        $data_cabang = Branch::withCount(['sales', 'purchases'])->latest()->paginate(10);
 
         return view('admin.dataCabang', [
             'data_cabang' => $data_cabang
