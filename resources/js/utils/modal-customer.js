@@ -12,6 +12,7 @@ export default class CustomerModal {
             "customer_jenis_kelamin_modal",
         ];
 
+        this.phoneInputs = [];
         this.init();
     }
 
@@ -40,6 +41,8 @@ export default class CustomerModal {
                 }
             });
         });
+
+        this.initPhoneValidation();
 
         this.btn.addEventListener("click", (e) => {
             e.preventDefault();
@@ -83,6 +86,7 @@ export default class CustomerModal {
             return;
         }
 
+        this.sanitizePhoneInputs();
         const data = Object.fromEntries(new FormData(this.form).entries());
 
         this.btn.disabled = true;
@@ -132,6 +136,97 @@ export default class CustomerModal {
 
         this.btn.disabled = false;
         this.btn.innerHTML = `Simpan`;
+    }
+
+    initPhoneValidation() {
+        if (!this.form) return;
+        this.phoneInputs = Array.from(
+            this.form.querySelectorAll("[data-phone-validation]")
+        );
+
+        this.phoneInputs.forEach((input) => {
+            const maxDigits = this.getMaxDigits(input);
+            const formatted = this.formatPhone(
+                (input.value || "").replace(/\D/g, "").slice(0, maxDigits)
+            );
+            input.value = formatted;
+
+            input.addEventListener("input", () => {
+                let digits = input.value.replace(/\D/g, "");
+                if (digits.length > maxDigits) {
+                    digits = digits.slice(0, maxDigits);
+                }
+                input.value = this.formatPhone(digits);
+            });
+
+            input.addEventListener("blur", () => {
+                const digits = input.value.replace(/\D/g, "");
+                if (!digits) {
+                    input.classList.add("is-invalid");
+                    const feedback = input.nextElementSibling;
+                    if (
+                        feedback &&
+                        feedback.classList.contains("invalid-feedback")
+                    ) {
+                        feedback.textContent =
+                            feedback.dataset.defaultMessage ||
+                            "Nomor telepon wajib diisi.";
+                    }
+                    return;
+                }
+
+                const regex = /^(?:0|62)[0-9]{8,15}$/;
+                if (!regex.test(digits)) {
+                    input.classList.add("is-invalid");
+                    const feedback = input.nextElementSibling;
+                    if (
+                        feedback &&
+                        feedback.classList.contains("invalid-feedback")
+                    ) {
+                        feedback.textContent =
+                            "Nomor telepon harus diawali 0 atau 62 dan hanya berisi angka.";
+                    }
+                    return;
+                }
+
+                input.classList.remove("is-invalid");
+                const feedback = input.nextElementSibling;
+                if (
+                    feedback &&
+                    feedback.classList.contains("invalid-feedback")
+                ) {
+                    feedback.textContent =
+                        feedback.dataset.defaultMessage ||
+                        "Nomor telepon wajib diisi.";
+                }
+            });
+        });
+    }
+
+    sanitizePhoneInputs() {
+        if (!this.phoneInputs.length) return;
+        this.phoneInputs.forEach((input) => {
+            let digits = input.value.replace(/\D/g, "");
+            const maxDigits = this.getMaxDigits(input);
+            digits = digits.slice(0, maxDigits);
+            input.value = digits;
+        });
+    }
+
+    getMaxDigits(input) {
+        const max = parseInt(input.dataset.maxDigits || "20", 10);
+        return Number.isFinite(max) && max > 0 ? max : 20;
+    }
+
+    formatPhone(digits = "") {
+        if (!digits) return "";
+        const part1 = digits.slice(0, 4);
+        const part2 = digits.slice(4, 8);
+        const rest = digits.slice(8);
+        let formatted = part1;
+        if (part2) formatted += "-" + part2;
+        if (rest) formatted += "-" + rest;
+        return formatted;
     }
 
     hideModalSafely() {

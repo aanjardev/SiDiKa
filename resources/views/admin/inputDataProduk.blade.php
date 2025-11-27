@@ -337,7 +337,7 @@ $backRoute = route('admin.products.index');
 
                 {{-- Harga Servis --}}
                 <div class="mb-0">
-                    <label class="form-label text-secondary small fw-medium">Estimasi Servis</label>
+                    <label class="form-label text-secondary small fw-medium">Biaya Servis</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
                         <input

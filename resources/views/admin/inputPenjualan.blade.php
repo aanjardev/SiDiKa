@@ -336,26 +336,31 @@ return [
 </div>
 
 {{-- Modal Tambah Customer (reuse dari inputPembelian) --}}
-<div class="modal fade" id="modalTambahCustomer" tabindex="-1" aria-labelledby="modalTambahCustomerLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTambahCustomerLabel">Tambah Customer Baru</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<div class="modal fade" id="modalTambahCustomer" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center">
+                    <i class="fa-solid fa-user-plus text-primary me-3 fs-4"></i>
+                    Tambah Customer Baru
+                </h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                {{-- PERBAIKAN: Semua input di sini HARUS punya atribut 'name' --}}
-                <form id="formTambahCustomer" data-store-url="{{ route('admin.customers.store') }}" data-validate-form>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_nama_modal">Nama Customer <span class="text-danger">*</span></label>
+            <form id="formTambahCustomer" data-validate-form>
+                <div class="modal-body p-4">
+                    @csrf
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-secondary small">Nama Customer <span class="text-danger">*</span></label>
                             <input type="text" class="form-control required-field" id="customer_nama_modal" name="nama" required data-error-message="Nama customer wajib diisi" autofocus>
-                            <div class="invalid-feedback">Nama customer wajib diisi</div>
+                            <div class="invalid-feedback">
+                                Nama customer wajib diisi.
+                            </div>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_no_telp_modal">Nomor Telepon*</label>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">No. Telepon <span class="text-danger">*</span></label>
                             <input type="text"
-                                   class="form-control"
+                                   class="form-control required-field"
                                    id="customer_no_telp_modal"
                                    name="no_telp"
                                    required
@@ -363,50 +368,52 @@ return [
                                    pattern="[0-9]*"
                                    data-phone-validation
                                    data-max-digits="20">
+                            <div class="invalid-feedback">
+                                Nomor telepon wajib diisi.
+                            </div>
                         </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_identitas_modal">NIK (Identitas)</label>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Jenis Kelamin <span class="text-danger">*</span></label>
+                            <select class="form-select required-field" id="customer_jenis_kelamin_modal" name="jenis_kelamin" required style="height:calc(2.5rem + 10px);" data-error-message="Jenis kelamin wajib dipilih">
+                                <option value="" selected disabled>Pilih</option>
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Jenis kelamin wajib dipilih.
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-secondary small">Alamat</label>
+                            <input type="text" class="form-control" name="alamat">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">No. Identitas (KTP/SIM)</label>
                             <input type="text"
                                    class="form-control"
-                                   id="customer_identitas_modal"
                                    name="identitas"
                                    inputmode="numeric"
                                    pattern="[0-9]*"
                                    data-phone-validation
                                    data-max-digits="20">
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_jenis_kelamin_modal">Jenis Kelamin <span class="text-danger">*</span></label>
-                            <select class="form-select required-field" id="customer_jenis_kelamin_modal" name="jenis_kelamin" style="height: calc(2.5rem + 9px);" required data-error-message="Jenis kelamin wajib dipilih">
-                                <option value="" selected disabled>Pilih</option>
-                                <option value="L">Laki-laki</option>
-                                <option value="P">Perempuan</option>
-                            </select>
-                            <div class="invalid-feedback">Jenis kelamin wajib dipilih</div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Referensi</label>
+                            <input type="text" class="form-control" name="referensi">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-secondary small">Keterangan</label>
+                            <textarea class="form-control" name="keterangan" rows="2"></textarea>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="customer_alamat_modal">Alamat</label>
-                        <textarea class="form-control" rows="2" id="customer_alamat_modal" name="alamat"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="customer_referensi_modal">Referensi (Opsional)</label>
-                        <input type="text" class="form-control" id="customer_referensi_modal" name="referensi" placeholder="Mis: Info dari Instagram, Teman, dll.">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label" for="customer_keterangan_modal">Keterangan (Opsional)</label>
-                        <textarea class="form-control" rows="2" id="customer_keterangan_modal" name="keterangan" placeholder="Mis: Pelanggan lama, sering jual/beli..."></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-primary" id="btnSimpanCustomer">
-                    Simpan Customer
-                </button>
-            </div>
+                </div>
+                <div class="modal-footer border-top-0 px-4 pb-4 pt-2">
+                    <button type="button" class="btn btn-light bg-white border rounded-3 px-4 fw-semibold text-secondary shadow-sm" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4 fw-semibold shadow-sm" id="btnSimpanCustomer">
+                        <i class="fa-solid fa-save me-2"></i> Simpan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -415,76 +422,6 @@ return [
 <script type="application/json" id="produk-data-json">
     @json($produkUntukJs)
 </script>
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const phoneInput = document.getElementById('customer_no_telp_modal');
-        if (!phoneInput) return;
-
-        function formatPhone(digits) {
-            if (!digits) return '';
-            const part1 = digits.slice(0, 4);
-            const part2 = digits.slice(4, 8);
-            const rest  = digits.slice(8);
-
-            let formatted = part1;
-            if (part2) formatted += '-' + part2;
-            if (rest)  formatted += '-' + rest;
-            return formatted;
-        }
-
-        // Inisialisasi (kalau ada nilai lama)
-        (function initPhone() {
-            const raw = (phoneInput.value || '').replace(/\D/g, '');
-            const limited = raw.slice(0, 15);
-            phoneInput.value = formatPhone(limited);
-        })();
-
-        phoneInput.addEventListener('input', function () {
-            let digits = this.value.replace(/\D/g, '');
-            if (digits.length > 15) {
-                digits = digits.slice(0, 15);
-            }
-            this.value = formatPhone(digits);
-        });
-
-        phoneInput.addEventListener('blur', function () {
-            const digits = this.value.replace(/\D/g, '');
-
-            this.classList.remove('is-invalid');
-
-            if (!digits) {
-                this.classList.add('is-invalid');
-                const feedback = this.nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Nomor telepon wajib diisi.';
-                }
-                return;
-            }
-
-            const regex = /^(?:0|62|\+62)[0-9]{8,15}$/;
-            const withPrefix = digits;
-
-            if (!regex.test(withPrefix)) {
-                this.classList.add('is-invalid');
-                const feedback = this.nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.';
-                }
-                return;
-            }
-        });
-
-        const form = document.getElementById('formTambahCustomer');
-        if (form) {
-            form.addEventListener('submit', function () {
-                // Pastikan yang dikirim ke backend hanya digit
-                const digits = phoneInput.value.replace(/\D/g, '');
-                phoneInput.value = digits;
-            });
-        }
-    });
-</script>
-
 @vite(['resources/js/app.js', 'resources/js/penjualan/penjualan.js'])
 @endpush
 @endsection
