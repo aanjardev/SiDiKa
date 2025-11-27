@@ -17,11 +17,11 @@ class DatabaseSeeder extends Seeder
     {
 
         $this->call([
-            AdminSeeder::class,
+            KaryawanSeeder::class,    // Run first to create manager employee
+            AdminSeeder::class,       // Then create admin user
             KategoriSeeder::class,
             ProdukSeeder::class,
             BranchSeeder::class,
-            KaryawanSeeder::class,
             CatalogSeeder::class,
         ]);
         // Nonaktifkan foreign key checks untuk operasi TRUNCATE

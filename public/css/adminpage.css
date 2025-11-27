@@ -95,6 +95,16 @@
         color: white;
     }
 
+    .btn-action-warning {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+
+    .btn-action-warning:hover {
+        background-color: #ffc107;
+        color: white;
+    }
+
     /* =========================================
    1. LOGIKA LAYOUT (JANGAN DIUBAH)
    Bagian ini menjaga posisi agar tidak berantakan lagi

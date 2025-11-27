@@ -115,7 +115,13 @@ return [
                                     @endforeach
                                 </select>
                             </div>
-                            @error('perusahaan_cabang_id') <div class="text-danger small">{{ $message }}</div> @enderror
+                            <div class="invalid-feedback">
+                                @error('perusahaan_cabang_id')
+                                    {{ $message }}
+                                @else
+                                    Cabang wajib dipilih
+                                @enderror
+                            </div>
                         </div>
                     </div>
                 </div>

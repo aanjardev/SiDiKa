@@ -16,6 +16,7 @@ use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\QCController;
 use App\Http\Controllers\CatalogSettingsController;
 use App\Http\Controllers\SmartStockController;
+use App\Http\Controllers\AccountActivationController;
 use Illuminate\Support\Facades\Route;
 
 use Symfony\Component\HttpKernel\Profiler\Profile;
@@ -43,6 +44,15 @@ Route::get("/katalog/{id}", [ProductController::class, "show"])->name('product.s
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// Account Activation Routes
+Route::get('/activation', [AccountActivationController::class, 'showActivationForm'])->name('activation.form');
+Route::post('/activation/verify-email', [AccountActivationController::class, 'verifyEmail'])->name('activation.verify-email');
+Route::get('/activation/verify', [AccountActivationController::class, 'showVerificationForm'])->name('activation.verify-form');
+Route::post('/activation/verify-code', [AccountActivationController::class, 'verifyCode'])->name('activation.verify-code');
+Route::get('/activation/setup-password/{token}', [AccountActivationController::class, 'showPasswordSetupForm'])->name('activation.setup-password');
+Route::post('/activation/setup-password/{token}', [AccountActivationController::class, 'setupPassword'])->name('activation.setup-password');
+Route::post('/activation/resend-code', [AccountActivationController::class, 'resendCode'])->name('activation.resend-code');
 
 
 // Routenya admin
@@ -113,6 +123,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::get('/permissions/{id}/edit', [PermissionsController::class, 'edit'])->name('permissions.edit');
         Route::put('/permissions/{id}', [PermissionsController::class, 'update'])->name('permissions.update');
         Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy'])->name('permissions.destroy');
+        Route::post('/permissions/{id}/regenerate-token', [PermissionsController::class, 'regenerateToken'])->name('permissions.regenerate-token');
         Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('purchases.print');
         Route::get('sales/{id}/print', [PenjualanController::class, 'printNota'])->name('sales.print');
     });

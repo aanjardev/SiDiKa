@@ -132,10 +132,13 @@
                                     data-validate="email">
 
                             </div>
-                            <div class="invalid-feedback">Email wajib diisi dengan format yang benar</div>
-                            @error('email')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
+                            <div class="invalid-feedback">
+                                @error('email')
+                                    {{ $message }}
+                                @else
+                                    Email wajib diisi dengan format yang benar
+                                @enderror
+                            </div>
                         </div>
 
                         {{-- Input Password --}}
@@ -154,10 +157,13 @@
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
-                            <div class="invalid-feedback">Password wajib diisi</div>
-                            @error('password')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                            @enderror
+                            <div class="invalid-feedback">
+                                @error('password')
+                                    {{ $message }}
+                                @else
+                                    Password wajib diisi
+                                @enderror
+                            </div>
                         </div>
 
                         {{-- Remember & Forgot --}}
@@ -186,7 +192,15 @@
                     </form>
 
                     <div class="mt-4 text-center">
-                        <p class="text-muted small mb-0">&copy; {{ date('Y') }} Dinoyo Kamera Admin Panel</p>
+                        <!-- <p class="text-muted small mb-2">&copy; {{ date('Y') }} Dinoyo Kamera Admin Panel</p> -->
+                        <div class="border-top pt-3">
+                            <p class="text-muted small mb-0">
+                                Baru mendaftar? 
+                                <a href="{{ route('activation.form') }}" class="text-primary text-decoration-none fw-medium">
+                                    Aktivasi Akun
+                                </a>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
