@@ -4,15 +4,23 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use App\Models\Employee;
 use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use App\Services\EmailService;
 
 class PermissionsController extends Controller
 {
+    protected $emailService;
+
+    public function __construct(EmailService $emailService)
+    {
+        $this->emailService = $emailService;
+    }
     public function index()
     {
-        // Join users dan karyawan
+        // Join users dan karyawan dengan pagination
         $user_data = DB::table('users')
             ->join('karyawan', 'users.id', '=', 'karyawan.id')
             ->select(
@@ -20,9 +28,10 @@ class PermissionsController extends Controller
                 'users.name',
                 'users.email',
                 'users.role',
-                'karyawan.status'
+                'users.status',
+                'karyawan.status as karyawan_status'
             )
-            ->get();
+            ->paginate(10); // 10 items per page
 
         return view('admin.permissions', compact('user_data'));
     }
@@ -39,22 +48,38 @@ class PermissionsController extends Controller
 
     public function store(Request $request){
     $request->validate([
-        'password' => 'required|min:6',
         'email' => 'required|email|unique:users,email',
         'role' => 'required'
     ]);
 
     $karyawan = Employee::findOrFail($request->karyawan_name);
 
-    User::create([
+    // Generate activation token
+    $activationToken = bin2hex(random_bytes(32));
+
+    $user = User::create([
         'id' => $karyawan->id,
         'name' => $karyawan->nama_lengkap,
         'email' => $request->email,
-        'password' => Hash::make($request->password),
+        'password' => Hash::make(Str::random(32)), // Random password yang tidak akan digunakan
         'role' => $request->role,
+        'status' => 'pending',
+        'activation_token' => $activationToken,
+        'token_expiry' => now()->addHours(72), // Token berlaku 3 hari
     ]);
 
-    return redirect()->route('admin.permissions')->with('success', 'User berhasil dibuat!');
+    // Kirim email activation
+    $emailSent = $this->emailService->sendActivationEmail($user, $activationToken);
+
+    if ($emailSent) {
+        return redirect()->route('admin.permissions')
+            ->with('success', 'User berhasil dibuat! Email aktivasi telah dikirim ke ' . $user->email);
+    } else {
+        // Jika email gagal dikirim, masih lanjutkan tapi beri warning
+        return redirect()->route('admin.permissions')
+            ->with('success', 'User berhasil dibuat! Namun email aktivasi gagal dikirim. Silakan generate ulang token.')
+            ->with('warning', 'Email activation failed. Please check email configuration.');
+    }
     }
 
     public function edit($id)
@@ -90,6 +115,35 @@ class PermissionsController extends Controller
         $user->delete();
 
         return redirect()->route('admin.permissions')->with('success', 'User berhasil dihapus!');
+    }
+
+    public function regenerateToken($id)
+    {
+        $user = User::findOrFail($id);
+        
+        if ($user->status !== 'pending') {
+            return redirect()->route('admin.permissions')
+                ->with('error', 'Token hanya bisa di-generate untuk user dengan status pending.');
+        }
+
+        // Generate new token dan extend expiry
+        $activationToken = bin2hex(random_bytes(32));
+        $user->update([
+            'activation_token' => $activationToken,
+            'token_expiry' => now()->addHours(72), // Extend 3 hari lagi
+        ]);
+
+        // Kirim email activation baru
+        $emailSent = $this->emailService->sendActivationEmail($user, $activationToken);
+
+        if ($emailSent) {
+            return redirect()->route('admin.permissions')
+                ->with('success', 'Token aktivasi berhasil diperbarui! Email baru telah dikirim ke ' . $user->email);
+        } else {
+            return redirect()->route('admin.permissions')
+                ->with('success', 'Token aktivasi berhasil diperbarui! Namun email gagal dikirim.')
+                ->with('warning', 'Email activation failed. Please check email configuration.');
+        }
     }
 
 }

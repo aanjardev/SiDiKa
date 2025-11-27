@@ -62,8 +62,13 @@
                                     {{ !isset($readOnly) || !$readOnly ? 'autofocus' : '' }}>
 
                             </div>
-                            <div class="invalid-feedback">Nama lengkap wajib diisi</div>
-                            @error('nama_lengkap') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            <div class="invalid-feedback">
+                                @error('nama_lengkap')
+                                    {{ $message }}
+                                @else
+                                    Nama lengkap wajib diisi
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -79,8 +84,13 @@
                                     {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
                                     data-error-message="NIK wajib diisi" maxlength="16">
                             </div>
-                            <div class="invalid-feedback">NIK wajib diisi</div>
-                            @error('nik') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            <div class="invalid-feedback">
+                                @error('nik')
+                                    {{ $message }}
+                                @else
+                                    NIK wajib diisi
+                                @enderror
+                            </div>
                         </div>
                     </div>
 
@@ -99,8 +109,13 @@
                                     {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
                                     data-error-message="Jabatan wajib diisi">
                             </div>
-                            <div class="invalid-feedback">Jabatan wajib diisi</div>
-                            @error('jabatan') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            <div class="invalid-feedback">
+                                @error('jabatan')
+                                    {{ $message }}
+                                @else
+                                    Jabatan wajib diisi
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -122,8 +137,13 @@
                                     id="nomor_telepon"
                                     value="{{ old('nomor_telepon', $employee->nomor_telepon ?? '') }}">
                             </div>
-                            <div class="invalid-feedback">Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.</div>
-                            @error('nomor_telepon') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            <div class="invalid-feedback">
+                                @error('nomor_telepon')
+                                    {{ $message }}
+                                @else
+                                    Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.
+                                @enderror
+                            </div>
                         </div>
                     </div>
 
@@ -141,7 +161,13 @@
                                     placeholder="0" maxlength="11"
                                     {{ isset($readOnly) && $readOnly ? 'readonly' : '' }} >
                             </div>
-                            @error('gaji') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            <div class="invalid-feedback">
+                                @error('gaji')
+                                    {{ $message }}
+                                @else
+                                    Gaji harus berupa angka yang valid
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="col-md-6 mb-3">
@@ -156,8 +182,13 @@
                                     {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
                                     data-error-message="Tanggal masuk wajib diisi">
                             </div>
-                            <div class="invalid-feedback">Tanggal masuk wajib diisi</div>
-                            @error('tanggal_masuk') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            <div class="invalid-feedback">
+                                @error('tanggal_masuk')
+                                    {{ $message }}
+                                @else
+                                    Tanggal masuk wajib diisi
+                                @enderror
+                            </div>
                         </div>
                     </div>
 

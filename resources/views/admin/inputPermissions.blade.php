@@ -42,7 +42,13 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="invalid-feedback">Karyawan wajib dipilih</div>
+                        <div class="invalid-feedback">
+                            @error('karyawan_name')
+                                {{ $message }}
+                            @else
+                                Karyawan wajib dipilih
+                            @enderror
+                        </div>
                         @if(isset($user))
                             {{-- Field hidden untuk mengirimkan ID karyawan saat form disubmit (karena select di atas disabled) --}}
                             <input type="hidden" name="karyawan_name" value="{{ $user->id }}">
@@ -62,20 +68,22 @@
                             {{-- Menambahkan required-field dan old value --}}
                             <select name="role" id="role" class="form-select border-start-0 ps-2 required-field @error('role') is-invalid @enderror" style="height: 45px;" required {{ isset($user) ? 'disabled' : '' }} data-error-message="Role wajib dipilih">
                                 <option selected disabled value="">-- Pilih Role --</option>
-                                {{-- Saya asumsikan role yang valid adalah 'admin' dan 'manager', atau harusnya diambil dari database. 
-                                    Menggunakan logic old/user role yang benar. --}}
-                                <option value="admin" {{ (old('role') == 'admin' || (isset($user) && $user->role == 'admin')) ? 'selected' : '' }}>
-                                    Admin 
-                                </option>
+                                {{-- Role options: manager dan staff --}}
                                 <option value="manager" {{ (old('role') == 'manager' || (isset($user) && $user->role == 'manager')) ? 'selected' : '' }}>
                                     Manager 
                                 </option>
+                                <option value="staff" {{ (old('role') == 'staff' || (isset($user) && $user->role == 'staff')) ? 'selected' : '' }}>
+                                    Staff 
+                                </option>
                             </select>
                         </div>
-                        <div class="invalid-feedback">Role wajib dipilih</div>
-                        @error('role')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
+                        <div class="invalid-feedback">
+                            @error('role')
+                                {{ $message }}
+                            @else
+                                Role wajib dipilih
+                            @enderror
+                        </div>
                         @if(isset($user))
                             {{-- Field hidden untuk mengirimkan ROLE saat form disubmit (karena select di atas disabled) --}}
                             <input type="hidden" name="role" value="{{ $user->role }}">
@@ -100,10 +108,13 @@
                                 data-validate="email"
                                 {{ isset($user) ? 'readonly' : '' }}> {{-- Tambahkan readonly jika edit untuk email --}}
                         </div>
-                        <div class="invalid-feedback">Email wajib diisi dengan format yang benar</div>
-                        @error('email')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
+                        <div class="invalid-feedback">
+                            @error('email')
+                                {{ $message }}
+                            @else
+                                Email wajib diisi dengan format yang benar
+                            @enderror
+                        </div>
                     </div>
                 </div>
             </div>
@@ -120,35 +131,24 @@
                     </h6>
                 </div>
                 <div class="card-body p-4">
-                    <label class="form-label fw-medium text-secondary small">Password Login</label>
-                    <div class="input-group mb-2">
-                        <span class="input-group-text bg-light border-end-0 text-muted ps-3">
-                            <i class="fa-solid fa-key"></i>
-                        </span>
-                        <input type="password"
-                            name="password"
-                            id="password"
-                            class="form-control border-start-0 border-end-0 ps-2 @error('password') is-invalid @enderror"
-                            style="height: 45px;"
-                            value="{{ old('password', isset($user) ? '' : 'admin123') }}"
-                            placeholder="{{ isset($user) ? 'Biarkan kosong...' : 'Default: admin123' }}">
-
-                        {{-- Tombol Mata (Show/Hide) --}}
-                        <button class="btn btn-light border border-start-0 text-muted" type="button" id="togglePassword">
-                            <i class="fa-solid fa-eye" id="eyeIcon"></i>
-                        </button>
+                    <div class="form-text small text-muted mb-3">
+                        <i class="fa-solid fa-info-circle me-1 text-primary"></i> 
+                        User akan dibuat dengan status <strong>Pending</strong>. Karyawan perlu mengaktifkan akun melalui halaman aktivasi yang akan dikirim ke email.
                     </div>
-
-                    @error('password')
-                        <div class="text-danger small mt-1 mb-2">{{ $message }}</div>
-                    @enderror
-
-                    <div class="form-text small text-muted" style="font-size: 0.8rem; line-height: 1.4;">
-                        @if(isset($user))
-                            <i class="fa-solid fa-circle-exclamation me-1 text-warning"></i> Kosongkan jika tidak ingin mengubah password user ini.
-                        @else
-                            <i class="fa-solid fa-check-circle me-1 text-success"></i> Password default untuk user baru adalah <strong>admin123</strong>.
-                        @endif
+                    
+                    {{-- Edukasi Token Expiry --}}
+                    <div class="alert alert-warning mb-0" style="font-size: 0.85rem;">
+                        <div class="d-flex align-items-start">
+                            <i class="fa-solid fa-clock me-2 mt-1"></i>
+                            <div>
+                                <strong>⏰ Penting!</strong><br>
+                                <ul class="mb-0 mt-2 ps-3" style="font-size: 0.9rem;">
+                                    <li>Token aktivasi berlaku <strong>3 hari (72 jam)</strong></li>
+                                    <li>Karyawan harus segera aktivasi sebelum kadaluarsa</li>
+                                    <li>Jika token kadaluarsa, manager bisa generate ulang token</li>
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -174,28 +174,5 @@
 @endsection
 
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const togglePassword = document.querySelector('#togglePassword');
-        const password = document.querySelector('#password');
-        const eyeIcon = document.querySelector('#eyeIcon');
-
-        if(togglePassword && password && eyeIcon) {
-            togglePassword.addEventListener('click', function (e) {
-                // Toggle type attribute
-                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-                password.setAttribute('type', type);
-
-                // Toggle icon
-                if (type === 'text') {
-                    eyeIcon.classList.remove('fa-eye');
-                    eyeIcon.classList.add('fa-eye-slash');
-                } else {
-                    eyeIcon.classList.remove('fa-eye-slash');
-                    eyeIcon.classList.add('fa-eye');
-                }
-            });
-        }
-    });
-</script>
+<!-- Script toggle password dihapus karena tidak lagi diperlukan -->
 @endpush

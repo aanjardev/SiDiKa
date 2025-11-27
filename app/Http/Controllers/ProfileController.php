@@ -22,12 +22,12 @@ class ProfileController extends Controller
     {
         $request->validate([
             'current_password' => 'required|string',
-            'password' => 'required|string|min:8|confirmed',
+            'new_password' => 'required|string|min:6|confirmed',
         ], [
             'current_password.required' => 'Password lama wajib diisi',
-            'password.required' => 'Password baru wajib diisi',
-            'password.min' => 'Password minimal 8 karakter',
-            'password.confirmed' => 'Konfirmasi password tidak sesuai',
+            'new_password.required' => 'Password baru wajib diisi',
+            'new_password.min' => 'Password minimal 6 karakter',
+            'new_password.confirmed' => 'Konfirmasi password tidak sesuai',
         ]);
 
         $user = Auth::user();
@@ -36,12 +36,12 @@ class ProfileController extends Controller
             return back()->with('error', 'Password lama yang Anda masukkan salah!');
         }
 
-        if (Hash::check($request->password, $user->password)) {
+        if (Hash::check($request->new_password, $user->password)) {
             return back()->with('error', 'Password baru tidak boleh sama dengan password lama!');
         }
 
         $user->update([
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->new_password)
         ]);
 
         return back()->with('success', 'Password berhasil diperbarui!');
