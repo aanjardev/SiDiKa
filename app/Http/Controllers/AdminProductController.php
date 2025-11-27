@@ -179,9 +179,11 @@ class AdminProductController extends Controller
                 Auth::id()
             );
 
+            // Setelah submit dari halaman uploadProductPhotos,
+            // selalu redirect kembali ke daftar Foto Produk.
             return redirect()
                 ->route('admin.products.photos')
-                ->with('success', 'Foto sedang diproses di latar belakang. Anda akan menerima notifikasi ketika selesai.');
+                ->with('success', 'Foto berhasil diunggah.');
 
         } catch (\Throwable $th) {
             // Clean up any temporary files if error occurs before dispatch
