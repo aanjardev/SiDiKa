@@ -51,7 +51,8 @@ return [
 })->values()->toArray();
 @endphp
 
-<form action="{{ $isEdit ? route('admin.sales.update', $penjualan->id) : route('admin.sales.store') }}" method="POST" id="formPenjualan">
+<form action="{{ $isEdit ? route('admin.sales.update', $penjualan->id) : route('admin.sales.store') }}"
+    method="POST" id="formPenjualan" data-is-edit="{{ $isEdit ? '1' : '0' }}">
     @csrf
     <input type="hidden" name="items" id="itemsInput" value='{{ $raw_items ?? '[]' }}'>
     @if($isEdit)
@@ -125,7 +126,8 @@ return [
                         <i class="fa-solid fa-cart-shopping me-2 text-warning"></i>Item Penjualan
                     </h6>
                     <a href="{{ route('admin.sales.create') }}"
-                        class="btn btn-primary btn-sm fw-medium d-flex align-items-center gap-2">
+                        class="btn btn-primary btn-sm fw-medium d-flex align-items-center gap-2"
+                        id="btnTambahItem">
                         <i class="fa-solid fa-plus fa-fw"></i> Tambah Item
                     </a>
 

@@ -196,7 +196,7 @@ class AdminProductController extends Controller
                 $image = $request->file('image');
 
                 $paths = ImageUpload::upload($image, "product/{$product->id}");
-                $path = $paths['large_path'];
+                $path = $paths['path'];
 
             $hasMain = $product->gambarUtama()->exists();
 

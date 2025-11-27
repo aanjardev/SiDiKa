@@ -76,7 +76,7 @@ class ProcessProductImage implements ShouldQueue
                         $tempFilePath,
                         $prefix
                     );
-                    $permanentPath = $paths['large_path'];
+                    $permanentPath = $paths['path'];
 
                     // Delete temporary file
                     Storage::disk('local')->delete($tempPath);
