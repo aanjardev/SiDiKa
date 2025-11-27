@@ -27,9 +27,22 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="no_telp" class="form-label">Nomor Telepon <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control required-field @error('no_telp') is-invalid @enderror" id="no_telp" name="no_telp" value="{{ old('no_telp', $pelanggan->no_telp ?? '') }}" placeholder="Masukkan nomor telepon" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }} data-error-message="Nomor telepon wajib diisi">
-                                <div class="invalid-feedback">@error('no_telp') {{ $message }} @else Nomor telepon wajib diisi @enderror</div>
+                                <label for="no_telp" class="form-label">Nomor Telepon</label>
+                                <input type="text"
+                                       class="form-control @error('no_telp') is-invalid @enderror"
+                                       id="no_telp"
+                                       name="no_telp"
+                                       value="{{ old('no_telp', $pelanggan->no_telp ?? '') }}"
+                                       placeholder="Masukkan nomor telepon"
+                                       inputmode="numeric"
+                                       pattern="[0-9]*"
+                                       maxlength="20"
+                                       data-phone-validation
+                                       data-max-digits="20"
+                                       {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
+                                @error('no_telp')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -50,7 +63,18 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="identitas" class="form-label">NIK</label>
-                                <input type="text" class="form-control @error('identitas') is-invalid @enderror" id="identitas" name="identitas" value="{{ old('identitas', $pelanggan->identitas ?? '') }}" placeholder="Masukkan NIK (opsional)" {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>
+                                <input type="text"
+                                       class="form-control @error('identitas') is-invalid @enderror"
+                                       id="identitas"
+                                       name="identitas"
+                                       value="{{ old('identitas', $pelanggan->identitas ?? '') }}"
+                                       placeholder="Masukkan NIK (opsional)"
+                                       inputmode="numeric"
+                                       pattern="[0-9]*"
+                                       maxlength="20"
+                                       data-phone-validation
+                                       data-max-digits="20"
+                                       {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>
                                 @error('identitas')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -143,5 +167,6 @@
 @endif
 @endpush
 @push('scripts')
+<script src="{{ asset('js/phone-input-validation.js') }}"></script>
 <script>
 

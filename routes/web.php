@@ -15,6 +15,7 @@ use App\Http\Controllers\PermissionsController;
 use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\QCController;
 use App\Http\Controllers\CatalogSettingsController;
+use App\Http\Controllers\SmartStockController;
 use Illuminate\Support\Facades\Route;
 
 use Symfony\Component\HttpKernel\Profiler\Profile;
@@ -97,6 +98,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/catalog-settings', [CatalogSettingsController::class, 'edit'])->name('catalog-settings.index');
     Route::post('/catalog-settings', [CatalogSettingsController::class, 'update'])->name('catalog-settings.update');
     Route::get('/promotions', function () { return view('admin.promotions'); })->name('promotions');
+    
+    // Smart Stock Analysis
+    Route::get('/smart-stock', [SmartStockController::class, 'index'])->name('smart-stock.index');
+    Route::get('/smart-stock/product/{productId}/prediction', [SmartStockController::class, 'getProductPrediction'])->name('smart-stock.product.prediction');
+    Route::get('/smart-stock/notifications', [SmartStockController::class, 'getNotifications'])->name('smart-stock.notifications');
+    Route::post('/smart-stock/notifications/{notificationId}/read', [SmartStockController::class, 'markAsRead'])->name('smart-stock.notifications.read');
 
     Route::middleware('role:manager')->group(function () {
         Route::resource('/employees', EmployeeController::class)->names('employees');

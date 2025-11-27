@@ -26,7 +26,9 @@ class CustomerController extends Controller
         $sortOrder = $request->input('sort_order', 'desc');
 
         if ($sortBy === 'nama') {
-            $query->orderBy('nama', $sortOrder);
+            $query->orderBy('nama', 'asc');
+        } elseif ($sortBy === 'nama_desc') {
+            $query->orderBy('nama', 'desc');
         } else {
             $query->orderBy('updated_at', $sortOrder);
         }
@@ -52,12 +54,15 @@ class CustomerController extends Controller
         // 1. Validasi data yang masuk dari AJAX
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:50',
-            'no_telp' => 'required|string|max:20',
-            'identitas' => 'nullable|string|max:20',
+            'no_telp' => ['required', 'string', 'max:20', 'regex:/^\d+$/'],
+            'identitas' => ['nullable', 'string', 'max:20', 'regex:/^\d+$/'],
             'jenis_kelamin' => 'required|in:L,P',
             'alamat' => 'nullable|string|max:100',
             'referensi' => 'nullable|string|max:100',
             'keterangan' => 'nullable|string',
+        ], [
+            'no_telp.regex' => 'Nomor telepon hanya boleh berisi angka.',
+            'identitas.regex' => 'NIK hanya boleh berisi angka.',
         ]);
 
         // 2. Jika validasi gagal, kirim error kembali sebagai JSON
@@ -96,9 +101,9 @@ class CustomerController extends Controller
 
         $validated = $request->validate([
             'nama' => 'required|string|max:50',
-            'no_telp' => 'required|string|max:20',
+            'no_telp' => ['required', 'string', 'max:20', 'regex:/^\d+$/'],
             'email' => 'nullable|email|max:100',
-            'identitas' => 'nullable|string|max:20',
+            'identitas' => ['nullable', 'string', 'max:20', 'regex:/^\d+$/'],
             'jenis_kelamin' => 'required|in:L,P',
             'alamat' => 'nullable|string|max:100',
             'referensi' => 'nullable|string|max:100',
@@ -106,7 +111,9 @@ class CustomerController extends Controller
         ], [
             'nama.required' => 'Nama pelanggan wajib diisi.',
             'no_telp.required' => 'Nomor telepon wajib diisi.',
+            'no_telp.regex' => 'Nomor telepon hanya boleh berisi angka.',
             'email.email' => 'Format email tidak valid.',
+            'identitas.regex' => 'NIK hanya boleh berisi angka.',
             'jenis_kelamin.required' => 'Jenis kelamin wajib dipilih.',
             'jenis_kelamin.in' => 'Jenis kelamin harus L atau P.',
         ]);

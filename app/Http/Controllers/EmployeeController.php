@@ -30,13 +30,27 @@ class EmployeeController extends Controller
             $query->where('status', $request->input('status'));
         }
 
-        $employees = $query->latest()->paginate(10)->withQueryString();
+        // Sort by
+        $sortBy = $request->input('sort_by', 'updated_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+
+        if ($sortBy === 'nama') {
+            $query->orderBy('nama_lengkap', 'asc');
+        } elseif ($sortBy === 'nama_desc') {
+            $query->orderBy('nama_lengkap', 'desc');
+        } else {
+            $query->orderBy('updated_at', $sortOrder);
+        }
+
+        $employees = $query->paginate(10)->withQueryString();
 
         return view('admin.dataKaryawan', [
             'employees' => $employees,
             'search_term' => $request->input('search', ''),
             'selected_jabatan' => $request->input('jabatan', 'all'),
             'selected_status' => $request->input('status', 'all'),
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
         ]);
     }
 

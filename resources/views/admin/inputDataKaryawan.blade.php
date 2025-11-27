@@ -51,7 +51,7 @@
                                 <input type="text"
                                     class="form-control border-start-0 ps-2 required-field @error('nama_lengkap') is-invalid @enderror"
                                     name="nama_lengkap"
-                                    style="height: 45px;"
+                                    style="height: 45px;" maxlength="50"
 
                                     value="{{ old('nama_lengkap', $employee->nama_lengkap ?? '') }}"
                                     placeholder="Nama lengkap sesuai KTP"
@@ -75,7 +75,7 @@
                                     value="{{ old('nik', $employee->nik ?? '') }}"
                                     placeholder="16 Digit NIK"
                                     {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
-                                    data-error-message="NIK wajib diisi">
+                                    data-error-message="NIK wajib diisi" maxlength="16">
                             </div>
                             <div class="invalid-feedback">NIK wajib diisi</div>
                             @error('nik') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
@@ -131,14 +131,13 @@
                             <label class="form-label fw-medium text-secondary small">Gaji Pokok</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3">Rp</span>
-                                <input type="number"
-                                    class="form-control border-start-0 ps-2 @error('gaji') is-invalid @enderror"
+                                <input type="text"
+                                    class="form-control border-start-0 ps-2 rupiah-mask numeric-only @error('gaji') is-invalid @enderror"
                                     name="gaji"
                                     style="height: 45px;"
                                     value="{{ old('gaji', $employee->gaji ?? '') }}"
-                                    placeholder="0"
-                                    min="0"
-                                    {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>
+                                    placeholder="0" maxlength="11"
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : '' }} >
                             </div>
                             @error('gaji') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
@@ -260,76 +259,5 @@
 @endpush
 
 @push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const displayInput = document.getElementById('nomor_telepon_display');
-        const hiddenInput  = document.getElementById('nomor_telepon');
-
-        if (!displayInput || !hiddenInput) return;
-
-        // Helper: format 4-4-sisa, misal 0813123456789 -> 0813-1234-56789
-        function formatPhone(digits) {
-            if (!digits) return '';
-            const part1 = digits.slice(0, 4);
-            const part2 = digits.slice(4, 8);
-            const rest  = digits.slice(8);
-
-            let formatted = part1;
-            if (part2) formatted += '-' + part2;
-            if (rest)  formatted += '-' + rest;
-            return formatted;
-        }
-
-        // Saat load, jika sudah ada nilai (edit), pastikan tampilannya terformat
-        (function initPhone() {
-            const raw = (hiddenInput.value || '').replace(/\D/g, '');
-            const limited = raw.slice(0, 15);
-            hiddenInput.value = limited;
-            displayInput.value = formatPhone(limited);
-        })();
-
-        // Input: hanya izinkan digit, batasi 15, format tampilan, simpan ke hidden sebagai digit
-        displayInput.addEventListener('input', function () {
-            let digits = this.value.replace(/\D/g, '');
-            if (digits.length > 15) {
-                digits = digits.slice(0, 15);
-            }
-
-            hiddenInput.value  = digits;          // ke backend
-            displayInput.value = formatPhone(digits); // tampilan
-        });
-
-        // Validasi saat blur: satu pesan error saja
-        displayInput.addEventListener('blur', function () {
-            const digits = hiddenInput.value.replace(/\D/g, '');
-            const formControl = displayInput; // yang diberi is-invalid
-
-            // Reset state
-            formControl.classList.remove('is-invalid');
-
-            // Kosong -> pesan wajib isi
-            if (!digits) {
-                formControl.classList.add('is-invalid');
-                const feedback = formControl.closest('.input-group').nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Nomor telepon wajib diisi.';
-                }
-                return;
-            }
-
-            // Cek format sesuai regex backend: (0|62|+62) + 8-15 digit total
-            const regex = /^(?:0|62|\+62)[0-9]{8,15}$/;
-            const withPrefix = digits; // kita simpan hanya digit, jadi awali 0/62 di sini
-
-            if (!regex.test(withPrefix)) {
-                formControl.classList.add('is-invalid');
-                const feedback = formControl.closest('.input-group').nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.';
-                }
-                return;
-            }
-        });
-    });
-</script>
+<script src="{{ asset('js/phone-input-validation.js') }}"></script>
 @endpush

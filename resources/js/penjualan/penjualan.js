@@ -35,9 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
             biaya: document.querySelector("input[name='biaya_tambahan']"),
 
             diskonRow: document.getElementById("lineDiskonRow"),
-            depresiasiRow: document.getElementById("lineDepresiasiRow"),
-            biayaRow: document.getElementById("lineBiayaRow"),
-        },
+            // depresiasiRow tidak digunakan karena depresiasi hanya info, tidak mengurangi total
+            biayaRow: document.getElementById("lineBiayaRow")
+        }
     });
 
     checkout.render();

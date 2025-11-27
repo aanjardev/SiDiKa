@@ -199,7 +199,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                             {{-- Tambahkan class is-invalid pada input yang terlihat --}}
                             <input type="text" class="form-control fw-bold rupiah-mask @error('harga_tawaran_customer') is-invalid @enderror"
                                 id="display_harga_tawaran_customer" placeholder="0"
-                                value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
+                                value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}" maxlength="11">
                             <input type="hidden" name="harga_tawaran_customer" id="harga_tawaran_customer"
                                 value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
                         </div>
@@ -219,7 +219,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                             {{-- Tambahkan class is-invalid pada input yang terlihat --}}
                             <input type="text" class="form-control fw-bold rupiah-mask @error('harga_tawaran_toko') is-invalid @enderror"
                                 id="display_harga_tawaran_toko" placeholder="0"
-                                value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
+                                value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}" maxlength="11">
                             <input type="hidden" name="harga_tawaran_toko" id="harga_tawaran_toko"
                                 value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
                         </div>
@@ -240,7 +240,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                             {{-- Tambahkan class is-invalid pada input yang terlihat --}}
                             <input type="text" class="form-control border-0 fw-bold text-success fs-5 rupiah-mask @error('harga_deal') is-invalid @enderror"
                                 id="display_harga_deal" placeholder="0" style="height: 50px;"
-                                value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
+                                value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}" maxlength="11">
                             <input type="hidden" name="harga_deal" id="harga_deal"
                                 value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
                         </div>
@@ -506,7 +506,15 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-secondary small">No. Telepon <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control required-field" id="customer_no_telp_modal" name="no_telp" required data-error-message="Nomor telepon wajib diisi">
+                            <input type="text"
+                                   class="form-control required-field"
+                                   id="customer_no_telp_modal"
+                                   name="no_telp"
+                                   required
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   data-phone-validation
+                                   data-max-digits="20">
                             <div class="invalid-feedback">
                                 Nomor telepon wajib diisi.
                             </div>
@@ -528,7 +536,13 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-secondary small">No. Identitas (KTP/SIM)</label>
-                            <input type="text" class="form-control" name="identitas">
+                            <input type="text"
+                                   class="form-control"
+                                   name="identitas"
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   data-phone-validation
+                                   data-max-digits="20">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-secondary small">Referensi</label>
@@ -608,5 +622,73 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
     }
 }
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const phoneInput = document.getElementById('customer_no_telp_modal');
+        if (!phoneInput) return;
+
+        function formatPhone(digits) {
+            if (!digits) return '';
+            const part1 = digits.slice(0, 4);
+            const part2 = digits.slice(4, 8);
+            const rest  = digits.slice(8);
+
+            let formatted = part1;
+            if (part2) formatted += '-' + part2;
+            if (rest)  formatted += '-' + rest;
+            return formatted;
+        }
+
+        (function initPhone() {
+            const raw = (phoneInput.value || '').replace(/\D/g, '');
+            const limited = raw.slice(0, 15);
+            phoneInput.value = formatPhone(limited);
+        })();
+
+        phoneInput.addEventListener('input', function () {
+            let digits = this.value.replace(/\D/g, '');
+            if (digits.length > 15) {
+                digits = digits.slice(0, 15);
+            }
+            this.value = formatPhone(digits);
+        });
+
+        phoneInput.addEventListener('blur', function () {
+            const digits = this.value.replace(/\D/g, '');
+            this.classList.remove('is-invalid');
+
+            if (!digits) {
+                this.classList.add('is-invalid');
+                const feedback = this.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Nomor telepon wajib diisi.';
+                }
+                return;
+            }
+
+            const regex = /^(?:0|62|\+62)[0-9]{8,15}$/;
+            const withPrefix = digits;
+
+            if (!regex.test(withPrefix)) {
+                this.classList.add('is-invalid');
+                const feedback = this.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.';
+                }
+                return;
+            }
+        });
+
+        const form = document.getElementById('formTambahCustomer');
+        if (form) {
+            form.addEventListener('submit', function () {
+                const digits = phoneInput.value.replace(/\D/g, '');
+                phoneInput.value = digits;
+            });
+        }
+    });
+</script>
+
 @vite('resources/js/pembelian/pembelian.js')
 @endpush

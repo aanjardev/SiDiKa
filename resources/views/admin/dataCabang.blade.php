@@ -12,29 +12,37 @@
 @section('content')
 
 {{-- Filter dan Pencarian --}}
-<div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-    <div class="card-body p-2 d-flex align-items-center flex-wrap">
-        {{-- Bagian Kiri: Input Search --}}
-        <div class="d-flex align-items-center flex-grow-1 ps-2">
-            <span class="text-muted ms-2 me-3">
-                <i class="fa-solid fa-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control border-0 shadow-none bg-transparent"
-                placeholder="Cari cabang berdasarkan nama atau alamat..."
-                style="font-size: 0.95rem;"
-                autofocus>
-        </div>
+<form method="GET" action="{{ route('admin.branches.index') }}" id="searchForm">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+            {{-- Bagian Kiri: Input Search --}}
+            <div class="d-flex align-items-center flex-grow-1 ps-2">
+                <span class="text-muted ms-2 me-3">
+                    <i class="fa-solid fa-search text-muted"></i>
+                </span>
+                <input type="text" 
+                       class="form-control border-0 shadow-none bg-transparent"
+                       name="search"
+                       placeholder="Cari cabang berdasarkan nama atau alamat..."
+                       value="{{ $search_term ?? '' }}"
+                       style="font-size: 0.95rem;">
+            </div>
 
-        {{-- Bagian Kanan: Dropdown --}}
-        <div class="d-flex align-items-center gap-2 pe-2">
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option selected>Urutkan: Terbaru</option>
-                <option value="az">Nama (A-Z)</option>
-                <option value="za">Nama (Z-A)</option>
-            </select>
+            {{-- Bagian Kanan: Dropdown Sort --}}
+            <div class="d-flex align-items-center gap-2 pe-2">
+                <select name="sort_by" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="updated_at" {{ ($sort_by ?? 'updated_at') == 'updated_at' ? 'selected' : '' }}>Urutkan: Terakhir diubah</option>
+                    <option value="nama" {{ ($sort_by ?? 'updated_at') == 'nama' ? 'selected' : '' }}>Nama (A-Z)</option>
+                    <option value="nama_desc" {{ ($sort_by ?? 'updated_at') == 'nama_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
+                </select>
+                <input type="hidden" name="sort_order" value="{{ $sort_order ?? 'desc' }}">
+            </div>
         </div>
     </div>
-</div>
+</form>
 
 {{-- Table Card --}}
 <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
@@ -164,5 +172,29 @@
     
     // Export ke window untuk bisa dipanggil dari mana saja
     window.handleDeleteCabang = handleDeleteCabang;
+
+    // Auto Search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('input[name="search"]');
+        const searchForm = document.getElementById('searchForm');
+        let searchTimeout;
+
+        if (searchInput && searchForm) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    searchForm.submit();
+                }, 500);
+            });
+
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(searchTimeout);
+                    searchForm.submit();
+                }
+            });
+        }
+    });
 </script>
 @endpush

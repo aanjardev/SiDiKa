@@ -9,6 +9,10 @@ $setting = \App\Models\CatalogSettings::first();
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>@yield('title', 'Admin Panel') | SiDiKa</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @vite([
+        'resources/css/app.css',
+        'resources/js/app.js',
+    ])
 
     {{-- @vite([
           'resources/admin_theme/css/core/libs.min.css',
@@ -163,6 +167,13 @@ $setting = \App\Models\CatalogSettings::first();
                         <a href="{{ route('admin.products.photos') }}" class="submenu-link">
                             <i class="fas fa-image submenu-icon"></i>
                             <span>Foto Produk</span>
+                        </a>
+                    </div>
+
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.smart-stock.index') }}" class="submenu-link">
+                            <i class="fas fa-chart-line submenu-icon"></i>
+                            <span>Smart Stock Analysis</span>
                         </a>
                     </div>
                 </div>

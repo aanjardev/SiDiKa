@@ -225,7 +225,7 @@ return [
                             <label class="form-label fw-medium text-secondary small">Diskon</label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text bg-white text-muted border-end-0">Rp</span>
-                                <input type="text" name="diskon" class="form-control border-start-0 ps-1 rupiah-mask" value="{{ old('diskon', $penjualan->diskon ?? 0) }}" min="0">
+                                <input type="text" name="diskon" class="form-control border-start-0 ps-1 rupiah-mask" value="{{ old('diskon', $penjualan->diskon ?? 0) }}" min="0" maxlength="11">
                             </div>
                         </div>
                         <div class="col-6">
@@ -238,11 +238,12 @@ return [
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-medium text-secondary small">Depresiasi (Pengurangan Nilai)</label>
+                        <label class="form-label fw-medium text-secondary small">Depresiasi <small class="text-muted">(Info untuk Nota)</small></label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-white text-muted border-end-0">Rp</span>
-                            <input type="text" name="depresiasi" class="form-control border-start-0 ps-1 rupiah-mask" value="{{ old('depresiasi', $depresiasi_awal ?? 0) }}" min="0">
+                            <input type="text" name="depresiasi" class="form-control border-start-0 ps-1 rupiah-mask" value="{{ old('depresiasi', $depresiasi_awal ?? 0) }}" min="0" maxlength="11">
                         </div>
+                        <small class="text-muted d-block mt-1">Nilai depresiasi hanya sebagai informasi untuk dicetak di nota, tidak mengurangi total pembayaran.</small>
                     </div>
 
                     {{-- Breakdown Kalkulasi --}}
@@ -255,10 +256,7 @@ return [
                             <span>Diskon</span>
                             <span id="lineDiskon">-Rp0</span>
                         </div>
-                        <div class="d-flex justify-content-between text-danger mb-1" id="lineDepresiasiRow" style="display: none;">
-                            <span>Depresiasi</span>
-                            <span id="lineDepresiasi">-Rp0</span>
-                        </div>
+                        {{-- Depresiasi tidak ditampilkan di breakdown kalkulasi, hanya sebagai info untuk nota --}}
                         <div class="d-flex justify-content-between text-success mb-1" id="lineBiayaRow" style="display: none;">
                             <span>Biaya Tambahan</span>
                             <span id="lineBiaya">Rp0</span>
@@ -353,15 +351,29 @@ return [
                             <div class="invalid-feedback">Nama customer wajib diisi</div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label" for="customer_no_telp_modal">Nomor Telepon <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control required-field" id="customer_no_telp_modal" name="no_telp" required data-error-message="Nomor telepon wajib diisi">
-                            <div class="invalid-feedback">Nomor telepon wajib diisi</div>
+                            <label class="form-label" for="customer_no_telp_modal">Nomor Telepon*</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="customer_no_telp_modal"
+                                   name="no_telp"
+                                   required
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   data-phone-validation
+                                   data-max-digits="20">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="customer_identitas_modal">NIK (Identitas)</label>
-                            <input type="text" class="form-control" id="customer_identitas_modal" name="identitas">
+                            <input type="text"
+                                   class="form-control"
+                                   id="customer_identitas_modal"
+                                   name="identitas"
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   data-phone-validation
+                                   data-max-digits="20">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="customer_jenis_kelamin_modal">Jenis Kelamin <span class="text-danger">*</span></label>
@@ -400,6 +412,75 @@ return [
 @push('scripts')
 <script type="application/json" id="produk-data-json">
     @json($produkUntukJs)
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const phoneInput = document.getElementById('customer_no_telp_modal');
+        if (!phoneInput) return;
+
+        function formatPhone(digits) {
+            if (!digits) return '';
+            const part1 = digits.slice(0, 4);
+            const part2 = digits.slice(4, 8);
+            const rest  = digits.slice(8);
+
+            let formatted = part1;
+            if (part2) formatted += '-' + part2;
+            if (rest)  formatted += '-' + rest;
+            return formatted;
+        }
+
+        // Inisialisasi (kalau ada nilai lama)
+        (function initPhone() {
+            const raw = (phoneInput.value || '').replace(/\D/g, '');
+            const limited = raw.slice(0, 15);
+            phoneInput.value = formatPhone(limited);
+        })();
+
+        phoneInput.addEventListener('input', function () {
+            let digits = this.value.replace(/\D/g, '');
+            if (digits.length > 15) {
+                digits = digits.slice(0, 15);
+            }
+            this.value = formatPhone(digits);
+        });
+
+        phoneInput.addEventListener('blur', function () {
+            const digits = this.value.replace(/\D/g, '');
+
+            this.classList.remove('is-invalid');
+
+            if (!digits) {
+                this.classList.add('is-invalid');
+                const feedback = this.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Nomor telepon wajib diisi.';
+                }
+                return;
+            }
+
+            const regex = /^(?:0|62|\+62)[0-9]{8,15}$/;
+            const withPrefix = digits;
+
+            if (!regex.test(withPrefix)) {
+                this.classList.add('is-invalid');
+                const feedback = this.nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.';
+                }
+                return;
+            }
+        });
+
+        const form = document.getElementById('formTambahCustomer');
+        if (form) {
+            form.addEventListener('submit', function () {
+                // Pastikan yang dikirim ke backend hanya digit
+                const digits = phoneInput.value.replace(/\D/g, '');
+                phoneInput.value = digits;
+            });
+        }
+    });
 </script>
 
 @vite(['resources/js/app.js', 'resources/js/penjualan/penjualan.js'])
