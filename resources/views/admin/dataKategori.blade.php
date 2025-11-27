@@ -50,7 +50,7 @@
                 </thead>
                 <tbody>
                     @forelse($categories as $index => $category)
-                    <tr>
+                    <tr class="clickable-row" data-detail-url="{{ route('admin.categories.edit', $category->id) }}">
                         <td class="text-center text-muted fw-bold">{{ ($categories->firstItem() ?? 0) + $index }}</td>
 
                         <td>
@@ -63,7 +63,7 @@
                             </div>
                         </td>
 
-                        <td class="text-center">
+                        <td class="text-center no-row-navigation">
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="{{ route('admin.categories.edit', $category->id) }}"
                                     class="btn-action btn-action-edit"
@@ -71,6 +71,8 @@
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 
+                                {{-- Hanya tampilkan tombol hapus jika kategori belum digunakan oleh produk --}}
+                                @if($category->produk_count == 0)
                                 <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('DELETE')
@@ -81,6 +83,13 @@
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
+                                @else
+                                <span class="btn-action text-muted"
+                                      title="Kategori tidak dapat dihapus karena digunakan oleh {{ $category->produk_count }} produk"
+                                      style="cursor: not-allowed; opacity: 0.5;">
+                                    <i class="fa-solid fa-trash"></i>
+                                </span>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -123,8 +132,23 @@
             }
         }
     }
-    
+
     // Export ke window
     window.handleDeleteKategori = handleDeleteKategori;
+
+    // Klik baris untuk menuju halaman edit kategori, kecuali area dengan class .no-row-navigation
+    document.addEventListener('DOMContentLoaded', function () {
+        document.querySelectorAll('tr.clickable-row').forEach(function (row) {
+            row.addEventListener('click', function (event) {
+                if (event.target.closest('.no-row-navigation')) {
+                    return;
+                }
+                const url = this.getAttribute('data-detail-url');
+                if (url) {
+                    window.location.href = url;
+                }
+            });
+        });
+    });
 </script>
 @endpush

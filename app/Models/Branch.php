@@ -22,4 +22,9 @@ class Branch extends Model
     {
         return $this->hasMany(Penjualan::class, 'perusahaan_cabang_id');
     }
+
+    public function purchases()
+    {
+        return $this->hasMany(Pembelian::class, 'perusahaan_cabang_id');
+    }
 }
