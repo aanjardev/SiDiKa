@@ -12,6 +12,15 @@
     .purchase-row:hover {
         background-color: #f8f9fa;
     }
+    
+    .clickable-code {
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .clickable-code:hover {
+        opacity: 0.8;
+        text-decoration: underline !important;
+    }
 </style>
 @endpush
 
@@ -107,9 +116,11 @@
 
                             {{-- Kode Transaksi --}}
                             <td>
-                                <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
+                                <a href="{{ route('admin.purchases.show', $pembelian->id) }}" 
+                                   class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none clickable-code"
+                                   onclick="event.stopPropagation();">
                                     {{ $pembelian->kode_transaksi ?? '#' . $pembelian->id }}
-                                </span>
+                                </a>
                             </td>
 
                             {{-- Customer --}}

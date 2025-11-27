@@ -234,11 +234,12 @@
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-medium text-secondary small">Depresiasi (Pengurangan Nilai)</label>
+                        <label class="form-label fw-medium text-secondary small">Depresiasi <small class="text-muted">(Info untuk Nota)</small></label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-white text-muted border-end-0">Rp</span>
                             <input type="text" name="depresiasi" class="form-control border-start-0 ps-1 rupiah-mask" value="{{ old('depresiasi', $depresiasi_awal ?? 0) }}" min="0">
                         </div>
+                        <small class="text-muted d-block mt-1">Nilai depresiasi hanya sebagai informasi untuk dicetak di nota, tidak mengurangi total pembayaran.</small>
                     </div>
 
                     {{-- Breakdown Kalkulasi --}}
@@ -251,10 +252,7 @@
                             <span>Diskon</span>
                             <span id="lineDiskon">-Rp0</span>
                         </div>
-                        <div class="d-flex justify-content-between text-danger mb-1" id="lineDepresiasiRow" style="display: none;">
-                            <span>Depresiasi</span>
-                            <span id="lineDepresiasi">-Rp0</span>
-                        </div>
+                        {{-- Depresiasi tidak ditampilkan di breakdown kalkulasi, hanya sebagai info untuk nota --}}
                         <div class="d-flex justify-content-between text-success mb-1" id="lineBiayaRow" style="display: none;">
                             <span>Biaya Tambahan</span>
                             <span id="lineBiaya">Rp0</span>
@@ -349,13 +347,28 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="customer_no_telp_modal">Nomor Telepon*</label>
-                            <input type="text" class="form-control" id="customer_no_telp_modal" name="no_telp" required>
+                            <input type="text"
+                                   class="form-control"
+                                   id="customer_no_telp_modal"
+                                   name="no_telp"
+                                   required
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   data-phone-validation
+                                   data-max-digits="20">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="customer_identitas_modal">NIK (Identitas)</label>
-                            <input type="text" class="form-control" id="customer_identitas_modal" name="identitas">
+                            <input type="text"
+                                   class="form-control"
+                                   id="customer_identitas_modal"
+                                   name="identitas"
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   data-phone-validation
+                                   data-max-digits="20">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label" for="customer_jenis_kelamin_modal">Jenis Kelamin</label>

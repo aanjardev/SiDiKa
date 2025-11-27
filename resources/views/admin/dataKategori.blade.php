@@ -12,28 +12,36 @@
 @section('content')
 
 {{-- Filter dan Pencarian --}}
-<div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-    <div class="card-body p-2 d-flex align-items-center flex-wrap">
-        {{-- Bagian Kiri: Input Search --}}
-        <div class="d-flex align-items-center flex-grow-1 ps-2">
-            <span class="text-muted ms-2 me-3">
-                <i class="fa-solid fa-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control border-0 shadow-none bg-transparent"
-                placeholder="Cari kategori..."
-                style="font-size: 0.95rem;">
-        </div>
+<form method="GET" action="{{ route('admin.categories.index') }}" id="searchFormKategori">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+            {{-- Bagian Kiri: Input Search --}}
+            <div class="d-flex align-items-center flex-grow-1 ps-2">
+                <span class="text-muted ms-2 me-3">
+                    <i class="fa-solid fa-search text-muted"></i>
+                </span>
+                <input type="text"
+                       class="form-control border-0 shadow-none bg-transparent"
+                       name="search"
+                       placeholder="Cari kategori..."
+                       value="{{ $search_term ?? '' }}"
+                       style="font-size: 0.95rem;">
+            </div>
 
-        {{-- Bagian Kanan: Dropdown --}}
-        <div class="d-flex align-items-center gap-2 pe-2">
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option selected>Urutkan: A-Z</option>
-                <option value="za">Urutkan: Z-A</option>
-                <option value="newest">Terbaru</option>
-            </select>
+            {{-- Bagian Kanan: Dropdown --}}
+            <div class="d-flex align-items-center gap-2 pe-2">
+                <select name="sort_by"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchFormKategori').submit();">
+                    <option value="nama" {{ ($sort_by ?? 'nama') == 'nama' ? 'selected' : '' }}>Urutkan: A-Z</option>
+                    <option value="nama_desc" {{ ($sort_by ?? '') == 'nama_desc' ? 'selected' : '' }}>Urutkan: Z-A</option>
+                    <option value="terbaru" {{ ($sort_by ?? '') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+                </select>
+            </div>
         </div>
     </div>
-</div>
+</form>
 
 {{-- Table Card --}}
 <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
@@ -125,5 +133,28 @@
     
     // Export ke window
     window.handleDeleteKategori = handleDeleteKategori;
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.querySelector('#searchFormKategori input[name="search"]');
+        const searchForm = document.getElementById('searchFormKategori');
+        let searchTimeout;
+
+        if (searchInput && searchForm) {
+            searchInput.addEventListener('input', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(function() {
+                    searchForm.submit();
+                }, 500);
+            });
+
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    clearTimeout(searchTimeout);
+                    searchForm.submit();
+                }
+            });
+        }
+    });
 </script>
 @endpush

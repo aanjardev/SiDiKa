@@ -138,3 +138,7 @@
 </form>
 
 @endsection
+
+@push('scripts')
+<script src="{{ asset('js/phone-input-validation.js') }}"></script>
+@endpush

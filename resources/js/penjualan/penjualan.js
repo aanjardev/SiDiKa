@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", () => {
             biaya: document.querySelector("input[name='biaya_tambahan']"),
 
             diskonRow: document.getElementById("lineDiskonRow"),
-            depresiasiRow: document.getElementById("lineDepresiasiRow"),
+            // depresiasiRow tidak digunakan karena depresiasi hanya info, tidak mengurangi total
             biayaRow: document.getElementById("lineBiayaRow")
         }
     });
