@@ -10,6 +10,19 @@
     </a>
 @endpush
 
+@push('styles')
+<style>
+    .clickable-code {
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .clickable-code:hover {
+        opacity: 0.8;
+        text-decoration: underline !important;
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -193,9 +206,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             {{-- ID Pembelian --}}
                             <td>
-                                <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
-                                    {{ $item->pembelian->kode_transaksi }}
-                                </span>
+                                <a href="{{ route('admin.purchases.show', $item->pembelian->id) }}" 
+                                   class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none clickable-code"
+                                   onclick="event.stopPropagation();">
+                                    #{{ $item->pembelian->kode_transaksi }}
+                                </a>
                             </td>
 
                             {{-- Nama Item --}}

@@ -11,6 +11,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const productCatalog = productDataEl
         ? JSON.parse(productDataEl.textContent || "[]")
         : [];
+    const formEl = document.getElementById("formPenjualan");
+    const isEditMode = formEl?.dataset.isEdit === "1";
+    const btnTambahItem = document.getElementById("btnTambahItem");
 
     const checkout = new Checkout({
         itemsInput: document.getElementById("itemsInput"),
@@ -32,9 +35,9 @@ document.addEventListener("DOMContentLoaded", () => {
             biaya: document.querySelector("input[name='biaya_tambahan']"),
 
             diskonRow: document.getElementById("lineDiskonRow"),
-            depresiasiRow: document.getElementById("lineDepresiasiRow"),
-            biayaRow: document.getElementById("lineBiayaRow"),
-        },
+            // depresiasiRow tidak digunakan karena depresiasi hanya info, tidak mengurangi total
+            biayaRow: document.getElementById("lineBiayaRow")
+        }
     });
 
     checkout.render();
@@ -85,6 +88,99 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             if (customerSuggestions) customerSuggestions.style.display = "none";
         },
+    });
+
+    const draftKey = "sales_form_draft";
+    let skipDraft = false;
+
+    const saveDraft = () => {
+        if (!formEl || isEditMode || skipDraft) return;
+        const cabangSelect = document.getElementById("perusahaan_cabang_id");
+        const kasSelect = document.querySelector("select[name='kas']");
+        const diskonInput = document.querySelector("input[name='diskon']");
+        const biayaInput = document.querySelector("input[name='biaya_tambahan']");
+        const depresiasiInput = document.querySelector("input[name='depresiasi']");
+        const ketInput = document.querySelector("textarea[name='keterangan']");
+
+        const draft = {
+            customer_search: customerSearchInput?.value || "",
+            customer_id: customerIdInput?.value || "",
+            perusahaan_cabang_id: cabangSelect?.value || "",
+            kas: kasSelect?.value || "",
+            diskon: diskonInput?.value || "",
+            biaya_tambahan: biayaInput?.value || "",
+            depresiasi: depresiasiInput?.value || "",
+            keterangan: ketInput?.value || "",
+        };
+
+        localStorage.setItem(draftKey, JSON.stringify(draft));
+    };
+
+    const loadDraft = () => {
+        if (!formEl || isEditMode) return;
+        const raw = localStorage.getItem(draftKey);
+        if (!raw) return;
+
+        let draft;
+        try {
+            draft = JSON.parse(raw);
+        } catch (e) {
+            localStorage.removeItem(draftKey);
+            return;
+        }
+        if (!draft || typeof draft !== "object") return;
+
+        const cabangSelect = document.getElementById("perusahaan_cabang_id");
+        const kasSelect = document.querySelector("select[name='kas']");
+        const diskonInput = document.querySelector("input[name='diskon']");
+        const biayaInput = document.querySelector("input[name='biaya_tambahan']");
+        const depresiasiInput = document.querySelector("input[name='depresiasi']");
+        const ketInput = document.querySelector("textarea[name='keterangan']");
+
+        if (customerSearchInput && draft.customer_search && !customerSearchInput.value) {
+            customerSearchInput.value = draft.customer_search;
+        }
+        if (customerIdInput && draft.customer_id && !customerIdInput.value) {
+            customerIdInput.value = draft.customer_id;
+        }
+        if (cabangSelect && draft.perusahaan_cabang_id && !cabangSelect.value) {
+            cabangSelect.value = draft.perusahaan_cabang_id;
+        }
+        if (kasSelect && draft.kas) {
+            kasSelect.value = draft.kas;
+        }
+        if (diskonInput && draft.diskon) {
+            diskonInput.value = draft.diskon;
+        }
+        if (biayaInput && draft.biaya_tambahan) {
+            biayaInput.value = draft.biaya_tambahan;
+        }
+        if (depresiasiInput && draft.depresiasi) {
+            depresiasiInput.value = draft.depresiasi;
+        }
+        if (ketInput && draft.keterangan && !ketInput.value) {
+            ketInput.value = draft.keterangan;
+        }
+
+        [diskonInput, biayaInput, depresiasiInput].forEach((input) => {
+            if (input) maskRupiah(input);
+        });
+        totals.recalc();
+    };
+
+    const clearDraft = () => {
+        if (!formEl) return;
+        localStorage.removeItem(draftKey);
+    };
+
+    loadDraft();
+
+    btnTambahItem?.addEventListener("click", () => {
+        saveDraft();
+    });
+
+    window.addEventListener("beforeunload", () => {
+        saveDraft();
     });
 
     const hideModalSafely = (modalEl) => {
@@ -149,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Before submit → sync hidden raw values
+    // Before submit + sync hidden raw values
     document.getElementById("formPenjualan").addEventListener("submit", (e) => {
         if (customerSearchInput && customerIdInput && !customerIdInput.value) {
             e.preventDefault();
@@ -174,5 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         document.querySelectorAll(".rupiah-mask").forEach(syncHiddenRaw);
+        skipDraft = true;
+        clearDraft();
     });
 });

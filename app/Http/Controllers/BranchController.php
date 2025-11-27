@@ -8,13 +8,38 @@ use Illuminate\Validation\Rule;
 
 class BranchController extends Controller
 {
-
-    public function index()
+    public function index(Request $request)
     {
-        $data_cabang = Branch::withCount(['sales', 'purchases'])->latest()->paginate(10);
+        $query = Branch::query();
+
+        // Search by nama or alamat
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('alamat', 'like', "%{$search}%");
+            });
+        }
+
+        // Sort by
+        $sortBy = $request->input('sort_by', 'updated_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+
+        if ($sortBy === 'nama') {
+            $query->orderBy('nama', 'asc');
+        } elseif ($sortBy === 'nama_desc') {
+            $query->orderBy('nama', 'desc');
+        } else {
+            $query->orderBy('updated_at', $sortOrder);
+        }
+
+        $data_cabang = $query->paginate(10)->withQueryString();
 
         return view('admin.dataCabang', [
-            'data_cabang' => $data_cabang
+            'data_cabang' => $data_cabang,
+            'search_term' => $request->input('search', ''),
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
         ]);
     }
 

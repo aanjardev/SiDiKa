@@ -506,7 +506,15 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-secondary small">No. Telepon <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control required-field" id="customer_no_telp_modal" name="no_telp" required data-error-message="Nomor telepon wajib diisi" maxlength="15">
+                            <input type="text"
+                                   class="form-control required-field"
+                                   id="customer_no_telp_modal"
+                                   name="no_telp"
+                                   required
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   data-phone-validation
+                                   data-max-digits="20">
                             <div class="invalid-feedback">
                                 Nomor telepon wajib diisi.
                             </div>
@@ -528,7 +536,13 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-secondary small">No. Identitas (KTP/SIM)</label>
-                            <input type="text" class="form-control" name="identitas">
+                            <input type="text"
+                                   class="form-control"
+                                   name="identitas"
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   data-phone-validation
+                                   data-max-digits="20">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-secondary small">Referensi</label>

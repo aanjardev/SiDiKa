@@ -120,9 +120,11 @@
                         </td>
 
                         <td class="text-nowrap">
-                            <span class="fw-medium text-secondary">
+                            <a href="{{ route('admin.products.show', $product->id) }}" 
+                               class="fw-medium text-primary text-decoration-none clickable-code"
+                               onclick="event.stopPropagation();">
                                 {{ $product->kode_sku ?? '-' }}
-                            </span>
+                            </a>
                         </td>
 
                         <td class="fw-bold text-dark text-nowrap">
@@ -193,6 +195,19 @@
     @endif
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .clickable-code {
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .clickable-code:hover {
+        text-decoration: underline !important;
+        opacity: 0.8;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>

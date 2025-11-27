@@ -62,6 +62,23 @@ class AdminProductController extends Controller
         ]);
     }
 
+    public function show(Produk $product)
+    {
+        $product->loadMissing(['kategori', 'gambar', 'gambarUtama']);
+
+        $images = $product->gambar
+            ->sortByDesc(fn ($img) => (int) ($img->is_main ?? 0))
+            ->values();
+
+        $mainImage = $product->gambarUtama ?: $images->first();
+
+        return view('admin.showProduk', [
+            'product' => $product,
+            'images' => $images,
+            'mainImage' => $mainImage,
+        ]);
+    }
+
     /**
      * Tampilkan daftar produk yang belum memiliki gambar (perlu diupload foto)
      */
@@ -196,7 +213,7 @@ class AdminProductController extends Controller
                 $image = $request->file('image');
 
                 $paths = ImageUpload::upload($image, "product/{$product->id}");
-                $path = $paths['large_path'];
+                $path = $paths['path'];
 
             $hasMain = $product->gambarUtama()->exists();
 
