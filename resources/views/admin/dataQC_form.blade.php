@@ -279,7 +279,7 @@
 
                     {{-- Harga Servis --}}
                     <div class="mb-3">
-                        <label class="form-label fw-medium text-secondary small">Estimasi Biaya Servis</label>
+                        <label class="form-label fw-medium text-secondary small">Biaya Servis</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">Rp</span>
                             <input type="text" name="harga_servis" id="harga_servis" class="form-control border-start-0 ps-2 rupiah-mask" value="{{ old('harga_servis', $item->harga_servis) }}">

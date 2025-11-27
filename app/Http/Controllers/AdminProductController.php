@@ -311,6 +311,7 @@ class AdminProductController extends Controller
             'grade' => ['required', 'in:Unggulan,Standar,Minus'],
             'images' => ['nullable', 'array', 'min:1'],
             'images.*' => ['image', 'max:5120'],
+            'main_image' => ['nullable', 'string'],
         ], [
             'kode_sku.required' => 'Kode SKU wajib diisi.',
             'kode_sku.unique' => 'Kode SKU sudah digunakan. Silakan gunakan kode SKU yang berbeda.',
@@ -321,6 +322,11 @@ class AdminProductController extends Controller
 
         foreach ($uploadedImages as $image) {
             $temporaryPaths[] = $image->store('temp/product-creates', 'local');
+        }
+
+        $selectedMainIndex = null;
+        if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'new_')) {
+            $selectedMainIndex = intval(substr($validated['main_image'], strlen('new_')));
         }
 
         $produk = null;
@@ -356,7 +362,7 @@ class AdminProductController extends Controller
             ProcessProductImage::dispatch(
                 $produk->id,
                 $temporaryPaths,
-                0,
+                $selectedMainIndex ?? 0,
                 Auth::id()
             );
 
@@ -399,6 +405,7 @@ class AdminProductController extends Controller
             // file baru
             'images'   => ['nullable', 'array'],
             'images.*' => ['image', 'max:5120'],
+            'main_image' => ['nullable', 'string'],
 
             // hidden input dari gambar lama
             'remove_images'   => ['nullable', 'array'],
@@ -414,6 +421,15 @@ class AdminProductController extends Controller
         $newImages = $request->file('images', []);
         foreach ($newImages as $image) {
             $temporaryPaths[] = $image->store('temp/product-updates', 'local');
+        }
+
+        $selectedMainIndex = null;
+        if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'new_')) {
+            $selectedMainIndex = intval(substr($validated['main_image'], strlen('new_')));
+        }
+        $selectedMainExistingId = null;
+        if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'existing_')) {
+            $selectedMainExistingId = intval(substr($validated['main_image'], strlen('existing_')));
         }
 
         DB::beginTransaction();
@@ -447,6 +463,17 @@ class AdminProductController extends Controller
                 }
             }
 
+            if ($selectedMainExistingId !== null) {
+                $targetImage = $product->gambar()->where('id', $selectedMainExistingId)->first();
+                if ($targetImage) {
+                    GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
+                    $targetImage->is_main = true;
+                    $targetImage->save();
+                } else {
+                    $selectedMainExistingId = null;
+                }
+            }
+
             if (!$product->gambarUtama()->exists()) {
                 $first = $product->gambar()->first();
                 if ($first) {
@@ -471,11 +498,12 @@ class AdminProductController extends Controller
         if (!empty($temporaryPaths)) {
             $product->refresh();
             $productHasMain = $product->gambarUtama()->exists();
+            $mainIndexForJob = $selectedMainIndex;
 
             ProcessProductImage::dispatch(
                 $product->id,
                 $temporaryPaths,
-                $productHasMain ? null : 0,
+                $mainIndexForJob !== null ? $mainIndexForJob : ($productHasMain ? null : 0),
                 Auth::id()
             );
         }
