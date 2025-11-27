@@ -184,8 +184,11 @@ class EmployeeController extends Controller
             'tanggal_keluar' => $validated['tanggal_keluar'] ?? null,
         ]);
 
-        return redirect()->route('admin.employees.index')
-                         ->with('success', 'Karyawan berhasil diperbarui.');
+        $redirect = match($request->input('redirect_to')) {
+        'pageProfil' => route('admin.profile'), 
+         default => route('admin.employees.index'),
+    };
+        return redirect($redirect)->with('success', 'Karyawan berhasil diperbarui.');
     }
 
     public function destroy($id)
