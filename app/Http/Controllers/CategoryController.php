@@ -7,10 +7,35 @@ use App\Models\Categories;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Categories::withCount('produk')->latest()->paginate(10);
-        return view('admin.dataKategori', compact('categories'));
+        $query = Categories::query();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('nama_kategori', 'like', "%{$search}%");
+        }
+
+        $sortBy = $request->input('sort_by', 'nama');
+        switch ($sortBy) {
+            case 'nama_desc':
+                $query->orderBy('nama_kategori', 'desc');
+                break;
+            case 'terbaru':
+                $query->orderBy('created_at', 'desc');
+                break;
+            case 'nama':
+            default:
+                $query->orderBy('nama_kategori', 'asc');
+                break;
+        }
+
+        $categories = $query->paginate(10)->withQueryString();
+        return view('admin.dataKategori', [
+            'categories' => $categories,
+            'search_term' => $request->input('search', ''),
+            'sort_by' => $sortBy,
+        ]);
     }
 
     public function create()

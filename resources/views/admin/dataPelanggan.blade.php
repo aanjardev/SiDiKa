@@ -104,9 +104,11 @@
                         </td>
 
                         <td>
-                            <span class="fw-medium text-dark">
-                                {{ $pelanggan->identitas }}
-                            </span>
+                            <a href="{{ route('admin.customers.show', $pelanggan->id) }}" 
+                               class="fw-medium text-primary text-decoration-none clickable-code"
+                               onclick="event.stopPropagation();">
+                                {{ $pelanggan->identitas ?? '-' }}
+                            </a>
                         </td>
 
                         <td class="text-center no-row-navigation">
@@ -143,6 +145,19 @@
     @endif
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .clickable-code {
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+    .clickable-code:hover {
+        text-decoration: underline !important;
+        opacity: 0.8;
+    }
+</style>
+@endpush
 
 @push('scripts')
 <script>

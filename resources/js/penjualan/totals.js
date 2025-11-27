@@ -19,13 +19,15 @@ export default class Totals {
         const depresiasi = cleanNumber(this.el.depresiasi.value);
         const biaya = cleanNumber(this.el.biaya.value);
 
-        const total = Math.max(0, subtotal - diskon - depresiasi + biaya);
+        // Depresiasi tidak mengurangi total, hanya sebagai informasi untuk nota
+        const total = Math.max(0, subtotal - diskon + biaya);
 
         this.el.subtotal.textContent = formatRupiah(subtotal);
         this.el.total.textContent = formatRupiah(total);
 
         this.toggleRow(this.el.diskonRow, diskon > 0, "-" + formatRupiah(diskon));
-        this.toggleRow(this.el.depresiasiRow, depresiasi > 0, "-" + formatRupiah(depresiasi));
+        // Depresiasi tidak ditampilkan di breakdown kalkulasi, hanya sebagai info
+        // this.toggleRow(this.el.depresiasiRow, depresiasi > 0, "-" + formatRupiah(depresiasi));
         this.toggleRow(this.el.biayaRow, biaya > 0, formatRupiah(biaya));
 
         this.el.submit.disabled = this.checkout.cartItems.length === 0;
