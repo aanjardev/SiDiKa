@@ -10,6 +10,7 @@ use App\Models\Produk;
 use App\Models\Penjualan;
 use App\Models\Customer;
 use App\Models\Branch as PerusahaanCabang;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PenjualanController extends Controller
 {
@@ -443,5 +444,31 @@ class PenjualanController extends Controller
         }
 
         return [$detailItems, $subtotal, $products];
+    }
+
+    public function printNota($id)
+    {
+        $penjualan = Penjualan::with([
+            'customer',
+            'perusahaan_cabang',
+            'user',
+            'detail_penjualan.produk',
+        ])->findOrFail($id);
+
+        $subtotal = $penjualan->detail_penjualan->sum(function ($detail) {
+            $price = (int) ($detail->harga_jual_satuan ?? 0);
+            $qty = (int) ($detail->qty ?? 0);
+            return $price * $qty;
+        });
+
+        $data = [
+            'penjualan' => $penjualan,
+            'subtotal' => $subtotal,
+            'title' => 'Nota Penjualan #'.$penjualan->kode_transaksi,
+        ];
+
+        $pdf = Pdf::loadView('admin.notaPenjualan', $data)->setPaper('A4', 'portrait');
+
+        return $pdf->stream('Nota_Penjualan_'.$penjualan->kode_transaksi.'.pdf');
     }
 }

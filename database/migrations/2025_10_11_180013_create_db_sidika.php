@@ -183,7 +183,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('penjualan_id')->constrained('penjualan')->onDelete('cascade');
             $table->foreignId('produk_id')->constrained('produk')->onDelete('restrict');
-            $table->string('serial_number', 30)->nullable();
+            // $table->string('serial_number', 30)->nullable(); 
             $table->integer('qty');
             $table->integer('harga_jual_satuan');
             $table->double('harga_depresiasi')->nullable();
