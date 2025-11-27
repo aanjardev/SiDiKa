@@ -23,7 +23,7 @@
 
                 <div class="d-grid w-100 gap-2">
                     {{-- Tombol Edit Profil (Mengarahkan ke halaman edit jika ada) --}}
-                    <a href="#" class="btn btn-outline-primary fw-medium">
+                    <a href="{{ route('admin.employees.edit', Auth::user()->id) }}?from=pageProfil" class="btn btn-outline-primary fw-medium">
                         <i class="fa-solid fa-user-pen me-2"></i> Edit Profil
                     </a>
 

@@ -75,22 +75,24 @@
                         {{-- Customer --}}
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium text-secondary small">Customer <span class="text-danger">*</span></label>
-                            <div class="input-group position-relative">
-                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-user"></i></span>
-                                <input
-                                    type="text"
-                                    class="form-control border-start-0 ps-2 @error('customer_id') is-invalid @enderror"
-                                    id="customer_search"
-                                    placeholder="Cari nama atau no. telp customer..."
-                                    value="{{ old('customer_search', isset($penjualan) && $penjualan->customer ? $penjualan->customer->nama . ' (' . $penjualan->customer->no_telp . ')' : '') }}"
-                                    data-search-url="{{ route('admin.customers.search') }}"
-                                    autocomplete="off"
-                                    autofocus
-                                >
-                                <input type="hidden" id="customer_id" name="customer_id" value="{{ old('customer_id', $penjualan->customer_id ?? '') }}" required>
-                                <div id="customer_suggestions" class="dropdown-menu" style="width: 100%;"></div>
+                            <div class="position-relative">
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-user"></i></span>
+                                    <input
+                                        type="text"
+                                        class="form-control border-start-0 ps-2 @error('customer_id') is-invalid @enderror"
+                                        id="customer_search"
+                                        placeholder="Cari nama atau no. telp customer..."
+                                        value="{{ old('customer_search', isset($penjualan) && $penjualan->customer ? $penjualan->customer->nama . ' (' . $penjualan->customer->no_telp . ')' : '') }}"
+                                        data-search-url="{{ route('admin.customers.search') }}"
+                                        autocomplete="off"
+                                        autofocus
+                                    >
+                                    <input type="hidden" id="customer_id" name="customer_id" value="{{ old('customer_id', $penjualan->customer_id ?? '') }}" required>
+                                </div>
+                                <div id="customer_suggestions" class="dropdown-menu" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1050; max-height: 300px; overflow-y: auto;"></div>
                             </div>
-                            <div class="invalid-feedback" id="customer_search_error">
+                            <div class="invalid-feedback d-block" id="customer_search_error" style="display: none !important;">
                                 @error('customer_id') {{ $message }} @else Customer wajib dipilih @enderror
                             </div>
                             <div class="d-flex justify-content-end mt-1">

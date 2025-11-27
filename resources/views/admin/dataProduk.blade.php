@@ -105,7 +105,14 @@
                                 {{-- Bagian Teks --}}
                                 <div class="flex-grow-1" style="min-width: 200px; max-width: 320px;">
                                     <span class="text-dark fw-semibold d-block"
-                                          style="font-size: 0.95rem; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                        style="font-size: 0.95rem !important; 
+                                            line-height: 1.4 !important; 
+                                            display: -webkit-box !important; 
+                                            -webkit-line-clamp: 2 !important; 
+                                            -webkit-box-orient: vertical !important; 
+                                            overflow: hidden !important; 
+                                            text-overflow: ellipsis !important; 
+                                            word-wrap: break-word !important;">
                                         {{ $product->nama_produk }}
                                     </span>
                                 </div>

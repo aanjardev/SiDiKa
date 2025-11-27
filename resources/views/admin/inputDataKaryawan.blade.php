@@ -39,7 +39,9 @@
                     @if(isset($employee))
                         @method('PUT')
                     @endif
+                    
                 @endif
+                    <input type="hidden" name="redirect_to" value="{{ request('from') }}">
 
                     {{-- Baris 1: Nama & NIK --}}
                     {{-- Karena Card sudah full width, col-md-6 ini akan membagi layar jadi 2 kolom yang proporsional --}}
