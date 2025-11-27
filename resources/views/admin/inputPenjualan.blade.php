@@ -3,59 +3,59 @@
 @section('title', 'Transaksi Penjualan')
 
 @push('page-actions')
-    @php
-        $backRoute = route('admin.sales.index');
-        if(isset($penjualan)) {
-            $backRoute = route('admin.sales.show', $penjualan->id);
-        }
-    @endphp
+@php
+$backRoute = route('admin.sales.index');
+if(isset($penjualan)) {
+$backRoute = route('admin.sales.show', $penjualan->id);
+}
+@endphp
 
-    <a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
-        <i class="fas fa-arrow-left me-1"></i> Kembali
-    </a>
+<a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
+    <i class="fas fa-arrow-left me-1"></i> Kembali
+</a>
 @endpush
 
 @section('content')
 
 @if ($errors->any())
-    <div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
-        <div class="d-flex align-items-center gap-2">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            <strong>Ada Kesalahan Input!</strong>
-        </div>
-        <ul class="mb-0 mt-1 small">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<div class="alert alert-danger alert-dismissible fade show mb-4" role="alert">
+    <div class="d-flex align-items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <strong>Ada Kesalahan Input!</strong>
     </div>
+    <ul class="mb-0 mt-1 small">
+        @foreach ($errors->all() as $error)
+        <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
 @endif
 
 @php
-    $isEdit = isset($penjualan);
-    $items = $items ?? [];
-    $daftar_produk = $daftar_produk ?? collect();
-    $produkUntukJs = $daftar_produk->map(function ($produk) {
-        $imageUrl = $produk->gambarUtama->url
-            ?? $produk->gambar->first()?->url
-            ?? null;
-        return [
-            'id' => $produk->id,
-            'nama_produk' => $produk->nama_produk,
-            'kode_sku' => $produk->kode_sku,
-            'harga_jual' => $produk->harga_jual,
-            'stok_produk' => is_null($produk->stok_produk) ? null : (int) $produk->stok_produk,
-            'image_url' => $imageUrl,
-        ];
-    })->values()->toArray();
+$isEdit = isset($penjualan);
+$items = $items ?? [];
+$daftar_produk = $daftar_produk ?? collect();
+$produkUntukJs = $daftar_produk->map(function ($produk) {
+$imageUrl = $produk->gambarUtama->url
+?? $produk->gambar->first()?->url
+?? null;
+return [
+'id' => $produk->id,
+'nama_produk' => $produk->nama_produk,
+'kode_sku' => $produk->kode_sku,
+'harga_jual' => $produk->harga_jual,
+'stok_produk' => is_null($produk->stok_produk) ? null : (int) $produk->stok_produk,
+'image_url' => $imageUrl,
+];
+})->values()->toArray();
 @endphp
 
 <form action="{{ $isEdit ? route('admin.sales.update', $penjualan->id) : route('admin.sales.store') }}" method="POST" id="formPenjualan">
     @csrf
     <input type="hidden" name="items" id="itemsInput" value='{{ $raw_items ?? '[]' }}'>
     @if($isEdit)
-        @method('PUT')
+    @method('PUT')
     @endif
 
     <div class="row">
@@ -85,8 +85,7 @@
                                     value="{{ old('customer_search', isset($penjualan) && $penjualan->customer ? $penjualan->customer->nama . ' (' . $penjualan->customer->no_telp . ')' : '') }}"
                                     data-search-url="{{ route('admin.customers.search') }}"
                                     autocomplete="off"
-                                    autofocus
-                                >
+                                    autofocus>
                                 <input type="hidden" id="customer_id" name="customer_id" value="{{ old('customer_id', $penjualan->customer_id ?? '') }}" required>
                                 <div id="customer_suggestions" class="dropdown-menu" style="width: 100%;"></div>
                             </div>
@@ -107,9 +106,9 @@
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-store"></i></span>
                                 <select class="form-select border-start-0 ps-2 @error('perusahaan_cabang_id') is-invalid @enderror" id="perusahaan_cabang_id" name="perusahaan_cabang_id" required style="height: 45px;">
                                     @foreach ($semua_cabang as $branch)
-                                        <option value="{{ $branch->id }}" {{ (string) old('perusahaan_cabang_id', $penjualan->perusahaan_cabang_id ?? '') === (string) $branch->id ? 'selected' : '' }}>
-                                            {{ $branch->nama }}
-                                        </option>
+                                    <option value="{{ $branch->id }}" {{ (string) old('perusahaan_cabang_id', $penjualan->perusahaan_cabang_id ?? '') === (string) $branch->id ? 'selected' : '' }}>
+                                        {{ $branch->nama }}
+                                    </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -125,9 +124,11 @@
                     <h6 class="fw-bold text-dark mb-0">
                         <i class="fa-solid fa-cart-shopping me-2 text-warning"></i>Item Penjualan
                     </h6>
-                    <button type="button" class="btn btn-primary btn-sm fw-medium d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#modalTambahItem">
+                    <a href="{{ route('admin.sales.create') }}"
+                        class="btn btn-primary btn-sm fw-medium d-flex align-items-center gap-2">
                         <i class="fa-solid fa-plus fa-fw"></i> Tambah Item
-                    </button>
+                    </a>
+
                 </div>
 
                 <div class="card-body p-4">
@@ -143,45 +144,45 @@
                             </thead>
                             <tbody id="tableItemsBody">
                                 @forelse ($items as $item)
-                                    @php
-                                        $product = $item['product'] ?? null;
-                                        $productImage = $product?->gambarUtama?->url
-                                            ?? $product?->gambar?->first()?->url;
-                                    @endphp
-                                    <tr data-product-id="{{ $item['product']->id ?? '' }}">
-                                        <td>
+                                @php
+                                $product = $item['product'] ?? null;
+                                $productImage = $product?->gambarUtama?->url
+                                ?? $product?->gambar?->first()?->url;
+                                @endphp
+                                <tr data-product-id="{{ $item['product']->id ?? '' }}">
+                                    <td>
 
-                                        </td>
-                                        <td class="ps-3">
-                                            @if($productImage)
-                                                <img src="{{ $productImage }}" loading="lazy" alt="Img"
-                                                    class="rounded-3 shadow-sm me-2"
-                                                    style="width: 45px; height: 45px; object-fit: cover;">
-                                            @endif
-                                            <div class="fw-semibold text-dark">{{ $product->nama_produk ?? 'Produk tidak tersedia' }}</div>
-                                            <small class="text-muted font-monospace">{{ $product->kode_sku ?? '-' }}</small>
-                                        </td>
-                                        <td class="text-center">
-                                            @if(isset($item['product']->id))
-                                                <div class="input-group input-group-sm qty-control justify-content-center" data-product-id="{{ $item['product']->id }}" style="width: 100px; margin: auto;">
-                                                    <button type="button" class="btn btn-light border btn-qty-dec" data-product-id="{{ $item['product']->id }}"><i class="fa-solid fa-minus"></i></button>
-                                                    <span class="input-group-text bg-white border-start-0 border-end-0 fw-bold qty-value" style="min-width: 30px; justify-content: center;" data-product-id="{{ $item['product']->id }}">{{ $item['qty'] }}</span>
-                                                    <button type="button" class="btn btn-light border btn-qty-inc" data-product-id="{{ $item['product']->id }}"><i class="fa-solid fa-plus"></i></button>
-                                                </div>
-                                            @else
-                                                x{{ $item['qty'] }}
-                                            @endif
-                                        </td>
-                                        <td class="text-end text-muted small">Rp{{ number_format($item['price'], 0, ',', '.') }}</td>
-                                        <td class="text-end pe-3 fw-medium text-dark">Rp{{ number_format($item['line_total'], 0, ',', '.') }}</td>
-                                    </tr>
+                                    </td>
+                                    <td class="ps-3">
+                                        @if($productImage)
+                                        <img src="{{ $productImage }}" loading="lazy" alt="Img"
+                                            class="rounded-3 shadow-sm me-2"
+                                            style="width: 45px; height: 45px; object-fit: cover;">
+                                        @endif
+                                        <div class="fw-semibold text-dark">{{ $product->nama_produk ?? 'Produk tidak tersedia' }}</div>
+                                        <small class="text-muted font-monospace">{{ $product->kode_sku ?? '-' }}</small>
+                                    </td>
+                                    <td class="text-center">
+                                        @if(isset($item['product']->id))
+                                        <div class="input-group input-group-sm qty-control justify-content-center" data-product-id="{{ $item['product']->id }}" style="width: 100px; margin: auto;">
+                                            <button type="button" class="btn btn-light border btn-qty-dec" data-product-id="{{ $item['product']->id }}"><i class="fa-solid fa-minus"></i></button>
+                                            <span class="input-group-text bg-white border-start-0 border-end-0 fw-bold qty-value" style="min-width: 30px; justify-content: center;" data-product-id="{{ $item['product']->id }}">{{ $item['qty'] }}</span>
+                                            <button type="button" class="btn btn-light border btn-qty-inc" data-product-id="{{ $item['product']->id }}"><i class="fa-solid fa-plus"></i></button>
+                                        </div>
+                                        @else
+                                        x{{ $item['qty'] }}
+                                        @endif
+                                    </td>
+                                    <td class="text-end text-muted small">Rp{{ number_format($item['price'], 0, ',', '.') }}</td>
+                                    <td class="text-end pe-3 fw-medium text-dark">Rp{{ number_format($item['line_total'], 0, ',', '.') }}</td>
+                                </tr>
                                 @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center text-muted py-5">
-                                            <i class="fa-solid fa-cart-plus fa-2x mb-2 opacity-50"></i>
-                                            <p class="small mb-0">Belum ada item yang dipilih.</p>
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted py-5">
+                                        <i class="fa-solid fa-cart-plus fa-2x mb-2 opacity-50"></i>
+                                        <p class="small mb-0">Belum ada item yang dipilih.</p>
+                                    </td>
+                                </tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -305,11 +306,11 @@
                         <select class="form-select" id="produkBaru" style="height: 45px;">
                             <option value="" selected disabled>-- Cari Produk --</option>
                             @foreach(($daftar_produk ?? collect()) as $produk)
-                                <option value="{{ $produk->id }}"
-                                    data-price="{{ $produk->harga_jual }}"
-                                    data-stock="{{ is_null($produk->stok_produk) ? '' : $produk->stok_produk }}">
-                                    {{ $produk->nama_produk }} ({{ $produk->kode_sku }})
-                                </option>
+                            <option value="{{ $produk->id }}"
+                                data-price="{{ $produk->harga_jual }}"
+                                data-stock="{{ is_null($produk->stok_produk) ? '' : $produk->stok_produk }}">
+                                {{ $produk->nama_produk }} ({{ $produk->kode_sku }})
+                            </option>
                             @endforeach
                         </select>
                     </div>

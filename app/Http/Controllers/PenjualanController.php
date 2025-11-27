@@ -100,9 +100,23 @@ class PenjualanController extends Controller
             ->orderBy('updated_at', 'desc')
             ->paginate(15);
 
+        $cartSelections = collect(session('cart_penjualan', []))
+            ->map(function ($item) {
+                return [
+                    'id' => isset($item['id']) ? (string) $item['id'] : null,
+                    'qty' => max(1, (int) ($item['qty'] ?? 0)),
+                    'price' => (int) ($item['price'] ?? 0),
+                ];
+            })
+            ->filter(function ($item) {
+                return $item['id'] && $item['qty'] > 0;
+            })
+            ->values();
+
         return view('admin.listProdukJual', [
             'products' => $products,
             'kategori' => $kategori,
+            'cartSelections' => $cartSelections,
         ]);
     }
 
@@ -114,6 +128,7 @@ class PenjualanController extends Controller
 
         $decoded = json_decode($request->input('items'), true) ?? [];
         if (empty($decoded)) {
+            session()->forget('cart_penjualan');
             return redirect()->route('admin.sales.create')
                 ->withErrors(['items' => 'Tidak ada produk yang dipilih.']);
         }
@@ -123,6 +138,7 @@ class PenjualanController extends Controller
 
         $items = [];
         $total = 0;
+        $normalizedCart = [];
 
         foreach ($decoded as $row) {
             $product = $products->firstWhere('id', $row['id']);
@@ -142,12 +158,21 @@ class PenjualanController extends Controller
                 'price' => $price,
                 'line_total' => $lineTotal,
             ];
+
+            $normalizedCart[] = [
+                'id' => (string) $product->id,
+                'qty' => $qty,
+                'price' => $price,
+            ];
         }
 
         if (empty($items)) {
+            session()->forget('cart_penjualan');
             return redirect()->route('admin.sales.create')
                 ->withErrors(['items' => 'Tidak ada produk yang valid untuk dibuat penjualan.']);
         }
+
+        session(['cart_penjualan' => $normalizedCart]);
 
         $data_customer = Customer::orderBy('nama', 'asc')->get();
         $data_cabang = PerusahaanCabang::orderBy('nama', 'asc')->get();
@@ -160,7 +185,7 @@ class PenjualanController extends Controller
             'subtotal' => $total,
             'semua_customer' => $data_customer,
             'semua_cabang' => $data_cabang,
-            'raw_items' => json_encode($decoded),
+            'raw_items' => json_encode($normalizedCart),
             'daftar_produk' => $daftar_produk,
             'biaya_tambahan_awal' => 0,
             'depresiasi_awal' => 0,
@@ -217,6 +242,8 @@ class PenjualanController extends Controller
             }
 
             DB::commit();
+
+            session()->forget('cart_penjualan');
 
             return redirect()->route('admin.sales.index')->with('success', 'Transaksi penjualan berhasil disimpan.');
         } catch (\Throwable $th) {
