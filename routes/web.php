@@ -114,6 +114,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::put('/permissions/{id}', [PermissionsController::class, 'update'])->name('permissions.update');
         Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy'])->name('permissions.destroy');
         Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('purchases.print');
+        Route::get('sales/{id}/print', [PenjualanController::class, 'printNota'])->name('sales.print');
     });
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
