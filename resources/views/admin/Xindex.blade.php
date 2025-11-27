@@ -112,7 +112,7 @@
                                     <div class="input-group">
                                         <span class="input-group-text"><i class="bi bi-upc"></i></span>
                                         <input type="text" class="form-control" id="kode_sku" name="kode_sku"
-                                            value="{{ old('kode_sku', isset($product) ? $product->kode_sku : '') }}" required autofocus>
+                                            value="{{ old('kode_sku', isset($product) ? $product->kode_sku : '') }}" required autofocus >
                                     </div>
                                     @error('kode_sku')
                                         <div class="text-danger">{{ $message }}</div>
