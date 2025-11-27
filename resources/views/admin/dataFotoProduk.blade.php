@@ -2,6 +2,18 @@
 
 @section('title', 'Foto Produk')
 
+@push('styles')
+<style>
+    /* Force vertical centering for table rows */
+    #photo-products-tbody tr {
+        vertical-align: middle !important;
+    }
+    #photo-products-tbody td {
+        vertical-align: middle !important;
+    }
+</style>
+@endpush
+
 @section('content')
 
 {{-- FILTER & SEARCH (diseragamkan dengan dataPembelian) --}}
