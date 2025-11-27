@@ -130,7 +130,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('/profile/resetPassword', [ProfileController::class, 'resetPassword'])->name('profile.resetPassword');
-    Route::put('/profile/resetPassword', [ProfileController::class, 'update'])->name('profile.resetPassword.update');
+    Route::post('/profile/resetPassword', [ProfileController::class, 'update'])->name('profile.resetPassword');
     
     // Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('admin.purchases.print');
 });

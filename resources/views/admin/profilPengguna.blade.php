@@ -2,7 +2,15 @@
 
 @section('title', 'Profil Pengguna')
 
+@push('page-actions')
+    <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+        <i class="fas fa-arrow-left me-1"></i>
+        <span>Kembali ke Dashboard</span>
+    </a>
+@endpush
+
 @section('content')
+
 <div class="row">
     
     {{-- KOLOM KIRI: Kartu Identitas & Aksi Utama --}}
@@ -15,25 +23,21 @@
                          style="width: 120px; height: 120px; font-size: 3rem;">
                         <i class="fa-solid fa-user"></i>
                     </div>
-                    {{-- Opsional: Tombol ganti foto bisa ditaruh sini --}}
                 </div>
 
                 <h5 class="fw-bold text-dark mb-1">{{ Auth::user()->name ?? 'Nama Pengguna' }}</h5>
-                <p class="text-muted small mb-4">{{ Auth::user()->role ?? 'Jabatan / Role' }}</p>
+                <p class="text-muted small mb-4">{{ ucfirst(Auth::user()->role ?? 'Staff') }}</p>
 
                 <div class="d-grid w-100 gap-2">
-                    {{-- Tombol Edit Profil (Mengarahkan ke halaman edit jika ada) --}}
-                    <a href="{{ route('admin.employees.edit', Auth::user()->id) }}?from=pageProfil" class="btn btn-outline-primary fw-medium">
-                        <i class="fa-solid fa-user-pen me-2"></i> Edit Profil
-                    </a>
+                    {{-- Tombol Ganti Password (Modal Trigger) --}}
+                    <button type="button" class="btn btn-outline-primary fw-medium" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                        <i class="fa-solid fa-key me-2"></i> Ganti Password
+                    </button>
 
-                    {{-- Tombol Logout --}}
-                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-grid">
-                        @csrf
-                        <button type="submit" class="btn btn-danger fw-medium">
-                            <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
-                        </button>
-                    </form>
+                    {{-- Tombol Logout (Low Profile) --}}
+                    <button type="button" class="btn btn-outline-secondary fw-medium" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                        <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
+                    </button>
                 </div>
             </div>
         </div>
@@ -72,11 +76,11 @@
                     {{-- Baris 2 --}}
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Jabatan / Role</label>
+                            <label class="form-label fw-medium text-secondary small">Jabatan</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-briefcase"></i></span>
                                 <input type="text" class="form-control border-start-0 ps-2 bg-light" 
-                                    value="{{ Auth::user()->role ?? 'Staff' }}" readonly>
+                                    value="{{ ucfirst(Auth::user()->role ?? 'Staff') }}" readonly>
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -89,32 +93,176 @@
                         </div>
                     </div>
 
-                    <hr class="my-4 opacity-25">
-
-                    {{-- Keamanan --}}
-                    <h6 class="fw-bold text-dark mb-3">
-                        <i class="fa-solid fa-shield-halved me-2 text-success"></i>Keamanan
-                    </h6>
-                    <div class="row">
-                        <div class="col-md-8 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-lock"></i></span>
-                                <input type="password" class="form-control border-start-0 ps-2 bg-light" value="dummy12345" readonly>
-                                <button class="btn btn-outline-secondary border-start-0" type="button" disabled><i class="fa-solid fa-eye-slash"></i></button>
-                            </div>
-                            <div class="form-text small text-muted">Password disembunyikan demi keamanan.</div>
-                        </div>
-                        <div class="col-md-4 mb-3 d-flex align-items-end">
-                            <a href="{{ route('admin.profile.resetPassword') }}" class="btn btn-light border w-100 text-primary fw-medium">
-                                <i class="fa-solid fa-key me-1"></i> Ganti Password
-                            </a>
-                        </div>
-                    </div>
-
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+{{-- Modal Ganti Password --}}
+<div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="changePasswordModalLabel">
+                    <i class="fa-solid fa-key me-2 text-primary"></i>Ganti Password
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.profile.resetPassword') }}" method="POST">
+                @csrf
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="current_password" class="form-label fw-medium">Password Saat Ini</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" class="form-control border-start-0" id="current_password" name="current_password" required>
+                            <button class="btn btn-outline-secondary border-start-0" type="button" id="toggleCurrentPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        @error('current_password')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="new_password" class="form-label fw-medium">Password Baru</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-key"></i></span>
+                            <input type="password" class="form-control border-start-0" id="new_password" name="new_password" required minlength="6">
+                            <button class="btn btn-outline-secondary border-start-0" type="button" id="toggleNewPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        @error('new_password')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                        <div class="form-text small text-muted">Minimal 6 karakter</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="new_password_confirmation" class="form-label fw-medium">Konfirmasi Password Baru</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted"><i class="fa-solid fa-lock"></i></span>
+                            <input type="password" class="form-control border-start-0" id="new_password_confirmation" name="new_password_confirmation" required>
+                            <button class="btn btn-outline-secondary border-start-0" type="button" id="toggleConfirmPassword">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        @error('new_password_confirmation')
+                        <div class="text-danger small mt-1">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-save me-2"></i>Simpan Password Baru
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Konfirmasi Logout --}}
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="logoutModalLabel">
+                    <i class="fa-solid fa-right-from-bracket me-2 text-warning"></i>Konfirmasi Logout
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-3">
+                    <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center text-warning mx-auto mb-3" 
+                         style="width: 60px; height: 60px;">
+                        <i class="fa-solid fa-right-from-bracket fa-2x"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2">Apakah Anda yakin ingin logout?</h6>
+                    <p class="text-muted small mb-0">
+                        Anda akan keluar dari sistem dan perlu login kembali untuk mengakses halaman admin.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-times me-2"></i>Batal
+                </button>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-inline">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-danger">
+                        <i class="fa-solid fa-right-from-bracket me-2"></i>Ya, Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
+
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility
+    const toggleCurrentPassword = document.getElementById('toggleCurrentPassword');
+    const toggleNewPassword = document.getElementById('toggleNewPassword');
+    const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+    
+    if (toggleCurrentPassword) {
+        toggleCurrentPassword.addEventListener('click', function() {
+            const passwordField = document.getElementById('current_password');
+            const icon = this.querySelector('i');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    }
+    
+    if (toggleNewPassword) {
+        toggleNewPassword.addEventListener('click', function() {
+            const passwordField = document.getElementById('new_password');
+            const icon = this.querySelector('i');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    }
+    
+    if (toggleConfirmPassword) {
+        toggleConfirmPassword.addEventListener('click', function() {
+            const passwordField = document.getElementById('new_password_confirmation');
+            const icon = this.querySelector('i');
+            
+            if (passwordField.type === 'password') {
+                passwordField.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordField.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
+    }
+});
+</script>
+@endpush

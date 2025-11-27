@@ -38,9 +38,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('admin.profile.resetPassword.update') }}"method="POST">
-                    @csrf
-                    @method('PUT')
+                <form action="{{ route('admin.profile.resetPassword') }}" method="POST">
 
                     <div class="row">
                         <div class="col-md-7 col-lg-6">
@@ -78,23 +76,23 @@
                                         <i class="fa-solid fa-key"></i>
                                     </span>
                                     <input type="password"
-                                        name="password"
-                                        id="password" 
-                                        class="form-control border-start-0 border-end-0 ps-2 @error('password') is-invalid @enderror" 
+                                        name="new_password"
+                                        id="new_password" 
+                                        class="form-control border-start-0 border-end-0 ps-2 @error('new_password') is-invalid @enderror" 
                                         style="height: 50px;" 
                                         placeholder="Masukkan password baru"
                                         required>
                                     
-                                    <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePasswordVisibility('password', 'eyeIconNew')">
+                                    <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePasswordVisibility('new_password', 'eyeIconNew')">
                                         <i class="fa-solid fa-eye" id="eyeIconNew"></i>
                                     </button>
                                 </div>
-                                @error('password')
+                                @error('new_password')
                                     <div class="text-danger small mt-1">{{ $message }}</div>
                                 @enderror
                                 <div class="form-text small text-muted mt-2" style="font-size: 0.8rem; line-height: 1.4;">
                                     <i class="fa-solid fa-info-circle me-1"></i> 
-                                    Password minimal 8 karakter
+                                    Password minimal 6 karakter
                                 </div>
                             </div>
 
@@ -106,14 +104,14 @@
                                         <i class="fa-solid fa-check-double"></i>
                                     </span>
                                     <input type="password"
-                                        name="password_confirmation"
-                                        id="password_confirmation" 
+                                        name="new_password_confirmation"
+                                        id="new_password_confirmation" 
                                         class="form-control border-start-0 border-end-0 ps-2" 
                                         style="height: 50px;" 
                                         placeholder="Ulangi password baru"
                                         required>
                                     
-                                    <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePasswordVisibility('password_confirmation', 'eyeIconConfirm')">
+                                    <button class="btn btn-light border border-start-0 text-muted" type="button" onclick="togglePasswordVisibility('new_password_confirmation', 'eyeIconConfirm')">
                                         <i class="fa-solid fa-eye" id="eyeIconConfirm"></i>
                                     </button>
                                 </div>
