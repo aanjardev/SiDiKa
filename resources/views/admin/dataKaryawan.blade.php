@@ -68,6 +68,7 @@
                         <th style="width: 30%;">Nama Karyawan</th>
                         <th>Nomor Telepon</th>
                         <th>Jabatan</th>
+                        <th class="text-center">Lama Bekerja</th>
                         <th class="text-center">Status</th>
                         <th class="text-center" style="width: 100px;">Aksi</th>
                     </tr>
@@ -101,6 +102,52 @@
 
                         <td class="text-dark">
                             {{ $employee->jabatan }}
+                        </td>
+
+                        <td class="text-center">
+                            @php
+                                $lamaKerja = null;
+
+                                $start = $employee->tanggal_masuk ?? null;
+                                $end = null;
+
+                                if ($start) {
+                                    if ($employee->status === 'aktif') {
+                                        $end = now();
+                                    } else {
+                                        $end = $employee->tanggal_keluar ?? now();
+                                    }
+
+                                    $diff = $start->diff($end);
+
+                                    $parts = [];
+                                    if ($diff->y) {
+                                        $parts[] = $diff->y . ' th';
+                                    }
+                                    if ($diff->m) {
+                                        $parts[] = $diff->m . ' bln';
+                                    }
+                                    if (!$diff->y && !$diff->m) {
+                                        $parts[] = $diff->d . ' hr';
+                                    }
+
+                                    $lamaKerja = implode(' ', $parts);
+                                }
+                            @endphp
+
+                            @php
+                                $tooltip = null;
+                                if ($employee->tanggal_masuk) {
+                                    $tooltip = 'Mulai: ' . $employee->tanggal_masuk->format('d M Y');
+                                    if ($employee->tanggal_keluar) {
+                                        $tooltip .= ' · Selesai: ' . $employee->tanggal_keluar->format('d M Y');
+                                    }
+                                }
+                            @endphp
+
+                            <span @if($tooltip) title="{{ $tooltip }}" @endif>
+                                {{ $lamaKerja ?? '-' }}
+                            </span>
                         </td>
 
                         <td class="text-center">

@@ -88,18 +88,16 @@
                             <label class="form-label fw-medium text-secondary small">Jabatan <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-briefcase"></i></span>
-                                @if(isset($readOnly) && $readOnly)
-                                    <input type="text" class="form-control border-start-0 ps-2" value="{{ $employee->jabatan ?? '-' }}" readonly style="height: 45px;">
-                                @else
-                                    <select class="form-select border-start-0 ps-2 required-field @error('jabatan') is-invalid @enderror" name="jabatan" style="height: 45px;" required data-error-message="Jabatan wajib dipilih">
-                                        <option value="" selected disabled>-- Pilih Jabatan --</option>
-                                        <option value="Manager" {{ old('jabatan', $employee->jabatan ?? '') === 'Manager' ? 'selected' : '' }}>Manager</option>
-                                        <option value="Staff Operasional" {{ old('jabatan', $employee->jabatan ?? '') === 'Staff Operasional' ? 'selected' : '' }}>Staff Operasional</option>
-                                        <option value="Teknisi" {{ old('jabatan', $employee->jabatan ?? '') === 'Teknisi' ? 'selected' : '' }}>Teknisi</option>
-                                    </select>
-                                @endif
+                                <input type="text"
+                                    class="form-control border-start-0 ps-2 required-field @error('jabatan') is-invalid @enderror"
+                                    name="jabatan"
+                                    style="height: 45px;"
+                                    value="{{ old('jabatan', $employee->jabatan ?? '') }}"
+                                    placeholder="Masukkan jabatan"
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
+                                    data-error-message="Jabatan wajib diisi">
                             </div>
-                            <div class="invalid-feedback">Jabatan wajib dipilih</div>
+                            <div class="invalid-feedback">Jabatan wajib diisi</div>
                             @error('jabatan') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
@@ -107,16 +105,22 @@
                             <label class="form-label fw-medium text-secondary small">No. Telepon <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-phone"></i></span>
+                                {{-- Input tampilan (formatted) --}}
                                 <input type="text"
                                     class="form-control border-start-0 ps-2 required-field @error('nomor_telepon') is-invalid @enderror"
-                                    name="nomor_telepon"
+                                    id="nomor_telepon_display"
                                     style="height: 45px;"
                                     value="{{ old('nomor_telepon', $employee->nomor_telepon ?? '') }}"
                                     placeholder="08xx-xxxx-xxxx"
                                     {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
                                     data-error-message="Nomor telepon wajib diisi">
+                                {{-- Input hidden untuk dikirim ke backend (hanya digit) --}}
+                                <input type="hidden"
+                                    name="nomor_telepon"
+                                    id="nomor_telepon"
+                                    value="{{ old('nomor_telepon', $employee->nomor_telepon ?? '') }}">
                             </div>
-                            <div class="invalid-feedback">Nomor telepon wajib diisi</div>
+                            <div class="invalid-feedback">Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.</div>
                             @error('nomor_telepon') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                     </div>
@@ -124,20 +128,18 @@
                     {{-- Baris 3: Gaji & Tanggal Masuk --}}
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Gaji Pokok <span class="text-danger">*</span></label>
+                            <label class="form-label fw-medium text-secondary small">Gaji Pokok</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3">Rp</span>
                                 <input type="number"
-                                    class="form-control border-start-0 ps-2 required-field @error('gaji') is-invalid @enderror"
+                                    class="form-control border-start-0 ps-2 @error('gaji') is-invalid @enderror"
                                     name="gaji"
                                     style="height: 45px;"
                                     value="{{ old('gaji', $employee->gaji ?? '') }}"
                                     placeholder="0"
                                     min="0"
-                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
-                                    data-error-message="Gaji pokok wajib diisi">
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>
                             </div>
-                            <div class="invalid-feedback">Gaji pokok wajib diisi</div>
                             @error('gaji') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
@@ -158,7 +160,7 @@
                         </div>
                     </div>
 
-                    {{-- Baris 4: Status & Alamat --}}
+                    {{-- Baris 4: Status, Tanggal Keluar & Alamat --}}
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium text-secondary small">Status Karyawan <span class="text-danger">*</span></label>
@@ -170,28 +172,37 @@
                                         readonly style="height: 45px;">
                                 @else
                                     <select class="form-select border-start-0 ps-2 required-field @error('status') is-invalid @enderror" name="status" style="height: 45px;" required data-error-message="Status karyawan wajib dipilih">
-                                        <option value="" selected disabled>-- Pilih Status --</option>
-                                        <option value="aktif" {{ old('status', $employee->status ?? '') === 'aktif' ? 'selected' : '' }}>Aktif</option>
+                                        <option value="aktif" {{ old('status', $employee->status ?? 'aktif') === 'aktif' ? 'selected' : '' }}>Aktif</option>
                                         <option value="non-aktif" {{ old('status', $employee->status ?? '') === 'non-aktif' ? 'selected' : '' }}>Non Aktif</option>
                                     </select>
                                 @endif
                             </div>
-                            <div class="invalid-feedback">Status karyawan wajib dipilih</div>
                             @error('status') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-medium text-secondary small">Tanggal Keluar</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-regular fa-calendar-xmark"></i></span>
+                                <input type="date"
+                                    class="form-control border-start-0 ps-2 @error('tanggal_keluar') is-invalid @enderror"
+                                    name="tanggal_keluar"
+                                    style="height: 45px;"
+                                    value="{{ old('tanggal_keluar', isset($employee) && $employee->tanggal_keluar ? $employee->tanggal_keluar->format('Y-m-d') : '') }}"
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>
+                            </div>
+                            @error('tanggal_keluar') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="col-12 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Alamat Lengkap <span class="text-danger">*</span></label>
+                            <label class="form-label fw-medium text-secondary small">Alamat Lengkap</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-map-location-dot"></i></span>
-                                <textarea class="form-control border-start-0 ps-2 required-field @error('alamat') is-invalid @enderror"
+                                <textarea class="form-control border-start-0 ps-2 @error('alamat') is-invalid @enderror"
                                     name="alamat"
                                     rows="3"
                                     placeholder="Masukkan alamat domisili..."
-                                    {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
-                                    data-error-message="Alamat wajib diisi">{{ old('alamat', $employee->alamat ?? '') }}</textarea>
+                                    {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>{{ old('alamat', $employee->alamat ?? '') }}</textarea>
                             </div>
-                            <div class="invalid-feedback">Alamat wajib diisi</div>
                             @error('alamat') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                         </div>
                     </div>
@@ -246,4 +257,79 @@
         box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
     }
 </style>
+@endpush
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const displayInput = document.getElementById('nomor_telepon_display');
+        const hiddenInput  = document.getElementById('nomor_telepon');
+
+        if (!displayInput || !hiddenInput) return;
+
+        // Helper: format 4-4-sisa, misal 0813123456789 -> 0813-1234-56789
+        function formatPhone(digits) {
+            if (!digits) return '';
+            const part1 = digits.slice(0, 4);
+            const part2 = digits.slice(4, 8);
+            const rest  = digits.slice(8);
+
+            let formatted = part1;
+            if (part2) formatted += '-' + part2;
+            if (rest)  formatted += '-' + rest;
+            return formatted;
+        }
+
+        // Saat load, jika sudah ada nilai (edit), pastikan tampilannya terformat
+        (function initPhone() {
+            const raw = (hiddenInput.value || '').replace(/\D/g, '');
+            const limited = raw.slice(0, 15);
+            hiddenInput.value = limited;
+            displayInput.value = formatPhone(limited);
+        })();
+
+        // Input: hanya izinkan digit, batasi 15, format tampilan, simpan ke hidden sebagai digit
+        displayInput.addEventListener('input', function () {
+            let digits = this.value.replace(/\D/g, '');
+            if (digits.length > 15) {
+                digits = digits.slice(0, 15);
+            }
+
+            hiddenInput.value  = digits;          // ke backend
+            displayInput.value = formatPhone(digits); // tampilan
+        });
+
+        // Validasi saat blur: satu pesan error saja
+        displayInput.addEventListener('blur', function () {
+            const digits = hiddenInput.value.replace(/\D/g, '');
+            const formControl = displayInput; // yang diberi is-invalid
+
+            // Reset state
+            formControl.classList.remove('is-invalid');
+
+            // Kosong -> pesan wajib isi
+            if (!digits) {
+                formControl.classList.add('is-invalid');
+                const feedback = formControl.closest('.input-group').nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Nomor telepon wajib diisi.';
+                }
+                return;
+            }
+
+            // Cek format sesuai regex backend: (0|62|+62) + 8-15 digit total
+            const regex = /^(?:0|62|\+62)[0-9]{8,15}$/;
+            const withPrefix = digits; // kita simpan hanya digit, jadi awali 0/62 di sini
+
+            if (!regex.test(withPrefix)) {
+                formControl.classList.add('is-invalid');
+                const feedback = formControl.closest('.input-group').nextElementSibling;
+                if (feedback && feedback.classList.contains('invalid-feedback')) {
+                    feedback.textContent = 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.';
+                }
+                return;
+            }
+        });
+    });
+</script>
 @endpush
