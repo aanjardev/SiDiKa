@@ -248,12 +248,12 @@
                                     <i class="fa-solid fa-cubes"></i>
                                 </span>
                                 <input
-                                    type="number"
-                                    class="form-control border-start-0 ps-2 py-2 @error('stok_produk') is-invalid @enderror"
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 py-2 numeric-only @error('stok_produk') is-invalid @enderror"
                                     name="stok_produk"
                                     value="{{ old('stok_produk', $isEdit ? $product->stok_produk : '') }}"
                                     placeholder="0"
-                                    min="0">
+                                    data-maxdigits="4">
                             </div>
                         </div>
 
@@ -315,11 +315,11 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
                                 <input
-                                    type="number"
-                                    class="form-control border-start-0 ps-2 py-2"
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 py-2 rupiah-mask numeric-only"
                                     name="harga_beli"
                                     value="{{ old('harga_beli', $isEdit ? $product->harga_beli : '') }}"
-                                    placeholder="0">
+                                    placeholder="0" maxlength="11">
                             </div>
                         </div>
 
@@ -329,11 +329,11 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
                                 <input
-                                    type="number"
-                                    class="form-control border-start-0 ps-2 py-2"
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 py-2 rupiah-mask numeric-only"
                                     name="harga_jual"
                                     value="{{ old('harga_jual', $isEdit ? $product->harga_jual : '') }}"
-                                    placeholder="0">
+                                    placeholder="0" maxlength="11">
                             </div>
                         </div>
 
@@ -343,11 +343,11 @@
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
                                 <input
-                                    type="number"
-                                    class="form-control border-start-0 ps-2 py-2"
+                                    type="text"
+                                    class="form-control border-start-0 ps-2 py-2 rupiah-mask numeric-only"
                                     name="harga_servis"
                                     value="{{ old('harga_servis', $isEdit ? $product->harga_servis : '') }}"
-                                    placeholder="0">
+                                    placeholder="0" maxlength="11">
                             </div>
                         </div>
 

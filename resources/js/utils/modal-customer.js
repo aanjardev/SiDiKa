@@ -111,7 +111,19 @@ export default class CustomerModal {
             this.requiredIds.forEach((id) => {
                 document.getElementById(id)?.classList.remove("is-invalid");
             });
-            this.modal.hide();
+
+            if (this.modal) {
+                this.modal.hide();
+            }
+
+            // Safeguard: pastikan backdrop dan state body dibersihkan
+            setTimeout(() => {
+                document
+                    .querySelectorAll('.modal-backdrop')
+                    .forEach((el) => el.remove());
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+            }, 200);
         } else {
             alert("Gagal menyimpan customer");
         }

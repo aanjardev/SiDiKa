@@ -43,7 +43,8 @@ class BranchController extends Controller
                 'regex:/^(?:\+62|62|0)[0-9]{8,15}$/'
             ],
             'link_maps' => [
-                'required',
+                // 'required',
+                'nullable',
                 'url',
                 'max:255',
                 Rule::unique('perusahaan_cabang', 'link_maps'),
@@ -109,7 +110,7 @@ class BranchController extends Controller
                 'regex:/^(?:\+62|62|0)[0-9]{8,15}$/'
             ],
             'link_maps' => [
-                'required',
+                'nullable',
                 'url',
                 'max:255',
                 Rule::unique('perusahaan_cabang', 'link_maps')->ignore($branch->id),
