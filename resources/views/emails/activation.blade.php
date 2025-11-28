@@ -134,7 +134,6 @@
                 <h3>📋 Informasi Akun</h3>
                 <p><strong>Nama:</strong> {{ $user->name }}</p>
                 <p><strong>Email:</strong> {{ $user->email }}</p>
-                <p><strong>Role:</strong> {{ ucfirst($user->role) === 'Manager' ? 'Manager' : 'Staff' }}</p>
             </div>
 
             <!-- Verification Instructions -->

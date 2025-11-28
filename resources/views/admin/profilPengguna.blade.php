@@ -109,9 +109,14 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('admin.profile.resetPassword') }}" method="POST">
+            <form action="{{ route('admin.profile.resetPassword') }}" method="POST" id="resetPasswordForm">
                 @csrf
                 <div class="modal-body">
+                    <!-- Alert container for dynamic error messages -->
+                    <div id="passwordErrorAlert" class="alert alert-danger d-none" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <span id="passwordErrorMessage"></span>
+                    </div>
                     <div class="mb-3">
                         <label for="current_password" class="form-label fw-medium">Password Saat Ini</label>
                         <div class="input-group">
@@ -124,6 +129,11 @@
                         @error('current_password')
                         <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
+                        <div class="text-end mt-2">
+                            <a href="{{ route('admin.profile.forgot-password.show') }}" class="btn btn-link btn-sm text-primary p-0">
+                                <i class="fa-solid fa-question-circle me-1"></i>Lupa Password?
+                            </a>
+                        </div>
                     </div>
                     
                     <div class="mb-3">
@@ -263,6 +273,267 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+    
+    // Function to force clean up all modal remnants
+    function forceCleanModal() {
+        // Remove all backdrops
+        document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+            backdrop.remove();
+        });
+        
+        // Remove modal-open class from body
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+        
+        // Remove inline styles from body
+        document.body.removeAttribute('style');
+    }
+
+    // Add event listener for modal close to ensure backdrop cleanup
+    const changePasswordModal = document.getElementById('changePasswordModal');
+    if (changePasswordModal) {
+        changePasswordModal.addEventListener('hidden.bs.modal', function() {
+            // Force clean after modal is hidden
+            setTimeout(() => {
+                forceCleanModal();
+            }, 100);
+        });
+    }
+
+    // Real-time password confirmation validation
+    const newPasswordInput = document.getElementById('new_password');
+    const confirmPasswordInput = document.getElementById('new_password_confirmation');
+    const submitButton = document.querySelector('#resetPasswordForm button[type="submit"]');
+    
+    function validatePasswordMatch() {
+        const newPassword = newPasswordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+        
+        if (confirmPassword.length > 0) {
+            if (newPassword === confirmPassword) {
+                // Passwords match
+                confirmPasswordInput.classList.remove('is-invalid');
+                confirmPasswordInput.classList.add('is-valid');
+                
+                // Remove existing error message
+                const existingError = confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-error');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                // Add success feedback
+                if (!confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-success')) {
+                    const successDiv = document.createElement('div');
+                    successDiv.className = 'text-success small mt-1 password-match-success';
+                    successDiv.innerHTML = '<i class="fas fa-check-circle me-1"></i>Password cocok!';
+                    confirmPasswordInput.parentNode.parentNode.appendChild(successDiv);
+                }
+            } else {
+                // Passwords don't match
+                confirmPasswordInput.classList.remove('is-valid');
+                confirmPasswordInput.classList.add('is-invalid');
+                
+                // Remove existing success message
+                const existingSuccess = confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-success');
+                if (existingSuccess) {
+                    existingSuccess.remove();
+                }
+                
+                // Add error feedback
+                if (!confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-error')) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'text-danger small mt-1 password-match-error';
+                    errorDiv.innerHTML = '<i class="fas fa-times-circle me-1"></i>Password tidak cocok!';
+                    confirmPasswordInput.parentNode.parentNode.appendChild(errorDiv);
+                }
+            }
+        } else {
+            // Clear validation states when empty
+            confirmPasswordInput.classList.remove('is-valid', 'is-invalid');
+            const existingError = confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-error');
+            const existingSuccess = confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-success');
+            if (existingError) existingError.remove();
+            if (existingSuccess) existingSuccess.remove();
+        }
+        
+        // Enable/disable submit button based on validation
+        updateSubmitButton();
+    }
+    
+    function updateSubmitButton() {
+        const newPassword = newPasswordInput.value;
+        const confirmPassword = confirmPasswordInput.value;
+        const currentPassword = document.getElementById('current_password').value;
+        
+        const isFormValid = currentPassword.length >= 6 && 
+                           newPassword.length >= 6 && 
+                           confirmPassword.length > 0 && 
+                           newPassword === confirmPassword;
+        
+        if (submitButton) {
+            submitButton.disabled = !isFormValid;
+            if (isFormValid) {
+                submitButton.classList.remove('btn-secondary');
+                submitButton.classList.add('btn-primary');
+            } else {
+                submitButton.classList.remove('btn-primary');
+                submitButton.classList.add('btn-secondary');
+            }
+        }
+    }
+    
+    // Add event listeners for real-time validation
+    if (newPasswordInput && confirmPasswordInput) {
+        newPasswordInput.addEventListener('input', function() {
+            validatePasswordMatch();
+        });
+        
+        confirmPasswordInput.addEventListener('input', function() {
+            validatePasswordMatch();
+        });
+        
+        // Also validate on blur for better UX
+        confirmPasswordInput.addEventListener('blur', function() {
+            validatePasswordMatch();
+        });
+    }
+    
+    // Validate current password as well
+    const currentPasswordInput = document.getElementById('current_password');
+    if (currentPasswordInput) {
+        currentPasswordInput.addEventListener('input', function() {
+            updateSubmitButton();
+        });
+    }
+    
+    // Prevent form submission if passwords don't match
+    const resetPasswordForm = document.getElementById('resetPasswordForm');
+    if (resetPasswordForm) {
+        resetPasswordForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent default form submission
+            
+            const newPassword = newPasswordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            
+            if (newPassword !== confirmPassword) {
+                // Show error message in modal
+                showPasswordError('Password tidak cocok! Pastikan password baru dan konfirmasi password sama.');
+                confirmPasswordInput.focus();
+                confirmPasswordInput.classList.add('is-invalid');
+                return;
+            }
+            
+            // Show loading state
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengubah Password...';
+            
+            // Hide any existing alerts
+            hidePasswordAlerts();
+            
+            // Submit form via AJAX
+            const formData = new FormData(this);
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Show success notification using UiAlert component
+                    if (typeof window.UiAlert !== 'undefined') {
+                        window.UiAlert.push({
+                            type: 'success',
+                            title: 'Berhasil',
+                            message: data.message || 'Password berhasil diperbarui!',
+                            autoDismiss: true
+                        });
+                    }
+                    
+                    // Clear form
+                    this.reset();
+                    newPasswordInput.classList.remove('is-valid');
+                    confirmPasswordInput.classList.remove('is-valid');
+                    currentPasswordInput.classList.remove('is-valid');
+                    
+                    // Reset submit button
+                    submitBtn.disabled = true;
+                    submitBtn.classList.remove('btn-primary');
+                    submitBtn.classList.add('btn-secondary');
+                    
+                    // Close modal immediately
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
+                    if (modal) {
+                        modal.hide();
+                        
+                        // Force cleanup backdrop after modal is hidden
+                        setTimeout(() => {
+                            forceCleanModal();
+                        }, 300);
+                    }
+                } else {
+                    // Show error message in modal
+                    showPasswordError(data.message || 'Terjadi kesalahan, silakan coba lagi.');
+                    
+                    // Focus on current password if it's wrong
+                    if (data.message && data.message.toLowerCase().includes('password lama')) {
+                        currentPasswordInput.focus();
+                        currentPasswordInput.classList.add('is-invalid');
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showPasswordError('Terjadi kesalahan jaringan, silakan coba lagi.');
+            })
+            .finally(() => {
+                // Reset button state
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
+        });
+    }
+    
+    // Function to show error message
+    function showPasswordError(message) {
+        const errorAlert = document.getElementById('passwordErrorAlert');
+        const errorMessage = document.getElementById('passwordErrorMessage');
+        
+        // Show error alert
+        errorMessage.textContent = message;
+        errorAlert.classList.remove('d-none');
+        
+        // Scroll to top of modal to show error
+        const modalBody = document.querySelector('#changePasswordModal .modal-body');
+        if (modalBody) {
+            modalBody.scrollTop = 0;
+        }
+    }
+    
+    // Function to hide all alerts
+    function hidePasswordAlerts() {
+        const errorAlert = document.getElementById('passwordErrorAlert');
+        errorAlert.classList.add('d-none');
+    }
+    
+    // Clear validation states when user starts typing again
+    [currentPasswordInput, newPasswordInput, confirmPasswordInput].forEach(input => {
+        if (input) {
+            input.addEventListener('input', function() {
+                this.classList.remove('is-invalid');
+                // Hide error alert when user starts typing
+                hidePasswordAlerts();
+            });
+        }
+    });
 });
 </script>
 @endpush

@@ -132,5 +132,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/profile/resetPassword', [ProfileController::class, 'resetPassword'])->name('profile.resetPassword');
     Route::post('/profile/resetPassword', [ProfileController::class, 'update'])->name('profile.resetPassword');
     
+    // Forgot Password Routes
+    Route::get('/profile/forgot-password', [ProfileController::class, 'showForgotPasswordForm'])->name('profile.forgot-password.show');
+    Route::post('/profile/forgot-password', [ProfileController::class, 'forgotPassword'])->name('profile.forgot-password');
+    Route::get('/profile/verify-reset-code', [ProfileController::class, 'showVerifyResetCodeForm'])->name('profile.verify-reset-code');
+    Route::post('/profile/verify-reset-code', [ProfileController::class, 'verifyResetCode'])->name('profile.verify-reset-code.post');
+    Route::get('/profile/reset-forgotten-password', [ProfileController::class, 'showResetForgottenPasswordForm'])->name('profile.reset-forgotten-password');
+    Route::post('/profile/reset-forgotten-password', [ProfileController::class, 'resetForgottenPassword'])->name('profile.reset-forgotten-password.post');
+    Route::post('/profile/resend-reset-code', [ProfileController::class, 'resendResetCode'])->name('profile.resend-reset-code');
+    
     // Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('admin.purchases.print');
 });
