@@ -54,6 +54,23 @@ class EmailService
     }
 
     /**
+     * Send password reset code for profile reset
+     */
+    public function sendPasswordResetCode($user, $verificationCode)
+    {
+        try {
+            Mail::to($user->email)->send(new \App\Mail\PasswordResetCodeMail($user, $verificationCode));
+            return true;
+        } catch (\Symfony\Component\Mailer\Exception\TransportException $e) {
+            \Log::error('SMTP Transport Error: ' . $e->getMessage());
+            return false;
+        } catch (\Exception $e) {
+            \Log::error('Failed to send password reset code email: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
      * Test email configuration
      */
     public function testEmailConfig()
