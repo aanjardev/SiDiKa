@@ -2,6 +2,15 @@
 
 @section('title', isset($branch) ? (isset($isShow) && $isShow ? 'Detail Data Cabang' : 'Edit Data Cabang') : 'Tambah Data Cabang')
 
+@push('page-actions')
+@if(!isset($isShow) || !$isShow)
+<a href="{{ route('admin.branches.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+    <i class="fas fa-arrow-left"></i>
+    <span>Kembali</span>
+</a>
+@endif
+@endpush
+
 @section('content')
 
 {{--
@@ -85,139 +94,287 @@
                             <div class="invalid-feedback">Alamat lengkap wajib diisi</div>
                         @enderror
                     </div>
+
+                    {{-- Email --}}
+                    <div class="mb-3">
+                        <label for="email" class="form-label fw-medium text-secondary small">Email Cabang</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
+                                <i class="fa-solid fa-envelope"></i>
+                            </span>
+                            <input type="email"
+                                class="form-control border-start-0 ps-2 @error('email') is-invalid @enderror"
+                                id="email"
+                                name="email"
+                                style="height: 45px;"
+                                value="{{ old('email', $branch->email ?? '') }}"
+                                placeholder="email@cabang.com"
+                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                        </div>
+                        @error('email')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- Deskripsi --}}
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label fw-medium text-secondary small">Deskripsi Cabang</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
+                                <i class="fa-solid fa-info-circle"></i>
+                            </span>
+                            <textarea
+                                class="form-control border-start-0 ps-2 @error('deskripsi') is-invalid @enderror"
+                                id="deskripsi"
+                                name="deskripsi"
+                                rows="3"
+                                placeholder="Deskripsi singkat tentang cabang..."
+                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}>{{ old('deskripsi', $branch->deskripsi ?? '') }}</textarea>
+                        </div>
+                        @error('deskripsi')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    {{-- Kontak & Lokasi (Gabung di bawah) --}}
+                    <div class="card border-0 bg-light mt-4">
+                        <div class="card-body p-4">
+                            <h6 class="fw-bold text-dark mb-4">
+                                <i class="fa-solid fa-address-book me-2 text-warning"></i>Kontak & Lokasi
+                            </h6>
+                            
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{-- Status Aktif --}}
+                                    <div class="mb-4">
+                                        <label for="is_active" class="form-label fw-medium text-secondary small">Status Cabang</label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" value="1" {{ old('is_active', $branch->is_active ?? 1) ? 'checked' : '' }} {{ isset($isShow) && $isShow ? 'disabled' : '' }}>
+                                            <label class="form-check-label fw-medium" for="is_active">
+                                                Cabang Aktif
+                                            </label>
+                                        </div>
+                                        <div class="form-text small text-muted">Non-aktifkan jika cabang tidak beroperasi.</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    {{-- Nomor Telepon --}}
+                                    <div class="mb-4">
+                                        <label for="branch_nomor_telepon_display" class="form-label fw-medium text-secondary small">Nomor Telepon / WA <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
+                                                <i class="fa-solid fa-phone"></i>
+                                            </span>
+                                            <input type="text"
+                                                class="form-control border-start-0 ps-2 required-field @error('nomor_telepon') is-invalid @enderror"
+                                                id="branch_nomor_telepon_display"
+                                                style="height: 45px;"
+                                                value="{{ old('nomor_telepon', $branch->nomor_telepon ?? '') }}"
+                                                placeholder="08xx-xxxx-xxxx"
+                                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
+                                                @if(!isset($isShow) || !$isShow)
+                                                    data-error-message="Nomor telepon wajib diisi"
+                                                @endif>
+                                            <input type="hidden"
+                                                name="nomor_telepon"
+                                                id="branch_nomor_telepon"
+                                                value="{{ old('nomor_telepon', $branch->nomor_telepon ?? '') }}">
+                                        </div>
+                                        @error('nomor_telepon')
+                                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                                        @else
+                                            <div class="invalid-feedback">Nomor telepon wajib diisi</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    {{-- Link Maps --}}
+                                    <div class="mb-4">
+                                        <label for="LinkMaps" class="form-label fw-medium text-secondary small">Link Google Maps</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
+                                                <i class="fa-solid fa-link"></i>
+                                            </span>
+                                            <input type="text"
+                                                class="form-control border-start-0 ps-2 @error('link_maps') is-invalid @enderror"
+                                                id="LinkMaps"
+                                                name="link_maps"
+                                                style="height: 45px;"
+                                                value="{{ old('link_maps', $branch->link_maps ?? '') }}"
+                                                placeholder="https://maps.google.com/..."
+                                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                                        </div>
+                                        @if(isset($isShow) && $isShow)
+                                            <div class="form-text small">
+                                                <a href="{{ $branch->link_maps ?? '#' }}" target="_blank" class="text-primary">
+                                                    <i class="fa-solid fa-external-link-alt me-1"></i>Buka di Google Maps
+                                                </a>
+                                            </div>
+                                        @else
+                                            <div class="form-text small text-muted">Salin link lokasi dari Google Maps.</div>
+                                        @endif
+                                        @error('link_maps')
+                                            <div class="text-danger small mt-1">{{ $message }}</div>
+                                        @enderror
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        {{-- KOLOM KANAN: Kontak & Aksi --}}
+        {{-- KOLOM KANAN: Jam Operasional --}}
         <div class="col-lg-4">
 
-            {{-- Card Kontak --}}
+            {{-- Card Jam Operasional --}}
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
                 <div class="card-header bg-white border-0 pt-4 ps-4 pe-4 pb-0">
                     <h6 class="fw-bold text-dark mb-0">
-                        <i class="fa-solid fa-address-book me-2 text-warning"></i>Kontak & Lokasi
+                        <i class="fa-solid fa-clock me-2 text-success"></i>Jam Operasional
                     </h6>
+                    <p class="text-muted small mt-1">Atur jam buka untuk setiap hari.</p>
+                    
+                    {{-- Tombol Aksi Cepat --}}
+                    @if(!isset($isShow) || !$isShow)
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="bukaSemuaHari()">
+                            <i class="fa-solid fa-check-double me-1"></i>Buka Semua
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="tutupSemuaHari()">
+                            <i class="fa-solid fa-times me-1"></i>Tutup Semua
+                        </button>
+                    </div>
+                    @endif
                 </div>
                 <div class="card-body p-4">
-                    {{-- Nomor Telepon --}}
-                    <div class="mb-3">
-                        <label for="branch_nomor_telepon_display" class="form-label fw-medium text-secondary small">Nomor Telepon / WA <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
-                                <i class="fa-solid fa-phone"></i>
-                            </span>
-                            {{-- Input tampilan (formatted 4-4-sisa) --}}
-                            <input type="text"
-                                class="form-control border-start-0 ps-2 required-field @error('nomor_telepon') is-invalid @enderror"
-                                id="branch_nomor_telepon_display"
-                                style="height: 45px;"
-                                value="{{ old('nomor_telepon', $branch->nomor_telepon ?? '') }}"
-                                placeholder="08xx-xxxx-xxxx"
-                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
-                                @if(!isset($isShow) || !$isShow)
-                                    data-error-message="Nomor telepon wajib diisi"
-                                @endif>
-                            {{-- Hidden untuk dikirim ke backend (hanya digit) --}}
-                            <input type="hidden"
-                                name="nomor_telepon"
-                                id="branch_nomor_telepon"
-                                value="{{ old('nomor_telepon', $branch->nomor_telepon ?? '') }}">
-                        </div>
-                        @error('nomor_telepon')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @else
-                            <div class="invalid-feedback">Nomor telepon wajib diisi</div>
-                        @enderror
-                    </div>
+                    @php
+                        $hariList = $hariList ?? ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+                        $jamOperasionalData = [];
+                        if (isset($branch) && isset($branch->jamOperasional)) {
+                            foreach ($branch->jamOperasional as $jam) {
+                                $jamOperasionalData[$jam->hari] = $jam;
+                            }
+                        }
+                        // Debug: uncomment untuk melihat data
+                        // if(isset($branch)) {
+                        //     dump($branch->jamOperasional->toArray());
+                        //     dump($jamOperasionalData);
+                        // }
+                    @endphp
 
-                    {{-- Link Maps --}}
-                    <div class="mb-3">
-                        <label for="LinkMaps" class="form-label fw-medium text-secondary small">Link Google Maps</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
-                                <i class="fa-solid fa-link"></i>
-                            </span>
-                            <input type="text"
-                                class="form-control border-start-0 ps-2 @error('link_maps') is-invalid @enderror"
-                                id="LinkMaps"
-                                name="link_maps"
-                                style="height: 45px;"
-                                value="{{ old('link_maps', $branch->link_maps ?? '') }}"
-                                placeholder="https://maps.google.com/..." {{-- Menggunakan placeholder yang lebih deskriptif dari 'main' --}}
-                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}> {{-- Menggunakan readonly dari 'main' --}}
-                        </div>
-                        @if(isset($isShow) && $isShow)
-                            <div class="form-text small">
-                                <a href="{{ $branch->link_maps ?? '#' }}" target="_blank" class="text-primary">
-                                    <i class="fa-solid fa-external-link-alt me-1"></i>Buka di Google Maps
-                                </a>
+                    {{-- Input Jam Global --}}
+                    @if(!isset($isShow) || !$isShow)
+                    <div class="mb-3 p-3 bg-light rounded">
+                        <label class="form-label fw-medium text-secondary small mb-2">Atur Jam untuk Semua Hari</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="time" id="global_jam_buka" class="form-control form-control-sm" placeholder="08:00">
                             </div>
-                        @else
-                            <div class="form-text small text-muted">Salin link lokasi dari Google Maps.</div>
-                        @endif
-                        @error('link_maps')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    {{-- Jam Buka --}}
-                    <div class="mb-3">
-                        <label for="JamBuka" class="form-label fw-medium text-secondary small">Jam Buka</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
-                                <i class="fa-solid fa-clock"></i>
-                            </span>
-                            <input type="text"
-                                class="form-control border-start-0 ps-2 @error('jam_buka') is-invalid @enderror"
-                                id="JamBuka"
-                                name="jam_buka"
-                                placeholder="HH:MM"
-                                value="{{ old('jam_buka', $branch->jam_buka ?? '') }}"
-                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                            <div class="col-6">
+                                <input type="time" id="global_jam_tutup" class="form-control form-control-sm" placeholder="21:00">
+                            </div>
                         </div>
-                        @error('jam_buka')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
+                        <button type="button" class="btn btn-sm btn-success mt-2 w-100" onclick="samakanSemuaJam()">
+                            <i class="fa-solid fa-copy me-1"></i>Samakan Jam Semua Hari
+                        </button>
                     </div>
+                    @endif
 
-                    {{-- Jam Tutup --}}
-                    <div class="mb-3">
-                        <label for="JamTutup" class="form-label fw-medium text-secondary small">Jam Tutup</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 text-muted ps-3">
-                                <i class="fa-solid fa-clock"></i>
-                            </span>
-                            <input type="text"
-                                class="form-control border-start-0 ps-2 @error('jam_tutup') is-invalid @enderror"
-                                id="JamTutup"
-                                name="jam_tutup"
-                                placeholder="HH:MM"
-                                value="{{ old('jam_tutup', $branch->jam_tutup ?? '') }}"
-                                {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                    @foreach($hariList as $index => $hari)
+                        <div class="mb-2 {{ $index > 0 ? 'border-top pt-2' : '' }}">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <label class="form-label fw-bold mb-0" style="font-size: 1rem; color: #212529;">
+                                    {{ $hari }}
+                                </label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input jam-operasional-toggle" type="checkbox" 
+                                           id="jam_{{ strtolower($hari) }}_buka" 
+                                           name="jam_operasional[{{ $hari }}][is_buka]" 
+                                           value="1" 
+                                           {{ old("jam_operasional.{$hari}.is_buka", ($jamOperasionalData[$hari]->is_buka ?? false)) ? 'checked' : '' }}
+                                           {{ isset($isShow) && $isShow ? 'disabled' : '' }}>
+                                    <label class="form-check-label small" for="jam_{{ strtolower($hari) }}_buka">
+                                        Buka
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="row jam-operasional-fields" data-hari="{{ $hari }}">
+                                <div class="col-6">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light border-end-0 text-muted ps-2">
+                                            <i class="fa-solid fa-clock fa-xs"></i>
+                                        </span>
+                                        <input type="time" 
+                                               class="form-control border-start-0 ps-2 jam-buka-input clickable-time-input" 
+                                               name="jam_operasional[{{ $hari }}][jam_buka]" 
+                                               value="{{ old("jam_operasional.{$hari}.jam_buka", $jamOperasionalData[$hari]->jam_buka ?? '') }}"
+                                               placeholder="08:00"
+                                               {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="input-group input-group-sm">
+                                        <span class="input-group-text bg-light border-end-0 text-muted ps-2">
+                                            <i class="fa-solid fa-clock fa-xs"></i>
+                                        </span>
+                                        <input type="time" 
+                                               class="form-control border-start-0 ps-2 jam-tutup-input clickable-time-input" 
+                                               name="jam_operasional[{{ $hari }}][jam_tutup]" 
+                                               value="{{ old("jam_operasional.{$hari}.jam_tutup", $jamOperasionalData[$hari]->jam_tutup ?? '') }}"
+                                               placeholder="21:00"
+                                               {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {{-- Catatan Khusus (Collapse) --}}
+                            <div class="mt-1">
+                                <button type="button" 
+                                        class="btn btn-link btn-sm p-0 text-muted small text-decoration-none catatan-toggle border-0 bg-transparent" 
+                                        style="font-size: 0.75rem; color: #6c757d !important; outline: none !important; box-shadow: none !important;"
+                                        onclick="toggleCatatan('{{ strtolower($hari) }}')">
+                                    <i class="fa-solid fa-plus-circle me-1" style="color: #6c757d !important;"></i>
+                                    <span id="catatan-text-{{ strtolower($hari) }}" style="color: #6c757d !important;">Tambah catatan</span>
+                                </button>
+                                <div id="catatan-collapse-{{ strtolower($hari) }}" class="collapse mt-1">
+                                    <input type="text" 
+                                           class="form-control form-control-sm" 
+                                           name="jam_operasional[{{ $hari }}][catatan]" 
+                                           value="{{ old("jam_operasional.{$hari}.catatan", $jamOperasionalData[$hari]->catatan ?? '') }}"
+                                           placeholder="Catatan khusus (opsional)"
+                                           {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                                </div>
+                            </div>
                         </div>
-                        @error('jam_tutup')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
+                    @endforeach
                 </div>
             </div>
 
-            {{-- Card Aksi --}}
+            {{-- Card Aksi (Hanya untuk mode input) --}}
+            @if(!isset($isShow) || !$isShow)
             <div class="card shadow-sm border-0" style="border-radius: 10px;">
                 <div class="card-body p-4">
-                    <div class="d-grid gap-2">
-                        @if(!isset($isShow) || !$isShow)
-                            <button type="submit" class="btn btn-primary fw-medium py-2">
-                                <i class="fa-solid fa-save me-2"></i> {{ isset($branch) ? 'Simpan Perubahan' : 'Simpan Cabang' }}
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button type="submit" class="btn btn-primary fw-medium py-2 w-100">
+                                <i class="fa-solid fa-save me-2"></i> Simpan
                             </button>
-                        @endif
-                        <a href="{{ route('admin.branches.index') }}" class="btn btn-light border fw-medium text-secondary py-2">
-                            <i class="fa-solid fa-arrow-left me-2"></i> {{ isset($isShow) && $isShow ? 'Kembali' : 'Batal & Kembali' }}
-                        </a>
+                        </div>
+                        <div class="col-6">
+                            <a href="{{ route('admin.branches.index') }}" class="btn btn-light border fw-medium text-secondary py-2 w-100">
+                                <i class="fa-solid fa-times me-2"></i> Batal
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
+            @endif
 
         </div>
     </div>
@@ -287,12 +444,121 @@
                 return;
             }
         });
+
+        // Jam operasional toggle functionality
+        const toggles = document.querySelectorAll('.jam-operasional-toggle');
+        toggles.forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const hari = this.closest('.jam-operasional-fields').dataset.hari;
+                const fields = document.querySelector(`.jam-operasional-fields[data-hari="${hari}"]`);
+                const inputs = fields.querySelectorAll('input[type="time"], input[type="text"]');
+                
+                inputs.forEach(input => {
+                    if (input.type === 'text' && input.name.includes('catatan')) {
+                        // Catatan tetap bisa diisi meskipun tutup
+                        return;
+                    }
+                    input.disabled = !this.checked;
+                });
+            });
+            
+            // Trigger initial state
+            toggle.dispatchEvent(new Event('change'));
+        });
+
+        // Clickable time input - buka dropdown saat klik area field
+        const timeInputs = document.querySelectorAll('.clickable-time-input');
+        timeInputs.forEach(input => {
+            input.addEventListener('click', function() {
+                this.showPicker();
+            });
+        });
+
+        // Initialize catatan collapse states
+        @php
+            foreach($hariList as $hari) {
+                $catatanValue = old("jam_operasional.{$hari}.catatan", $jamOperasionalData[$hari]->catatan ?? '');
+                $hasCatatan = !empty($catatanValue);
+        echo "if ('{$hasCatatan}') {
+            document.getElementById('catatan-collapse-" . strtolower($hari) . "').classList.add('show');
+            document.getElementById('catatan-text-" . strtolower($hari) . "').innerHTML = '<i class=\"fa-solid fa-minus-circle me-1\" style=\"color: #6c757d !important;\"></i>Sembunyikan catatan';
+        }";
+            }
+        @endphp
     });
+
+    // Fungsi untuk membuka semua hari
+    function bukaSemuaHari() {
+        const toggles = document.querySelectorAll('.jam-operasional-toggle');
+        toggles.forEach(toggle => {
+            toggle.checked = true;
+            toggle.dispatchEvent(new Event('change'));
+        });
+    }
+
+    // Fungsi untuk menutup semua hari
+    function tutupSemuaHari() {
+        const toggles = document.querySelectorAll('.jam-operasional-toggle');
+        toggles.forEach(toggle => {
+            toggle.checked = false;
+            toggle.dispatchEvent(new Event('change'));
+        });
+    }
+
+    // Fungsi untuk menyamakan jam semua hari
+    function samakanSemuaJam() {
+        const jamBuka = document.getElementById('global_jam_buka').value;
+        const jamTutup = document.getElementById('global_jam_tutup').value;
+        
+        if (!jamBuka || !jamTutup) {
+            alert('Silakan isi jam buka dan jam tutup terlebih dahulu');
+            return;
+        }
+
+        const jamBukaInputs = document.querySelectorAll('.jam-buka-input');
+        const jamTutupInputs = document.querySelectorAll('.jam-tutup-input');
+        
+        jamBukaInputs.forEach(input => {
+            input.value = jamBuka;
+        });
+        
+        jamTutupInputs.forEach(input => {
+            input.value = jamTutup;
+        });
+
+        // Auto buka semua hari jika belum dibuka
+        bukaSemuaHari();
+    }
+
+    // Fungsi toggle catatan
+    function toggleCatatan(hari) {
+        const collapse = document.getElementById(`catatan-collapse-${hari}`);
+        const text = document.getElementById(`catatan-text-${hari}`);
+        const icon = text.querySelector('i');
+        
+        if (collapse.classList.contains('show')) {
+            collapse.classList.remove('show');
+            icon.className = 'fa-solid fa-plus-circle me-1';
+            text.innerHTML = '<i class="fa-solid fa-plus-circle me-1" style="color: #6c757d !important;"></i>Tambah catatan';
+        } else {
+            collapse.classList.add('show');
+            icon.className = 'fa-solid fa-minus-circle me-1';
+            text.innerHTML = '<i class="fa-solid fa-minus-circle me-1" style="color: #6c757d !important;"></i>Sembunyikan catatan';
+            
+            // Focus ke input catatan
+            setTimeout(() => {
+                const input = collapse.querySelector('input');
+                if (input) {
+                    input.focus();
+                }
+            }, 150);
+        }
+    }
 </script>
 @endpush
 
+@section('scripts')
+<script src="{{ asset('js/phone-input-validation.js') }}"></script>
 @endsection
 
-@push('scripts')
-<script src="{{ asset('js/phone-input-validation.js') }}"></script>
-@endpush
+@endsection
