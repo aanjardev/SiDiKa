@@ -88,8 +88,17 @@ Route::post('/activation/verify-email', [AccountActivationController::class, 've
 Route::get('/activation/verify', [AccountActivationController::class, 'showVerificationForm'])->name('activation.verify-form');
 Route::post('/activation/verify-code', [AccountActivationController::class, 'verifyCode'])->name('activation.verify-code');
 Route::get('/activation/setup-password/{token}', [AccountActivationController::class, 'showPasswordSetupForm'])->name('activation.setup-password');
-Route::post('/activation/setup-password/{token}', [AccountActivationController::class, 'setupPassword'])->name('activation.setup-password');
+Route::post('/activation/setup-password/{token}', [AccountActivationController::class, 'setupPassword'])->name('activation.setup-password.post');
 Route::post('/activation/resend-code', [AccountActivationController::class, 'resendCode'])->name('activation.resend-code');
+
+// Public Password Reset Routes (tanpa auth)
+Route::get('/forgot-password', [ProfileController::class, 'showPublicForgotPasswordForm'])->name('password.request');
+Route::post('/forgot-password', [ProfileController::class, 'publicForgotPassword'])->name('password.email');
+Route::get('/verify-reset-code', [ProfileController::class, 'showPublicVerifyResetCodeForm'])->name('public.verify-reset-code');
+Route::post('/verify-reset-code', [ProfileController::class, 'publicVerifyResetCode'])->name('public.verify-reset-code.post');
+Route::get('/reset-password', [ProfileController::class, 'showPublicResetPasswordForm'])->name('public.reset-password');
+Route::post('/reset-password', [ProfileController::class, 'publicResetPassword'])->name('public.reset-password.post');
+Route::post('/resend-reset-code', [ProfileController::class, 'resendPublicResetCode'])->name('public.resend-reset-code');
 
 
 // Routenya admin
@@ -107,24 +116,12 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Delete a product image
     Route::post('/products/{productId}/photos/{imageId}/delete', [AdminProductController::class, 'deletePhoto'])->name('products.photos.delete');
     Route::resource('/products', AdminProductController::class)->names('products');
-    Route::get('/products/create', [AdminProductController::class, 'create'])->name('products.create');
-    Route::post('/products/store', [AdminProductController::class, 'store'])->name('products.store');
-    Route::delete('/products/{id}', [AdminProductController::class, 'destroy'])->name('products.destroy');
-    Route::put('/products/{id}', [AdminProductController::class, 'update'])->name('products.update');
 
     // pastikan jalur pencarian tidak tertelan oleh route resource (/customers/{id})
     Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
     Route::resource('/customers', CustomerController::class)->names('customers');
     Route::resource('/categories'   , CategoryController::class)->names('categories');
-    Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
-    Route::post('/categories/store', [CategoryController::class, 'store'])->name('categories.store');
-    Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
-    Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
     Route::resource('/branches', BranchController::class)->names('branches');
-    Route::get('/branches/create', [BranchController::class, 'create'])->name('branches.create');
-    Route::post('/branches/store', [BranchController::class, 'store'])->name('branches.store');
-    Route::delete('/branches/{id}', [BranchController::class, 'destroy'])->name('branches.destroy');
-    Route::put('/branches/{id}', [BranchController::class, 'update'])->name('branches.update');
 
     // Transaksi
     Route::resource('/sales', PenjualanController::class)->names('sales');
@@ -166,8 +163,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     });
 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-    Route::get('/profile/resetPassword', [ProfileController::class, 'resetPassword'])->name('profile.resetPassword');
-    Route::post('/profile/resetPassword', [ProfileController::class, 'update'])->name('profile.resetPassword');
+    Route::get('/profile/resetPassword', [ProfileController::class, 'resetPassword'])->name('profile.resetPassword.show');
+    Route::post('/profile/resetPassword', [ProfileController::class, 'update'])->name('profile.resetPassword.post');
     
     // Forgot Password Routes
     Route::get('/profile/forgot-password', [ProfileController::class, 'showForgotPasswordForm'])->name('profile.forgot-password.show');
