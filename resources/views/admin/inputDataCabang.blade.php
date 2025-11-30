@@ -11,11 +11,10 @@
 --}}
 <form action="{{ isset($branch) && (!isset($isShow) || !$isShow) ? route('admin.branches.update', $branch->id) : route('admin.branches.store') }}"
     method="POST"
-    {{ (!isset($isShow) || !$isShow) ? 'data-validate-form' : '' }}
-    >
+    {{ (!isset($isShow) || !$isShow) ? 'data-validate-form' : '' }}>
     @csrf
     @if(isset($branch) && (!isset($isShow) || !$isShow))
-        @method('PUT')
+    @method('PUT')
     @endif
 
     <div class="row">
@@ -50,14 +49,14 @@
                                 placeholder="Contoh: Dinoyo Kamera Pusat"
                                 {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
                                 @if(!isset($isShow) || !$isShow)
-                                    data-error-message="Nama cabang wajib diisi"
+                                data-error-message="Nama cabang wajib diisi"
                                 @endif
                                 autofocus>
                         </div>
                         @error('nama')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                         @else
-                            <div class="invalid-feedback">Nama cabang wajib diisi</div>
+                        <div class="invalid-feedback">Nama cabang wajib diisi</div>
                         @enderror
                     </div>
 
@@ -76,13 +75,13 @@
                                 placeholder="Masukkan alamat lengkap cabang (Jalan, No, RT/RW, Kota)..."
                                 {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
                                 @if(!isset($isShow) || !$isShow)
-                                    data-error-message="Alamat lengkap wajib diisi"
+                                data-error-message="Alamat lengkap wajib diisi"
                                 @endif>{{ old('alamat', $branch->alamat ?? '') }}</textarea>
                         </div>
                         @error('alamat')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                         @else
-                            <div class="invalid-feedback">Alamat lengkap wajib diisi</div>
+                        <div class="invalid-feedback">Alamat lengkap wajib diisi</div>
                         @enderror
                     </div>
                 </div>
@@ -110,25 +109,25 @@
                             {{-- Input tampilan (formatted 4-4-sisa) --}}
                             <input type="text"
                                 class="form-control border-start-0 ps-2 required-field @error('nomor_telepon') is-invalid @enderror"
-                                id="branch_nomor_telepon_display"
+                                id="nomor_telepon_display"
                                 style="height: 45px;"
-                                value="{{ old('nomor_telepon', $branch->nomor_telepon ?? '') }}"
+                                value="{{ old('nomor_telepon', $employee->nomor_telepon ?? '') }}"
                                 placeholder="08xx-xxxx-xxxx"
-                                {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
-                                @if(!isset($isShow) || !$isShow)
-                                    data-error-message="Nomor telepon wajib diisi"
-                                @endif>
-                            {{-- Hidden untuk dikirim ke backend (hanya digit) --}}
+                                {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}
+                                data-error-message="Nomor telepon wajib diisi">
+                            {{-- Input hidden untuk dikirim ke backend (hanya digit) --}}
                             <input type="hidden"
                                 name="nomor_telepon"
-                                id="branch_nomor_telepon"
-                                value="{{ old('nomor_telepon', $branch->nomor_telepon ?? '') }}">
+                                id="nomor_telepon"
+                                value="{{ old('nomor_telepon', $employee->nomor_telepon ?? '') }}">
                         </div>
-                        @error('nomor_telepon')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @else
-                            <div class="invalid-feedback">Nomor telepon wajib diisi</div>
-                        @enderror
+                        <div class="invalid-feedback">
+                            @error('nomor_telepon')
+                            {{ $message }}
+                            @else
+                            Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.
+                            @enderror
+                        </div>
                     </div>
 
                     {{-- Link Maps --}}
@@ -148,16 +147,16 @@
                                 {{ isset($isShow) && $isShow ? 'readonly' : '' }}> {{-- Menggunakan readonly dari 'main' --}}
                         </div>
                         @if(isset($isShow) && $isShow)
-                            <div class="form-text small">
-                                <a href="{{ $branch->link_maps ?? '#' }}" target="_blank" class="text-primary">
-                                    <i class="fa-solid fa-external-link-alt me-1"></i>Buka di Google Maps
-                                </a>
-                            </div>
+                        <div class="form-text small">
+                            <a href="{{ $branch->link_maps ?? '#' }}" target="_blank" class="text-primary">
+                                <i class="fa-solid fa-external-link-alt me-1"></i>Buka di Google Maps
+                            </a>
+                        </div>
                         @else
-                            <div class="form-text small text-muted">Salin link lokasi dari Google Maps.</div>
+                        <div class="form-text small text-muted">Salin link lokasi dari Google Maps.</div>
                         @endif
                         @error('link_maps')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -177,7 +176,7 @@
                                 {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
                         </div>
                         @error('jam_buka')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
 
@@ -197,7 +196,7 @@
                                 {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
                         </div>
                         @error('jam_tutup')
-                            <div class="text-danger small mt-1">{{ $message }}</div>
+                        <div class="text-danger small mt-1">{{ $message }}</div>
                         @enderror
                     </div>
                 </div>
@@ -208,9 +207,9 @@
                 <div class="card-body p-4">
                     <div class="d-grid gap-2">
                         @if(!isset($isShow) || !$isShow)
-                            <button type="submit" class="btn btn-primary fw-medium py-2">
-                                <i class="fa-solid fa-save me-2"></i> {{ isset($branch) ? 'Simpan Perubahan' : 'Simpan Cabang' }}
-                            </button>
+                        <button type="submit" class="btn btn-primary fw-medium py-2">
+                            <i class="fa-solid fa-save me-2"></i> {{ isset($branch) ? 'Simpan Perubahan' : 'Simpan Cabang' }}
+                        </button>
                         @endif
                         <a href="{{ route('admin.branches.index') }}" class="btn btn-light border fw-medium text-secondary py-2">
                             <i class="fa-solid fa-arrow-left me-2"></i> {{ isset($isShow) && $isShow ? 'Kembali' : 'Batal & Kembali' }}
@@ -223,76 +222,8 @@
     </div>
 </form>
 
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const displayInput = document.getElementById('branch_nomor_telepon_display');
-        const hiddenInput  = document.getElementById('branch_nomor_telepon');
-
-        if (!displayInput || !hiddenInput) return;
-
-        function formatPhone(digits) {
-            if (!digits) return '';
-            const part1 = digits.slice(0, 4);
-            const part2 = digits.slice(4, 8);
-            const rest  = digits.slice(8);
-
-            let formatted = part1;
-            if (part2) formatted += '-' + part2;
-            if (rest)  formatted += '-' + rest;
-            return formatted;
-        }
-
-        (function initPhone() {
-            const raw = (hiddenInput.value || '').replace(/\D/g, '');
-            const limited = raw.slice(0, 15);
-            hiddenInput.value = limited;
-            displayInput.value = formatPhone(limited);
-        })();
-
-        displayInput.addEventListener('input', function () {
-            let digits = this.value.replace(/\D/g, '');
-            if (digits.length > 15) {
-                digits = digits.slice(0, 15);
-            }
-
-            hiddenInput.value  = digits;
-            displayInput.value = formatPhone(digits);
-        });
-
-        displayInput.addEventListener('blur', function () {
-            const digits = hiddenInput.value.replace(/\D/g, '');
-            const formControl = displayInput;
-
-            formControl.classList.remove('is-invalid');
-
-            if (!digits) {
-                formControl.classList.add('is-invalid');
-                const feedback = formControl.closest('.input-group').nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Nomor telepon wajib diisi.';
-                }
-                return;
-            }
-
-            const regex = /^(?:0|62|\+62)[0-9]{8,15}$/;
-            const withPrefix = digits;
-
-            if (!regex.test(withPrefix)) {
-                formControl.classList.add('is-invalid');
-                const feedback = formControl.closest('.input-group').nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.';
-                }
-                return;
-            }
-        });
-    });
-</script>
-@endpush
-
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/phone-input-validation.js') }}"></script>
+@vite('resources/js/utils/phone-input-validation.js')
 @endpush
