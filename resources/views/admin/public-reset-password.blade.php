@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password | SiDiKa</title>
+    <title>Reset Password | Dinoyo Kamera</title>
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
 
     {{-- Bootstrap CSS --}}
@@ -110,21 +110,6 @@
         }
 
         .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 25px rgba(59, 138, 255, 0.3);
-        }
-
-        .btn-outline-primary {
-            color: var(--bs-primary);
-            border-color: var(--bs-primary);
-            font-weight: 500;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-outline-primary:hover {
-            background: var(--bs-primary);
-            border-color: var(--bs-primary);
             transform: translateY(-1px);
             box-shadow: 0 8px 25px rgba(59, 138, 255, 0.3);
         }
@@ -247,19 +232,32 @@
             }
         }
 
-        /* Logo Styling */
-        .auth-logo {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem;
-            color: white;
-            font-size: 1.5rem;
-            font-weight: 700;
+        /* Password Strength Indicator */
+        .password-strength {
+            height: 4px;
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .password-strength.weak {
+            background-color: #dc3545;
+            width: 33%;
+        }
+
+        .password-strength.medium {
+            background-color: #ffc107;
+            width: 66%;
+        }
+
+        .password-strength.strong {
+            background-color: #28a745;
+            width: 100%;
+        }
+
+        .password-strength-text {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
         }
 
         /* Form Label Styling */
@@ -280,28 +278,11 @@
             text-decoration: underline;
         }
 
-        /* Password Strength Indicator */
-        .progress {
-            height: 6px;
-        }
-
-        .progress-bar {
-            transition: width 0.3s ease, background-color 0.3s ease;
-        }
-
-        .progress-bar.bg-danger { background-color: #dc3545 !important; }
-        .progress-bar.bg-warning { background-color: #ffc107 !important; }
-        .progress-bar.bg-info { background-color: #17a2b8 !important; }
-        .progress-bar.bg-success { background-color: #28a745 !important; }
-
-        .form-control.is-valid {
-            border-color: #198754;
-            background-color: #f0fff4;
-        }
-
-        .form-control.is-invalid {
-            border-color: #dc3545;
-            background-color: #fff5f5;
+        /* Success Icon */
+        .success-icon {
+            font-size: 3rem;
+            color: #28a745;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -319,13 +300,14 @@
                 <div class="login-card">
                     <div class="auth-card">
                         
-                        <div class="auth-logo">
-                            <i class="fas fa-unlock-alt"></i>
-                        </div>
-
                         <div class="text-center mb-4">
+                            @if(session('success'))
+                                <div class="success-icon">
+                                    <i class="fa-solid fa-check-circle"></i>
+                                </div>
+                            @endif
                             <h2 class="fw-bold text-dark mb-2">Buat Password Baru</h2>
-                            <p class="text-muted small">Verifikasi berhasil! Silakan buat password baru</p>
+                            <p class="text-muted small">Masukkan password baru untuk akun Anda.</p>
                         </div>
 
                         <!-- @if(session('error'))
@@ -344,92 +326,82 @@
                             </div>
                         @endif -->
 
-                        <!-- <div class="text-center mb-4">
-                            <div class="mb-3">
-                                <i class="fas fa-shield-check fa-2x text-success"></i>
-                            </div>
-                            <p class="text-muted small mb-0">
-                                Email: <strong>{{ session('reset_email') }}</strong>
-                            </p>
-                        </div> -->
-
-                        <form method="POST" action="{{ route('admin.profile.reset-forgotten-password.post') }}" class="needs-validation" novalidate>
+                        <form method="POST" action="{{ route('public.reset-password.post') }}" id="resetForm">
                             @csrf
-                            
+
+                            {{-- Input Password Baru --}}
                             <div class="mb-3">
-                                <label for="new_password" class="form-label">Password Baru <span class="text-danger">*</span></label>
+                                <label for="password" class="form-label">Password Baru <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text">
-                                        <i class="fas fa-key"></i>
+                                        <i class="fa-solid fa-lock"></i>
                                     </span>
-                                    <input type="password" 
-                                           class="form-control" 
-                                           id="new_password" 
-                                           name="new_password" 
-                                           placeholder="Masukkan password baru" 
-                                           required 
-                                           minlength="6"
-                                           autocomplete="new-password" autofocus>
-                                    <button class="btn btn-toggle-password" type="button" id="toggleNewPassword">
+                                    <input type="password"
+                                        class="form-control required-field @error('password') is-invalid @enderror"
+                                        id="password"
+                                        name="password"
+                                        placeholder="Masukkan password baru"
+                                        required
+                                        data-error-message="Password wajib diisi"
+                                        data-validate="password-strength" autofocus>
+                                    <button class="btn btn-toggle-password" type="button" id="togglePassword">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
-                                <div class="form-text text-muted">
-                                    Minimal 6 karakter
-                                </div>
+                                <div class="password-strength" id="passwordStrength"></div>
+                                <div class="password-strength-text small text-muted" id="passwordStrengthText"></div>
                                 <div class="invalid-feedback">
-                                    Password minimal 6 karakter
+                                    @error('password')
+                                        {{ $message }}
+                                    @else
+                                        Password minimal 6 karakter
+                                    @enderror
                                 </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="new_password_confirmation" class="form-label">Konfirmasi Password Baru <span class="text-danger">*</span></label>
-                                <div class="input-group">
-                                    <span class="input-group-text">
-                                        <i class="fas fa-key"></i>
-                                    </span>
-                                    <input type="password" 
-                                           class="form-control" 
-                                           id="new_password_confirmation" 
-                                           name="new_password_confirmation" 
-                                           placeholder="Ulangi password baru" 
-                                           required 
-                                           minlength="6"
-                                           autocomplete="new-password">
-                                    <button class="btn btn-toggle-password" type="button" id="toggleConfirmPassword">
-                                        <i class="fas fa-eye"></i>
-                                    </button>
-                                </div>
-                                <div class="invalid-feedback">
-                                    Konfirmasi password harus sama
-                                </div>
-                            </div>
-
-                            <!-- Password Strength Indicator -->
+                            {{-- Input Konfirmasi Password --}}
                             <div class="mb-4">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <span class="small text-muted">Kekuatan Password:</span>
-                                    <span id="strengthText" class="small fw-bold">-</span>
+                                <label for="password_confirmation" class="form-label">Konfirmasi Password <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fa-solid fa-lock"></i>
+                                    </span>
+                                    <input type="password"
+                                        class="form-control required-field @error('password_confirmation') is-invalid @enderror"
+                                        id="password_confirmation"
+                                        name="password_confirmation"
+                                        placeholder="Konfirmasi password baru"
+                                        required
+                                        data-error-message="Konfirmasi password wajib diisi">
+                                    <button class="btn btn-toggle-password" type="button" id="togglePasswordConfirm">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                 </div>
-                                <div class="progress">
-                                    <div id="strengthBar" class="progress-bar" role="progressbar" style="width: 0%"></div>
+                                <div class="invalid-feedback">
+                                    @error('password_confirmation')
+                                        {{ $message }}
+                                    @else
+                                        Konfirmasi password harus sama dengan password baru
+                                    @enderror
                                 </div>
                             </div>
 
-                            <div class="d-grid mb-3">
+                            {{-- Submit Button --}}
+                            <div class="d-grid">
                                 <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save me-2"></i>
-                                    Simpan Password Baru
+                                    <i class="fa-solid fa-key me-2"></i> Reset Password
                                 </button>
                             </div>
+
                         </form>
 
                         <div class="mt-4 text-center">
                             <div class="border-top pt-3">
-                                <a href="{{ route('admin.profile') }}" class="btn btn-outline-primary btn-sm">
-                                    <i class="fas fa-arrow-left me-2"></i>
-                                    Kembali ke Profil
-                                </a>
+                                <p class="text-muted small mb-0">
+                                    <a href="{{ route('login') }}" class="text-primary">
+                                        <i class="fa-solid fa-arrow-left me-1"></i> Kembali ke Login
+                                    </a>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -468,117 +440,79 @@
     {{-- Form Validation JS --}}
     <script src="{{ asset('js/form-validation.js') }}"></script>
 
-    {{-- Logic Password --}}
+    {{-- Logic Toggle Password & Password Strength --}}
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Toggle password visibility
-            const toggleNewPassword = document.getElementById('toggleNewPassword');
-            const newPasswordInput = document.getElementById('new_password');
-            const newIcon = toggleNewPassword.querySelector('i');
-            
-            toggleNewPassword.addEventListener('click', function() {
-                const type = newPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                newPasswordInput.setAttribute('type', type);
-                
-                if (type === 'password') {
-                    newIcon.classList.remove('fa-eye-slash');
-                    newIcon.classList.add('fa-eye');
+            const togglePassword = document.querySelector("#togglePassword");
+            const passwordInput = document.querySelector("#password");
+            const icon = togglePassword.querySelector("i");
+
+            togglePassword.addEventListener("click", function() {
+                const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+                passwordInput.setAttribute("type", type);
+
+                if (type === "password") {
+                    icon.classList.remove("fa-eye-slash");
+                    icon.classList.add("fa-eye");
                 } else {
-                    newIcon.classList.remove('fa-eye');
-                    newIcon.classList.add('fa-eye-slash');
+                    icon.classList.remove("fa-eye");
+                    icon.classList.add("fa-eye-slash");
                 }
             });
 
-            const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
-            const confirmPasswordInput = document.getElementById('new_password_confirmation');
-            const confirmIcon = toggleConfirmPassword.querySelector('i');
-            
-            toggleConfirmPassword.addEventListener('click', function() {
-                const type = confirmPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-                confirmPasswordInput.setAttribute('type', type);
-                
-                if (type === 'password') {
-                    confirmIcon.classList.remove('fa-eye-slash');
-                    confirmIcon.classList.add('fa-eye');
+            // Toggle confirm password visibility
+            const togglePasswordConfirm = document.querySelector("#togglePasswordConfirm");
+            const passwordConfirmInput = document.querySelector("#password_confirmation");
+            const iconConfirm = togglePasswordConfirm.querySelector("i");
+
+            togglePasswordConfirm.addEventListener("click", function() {
+                const type = passwordConfirmInput.getAttribute("type") === "password" ? "text" : "password";
+                passwordConfirmInput.setAttribute("type", type);
+
+                if (type === "password") {
+                    iconConfirm.classList.remove("fa-eye-slash");
+                    iconConfirm.classList.add("fa-eye");
                 } else {
-                    confirmIcon.classList.remove('fa-eye');
-                    confirmIcon.classList.add('fa-eye-slash');
+                    iconConfirm.classList.remove("fa-eye");
+                    iconConfirm.classList.add("fa-eye-slash");
                 }
             });
 
             // Password strength checker
-            function checkPasswordStrength(password) {
+            const passwordStrength = document.getElementById('passwordStrength');
+            const passwordStrengthText = document.getElementById('passwordStrengthText');
+
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
                 let strength = 0;
-                
+                let strengthText = '';
+                let strengthClass = '';
+
                 if (password.length >= 6) strength++;
                 if (password.length >= 10) strength++;
                 if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
                 if (/[0-9]/.test(password)) strength++;
                 if (/[^a-zA-Z0-9]/.test(password)) strength++;
-                
-                const strengthBar = document.getElementById('strengthBar');
-                const strengthText = document.getElementById('strengthText');
-                
-                // Remove all color classes
-                strengthBar.className = 'progress-bar';
-                
-                switch(strength) {
-                    case 0:
-                    case 1:
-                        strengthBar.style.width = '20%';
-                        strengthBar.classList.add('bg-danger');
-                        strengthText.textContent = 'Sangat Lemah';
-                        strengthText.className = 'small fw-bold text-danger';
-                        break;
-                    case 2:
-                        strengthBar.style.width = '40%';
-                        strengthBar.classList.add('bg-warning');
-                        strengthText.textContent = 'Lemah';
-                        strengthText.className = 'small fw-bold text-warning';
-                        break;
-                    case 3:
-                        strengthBar.style.width = '60%';
-                        strengthBar.classList.add('bg-info');
-                        strengthText.textContent = 'Sedang';
-                        strengthText.className = 'small fw-bold text-info';
-                        break;
-                    case 4:
-                        strengthBar.style.width = '80%';
-                        strengthBar.classList.add('bg-success');
-                        strengthText.textContent = 'Kuat';
-                        strengthText.className = 'small fw-bold text-success';
-                        break;
-                    case 5:
-                        strengthBar.style.width = '100%';
-                        strengthBar.classList.add('bg-success');
-                        strengthText.textContent = 'Sangat Kuat';
-                        strengthText.className = 'small fw-bold text-success';
-                        break;
-                }
-            }
 
-            newPasswordInput.addEventListener('input', function() {
-                checkPasswordStrength(this.value);
-            });
-
-            // Password confirmation validation
-            confirmPasswordInput.addEventListener('input', function() {
-                const newPassword = newPasswordInput.value;
-                const confirmPassword = this.value;
-                
-                if (confirmPassword === newPassword && confirmPassword.length > 0) {
-                    this.classList.add('is-valid');
-                    this.classList.remove('is-invalid');
-                } else if (confirmPassword.length > 0) {
-                    this.classList.add('is-invalid');
-                    this.classList.remove('is-valid');
+                if (strength <= 2) {
+                    strengthClass = 'weak';
+                    strengthText = 'Lemah';
+                } else if (strength <= 4) {
+                    strengthClass = 'medium';
+                    strengthText = 'Sedang';
                 } else {
-                    this.classList.remove('is-valid', 'is-invalid');
+                    strengthClass = 'strong';
+                    strengthText = 'Kuat';
                 }
+
+                passwordStrength.className = 'password-strength ' + strengthClass;
+                passwordStrengthText.textContent = 'Kekuatan Password: ' + strengthText;
+                passwordStrengthText.className = 'password-strength-text small text-' + (strengthClass === 'weak' ? 'danger' : strengthClass === 'medium' ? 'warning' : 'success');
             });
 
-            // Initialize form validation
-            const resetForm = document.querySelector('form');
+            // Form validation
+            const resetForm = document.getElementById('resetForm');
             if (resetForm && window.FormValidator) {
                 FormValidator.initForm(resetForm);
             }

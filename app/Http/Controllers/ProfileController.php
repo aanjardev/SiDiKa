@@ -70,15 +70,30 @@ class ProfileController extends Controller
         return back()->with('success', 'Password berhasil diperbarui!');
     }
 
-    public function showForgotPasswordForm()
+    // ========== PUBLIC FORGOT PASSWORD (FROM LOGIN PAGE) ==========
+    
+    public function showPublicForgotPasswordForm()
     {
-        return view('admin.forgot-password');
+        return view('admin.public-forgot-password');
     }
 
-    public function forgotPassword(Request $request)
+    public function publicForgotPassword(Request $request)
     {
-        $user = Auth::user();
+        // Validasi email
+        $request->validate([
+            'email' => 'required|email|exists:users,email'
+        ], [
+            'email.required' => 'Email wajib diisi',
+            'email.email' => 'Format email tidak valid',
+            'email.exists' => 'Email tidak terdaftar dalam sistem'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
         
+        if (!$user) {
+            return back()->with('error', 'Email tidak terdaftar dalam sistem.');
+        }
+
         // Generate verification code (6 digit)
         $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         
@@ -86,8 +101,12 @@ class ProfileController extends Controller
         session([
             'password_reset_email' => $user->email,
             'password_reset_code' => $verificationCode,
-            'password_reset_expiry' => now()->addMinutes(30) // 30 minutes expiry
+            'password_reset_expiry' => now()->addMinutes(30), // 30 minutes expiry
+            'password_reset_type' => 'public' // Mark as public flow
         ]);
+        
+        // Ensure session is saved
+        session()->save();
 
         // Send verification code via email
         try {
@@ -95,6 +114,215 @@ class ProfileController extends Controller
             $emailSent = $emailService->sendPasswordResetCode($user, $verificationCode);
             
             if ($emailSent) {
+                // Log success for debugging
+                \Log::info('Public password reset code sent successfully to: ' . $user->email);
+                
+                // Check if request is AJAX
+                if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Kode verifikasi telah dikirim ke email Anda.',
+                        'redirect' => route('public.verify-reset-code')
+                    ]);
+                }
+                
+                return redirect()->route('public.verify-reset-code')
+                    ->with('success', 'Kode verifikasi telah dikirim ke email Anda.')
+                    ->with('reset_email', $user->email)
+                    ->with('expiry', 'Kode berlaku selama 30 menit');
+            } else {
+                \Log::error('Email service returned false for public user: ' . $user->email);
+                if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->wantsJson()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Gagal mengirim kode verifikasi. Silakan coba lagi.'
+                    ]);
+                }
+                return back()->with('error', 'Gagal mengirim kode verifikasi. Silakan coba lagi.');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Exception in publicForgotPassword: ' . $e->getMessage() . ' Line: ' . $e->getLine() . ' File: ' . $e->getFile());
+            if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan sistem. Silakan coba lagi.'
+                ]);
+            }
+            return back()->with('error', 'Terjadi kesalahan sistem. Silakan coba lagi.');
+        }
+    }
+
+    public function showPublicVerifyResetCodeForm()
+    {
+        if (!session('password_reset_email') || session('password_reset_type') !== 'public') {
+            return redirect()->route('login');
+        }
+
+        return view('admin.public-verify-reset-code');
+    }
+
+    public function publicVerifyResetCode(Request $request)
+    {
+        $request->validate([
+            'verification_code' => 'required|digits:6'
+        ], [
+            'verification_code.required' => 'Kode verifikasi wajib diisi',
+            'verification_code.digits' => 'Kode verifikasi harus 6 digit'
+        ]);
+
+        // Check session
+        $storedEmail = session('password_reset_email');
+        $storedCode = session('password_reset_code');
+        $expiry = session('password_reset_expiry');
+
+        if (!$storedEmail || !$storedCode || !$expiry) {
+            return back()->with('error', 'Sesi verifikasi telah kadaluarsa. Silakan mulai ulang.');
+        }
+
+        // Check expiry
+        if (now()->gt($expiry)) {
+            // Clear session
+            session()->forget(['password_reset_email', 'password_reset_code', 'password_reset_expiry', 'password_reset_type']);
+            return back()->with('error', 'Kode verifikasi telah kadaluarsa. Silakan minta kode baru.');
+        }
+
+        // Verify code
+        if ($request->verification_code !== $storedCode) {
+            return back()->with('error', 'Kode verifikasi tidak valid. Silakan periksa kembali.');
+        }
+
+        // Code is valid, redirect to reset password form
+        return redirect()->route('public.reset-password')
+            ->with('success', 'Kode verifikasi valid. Silakan buat password baru.');
+    }
+
+    public function showPublicResetPasswordForm()
+    {
+        if (!session('password_reset_email') || session('password_reset_type') !== 'public') {
+            return redirect()->route('login');
+        }
+
+        return view('admin.public-reset-password');
+    }
+
+    public function publicResetPassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string|min:6|confirmed',
+        ], [
+            'password.required' => 'Password baru wajib diisi',
+            'password.min' => 'Password minimal 6 karakter',
+            'password.confirmed' => 'Konfirmasi password tidak sesuai'
+        ]);
+
+        $email = session('password_reset_email');
+        
+        if (!$email) {
+            return back()->with('error', 'Sesi telah kadaluarsa. Silakan mulai ulang.');
+        }
+
+        $user = User::where('email', $email)->first();
+        if (!$user) {
+            return back()->with('error', 'User tidak ditemukan. Silakan hubungi administrator.');
+        }
+
+        // Update password
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        // Clear session
+        session()->forget(['password_reset_email', 'password_reset_code', 'password_reset_expiry', 'password_reset_type']);
+
+        return redirect()->route('login')
+            ->with('success', 'Password berhasil direset. Silakan login dengan password baru.');
+    }
+
+    public function resendPublicResetCode(Request $request)
+    {
+        $email = session('password_reset_email');
+        
+        if (!$email) {
+            return redirect()->route('password.request');
+        }
+
+        // Get user
+        $user = User::where('email', $email)->first();
+        if (!$user) {
+            return back()->with('error', 'Email tidak ditemukan.');
+        }
+
+        // Generate new code
+        $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        
+        // Update session
+        session([
+            'password_reset_code' => $verificationCode,
+            'password_reset_expiry' => now()->addMinutes(30)
+        ]);
+
+        // Send email
+        try {
+            $emailService = new EmailService();
+            $emailSent = $emailService->sendPasswordResetCode($user, $verificationCode);
+            
+            if ($emailSent) {
+                return back()->with('success', 'Kode verifikasi baru telah dikirim ke email Anda.');
+            } else {
+                return back()->with('error', 'Gagal mengirim kode verifikasi. Silakan coba lagi.');
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan sistem. Silakan coba lagi.');
+        }
+    }
+
+    // ========== PROTECTED FORGOT PASSWORD (FROM PROFILE PAGE) ==========
+
+    public function showForgotPasswordForm()
+    {
+        return view('admin.profile-forgot-password');
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        // Validasi email
+        $request->validate([
+            'email' => 'required|email|exists:users,email'
+        ], [
+            'email.required' => 'Email wajib diisi',
+            'email.email' => 'Format email tidak valid',
+            'email.exists' => 'Email tidak terdaftar dalam sistem'
+        ]);
+
+        $user = User::where('email', $request->email)->first();
+        
+        if (!$user) {
+            return back()->with('error', 'Email tidak terdaftar dalam sistem.');
+        }
+
+        // Generate verification code (6 digit)
+        $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        
+        // Store verification code in session
+        session([
+            'password_reset_email' => $user->email,
+            'password_reset_code' => $verificationCode,
+            'password_reset_expiry' => now()->addMinutes(30), // 30 minutes expiry
+            'password_reset_type' => 'protected' // Mark as protected flow
+        ]);
+        
+        // Ensure session is saved
+        session()->save();
+
+        // Send verification code via email
+        try {
+            $emailService = new EmailService();
+            $emailSent = $emailService->sendPasswordResetCode($user, $verificationCode);
+            
+            if ($emailSent) {
+                // Log success for debugging
+                \Log::info('Password reset code sent successfully to: ' . $user->email);
+                
                 // Check if request is AJAX
                 if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->wantsJson()) {
                     return response()->json([
@@ -109,6 +337,7 @@ class ProfileController extends Controller
                     ->with('reset_email', $user->email)
                     ->with('expiry', 'Kode berlaku selama 30 menit');
             } else {
+                \Log::error('Email service returned false for user: ' . $user->email);
                 if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->wantsJson()) {
                     return response()->json([
                         'success' => false,
@@ -118,14 +347,14 @@ class ProfileController extends Controller
                 return back()->with('error', 'Gagal mengirim kode verifikasi. Silakan coba lagi.');
             }
         } catch (\Exception $e) {
-            \Log::error('Password reset email failed: ' . $e->getMessage());
+            \Log::error('Exception in forgotPassword: ' . $e->getMessage() . ' Line: ' . $e->getLine() . ' File: ' . $e->getFile());
             if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Terjadi kesalahan saat mengirim email. Silakan coba lagi.'
+                    'message' => 'Terjadi kesalahan sistem. Silakan coba lagi.'
                 ]);
             }
-            return back()->with('error', 'Terjadi kesalahan saat mengirim email. Silakan coba lagi.');
+            return back()->with('error', 'Terjadi kesalahan sistem. Silakan coba lagi.');
         }
     }
 
