@@ -17,6 +17,7 @@ use App\Http\Controllers\QCController;
 use App\Http\Controllers\CatalogSettingsController;
 use App\Http\Controllers\SmartStockController;
 use App\Http\Controllers\AccountActivationController;
+use App\Http\Controllers\TimeoutController;
 use Illuminate\Support\Facades\Route;
 
 use Symfony\Component\HttpKernel\Profiler\Profile;
@@ -36,6 +37,42 @@ Route::get("/", [PageController::class,"index"]);
 Route::get("/about", [PageController::class,"about"]);
 Route::get("/contact", [PageController::class,"contact"]);
 Route::get("/admin", [PageController::class,"admin"]);
+
+// Timeout Testing Routes
+Route::get('/test-timeout', [TimeoutController::class, 'testTimeout'])->name('test.timeout');
+Route::get('/test-queue', [TimeoutController::class, 'handleHeavyTask'])->name('test.queue');
+Route::get('/check-job/{jobId}', [TimeoutController::class, 'checkJobStatus'])->name('check.job.status');
+Route::get('/simulate-timeout', [TimeoutController::class, 'simulateTimeout'])->name('simulate.timeout');
+
+// Error Testing Routes
+Route::get('/test-404', function() {
+    abort(404, 'Halaman testing 404 tidak ditemukan');
+})->name('test.404');
+
+Route::get('/test-403', function() {
+    abort(403, 'Akses testing 403 ditolak');
+})->name('test.403');
+
+Route::get('/test-500', function() {
+    // Simulasi error 500 dengan cara yang aman
+    return response()->view('errors.500', [], 500);
+})->name('test.500');
+
+Route::get('/test-real-500', function() {
+    // Test real 500 error (akan trigger exception handler)
+    throw new \Exception('Simulasi error 500 untuk testing');
+})->name('test.real.500');
+
+Route::get('/test-429', function() {
+    abort(429, 'Terlalu banyak permintaan testing');
+})->name('test.429');
+
+Route::get('/test-auth', function() {
+    if (!auth()->check()) {
+        abort(403, 'Anda harus login untuk mengakses halaman ini');
+    }
+    return 'Anda sudah login';
+})->name('test.auth');
 
 
 Route::get("/katalog", [ProductController::class, "index"])->name('product.index');

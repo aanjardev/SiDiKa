@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\JamOperasionalCabang;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 class BranchController extends Controller
 {
@@ -33,7 +35,7 @@ class BranchController extends Controller
             $query->orderBy('updated_at', $sortOrder);
         }
 
-        $data_cabang = $query->paginate(10)->withQueryString();
+        $data_cabang = $query->with('jamOperasional')->paginate(10)->withQueryString();
 
         return view('admin.dataCabang', [
             'data_cabang' => $data_cabang,
@@ -45,7 +47,10 @@ class BranchController extends Controller
 
     public function create()
     {
-        return view('admin.inputDataCabang');
+        $hariList = JamOperasionalCabang::getAllHari();
+        return view('admin.inputDataCabang', [
+            'hariList' => $hariList
+        ]);
     }
 
     public function store(Request $request)
@@ -68,14 +73,32 @@ class BranchController extends Controller
                 'regex:/^(?:\+62|62|0)[0-9]{8,15}$/'
             ],
             'link_maps' => [
-                // 'required',
                 'nullable',
                 'url',
                 'max:255',
                 Rule::unique('perusahaan_cabang', 'link_maps'),
             ],
+            'email' => [
+                'nullable',
+                'email',
+                'max:100',
+            ],
+            'deskripsi' => [
+                'nullable',
+                'string',
+                'max:500',
+            ],
+            'is_active' => [
+                'boolean',
+            ],
             'jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
             'jam_tutup' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+            // Validasi jam operasional per hari
+            'jam_operasional' => ['required', 'array', 'size:7'],
+            'jam_operasional.*.is_buka' => ['required', 'boolean'],
+            'jam_operasional.*.jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+            'jam_operasional.*.jam_tutup' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+            'jam_operasional.*.catatan' => ['nullable', 'string', 'max:200'],
         ],
         [
             'nama.regex' => 'Nama cabang hanya boleh mengandung huruf, angka, spasi, titik, koma, dan tanda hubung',
@@ -83,26 +106,57 @@ class BranchController extends Controller
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
             'link_maps.url' => 'Link Maps harus berupa URL yang valid.',
             'link_maps.unique' => 'Link Google Maps sudah terdaftar.',
+            'jam_operasional.required' => 'Jam operasional harus diisi untuk semua hari.',
+            'jam_operasional.size' => 'Jam operasional harus diisi untuk 7 hari.',
         ]);
 
-        Branch::create($validated);
+        DB::beginTransaction();
+        try {
+            // Create branch
+            $branch = Branch::create($validated);
+
+            // Create jam operasional
+            foreach ($validated['jam_operasional'] as $hari => $jamData) {
+                JamOperasionalCabang::create([
+                    'perusahaan_cabang_id' => $branch->id,
+                    'hari' => $hari,
+                    'is_buka' => $jamData['is_buka'],
+                    'jam_buka' => $jamData['is_buka'] ? ($jamData['jam_buka'] ?? null) : null,
+                    'jam_tutup' => $jamData['is_buka'] ? ($jamData['jam_tutup'] ?? null) : null,
+                    'catatan' => $jamData['catatan'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal menyimpan data cabang: ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.branches.index')
         ->with('success', 'Cabang berhasil ditambahkan.');
     }
+
     public function show(Branch $branch)
     {
-        return view('admin.inputDataCabang', [
+        $branch->load('jamOperasional');
+        
+        return view('admin.showDataCabang', [
             'branch' => $branch,
-            'isShow' => true  // ← Flag untuk mode view-only
         ]);
     }
 
     public function edit(Branch $branch)
     {
+        $branch->load('jamOperasional');
+        $hariList = JamOperasionalCabang::getAllHari();
+        
         return view('admin.inputDataCabang', [
             'branch' => $branch,
-            'isShow' => false  // ← Flag untuk mode edit
+            'isShow' => false,
+            'hariList' => $hariList
         ]);
     }
 
@@ -115,7 +169,7 @@ class BranchController extends Controller
             ->with('success', 'Cabang berhasil dihapus.');
     }
 
-    public function update(Request $request, Branch $branch) // 🟢 Route Model Binding
+    public function update(Request $request, Branch $branch)
     {
         $validated = $request->validate([
             'nama' => [
@@ -140,17 +194,64 @@ class BranchController extends Controller
                 'max:255',
                 Rule::unique('perusahaan_cabang', 'link_maps')->ignore($branch->id),
             ],
+            'email' => [
+                'nullable',
+                'email',
+                'max:100',
+            ],
+            'deskripsi' => [
+                'nullable',
+                'string',
+                'max:500',
+            ],
+            'is_active' => [
+                'boolean',
+            ],
             'jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
             'jam_tutup' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+            // Validasi jam operasional per hari
+            'jam_operasional' => ['required', 'array', 'size:7'],
+            'jam_operasional.*.is_buka' => ['required', 'boolean'],
+            'jam_operasional.*.jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+            'jam_operasional.*.jam_tutup' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
+            'jam_operasional.*.catatan' => ['nullable', 'string', 'max:200'],
         ], [
             'nama.regex' => 'Nama cabang hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
             'alamat.regex' => 'Alamat hanya boleh huruf, angka, spasi, titik, koma, garis miring, dan tanda hubung.',
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
             'link_maps.url' => 'Link Maps harus berupa URL yang valid.',
             'link_maps.unique' => 'Link Google Maps sudah terdaftar.',
+            'jam_operasional.required' => 'Jam operasional harus diisi untuk semua hari.',
+            'jam_operasional.size' => 'Jam operasional harus diisi untuk 7 hari.',
         ]);
 
-        $branch->update($validated);
+        DB::beginTransaction();
+        try {
+            // Update branch
+            $branch->update($validated);
+
+            // Delete existing jam operasional
+            $branch->jamOperasional()->delete();
+
+            // Create new jam operasional
+            foreach ($validated['jam_operasional'] as $hari => $jamData) {
+                JamOperasionalCabang::create([
+                    'perusahaan_cabang_id' => $branch->id,
+                    'hari' => $hari,
+                    'is_buka' => $jamData['is_buka'],
+                    'jam_buka' => $jamData['is_buka'] ? ($jamData['jam_buka'] ?? null) : null,
+                    'jam_tutup' => $jamData['is_buka'] ? ($jamData['jam_tutup'] ?? null) : null,
+                    'catatan' => $jamData['catatan'] ?? null,
+                ]);
+            }
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal memperbarui data cabang: ' . $e->getMessage());
+        }
 
         return redirect()->route('admin.branches.index')
             ->with('success', 'Cabang berhasil diperbarui.');
