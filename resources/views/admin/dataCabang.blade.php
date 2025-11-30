@@ -52,9 +52,11 @@
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 5%;">No</th>
-                        <th style="width: 25%;">Nama Cabang</th>
-                        <th style="width: 35%;">Alamat</th>
-                        <th>Nomor Telepon</th>
+                        <th style="width: 20%;">Nama Cabang</th>
+                        <th style="width: 25%;">Alamat</th>
+                        <th style="width: 15%;">Kontak</th>
+                        <th style="width: 15%;">Jam Operasional</th>
+                        <th class="text-center" style="width: 10%;">Status</th>
                         <th class="text-center" style="width: 100px;">Aksi</th>
                     </tr>
                 </thead>
@@ -95,8 +97,56 @@
                             @endif
                         </td>
 
-                        <td class="fw-medium text-dark text-nowrap">
-                            {{ $cabang->nomor_telepon }}
+                        <td>
+                            <div class="small">
+                                <div class="d-flex align-items-center gap-1 mb-1">
+                                    <i class="fa-solid fa-phone text-muted"></i>
+                                    <span class="text-nowrap">{{ $cabang->nomor_telepon }}</span>
+                                </div>
+                                @if($cabang->email)
+                                <div class="d-flex align-items-center gap-1">
+                                    <i class="fa-solid fa-envelope text-muted"></i>
+                                    <span class="text-muted text-truncate" style="max-width: 120px;" title="{{ $cabang->email }}">
+                                        {{ $cabang->email }}
+                                    </span>
+                                </div>
+                                @endif
+                            </div>
+                        </td>
+
+                        <td>
+                            @php
+                                // Get jam operasional untuk hari ini
+                                $hariIni = ['Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'][date('l')] ?? 'Senin';
+                                $jamHariIni = $cabang->jamOperasional->where('hari', $hariIni)->first();
+                            @endphp
+                            @if($jamHariIni && $jamHariIni->is_buka)
+                                <div class="d-flex align-items-center gap-1">
+                                    <i class="fa-solid fa-clock text-success"></i>
+                                    <span class="small text-success fw-medium">
+                                        {{ $jamHariIni->jam_buka }} - {{ $jamHariIni->jam_tutup }}
+                                    </span>
+                                </div>
+                                <div class="small text-muted">{{ $hariIni }}</div>
+                            @else
+                                <div class="d-flex align-items-center gap-1">
+                                    <i class="fa-solid fa-clock text-danger"></i>
+                                    <span class="small text-danger">Tutup</span>
+                                </div>
+                                <div class="small text-muted">{{ $hariIni }}</div>
+                            @endif
+                        </td>
+
+                        <td class="text-center">
+                            @if($cabang->is_active)
+                                <span class="badge bg-success text-white fw-medium">
+                                    <i class="fa-solid fa-circle-check me-1"></i>Aktif
+                                </span>
+                            @else
+                                <span class="badge bg-secondary text-white fw-medium">
+                                    <i class="fa-solid fa-circle-xmark me-1"></i>Non-Aktif
+                                </span>
+                            @endif
                         </td>
 
                         <td class="text-center no-row-navigation">
@@ -130,7 +180,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="text-center py-5">
+                        <td colspan="7" class="text-center py-5">
                             <div class="d-flex flex-column align-items-center opacity-50">
                                 <i class="fa-solid fa-shop fa-3x mb-3 text-muted"></i>
                                 <h6 class="text-muted">Belum ada data cabang</h6>

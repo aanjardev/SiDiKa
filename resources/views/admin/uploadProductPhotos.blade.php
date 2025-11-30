@@ -3,67 +3,78 @@
 @section('title', 'Upload Foto Produk')
 
 @push('page-actions')
-    <a href="{{ route('admin.products.photos') }}" class="btn btn-light border px-3 fw-medium text-secondary d-flex align-items-center gap-2">
-        <i class="fas fa-arrow-left"></i>
-        <span>Kembali</span>
+    <a href="{{ route('admin.products.photos') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
+        <i class="fas fa-arrow-left me-1"></i> Kembali
     </a>
 @endpush
 
 @section('content')
 
-<div class="row">
-    <div class="col-12">
-        
-        {{-- Error Alert --}}
-        @if ($errors->any())
-            <div class="alert alert-danger mb-4 border-0 shadow-sm">
-                <h5 class="alert-heading small fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i>Ada Kesalahan!</h5>
-                <ul class="mb-0 small">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+{{-- Custom CSS for modern form styling --}}
+@push('styles')
+<style>
+    /* Modern Card Style */
+    .card-modern { border: 1px solid #f0f0f0; border-radius: 16px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04); transition: all 0.3s ease; }
+    .card-header-modern { background-color: #fff; border-bottom: 1px solid #f0f0f0; padding: 20px 24px; border-radius: 16px 16px 0 0 !important; }
+    
+    /* Upload Box Styling */
+    .upload-box { width: 160px; height: 160px; border: 2px dashed #dee2e6; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; background: #fafafa; position: relative; }
+    .upload-box:hover { border-color: #86b7fe; background: #f8f9ff; }
+    .upload-box.has-image { border: 2px solid #86b7fe; background: #fff; }
+    .upload-box .empty-state { text-align: center; color: #6c757d; }
+    .upload-box .preview { width: 100%; height: 100%; position: absolute; top: 0; left: 0; border-radius: 10px; overflow: hidden; }
+    .upload-box .preview img { width: 100%; height: 100%; object-fit: cover; }
+    .upload-box .controls { position: absolute; top: 8px; right: 8px; }
+    .upload-box .main-choice { position: absolute; bottom: 8px; left: 8px; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; }
+    
+    /* Status styling */
+    .upload-status { padding: 10px 15px; border-radius: 8px; margin-top: 15px; font-weight: 500; }
+    .upload-status.success { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+    .upload-status.error { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
+</style>
+@endpush
 
-        <div class="card shadow-sm border-0" style="border-radius: 10px;">
-            
-            {{-- Card Header (Disatukan dengan Info Produk agar rapi) --}}
-            <div class="card-header bg-white border-0 pt-4 ps-4 pe-4 pb-0">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center">
-                    <div>
-                        <h5 class="fw-bold text-dark mb-0">
-                            <i class="fa-solid fa-images me-2 text-primary"></i>
-                            Upload Foto Produk
-                        </h5>
-                        <p class="text-muted small mt-1 mb-0">
-                            Produk: <strong class="text-dark">{{ $product->nama_produk }}</strong> &bull; SKU: <span class="badge bg-light text-dark border">{{ $product->kode_sku }}</span>
-                        </p>
-                    </div>
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card card-modern mb-4">
+            <div class="card-header-modern d-flex align-items-center gap-3">
+                <i class="fa-solid fa-images fa-lg text-primary"></i>
+                <div>
+                    <h6 class="fw-bold text-dark mb-0">Upload Foto Produk</h6>
+                    <p class="text-muted small mb-0">Tambahkan gambar untuk produk <strong class="text-dark">{{ $product->nama_produk }}</strong> &bull; SKU: <span class="badge bg-light text-dark border">{{ $product->kode_sku }}</span></p>
                 </div>
             </div>
 
             <div class="card-body p-4">
+                @if ($errors->any())
+                    <div class="alert alert-danger mb-4 border-0 shadow-sm">
+                        <h5 class="alert-heading small fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i>Ada Kesalahan!</h5>
+                        <ul class="mb-0 small">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                 
-                {{-- Toolbar / Instruksi --}}
-                <div class="bg-light p-3 rounded mb-4 border-start border-4 border-primary d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
-                <div class="small text-muted">
-                        <i class="fa-solid fa-circle-info me-1 text-primary"></i>
-                        Maksimal <strong>10 gambar</strong> (Max 5MB/file). Klik kotak di bawah untuk memilih gambar.
+                <form id="upload-photos-form" action="{{ route('admin.products.photos.uploadStore', $product->id) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <input type="file" name="images[]" id="hidden-images-input" class="d-none" multiple>
+                    <input type="hidden" name="main_image" id="hidden-main-image">
+                    
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <i class="fa-solid fa-circle-info text-primary"></i>
+                            <span class="small text-muted">Maksimal <strong>10 gambar</strong> (Max 5MB/file). Klik kotak di bawah untuk memilih gambar.</span>
+                        </div>
                     </div>
                     
-                    {{-- Tombol Simpan --}}
-                    <button id="save-uploads" class="btn btn-primary px-4 fw-medium d-flex align-items-center gap-2" disabled>
-                        <i class="fas fa-save"></i> Simpan Perubahan
-                    </button>
-                </div>
-
-                {{-- Area Upload Grid --}}
-                <div id="upload-grid" class="d-flex flex-wrap gap-3">
-                    {{-- Upload boxes akan ditambahkan via JavaScript --}}
-                </div>
-                
-                <div id="upload-status" class="mt-3"></div>
+                    <div id="upload-grid" class="d-flex flex-wrap gap-3 mb-4">
+                        {{-- Upload boxes akan ditambahkan via JavaScript --}}
+                    </div>
+                    
+                    <div id="upload-status" class="upload-status" style="display: none;"></div>
+                </form>
 
                 {{-- Gambar Saat Ini (Komentar Asli) --}}
                 {{-- 
@@ -105,6 +116,39 @@
             </div>
         </div>
     </div>
+    
+    <div class="col-lg-4">
+        <div class="card card-modern position-sticky" style="top: 20px; z-index: 10;">
+            <div class="card-header-modern bg-primary bg-opacity-10 border-primary border-opacity-10">
+                <h6 class="fw-bold mb-0 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-camera"></i> Aksi Upload
+                </h6>
+            </div>
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <p class="small text-muted mb-3">Pilih gambar yang ingin diunggah, lalu tentukan gambar utama (opsional).</p>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button id="save-uploads" type="button" class="btn btn-primary w-100 py-2 rounded-3 fw-medium shadow-sm" disabled>
+                        <i class="fas fa-save me-2"></i> Simpan Perubahan
+                    </button>
+                    <a href="{{ route('admin.products.photos') }}" class="btn btn-outline-secondary w-100 py-2 rounded-3 fw-medium">
+                        <i class="fas fa-times me-2"></i> Batal
+                    </a>
+                </div>
+                
+                <div class="mt-3 pt-3 border-top">
+                    <div class="small text-muted">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="fa-solid fa-lightbulb text-warning"></i>
+                            <span><strong>Tip:</strong> Gambar utama akan ditampilkan pertama kali di halaman produk.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @endsection
@@ -115,315 +159,21 @@
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const maxBoxes = 10;
-    const maxFileSize = 5 * 1024 * 1024; // 5MB
-    const uploadGrid = document.getElementById('upload-grid');
-    const saveBtn = document.getElementById('save-uploads');
-    const uploadStatus = document.getElementById('upload-status');
-    const productId = '{{ $product->id }}';
-    const csrf = '{{ csrf_token() }}';
-
-    let queueIndex = 0;
-    const queuedFiles = {}; // map index -> File
-
-    // Fungsi untuk membuat upload box
-    function makeEmptyBox(idx) {
-        const box = document.createElement('div');
-        box.className = 'upload-box';
-        box.dataset.boxIndex = idx;
-
-        // HTML structure di dalam box (tidak diubah logicnya)
-        box.innerHTML = `
-            <input type="file" accept="image/*" class="d-none file-input" data-index="${idx}">
-            <div class="empty-state">
-                <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
-                <div style="font-size: 0.75rem; font-weight: 500;">Klik Upload</div>
-            </div>
-            <div class="preview d-none"></div>
-            <div class="controls d-none">
-                <button type="button" class="btn btn-danger btn-remove-queue" data-index="${idx}" title="Hapus">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="main-choice d-none">
-                <label class="form-check-label">
-                    <input type="radio" name="main_image_choice" value="new_${idx}" class="form-check-input mt-0">
-                    <span>Utama</span>
-                </label>
-            </div>
-        `;
-
-        const input = box.querySelector('.file-input');
-        const removeBtn = box.querySelector('.btn-remove-queue');
-
-        // Click box untuk pilih file
-        box.addEventListener('click', function(e) {
-            if (e.target.closest('.controls') || e.target.closest('.main-choice')) return;
-            input.click();
-        });
-
-        // File input change
-        input.addEventListener('change', function() {
-            const file = this.files[0];
-            if (!file) return;
-
-            // Validasi tipe file
-            if (!file.type.startsWith('image/')) {
-                showStatus('File harus berupa gambar', 'error');
-                return;
-            }
-
-            // Validasi ukuran file
-            if (file.size > maxFileSize) {
-                showStatus('Ukuran file maksimal 5MB', 'error');
-                return;
-            }
-
-            // Preview gambar
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = box.querySelector('.preview');
-                preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-                preview.classList.remove('d-none');
-                box.querySelector('.empty-state').classList.add('d-none');
-                box.querySelector('.controls').classList.remove('d-none');
-                box.querySelector('.main-choice').classList.remove('d-none');
-                box.classList.add('has-image');
-
-                // Simpan file ke queue
-                queuedFiles[idx] = file;
-                updateSaveButton();
-                ensureBoxes();
-            };
-            reader.readAsDataURL(file);
-        });
-
-        // Remove button
-        removeBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            // if (confirm('Hapus gambar ini dari antrian?')) { // Optional: remove confirm for smoother UX
-                // Uncheck radio jika ini yang dipilih sebagai utama
-                const radio = box.querySelector('input[type="radio"]');
-                if (radio && radio.checked) {
-                    radio.checked = false;
-                }
-
-                delete queuedFiles[idx];
-                box.remove();
-                updateSaveButton();
-                ensureBoxes();
-            // }
-        });
-
-        return box;
-    }
-
-    // Fungsi untuk memastikan ada empty box
-    function ensureBoxes() {
-        const totalBoxes = uploadGrid.querySelectorAll('.upload-box').length;
-        const filledBoxes = uploadGrid.querySelectorAll('.upload-box.has-image').length;
-        const emptyBoxes = totalBoxes - filledBoxes;
-
-        // Jika tidak ada empty box dan masih bisa tambah, tambahkan empty box
-        if (totalBoxes < maxBoxes && emptyBoxes === 0 ) {
-            uploadGrid.appendChild(makeEmptyBox(++queueIndex));
-        }
-
-        // Jika grid kosong, tambahkan satu empty box
-        if (totalBoxes === 0) {
-            uploadGrid.appendChild(makeEmptyBox(++queueIndex));
-        }
-    }
-
-    // Update tombol simpan
-    function updateSaveButton() {
-        const hasFiles = Object.keys(queuedFiles).length > 0;
-        saveBtn.disabled = !hasFiles;
-        if (hasFiles) {
-            saveBtn.innerHTML = `<i class="fas fa-save"></i> Simpan (${Object.keys(queuedFiles).length})`;
-        } else {
-            saveBtn.innerHTML = `<i class="fas fa-save"></i> Simpan Perubahan`;
-        }
-    }
-
-    // Tampilkan status
-    function showStatus(message, type = 'success') {
-        uploadStatus.className = `upload-status ${type}`;
-        uploadStatus.textContent = message;
-        uploadStatus.style.display = 'block';
-
-        setTimeout(() => {
-            uploadStatus.style.display = 'none';
-        }, 3000);
-    }
-
-    // Save button handler
-    saveBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        const files = Object.values(queuedFiles);
-
-        if (files.length === 0) {
-            showStatus('Tidak ada gambar untuk disimpan', 'error');
-            return;
-        }
-
-        const fd = new FormData();
-        Object.keys(queuedFiles).forEach(idx => {
-            fd.append(`images[${idx}]`, queuedFiles[idx]);
-        });
-
-        const mainChoice = document.querySelector('input[name="main_image_choice"]:checked');
-        if (mainChoice) {
-            fd.append('main_image', mainChoice.value);
-        }
-
-        // Disable button dan show loading
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Menyimpan...';
-
-        fetch(`{{ route('admin.products.photos.uploadStore', $product->id) }}`, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': csrf,
-                'Accept': 'application/json'
-            },
-            body: fd,
-            redirect: 'follow'
-        })
-        .then(response => {
-            // Jika response redirect (status 302/301), berarti sukses
-            if (response.redirected || response.status === 302 || response.status === 301) {
-                showStatus('Gambar berhasil diunggah!', 'success');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-                return;
-            }
-
-            // Jika response tidak OK, coba parse error
-            if (!response.ok) {
-                return response.text().then(text => {
-                    let errorMsg = 'Gagal menyimpan gambar';
-                    try {
-                        const json = JSON.parse(text);
-                        errorMsg = json.message || json.error || errorMsg;
-                    } catch (e) {
-                        // Jika bukan JSON, gunakan text sebagai error
-                        if (text) errorMsg = text;
-                    }
-                    throw new Error(errorMsg);
-                });
-            }
-
-            // Jika OK, reload halaman
-            showStatus('Gambar berhasil diunggah!', 'success');
-            setTimeout(() => {
-                window.location.reload();
-            }, 1000);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            const message = error.message || 'Gagal menyimpan gambar';
-            showStatus(message, 'error');
-            saveBtn.disabled = false;
-            updateSaveButton();
-        });
+    window.productImageConfigs = window.productImageConfigs || [];
+    window.productImageConfigs.push({
+        gridId: 'upload-grid',
+        formId: 'upload-photos-form',
+        hiddenInputId: 'hidden-images-input',
+        hiddenMainInputId: 'hidden-main-image',
+        saveButtonId: 'save-uploads',
+        statusId: 'upload-status',
+        maxBoxes: 10,
+        maxFileSize: 5242880,
+        allowMainChoice: true,
+        requireFilesOnSubmit: true,
+        existingImages: [],
+        initialEmptyBoxes: 2
     });
-
-    // Handle existing images actions
-    // const currentImagesContainer = document.getElementById('current-images');
-
-    // currentImagesContainer.addEventListener('click', function(e) {
-    //     const button = e.target.closest('button');
-    //     if (!button) return;
-
-    //     const imageId = button.getAttribute('data-image-id');
-    //     if (!imageId) return;
-
-    //     // Remove image
-    //     if (button.classList.contains('remove-image')) {
-    //         if (!confirm('Yakin ingin menghapus gambar ini?')) return;
-
-    //         button.disabled = true;
-    //         button.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-
-    //         fetch(`/admin/products/${productId}/photos/${imageId}/delete`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'X-Requested-With': 'XMLHttpRequest',
-    //                 'X-CSRF-TOKEN': csrf
-    //             }
-    //         })
-    //         .then(r => r.json())
-    //         .then(data => {
-    //             if (data.success) {
-    //                 const card = button.closest('[data-image-id]');
-    //                 if (card) {
-    //                     card.style.transition = 'opacity 0.3s';
-    //                     card.style.opacity = '0';
-    //                     setTimeout(() => card.remove(), 300);
-    //                 }
-    //             } else {
-    //                 alert('Gagal menghapus gambar');
-    //                 button.disabled = false;
-    //                 button.innerHTML = '<i class="fas fa-trash"></i>';
-    //             }
-    //         })
-    //         .catch(err => {
-    //             console.error(err);
-    //             alert('Gagal menghapus gambar');
-    //             button.disabled = false;
-    //             button.innerHTML = '<i class="fas fa-trash"></i>';
-    //         });
-    //     }
-
-    //     // Set main image
-    //     if (button.classList.contains('btn-set-main')) {
-    //         button.disabled = true;
-    //         button.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-
-    //         fetch(`/admin/products/${productId}/photos/${imageId}/set-main`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'X-Requested-With': 'XMLHttpRequest',
-    //                 'X-CSRF-TOKEN': csrf
-    //             }
-    //         })
-    //         .then(r => r.json())
-    //         .then(data => {
-    //             if (data.success) {
-    //                 // Update semua badge
-    //                 currentImagesContainer.querySelectorAll('.badge').forEach(badge => {
-    //                     badge.className = 'badge bg-secondary';
-    //                     badge.textContent = 'Tambahan';
-    //                 });
-
-    //                 // Set badge utama pada gambar yang dipilih
-    //                 const card = button.closest('[data-image-id]');
-    //                 const badgeWrap = card.querySelector('.badge');
-    //                 if (badgeWrap) {
-    //                     badgeWrap.className = 'badge bg-primary';
-    //                     badgeWrap.textContent = 'Utama';
-    //                 }
-    //             } else {
-    //                 alert('Gagal mengatur gambar utama');
-    //             }
-    //             button.disabled = false;
-    //             button.innerHTML = '<i class="fas fa-star"></i>';
-    //         })
-    //         .catch(err => {
-    //             console.error(err);
-    //             alert('Gagal mengatur gambar utama');
-    //             button.disabled = false;
-    //             button.innerHTML = '<i class="fas fa-star"></i>';
-    //         });
-    //     }
-    // });
-
-    // Initialize
-    ensureBoxes();
-});
 </script>
+<script src="{{ asset('js/productImages.js') }}"></script>
 @endpush

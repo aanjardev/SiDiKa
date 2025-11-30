@@ -24,6 +24,10 @@ class User extends Authenticatable
         'password',
         'email',
         'role',
+        'status',
+        'activation_token',
+        'token_expiry',
+        'email_verified_at',
     ];
 
     /**
@@ -35,6 +39,14 @@ class User extends Authenticatable
         'password',
         'remember_token',
     ];
+
+    /**
+     * Get the employee that owns the user.
+     */
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class, 'id');
+    }
 
     /**
      * The attributes that should be cast.

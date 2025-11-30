@@ -31,6 +31,31 @@ function confirmAction(message, title = 'Konfirmasi', confirmText = 'Ya', cancel
     });
 }
 
+// Fungsi helper untuk konfirmasi regenerate token
+function confirmRegenerateToken(message = 'Generate ulang token aktivasi? Token lama akan tidak berlaku.') {
+    return Swal.fire({
+        title: 'Konfirmasi Generate Token',
+        text: message,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ffc107',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Ya',
+        cancelButtonText: 'Batal',
+        html: `
+            <div style="text-align: left; margin: 20px 0;">
+                <p style="margin-bottom: 15px;">${message}</p>
+                <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 8px; padding: 12px; margin-top: 15px;">
+                    <p style="margin: 0; font-size: 14px; color: #856404;">
+                        <strong>📌 Informasi:</strong> Token aktivasi berlaku selama <strong>3 hari (72 jam)</strong>. 
+                        Karyawan harus segera melakukan aktivasi sebelum token kadaluarsa.
+                    </p>
+                </div>
+            </div>
+        `
+    });
+}
+
 // Fungsi helper untuk alert success
 function showSuccess(message, title = 'Berhasil!') {
     return Swal.fire({
@@ -138,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Export functions untuk penggunaan global
 window.confirmDelete = confirmDelete;
 window.confirmAction = confirmAction;
+window.confirmRegenerateToken = confirmRegenerateToken;
 window.showSuccess = showSuccess;
 window.showError = showError;
 window.showWarning = showWarning;

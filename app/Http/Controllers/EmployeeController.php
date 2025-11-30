@@ -128,6 +128,7 @@ class EmployeeController extends Controller
     public function update(Request $request, $id)
     {
         $employee = Employee::findOrFail($id);
+        $oldStatus = $employee->status;
 
         $validated = $request->validate([
             'nama_lengkap' => [
@@ -164,13 +165,6 @@ class EmployeeController extends Controller
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
         ]);
 
-        // Update user
-        // $employee->update([
-        //     'email' => $validated['email'],
-        //     'name' => $validated['nama_lengkap'],
-        //     'role' => $validated['jabatan'] === 'Manager' ? 'manager' : 'operasional',
-        // ]);
-
         // Update karyawan
         $employee->update([
             'nama_lengkap' => $validated['nama_lengkap'],
@@ -184,8 +178,43 @@ class EmployeeController extends Controller
             'tanggal_keluar' => $validated['tanggal_keluar'] ?? null,
         ]);
 
-        return redirect()->route('admin.employees.index')
-                         ->with('success', 'Karyawan berhasil diperbarui.');
+        // Auto-deactivate user jika karyawan status berubah menjadi non-aktif
+        if ($oldStatus !== 'non-aktif' && $validated['status'] === 'non-aktif') {
+            if ($employee->user) {
+                $employee->user->update(['status' => 'inactive']);
+                
+                // Force logout user yang sedang login jika user ini sedang aktif
+                // Ini akan logout user dari semua session
+                \Illuminate\Support\Facades\DB::table('sessions')
+                    ->where('user_id', $employee->user->id)
+                    ->delete();
+            }
+        }
+        // Auto-reactivate user jika karyawan status berubah menjadi aktif
+        elseif ($oldStatus !== 'aktif' && $validated['status'] === 'aktif') {
+            if ($employee->user) {
+                // Hanya re-activate jika user sebelumnya inactive, bukan pending
+                if ($employee->user->status === 'inactive') {
+                    $employee->user->update(['status' => 'active']);
+                }
+            }
+        }
+
+        $redirect = match($request->input('redirect_to')) {
+        'pageProfil' => route('admin.profile'), 
+         default => route('admin.employees.index'),
+    };
+
+        $message = 'Karyawan berhasil diperbarui.';
+        
+        // Tambahkan pesan khusus jika ada perubahan status user
+        if ($oldStatus !== 'non-aktif' && $validated['status'] === 'non-aktif' && $employee->user) {
+            $message .= ' Hak akses user telah dinonaktifkan.';
+        } elseif ($oldStatus !== 'aktif' && $validated['status'] === 'aktif' && $employee->user && $employee->user->status === 'active') {
+            $message .= ' Hak akses user telah diaktifkan kembali.';
+        }
+
+        return redirect($redirect)->with('success', $message);
     }
 
     public function destroy($id)

@@ -14,20 +14,63 @@ class LoginController extends Controller
 
     public function login(Request $request)
     {
-        // Validasi input
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
-        ]);
-
-        // Coba untuk login
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            return redirect()->intended(route('admin.dashboard'));
-
+        // Manual validation untuk menghindari double error
+        if (!$request->email || !$request->password) {
+            return back()->withErrors([
+                'email' => 'Email dan password harus diisi.',
+            ])->onlyInput('email');
         }
 
-        // Jika login gagal
+        // Cek user exists dan status (sebelum validasi format email)
+        $user = \App\Models\User::where('email', $request->email)->first();
+        
+        if ($user) {
+            // Jika user ada, cek status dulu
+            if ($user->status === 'pending') {
+                return back()->withErrors([
+                    'email' => 'Akun Anda belum diaktivasi. Silakan aktivasi akun terlebih dahulu.',
+                ])->onlyInput('email');
+            }
+
+            // Cek status karyawan terkait
+            if ($user->employee && $user->employee->status === 'non-aktif') {
+                // Auto-deactivate user jika karyawan non-aktif
+                $user->update(['status' => 'inactive']);
+                
+                return back()->withErrors([
+                    'email' => 'Anda sudah tidak memiliki akses untuk login. Hubungi manager untuk informasi lebih lanjut.',
+                ])->onlyInput('email');
+            }
+
+            // Cek jika user status inactive (manual set)
+            if ($user->status === 'inactive') {
+                return back()->withErrors([
+                    'email' => 'Anda sudah tidak memiliki akses untuk login. Hubungi manager untuk informasi lebih lanjut.',
+                ])->onlyInput('email');
+            }
+        }
+
+        // Validasi format email hanya jika user tidak ada atau status ok
+        if (!filter_var($request->email, FILTER_VALIDATE_EMAIL)) {
+            return back()->withErrors([
+                'email' => 'Format email tidak valid.',
+            ])->onlyInput('email');
+        }
+
+        // Jika user tidak ada setelah cek format
+        if (!$user) {
+            return back()->withErrors([
+                'email' => 'Email atau Password salah.',
+            ])->onlyInput('email');
+        }
+
+        // Coba untuk login dengan credentials
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password], $request->boolean('remember'))) {
+            $request->session()->regenerate();
+            return redirect()->intended(route('admin.dashboard'));
+        }
+
+        // Jika login gagal (password salah)
         return back()->withErrors([
             'email' => 'Email atau Password salah.',
         ])->onlyInput('email');

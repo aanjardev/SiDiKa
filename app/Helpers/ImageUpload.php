@@ -11,17 +11,15 @@ class ImageUpload
 {
     // ==== CONFIG ====
     private static int $MAX_DIMENSION = 5000;
-    private static int $THUMB_SIZE = 300;
-    private static int $MEDIUM_SIZE = 800;
-    private static int $LARGE_SIZE = 1600;
+    private static int $WEBP_QUALITY = 92;
 
     /**
-     * Upload PRO version: thumbnail, medium, large
+     * Upload single optimized image (WebP)
      * 
      * @param mixed $file
      * @param string $prefix
      * @return array {
-     *   thumb_path, medium_path, large_path, original_hash
+     *   path, original_hash
      * }
      */
     public static function upload($file, string $prefix = 'uploads'): array
@@ -42,51 +40,28 @@ class ImageUpload
         // =============== LOAD GAMBAR (AMAN) ===============
         $img = Image::make($file)->orientate();
 
-        // Convert image to webp source buffer
-        $original_webp = Image::make($img)->encode("webp", 85);
-        $hash = sha1($original_webp);
+        // Keep original resolution (max 5000px) with gentler compression
+        $encoded = Image::make($img)->encode("webp", self::$WEBP_QUALITY);
+        $hash = sha1($encoded);
 
         $baseName = $hash . '.webp';
+        $path = "$prefix/$baseName";
 
-        // ====== Jika sudah ada versi large → semua versi sudah ada ======
-        if (Storage::disk('r2')->exists("$prefix/large/$baseName")) {
+        // ====== If image already exists, return existing path ======
+        if (Storage::disk('r2')->exists($path)) {
             return [
-                'thumb_path'  => "$prefix/thumb/$baseName",
-                'medium_path' => "$prefix/medium/$baseName",
-                'large_path'  => "$prefix/large/$baseName",
+                'path'          => $path,
                 'original_hash' => $hash,
             ];
         }
 
-        // =============== GENERATE VERSI GAMBAR ===============
-        $thumb  = self::resizeWebp($img, self::$THUMB_SIZE);
-        $medium = self::resizeWebp($img, self::$MEDIUM_SIZE);
-        $large  = self::resizeWebp($img, self::$LARGE_SIZE);
-
         // =============== UPLOAD ===============
-        self::uploadToR2($thumb,  "$prefix/thumb/$baseName");
-        self::uploadToR2($medium, "$prefix/medium/$baseName");
-        self::uploadToR2($large,  "$prefix/large/$baseName");
+        self::uploadToR2($encoded, $path);
 
         return [
-            'thumb_path'    => "$prefix/thumb/$baseName",
-            'medium_path'   => "$prefix/medium/$baseName",
-            'large_path'    => "$prefix/large/$baseName",
+            'path'          => $path,
             'original_hash' => $hash,
         ];
-    }
-
-    /**
-     * Resize helper (ke WEBP buffer)
-     */
-    private static function resizeWebp($img, int $maxWidth)
-    {
-        $clone = Image::make($img);
-        $clone->resize($maxWidth, null, function ($c) {
-            $c->aspectRatio();
-            $c->upsize();
-        });
-        return $clone->encode("webp", 85);
     }
 
     /**

@@ -94,7 +94,7 @@ class CatalogSeeder extends Seeder
         }
 
         $paths = ImageUpload::upload($source, $prefix);
-        return $paths['large_path'];
+        return $paths['path'];
     }
 
     private function uploadUrlToR2(string $url, string $prefix): string
@@ -103,7 +103,7 @@ class CatalogSeeder extends Seeder
         file_put_contents($temp, file_get_contents($url));
 
         $paths = ImageUpload::upload($temp, $prefix);
-        $path = $paths['large_path'];
+        $path = $paths['path'];
 
         @unlink($temp);
 

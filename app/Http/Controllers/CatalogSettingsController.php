@@ -83,7 +83,7 @@ class CatalogSettingsController extends Controller
             $paths = ImageUpload::upload($request->file('banner'), 'catalog/banners');
 
             CatalogBanners::create([
-                'banner_path' => $paths['large_path'],
+                'banner_path' => $paths['path'],
                 'catalog_setting_id' => 1,
             ]);
         }
@@ -93,7 +93,7 @@ class CatalogSettingsController extends Controller
             $paths = ImageUpload::upload($request->file('brand_logos'), 'catalog/partners');
 
             CatalogPartnerLogo::create([
-                'logo_path' => $paths['large_path'],
+                'logo_path' => $paths['path'],
                 'catalog_setting_id' => 1,
             ]);
         }
@@ -104,7 +104,7 @@ class CatalogSettingsController extends Controller
 
             $paths = ImageUpload::upload($request->file('photo_logo'), 'catalog/logo');
 
-            $cat_setting->update(['logo_path' => $paths['large_path']]);
+            $cat_setting->update(['logo_path' => $paths['path']]);
         }
 
 

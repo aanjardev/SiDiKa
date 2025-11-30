@@ -4,6 +4,11 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Symfony\Component\ErrorHandler\Error\FatalError;
+use Illuminate\Http\Request;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -43,6 +48,65 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        // Handle FatalError (including max execution time)
+        $this->renderable(function (FatalError $e, Request $request) {
+            if (str_contains($e->getMessage(), 'Maximum execution time')) {
+                try {
+                    return response()->view('errors.timeout', [], 503);
+                } catch (\Exception $viewException) {
+                    return response()->make('Server timeout - Please refresh the page', 503);
+                }
+            }
+        });
+
+        // Handle AuthenticationException (403)
+        $this->renderable(function (AuthenticationException $e, Request $request) {
+            try {
+                return response()->view('errors.403', [], 403);
+            } catch (\Exception $viewException) {
+                return response()->make('Access denied - Please login', 403);
+            }
+        });
+
+        // Handle ValidationException
+        $this->renderable(function (ValidationException $e, Request $request) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Data tidak valid',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            
+            // For web requests, redirect back with errors
+            return redirect()->back()
+                ->withErrors($e->errors())
+                ->withInput();
+        });
+
+        // Handle HttpException (404, 500, 503, 429, etc)
+        $this->renderable(function (HttpException $e, Request $request) {
+            $statusCode = $e->getStatusCode();
+            $viewMap = [
+                404 => 'errors.404',
+                403 => 'errors.403',
+                500 => 'errors.500',
+                503 => 'errors.503',
+                429 => 'errors.429',
+            ];
+
+            $view = $viewMap[$statusCode] ?? 'errors.generic';
+            
+            try {
+                return response()->view($view, [
+                    'exception' => $e,
+                    'statusCode' => $statusCode
+                ], $statusCode);
+            } catch (\Exception $viewException) {
+                // Fallback jika view error
+                return response()->make("Error {$statusCode} - Something went wrong", $statusCode);
+            }
         });
     }
 }

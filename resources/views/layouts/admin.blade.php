@@ -24,7 +24,7 @@ $setting = \App\Models\CatalogSettings::first();
           'resources/admin_theme/css/rtl.min.css'
       ]) --}}
 
-
+    
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
 
     <!-- Fonts -->
@@ -211,7 +211,7 @@ $setting = \App\Models\CatalogSettings::first();
 
         <!-- Sidebar Footer - User Profile -->
         <div class="sidebar-footer">
-            <div class="user-profile" data-bs-toggle="dropdown">
+            <a class="user-profile" href="{{ route('admin.profile') }}">
                 <div class="user-avatar">
                     <i class="fas fa-user"></i>
                 </div>
@@ -220,7 +220,8 @@ $setting = \App\Models\CatalogSettings::first();
                     <p class="user-role">{{ isset(Auth::user()->role) ? ucfirst(Auth::user()->role) : '' }}</p>
                 </div>
                 <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
-            </div>
+            </a>
+
 
             <!-- Dropdown Menu -->
             <ul class="dropdown-menu dropdown-menu-end" style="width: calc(100% - 2rem); margin: 0.5rem 1rem;">

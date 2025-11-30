@@ -50,10 +50,13 @@
 
                                         autofocus>
                                 </div>
-                                <div class="invalid-feedback">Nama kategori wajib diisi</div>
-                                @error('nama_kategori')
-                                    <div class="text-danger small mt-1">{{ $message }}</div>
-                                @enderror
+                                <div class="invalid-feedback">
+                                    @error('nama_kategori')
+                                        {{ $message }}
+                                    @else
+                                        Nama kategori wajib diisi
+                                    @enderror
+                                </div>
                             </div>
                         </div>
 
