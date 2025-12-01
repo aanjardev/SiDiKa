@@ -22,7 +22,7 @@
             overflow: hidden;
         }
         .header {
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            background: linear-gradient(135deg, #d17272ff 0%, #ee5a24 100%);
             color: white;
             padding: 30px;
             text-align: center;

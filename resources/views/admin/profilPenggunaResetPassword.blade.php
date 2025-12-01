@@ -38,7 +38,7 @@
                     </div>
                 @endif
 
-                <form action="{{ route('admin.profile.resetPassword') }}" method="POST">
+                <form action="{{ route('admin.profile.resetPassword.post') }}" method="POST">
 
                     <div class="row">
                         <div class="col-md-7 col-lg-6">

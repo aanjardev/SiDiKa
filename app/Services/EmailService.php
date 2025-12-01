@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\AccountActivationMail;
 use App\Mail\PasswordResetMail;
+use App\Mail\PasswordResetCodeMail;
 
 class EmailService
 {
@@ -59,13 +60,32 @@ class EmailService
     public function sendPasswordResetCode($user, $verificationCode)
     {
         try {
-            Mail::to($user->email)->send(new \App\Mail\PasswordResetCodeMail($user, $verificationCode));
+            \Log::info('Attempting to send password reset code to: ' . $user->email);
+            
+            Mail::to($user->email)->send(new PasswordResetCodeMail($user, $verificationCode));
+            
+            \Log::info('Password reset code email sent successfully to: ' . $user->email);
             return true;
+            
         } catch (\Symfony\Component\Mailer\Exception\TransportException $e) {
-            \Log::error('SMTP Transport Error: ' . $e->getMessage());
+            \Log::error('SMTP Transport Error for password reset code: ' . $e->getMessage());
+            \Log::error('Transport error details: ' . json_encode([
+                'email' => $user->email,
+                'code' => $verificationCode,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]));
             return false;
+            
         } catch (\Exception $e) {
             \Log::error('Failed to send password reset code email: ' . $e->getMessage());
+            \Log::error('General error details: ' . json_encode([
+                'email' => $user->email,
+                'code' => $verificationCode,
+                'error' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine()
+            ]));
             return false;
         }
     }

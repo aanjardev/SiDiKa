@@ -109,7 +109,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form action="{{ route('admin.profile.resetPassword') }}" method="POST" id="resetPasswordForm">
+            <form action="{{ route('admin.profile.resetPassword.post') }}" method="POST" id="resetPasswordForm">
                 @csrf
                 <div class="modal-body">
                     <!-- Alert container for dynamic error messages -->

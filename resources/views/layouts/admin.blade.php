@@ -14,7 +14,7 @@ $setting = \App\Models\CatalogSettings::first();
         'resources/js/app.js',
     ])
 
-    {{-- @vite([
+    <!-- @vite([
           'resources/admin_theme/css/core/libs.min.css',
           'resources/admin_theme/vendor/aos/dist/aos.css',
           'resources/admin_theme/css/hope-ui.min.css',
@@ -22,7 +22,7 @@ $setting = \App\Models\CatalogSettings::first();
           'resources/admin_theme/css/dark.min.css',
           'resources/admin_theme/css/customizer.min.css',
           'resources/admin_theme/css/rtl.min.css'
-      ]) --}}
+      ]) -->
 
     
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
