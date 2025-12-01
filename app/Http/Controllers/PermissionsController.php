@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use App\Models\Employee;
 use App\Models\User;
 use App\Services\EmailService;
+use App\Models\Karyawan;
 
 class PermissionsController extends Controller
 {
@@ -113,6 +114,8 @@ class PermissionsController extends Controller
     {
         $user = User::findOrFail($id);
         $user->update(['status' => 'inactive']);
+        // Sinkronkan status karyawan
+        Karyawan::where('id', $id)->update(['status' => 'non-aktif']);
 
         return redirect()->route('admin.permissions')->with('success', 'User dinonaktifkan. Anda dapat mengaktifkannya kembali jika diperlukan.');
     }
@@ -154,6 +157,10 @@ class PermissionsController extends Controller
 
         $user = User::findOrFail($id);
         $user->update(['status' => $validated['status']]);
+
+        // Sinkronkan status karyawan
+        $karyawanStatus = $validated['status'] === 'active' ? 'aktif' : 'non-aktif';
+        Karyawan::where('id', $id)->update(['status' => $karyawanStatus]);
 
         $message = $validated['status'] === 'active'
             ? 'User berhasil diaktifkan.'
