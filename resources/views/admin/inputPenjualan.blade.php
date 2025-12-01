@@ -399,7 +399,6 @@ return [
                                    name="identitas"
                                    inputmode="numeric"
                                    pattern="[0-9]*"
-                                   data-phone-validation
                                    data-max-digits="20">
                         </div>
                         <div class="col-md-6">

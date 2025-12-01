@@ -126,7 +126,6 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     // Transaksi
     Route::resource('/sales', PenjualanController::class)->names('sales');
-    Route::post('/sales/checkout', [PenjualanController::class, 'checkout'])->name('sales.checkout');
     Route::resource('/purchases', PembelianController::class)->names('purchases');
     Route::post('/purchases/store-item-draft', [PembelianController::class, 'ajaxStoreItemDraft'])->name('purchases.ajaxStoreItemDraft');
     Route::put('/purchases/update-item-draft/{item_id}', [PembelianController::class, 'ajaxUpdateItemDraft'])->name('purchases.ajaxUpdateItemDraft');
