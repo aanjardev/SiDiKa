@@ -68,9 +68,6 @@
                     @endif
                 </form>
                 <div class="mt-3">
-                    <span class="badge bg-light text-dark fw-semibold px-3 py-2">
-                        Mode: {{ $selectedBranch ? 'Cabang ' . $selectedBranchName : 'Semua Cabang' }}
-                    </span>
                 </div>
             </div>
         </div>

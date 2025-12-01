@@ -18,37 +18,49 @@
 @section('content')
 
 {{-- ======= Search & Filter ======= --}}
-<div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-    <div class="card-body p-2 d-flex align-items-center flex-wrap">
-        {{-- Input Search --}}
-        <div class="d-flex align-items-center flex-grow-1 ps-2">
-            <span class="text-muted ms-2 me-3">
-                <i class="fa-solid fa-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control border-0 shadow-none bg-transparent" 
-                placeholder="Cari produk berdasarkan nama atau SKU..."
-                style="font-size: 0.95rem;"
-                autofocus>
-                
-        </div>
+<form method="GET" action="{{ route('admin.sales.create') }}" id="searchForm">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+            {{-- Input Search --}}
+            <div class="d-flex align-items-center flex-grow-1 ps-2">
+                <span class="text-muted ms-2 me-3">
+                    <i class="fa-solid fa-search text-muted"></i>
+                </span>
+                <input type="text" class="form-control border-0 shadow-none bg-transparent" 
+                    name="search"
+                    value="{{ $search_term ?? '' }}"
+                    placeholder="Cari produk berdasarkan nama atau SKU..."
+                    style="font-size: 0.95rem;"
+                    autofocus>  
+            </div>
 
-        {{-- Dropdown Filter --}}
-        <div class="d-flex align-items-center gap-2 pe-2">
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option selected>Semua Kategori</option>
-                @foreach ($kategori as $kat)
-                    <option value="{{ $kat->id }}">{{ $kat->nama_kategori }}</option>
-                @endforeach
-            </select>
+            {{-- Dropdown Kategori --}}
+            <div class="d-flex align-items-center gap-2 pe-2">
+                <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                    name="kategori"
+                    onchange="document.getElementById('searchForm').submit();"
+                    style="cursor: pointer;">
+                    <option value="all" {{ ($selected_kategori ?? 'all') == 'all' ? 'selected' : '' }}>Semua Kategori</option>
+                    @foreach ($kategori as $kat)
+                        <option value="{{ $kat->id }}" {{ ($selected_kategori ?? 'all') == $kat->id ? 'selected' : '' }}>
+                            {{ $kat->nama_kategori }}
+                        </option>
+                    @endforeach
+                </select>
 
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option value="terbaru" selected>Terbaru</option>
-                <option value="nama_asc">Nama (A-Z)</option>
-                <option value="harga_asc">Harga Terendah</option>
-            </select>
+                {{-- Dropdown Sort --}}
+                <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                    name="sort_by"
+                    onchange="document.getElementById('searchForm').submit();"
+                    style="cursor: pointer;">
+                    <option value="terbaru" {{ ($sort_by ?? 'terbaru') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>
+                    <option value="nama_asc" {{ ($sort_by ?? 'terbaru') == 'nama_asc' ? 'selected' : '' }}>Nama (A-Z)</option>
+                    <option value="harga_asc" {{ ($sort_by ?? 'terbaru') == 'harga_asc' ? 'selected' : '' }}>Harga Terendah</option>
+                </select>
+            </div>
         </div>
     </div>
-</div>
+</form>
 
 {{-- ======= Grid Produk ======= --}}
 <div id="gridView" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 mb-5">
@@ -198,6 +210,29 @@
 
 @push('scripts')
 <script>
+// Fungsi Auto Search (Debounce)
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('input[name="search"]');
+    const searchForm = document.getElementById('searchForm');
+    let searchTimeout;
+
+    if (searchInput && searchForm) {
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(function() {
+                searchForm.submit();
+            }, 500); // Submit setelah 500ms idle
+        });
+
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(searchTimeout);
+                searchForm.submit();
+            }
+        });
+    }
+});
 document.addEventListener('DOMContentLoaded', () => {
     const formatRupiah = (number) => {
         return 'Rp' + Number(number || 0).toLocaleString('id-ID');

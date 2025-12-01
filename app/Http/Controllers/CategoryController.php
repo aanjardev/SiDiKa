@@ -61,12 +61,14 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         $category = Categories::findOrFail($id);
+        $count = $category->usedCount();
 
         // Cek apakah kategori digunakan oleh produk
-        if ($category->isUsed()) {
-            return redirect()->route('admin.categories.index')
-                ->with('error', 'Kategori tidak dapat dihapus karena masih digunakan oleh produk.');
-        }
+        if ($count > 0) {
+        return redirect()->route('admin.categories.index')
+            ->with('error', "Kategori tidak dapat dihapus karena masih digunakan oleh {$count} produk.");
+        }   
+
 
         $category->delete();
 
