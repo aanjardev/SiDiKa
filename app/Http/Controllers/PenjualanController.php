@@ -235,6 +235,17 @@ class PenjualanController extends Controller
 
     public function store(Request $request)
     {
+        // Check if this is from checkout page
+        if ($request->input('from_checkout') == '1') {
+            // Handle checkout flow - redirect to input form
+            $validated = $request->validate([
+                'items' => 'required|string',
+            ]);
+
+            return $this->checkout($request);
+        }
+
+        // Normal store flow - validate all required fields
         $validated = $request->validate([
             'customer_id' => 'required|exists:customer,id',
             'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
@@ -506,7 +517,6 @@ class PenjualanController extends Controller
                 'produk_id' => $productId,
                 'qty' => $qty,
                 'harga_jual_satuan' => $price,
-                'serial_number' => $product->kode_sku,
             ];
         }
 
