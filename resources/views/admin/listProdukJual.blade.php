@@ -62,101 +62,105 @@
     </div>
 </form>
 
-{{-- ======= Grid Produk ======= --}}
-<div id="gridView" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 mb-5">
-    @forelse ($products as $product)
-        <div class="col">
-            <div class="card h-100 shadow-sm border-0 product-card" 
-                 style="border-radius: 12px; overflow: hidden;"
-                 data-product-id="{{ $product->id }}"
-                 data-price="{{ $product->harga_jual ?? 0 }}"
-                 data-stock="{{ $product->stok_produk ?? 0 }}">
-                
-                {{-- Gambar Produk (Rasio 4:3 agar tidak terlalu tinggi) --}}
-                <div class="position-relative" style="padding-top: 75%; background-color: #f8f9fa;">
-                    @php
-                        $image = $product->gambarUtama ? $product->gambarUtama->url : asset('images/placeholder.jpg');
-                    @endphp
-                    <img src="{{ $image }}" 
-                         class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" 
-                         alt="{{ $product->nama_produk }}" loading="lazy">
+{{-- ======= Grid Produk + Pagination ======= --}}
+<div id="catalogWrapper" class="position-relative">
+    <div id="gridView" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 mb-5">
+        @forelse ($products as $product)
+            <div class="col">
+                <div class="card h-100 shadow-sm border-0 product-card" 
+                     style="border-radius: 12px; overflow: hidden;"
+                     data-product-id="{{ $product->id }}"
+                     data-price="{{ $product->harga_jual ?? 0 }}"
+                     data-stock="{{ $product->stok_produk ?? 0 }}"
+                     data-name="{{ $product->nama_produk }}"
+                     data-sku="{{ $product->kode_sku }}">
                     
-                    {{-- Badge Stok (Opsional, jika ingin overlay) --}}
-                    @if(($product->stok_produk ?? 0) <= 0)
-                        <div class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex align-items-center justify-content-center">
-                            <span class="badge bg-dark text-white px-3 py-2">Stok Habis</span>
-                        </div>
-                    @endif
-                </div>
-
-                <div class="card-body p-3 d-flex flex-column">
-                    {{-- Meta: SKU & Kategori --}}
-                    <div class="d-flex justify-content-between align-items-center mb-1">
-                        <small class="text-muted font-monospace" style="font-size: 0.75rem;">{{ $product->kode_sku }}</small>
-                        <span class="badge bg-light text-secondary border border-light-subtle text-warp text-end" style="font-size: 0.7rem;">
-                            {{ $product->kategori->nama_kategori ?? 'Umum' }}
-                        </span>
-                    </div>
-
-                    {{-- Nama Produk --}}
-                    <h6 class="card-title fw-semibold text-dark mb-1 text-truncate-2" style="font-size: 0.95rem; min-height: 2.4em; line-height: 1.2em;">
-                        {{ $product->nama_produk }}
-                    </h6>
-
-                    {{-- Harga --}}
-                    <p class="card-text fw-bold text-primary mb-3" style="font-size: 1.1rem;">
-                        Rp{{ number_format($product->harga_jual, 0, ',', '.') }}
-                    </p>
-
-                    {{-- Aksi & Stok --}}
-                    <div class="mt-auto d-flex align-items-center gap-2">
-                        @if (($product->stok_produk ?? 0) > 0)
-                            {{-- Tombol Tambah --}}
-                            <button class="btn btn-primary btn-sm flex-grow-1 fw-medium btn-add-product py-1" type="button" style="border-radius: 8px; font-size: 0.85rem;">
-                                <i class="fa-solid fa-plus me-1"></i> Tambah
-                            </button>
-                            
-                            {{-- Kontrol Qty (Hidden Awal) --}}
-                            <div class="qty-control d-none flex-grow-1 justify-content-between align-items-center px-1 bg-primary bg-opacity-10 rounded-3" style="height: 32px;">
-                                <button class="btn btn-sm p-0 text-primary btn-dec" style="width: 24px;"><i class="fa-solid fa-minus" style="font-size: 0.8rem;"></i></button>
-                                <span class="qty-value fw-bold text-primary small">0</span>
-                                <button class="btn btn-sm p-0 text-primary btn-inc" style="width: 24px;"><i class="fa-solid fa-plus" style="font-size: 0.8rem;"></i></button>
+                    {{-- Gambar Produk (Rasio 4:3 agar tidak terlalu tinggi) --}}
+                    <div class="position-relative" style="padding-top: 75%; background-color: #f8f9fa;">
+                        @php
+                            $image = $product->gambarUtama ? $product->gambarUtama->url : asset('images/placeholder.jpg');
+                        @endphp
+                        <img src="{{ $image }}" 
+                             class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" 
+                             alt="{{ $product->nama_produk }}" loading="lazy">
+                        
+                        {{-- Badge Stok (Opsional, jika ingin overlay) --}}
+                        @if(($product->stok_produk ?? 0) <= 0)
+                            <div class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex align-items-center justify-content-center">
+                                <span class="badge bg-dark text-white px-3 py-2">Stok Habis</span>
                             </div>
-
-                            {{-- Info Stok --}}
-                            <small class="text-muted" style="font-size: 0.75rem; white-space: nowrap;">
-                                Stok: <strong>{{ $product->stok_produk }}</strong>
-                            </small>
-                        @else
-                            <button class="btn btn-light text-muted w-100 btn-sm py-1 border" disabled style="border-radius: 8px; font-size: 0.85rem;">
-                                Stok Habis
-                            </button>
                         @endif
                     </div>
+
+                    <div class="card-body p-3 d-flex flex-column">
+                        {{-- Meta: SKU & Kategori --}}
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted font-monospace" style="font-size: 0.75rem;">{{ $product->kode_sku }}</small>
+                            <span class="badge bg-light text-secondary border border-light-subtle text-warp text-end" style="font-size: 0.7rem;">
+                                {{ $product->kategori->nama_kategori ?? 'Umum' }}
+                            </span>
+                        </div>
+
+                        {{-- Nama Produk --}}
+                        <h6 class="card-title fw-semibold text-dark mb-1 text-truncate-2" style="font-size: 0.95rem; min-height: 2.4em; line-height: 1.2em;">
+                            {{ $product->nama_produk }}
+                        </h6>
+
+                        {{-- Harga --}}
+                        <p class="card-text fw-bold text-primary mb-3" style="font-size: 1.1rem;">
+                            Rp{{ number_format($product->harga_jual, 0, ',', '.') }}
+                        </p>
+
+                        {{-- Aksi & Stok --}}
+                        <div class="mt-auto d-flex align-items-center gap-2">
+                            @if (($product->stok_produk ?? 0) > 0)
+                                {{-- Tombol Tambah --}}
+                                <button class="btn btn-primary btn-sm flex-grow-1 fw-medium btn-add-product py-1" type="button" style="border-radius: 8px; font-size: 0.85rem;">
+                                    <i class="fa-solid fa-plus me-1"></i> Tambah
+                                </button>
+                                
+                                {{-- Kontrol Qty (Hidden Awal) --}}
+                                <div class="qty-control d-none flex-grow-1 justify-content-between align-items-center px-1 bg-primary bg-opacity-10 rounded-3" style="height: 32px;">
+                                    <button class="btn btn-sm p-0 text-primary btn-dec" style="width: 24px;"><i class="fa-solid fa-minus" style="font-size: 0.8rem;"></i></button>
+                                    <span class="qty-value fw-bold text-primary small">0</span>
+                                    <button class="btn btn-sm p-0 text-primary btn-inc" style="width: 24px;"><i class="fa-solid fa-plus" style="font-size: 0.8rem;"></i></button>
+                                </div>
+
+                                {{-- Info Stok --}}
+                                <small class="text-muted" style="font-size: 0.75rem; white-space: nowrap;">
+                                    Stok: <strong>{{ $product->stok_produk }}</strong>
+                                </small>
+                            @else
+                                <button class="btn btn-light text-muted w-100 btn-sm py-1 border" disabled style="border-radius: 8px; font-size: 0.85rem;">
+                                    Stok Habis
+                                </button>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    @empty
-        <div class="col-12">
-            <div class="text-center py-5">
-                <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 80px; height: 80px;">
-                    <i class="fa-solid fa-box-open fa-2x text-secondary opacity-50"></i>
+        @empty
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <div class="d-inline-flex align-items-center justify-content-center bg-light rounded-circle mb-3" style="width: 80px; height: 80px;">
+                        <i class="fa-solid fa-box-open fa-2x text-secondary opacity-50"></i>
+                    </div>
+                    <h6 class="text-muted">Tidak ada produk ditemukan</h6>
                 </div>
-                <h6 class="text-muted">Tidak ada produk ditemukan</h6>
             </div>
+        @endforelse
+    </div>
+
+    {{-- ======= Pagination ======= --}}
+    @if ($products->hasPages())
+        <div class="d-flex justify-content-center mt-4 mb-5">
+            {{ $products->links('pagination::bootstrap-5') }}
         </div>
-    @endforelse
+    @endif
 </div>
 
-{{-- ======= Pagination ======= --}}
-@if ($products->hasPages())
-    <div class="d-flex justify-content-center mt-4 mb-5">
-        {{ $products->links('pagination::bootstrap-5') }}
-    </div>
-@endif
-
 {{-- Floating Cart Summary --}}
-<div id="cartSummary" class="position-fixed start-50 translate-middle-x bottom-0 mb-4 p-2 bg-dark text-white rounded-pill shadow-lg d-none align-items-center gap-3 z-3" 
+<div id="cartSummary" class="position-fixed start-50 translate-middle-x bottom-0 mb-4 p-2 bg-dark text-white rounded-pill shadow-lg d-none align-items-center gap-3 z-3 cart-summary-clickable" 
      style="min-width: 300px; max-width: 90%; border: 1px solid rgba(255,255,255,0.1);">
     <div class="rounded-circle bg-white text-dark d-flex align-items-center justify-content-center ms-1" style="width: 32px; height: 32px;">
         <i class="fa-solid fa-bag-shopping" style="font-size: 0.9rem;"></i>
@@ -164,12 +168,42 @@
     <div class="d-flex flex-column lh-1">
         <span class="fw-bold" id="summaryItems" style="font-size: 0.9rem;">0 Item</span>
         <small class="text-white-50" style="font-size: 0.7rem;">Total Estimasi</small>
+        <button type="button" class="btn btn-link btn-sm text-decoration-none text-white-50 p-0 mt-1"
+                id="btnToggleCartDetail" style="font-size: 0.7rem;">
+            Lihat ringkasan
+        </button>
     </div>
     <div class="ms-auto d-flex align-items-center gap-2">
         <span class="fw-bold me-2" id="summaryPrice">Rp0</span>
         <button id="btnCheckout" class="btn btn-primary btn-sm rounded-pill px-3 fw-medium">
             Checkout <i class="fa-solid fa-arrow-right ms-1" style="font-size: 0.7rem;"></i>
         </button>
+    </div>
+</div>
+
+{{-- Overlay gelap saat ringkasan keranjang dibuka --}}
+<div id="cartOverlay" class="cart-overlay-backdrop d-none"></div>
+
+
+{{-- Panel ringkasan keranjang (pop-out center) --}}
+<div id="cartDetail" class="position-fixed top-50 start-50 translate-middle bg-white rounded-4 shadow-lg border d-none cart-detail-panel">
+    <div class="d-flex align-items-center justify-content-between px-3 pt-3 pb-2 border-bottom">
+        <div>
+            <div class="small text-muted text-uppercase fw-semibold">Ringkasan Keranjang</div>
+            <div class="fw-semibold" id="cartDetailTitle">Item yang akan dibuat penjualan</div>
+        </div>
+        <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" id="btnCloseCartDetail" aria-label="Tutup ringkasan">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    <div class="px-3 py-2 cart-detail-body">
+        <ul class="list-unstyled mb-0 small" id="cartDetailList">
+            {{-- Diisi via JavaScript --}}
+        </ul>
+    </div>
+    <div class="px-3 py-2 border-top d-flex justify-content-between align-items-center small bg-light rounded-bottom-4">
+        <span class="text-muted">Total Estimasi</span>
+        <span class="fw-bold text-primary" id="cartDetailTotal">Rp0</span>
     </div>
 </div>
 
@@ -204,6 +238,54 @@
         0%, 100% { transform: translateX(0); }
         25%, 75% { transform: translateX(-2px); }
         50% { transform: translateX(2px); }
+    }
+    .cart-overlay-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(15, 23, 42, 0.4);
+        z-index: 1040;
+        pointer-events: auto;
+    }
+    .cart-summary-clickable {
+        cursor: pointer;
+    }
+    .cart-detail-panel {
+        width: 100%;
+        max-width: 720px;
+        max-height: 65vh;
+        z-index: 1050;
+    }
+    .cart-detail-body {
+        max-height: 45vh;
+        overflow-y: auto;
+    }
+    .cart-detail-item-name {
+        font-size: 0.9rem;
+    }
+    .cart-detail-item-sku {
+        font-size: 0.75rem;
+    }
+    .cart-detail-qty-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .cart-detail-qty-btn.cart-inc-btn {
+        background-color: #0d6efd;
+        color: #fff;
+        border: none;
+    }
+    .cart-detail-qty-btn.cart-dec-btn {
+        background-color: #f8f9fa;
+        color: #0d6efd;
+        border: 1px solid rgba(13,110,253,.15);
+    }
+    .cart-detail-qty-value {
+        min-width: 24px;
+        text-align: center;
     }
 </style>
 @endpush
@@ -245,6 +327,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const summaryItemsEl = document.getElementById('summaryItems');
     const summaryPriceEl = document.getElementById('summaryPrice');
     const checkoutBtn = document.getElementById('btnCheckout');
+    const cartDetailEl = document.getElementById('cartDetail');
+    const cartDetailListEl = document.getElementById('cartDetailList');
+    const cartDetailTotalEl = document.getElementById('cartDetailTotal');
+    const btnToggleCartDetail = document.getElementById('btnToggleCartDetail');
+    const btnCloseCartDetail = document.getElementById('btnCloseCartDetail');
+    const cartOverlayEl = document.getElementById('cartOverlay');
+
+    const productMeta = {};
     const selections = initialSelections.reduce((acc, item) => {
         const id = String(item.id || '');
         const qty = Math.max(0, Number(item.qty || 0));
@@ -255,6 +345,127 @@ document.addEventListener('DOMContentLoaded', () => {
         return acc;
     }, {});
 
+    function adjustQtyFromDetail(productId, delta) {
+        if (!productId) return;
+
+        const current = selections[productId]?.qty || 0;
+        let next = current + delta;
+
+        // Ambil batas stok dari card produk (jika ada)
+        const card = document.querySelector(`.product-card[data-product-id="${productId}"]`);
+        let stock = Infinity;
+        if (card) {
+            const stockAttr = Number(card.dataset.stock || 0);
+            if (!isNaN(stockAttr) && stockAttr > 0) {
+                stock = stockAttr;
+            }
+        }
+
+        if (delta > 0 && stock !== Infinity) {
+            next = Math.min(next, stock);
+        }
+
+        if (next <= 0) {
+            delete selections[productId];
+
+            // Sinkronkan UI card produk jika ada
+            if (card) {
+                const qtyControl = card.querySelector('.qty-control');
+                const btnAdd = card.querySelector('.btn-add-product');
+                const qtyValue = card.querySelector('.qty-value');
+                if (qtyControl && btnAdd && qtyValue) {
+                    qtyValue.textContent = 0;
+                    qtyControl.classList.add('d-none');
+                    qtyControl.classList.remove('d-flex');
+                    btnAdd.classList.remove('d-none');
+                }
+            }
+        } else {
+            const meta = productMeta[productId] || {};
+            const price = selections[productId]?.price ?? meta.price ?? 0;
+            selections[productId] = { qty: next, price };
+
+            // Sinkronkan UI card produk jika ada
+            if (card) {
+                const qtyControl = card.querySelector('.qty-control');
+                const btnAdd = card.querySelector('.btn-add-product');
+                const qtyValue = card.querySelector('.qty-value');
+                if (qtyControl && btnAdd && qtyValue) {
+                    qtyValue.textContent = next;
+                    btnAdd.classList.add('d-none');
+                    qtyControl.classList.remove('d-none');
+                    qtyControl.classList.add('d-flex');
+                }
+            }
+        }
+
+        updateSummary();
+        buildCartDetail();
+    }
+
+    const buildCartDetail = () => {
+        if (!cartDetailListEl || !cartDetailTotalEl) return;
+
+        cartDetailListEl.innerHTML = '';
+
+        const entries = Object.entries(selections);
+        if (entries.length === 0) {
+            cartDetailListEl.innerHTML = '<li class="text-muted text-center py-2">Belum ada item di keranjang.</li>';
+            cartDetailTotalEl.textContent = formatRupiah(0);
+            return;
+        }
+
+        let totalPrice = 0;
+
+        entries.forEach(([id, data]) => {
+            const meta = productMeta[id] || {};
+            const name = meta.name || `Produk #${id}`;
+            const sku = meta.sku ? ` (${meta.sku})` : '';
+            const lineTotal = (data.qty || 0) * (data.price || 0);
+            totalPrice += lineTotal;
+
+            const li = document.createElement('li');
+            li.className = 'd-flex justify-content-between align-items-start py-2 border-bottom';
+            li.dataset.productId = id;
+            li.innerHTML = `
+                <div class="me-3">
+                    <div class="fw-semibold text-dark cart-detail-item-name">${name}</div>
+                    <div class="text-muted cart-detail-item-sku">${sku || '&nbsp;'}</div>
+                </div>
+                <div class="text-end">
+                    <div class="d-flex align-items-center justify-content-end gap-2 mb-1">
+                        <button type="button"
+                                class="btn btn-sm cart-detail-qty-btn cart-dec-btn cart-dec"
+                                data-product-id="${id}">
+                            <i class="fa-solid fa-minus"></i>
+                        </button>
+                        <span class="fw-semibold small cart-detail-qty-value cart-qty" data-product-id="${id}">${data.qty}</span>
+                        <button type="button"
+                                class="btn btn-sm cart-detail-qty-btn cart-inc-btn cart-inc"
+                                data-product-id="${id}">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                    <div class="fw-semibold">${formatRupiah(lineTotal)}</div>
+                </div>
+            `;
+            cartDetailListEl.appendChild(li);
+
+            const btnIncDetail = li.querySelector('.cart-inc');
+            const btnDecDetail = li.querySelector('.cart-dec');
+
+            btnIncDetail?.addEventListener('click', () => {
+                adjustQtyFromDetail(id, 1);
+            });
+
+            btnDecDetail?.addEventListener('click', () => {
+                adjustQtyFromDetail(id, -1);
+            });
+        });
+
+        cartDetailTotalEl.textContent = formatRupiah(totalPrice);
+    };
+
     const updateSummary = () => {
         const totalItems = Object.values(selections).reduce((sum, item) => sum + item.qty, 0);
         const totalPrice = Object.values(selections).reduce((sum, item) => sum + (item.qty * item.price), 0);
@@ -264,9 +475,18 @@ document.addEventListener('DOMContentLoaded', () => {
             summaryPriceEl.textContent = formatRupiah(totalPrice);
             summaryEl.classList.remove('d-none');
             summaryEl.classList.add('d-flex');
+
+            // Jika panel detail sedang terbuka, perbarui isinya
+            if (cartDetailEl && !cartDetailEl.classList.contains('d-none')) {
+                buildCartDetail();
+            }
         } else {
             summaryEl.classList.add('d-none');
             summaryEl.classList.remove('d-flex');
+
+            if (cartDetailEl) {
+                cartDetailEl.classList.add('d-none');
+            }
         }
     };
 
@@ -274,6 +494,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const productId = card.dataset.productId;
         const price = Number(card.dataset.price || 0);
         const stock = Number(card.dataset.stock || 0);
+        const name = (card.dataset.name || '').trim();
+        const sku = (card.dataset.sku || '').trim();
         const btnAdd = card.querySelector('.btn-add-product');
         const qtyControl = card.querySelector('.qty-control');
         const btnInc = card.querySelector('.btn-inc');
@@ -281,6 +503,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const qtyValue = card.querySelector('.qty-value');
 
         if (!btnAdd || !qtyControl) return;
+
+        if (productId) {
+            productMeta[productId] = {
+                name: name || (card.querySelector('.card-title')?.textContent || '').trim(),
+                sku: sku || (card.querySelector('.font-monospace')?.textContent || '').trim(),
+                price,
+            };
+        }
 
         const selected = selections[productId];
         if (selected && selected.qty > 0) {
@@ -337,6 +567,59 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     updateSummary();
+
+    // Toggle panel ringkasan keranjang
+    const toggleCartDetail = () => {
+        if (!cartDetailEl) return;
+
+        const willOpen = cartDetailEl.classList.contains('d-none');
+
+        if (willOpen) {
+            buildCartDetail();
+            cartDetailEl.classList.remove('d-none');
+        } else {
+            cartDetailEl.classList.add('d-none');
+        }
+
+        if (cartOverlayEl) {
+            if (willOpen) {
+                cartOverlayEl.classList.remove('d-none');
+            } else {
+                cartOverlayEl.classList.add('d-none');
+            }
+        }
+    };
+
+    btnToggleCartDetail?.addEventListener('click', (e) => {
+        e.preventDefault();
+        toggleCartDetail();
+    });
+
+    btnCloseCartDetail?.addEventListener('click', () => {
+        if (!cartDetailEl) return;
+        cartDetailEl.classList.add('d-none');
+        if (cartOverlayEl) {
+            cartOverlayEl.classList.add('d-none');
+        }
+    });
+
+    // Klik overlay juga menutup ringkasan
+    cartOverlayEl?.addEventListener('click', () => {
+        if (cartDetailEl && !cartDetailEl.classList.contains('d-none')) {
+            cartDetailEl.classList.add('d-none');
+        }
+        cartOverlayEl.classList.add('d-none');
+    });
+
+    // Jadikan seluruh area cartSummary (kecuali tombol Checkout) bisa membuka ringkasan
+    summaryEl?.addEventListener('click', (e) => {
+        const isCheckout = e.target.closest('#btnCheckout');
+        if (isCheckout) {
+            return;
+        }
+        e.preventDefault();
+        toggleCartDetail();
+    });
 
     // Checkout Action
     checkoutBtn?.addEventListener('click', () => {
