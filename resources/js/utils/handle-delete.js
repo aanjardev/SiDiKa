@@ -5,8 +5,10 @@
         const btn = e.target.closest('.btn-action-delete');
         if (!btn) return;
 
-        const message = btn.getAttribute('data-message')
-            || 'Apakah Anda yakin ingin menghapus data ini?';
+        const message = btn.dataset.message || 'Lanjutkan tindakan ini?';
+        const title = btn.dataset.title || 'Konfirmasi Tindakan';
+        const confirmText = btn.dataset.confirmText || 'Lanjutkan';
+        const cancelText = btn.dataset.cancelText || 'Batal';
 
         // Jika tombol tidak berada dalam form → error
         if (!btn.form) {
@@ -16,7 +18,7 @@
 
         // Jika SweetAlert tersedia
         if (typeof window.confirmDelete === 'function') {
-            window.confirmDelete(message, 'Konfirmasi Hapus')
+            window.confirmDelete(message, title, confirmText, cancelText)
                 .then(result => {
                     if (result.isConfirmed) {
                         btn.form.submit();

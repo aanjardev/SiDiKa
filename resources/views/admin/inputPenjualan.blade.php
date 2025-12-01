@@ -110,7 +110,7 @@ return [
                                 <select class="form-select border-start-0 ps-2 @error('perusahaan_cabang_id') is-invalid @enderror" id="perusahaan_cabang_id" name="perusahaan_cabang_id" required style="height: 45px;">
                                     @foreach ($semua_cabang as $branch)
                                     <option value="{{ $branch->id }}" {{ (string) old('perusahaan_cabang_id', $penjualan->perusahaan_cabang_id ?? '') === (string) $branch->id ? 'selected' : '' }}>
-                                        {{ $branch->nama }}
+                                        {{ $branch->nama }}{{ !$branch->is_active ? ' (Non-Aktif)' : '' }}
                                     </option>
                                     @endforeach
                                 </select>

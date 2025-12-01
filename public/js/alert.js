@@ -3,8 +3,8 @@
  * Menggunakan SweetAlert2 untuk konfirmasi dan notifikasi
  */
 
-// Fungsi helper untuk konfirmasi delete
-function confirmDelete(message = 'Data ini akan dihapus secara permanen!', title = 'Yakin ingin menghapus?') {
+// Fungsi helper untuk konfirmasi delete / aksi dengan warna merah
+function confirmDelete(message = 'Data ini akan dihapus secara permanen!', title = 'Yakin ingin menghapus?', confirmText = 'Lanjutkan', cancelText = 'Batal') {
     return Swal.fire({
         title: title,
         text: message,
@@ -12,8 +12,8 @@ function confirmDelete(message = 'Data ini akan dihapus secara permanen!', title
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#6c757d',
-        confirmButtonText: 'Ya, hapus!',
-        cancelButtonText: 'Batal'
+        confirmButtonText: confirmText || 'Lanjutkan',
+        cancelButtonText: cancelText || 'Batal'
     });
 }
 

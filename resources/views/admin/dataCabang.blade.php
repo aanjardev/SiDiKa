@@ -157,23 +157,29 @@
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 
-                                @if(($cabang->sales_count ?? 0) == 0 && ($cabang->purchases_count ?? 0) == 0)
-                                <form action="{{ route('admin.branches.destroy', $cabang->id) }}" method="POST" class="d-inline">
+                                @if($cabang->is_active)
+                                <form action="{{ route('admin.branches.update-status', $cabang->id) }}" method="POST" class="d-inline">
                                     @csrf
-                                    @method('DELETE')
+                                    @method('PATCH')
+                                    <input type="hidden" name="is_active" value="0">
                                     <button type="button"
                                         class="btn-action btn-action-delete"
-                                        title="Hapus"
-                                        data-message="Apakah Anda yakin ingin menghapus data cabang ini?">
-                                        <i class="fa-solid fa-trash"></i>
+                                        title="Nonaktifkan Cabang"
+                                        data-message="Nonaktifkan cabang ini? Cabang yang non-aktif tidak bisa dipakai untuk transaksi baru.">
+                                        <i class="fa-solid fa-power-off"></i>
                                     </button>
                                 </form>
                                 @else
-                                <span class="btn-action text-muted"
-                                      title="Cabang tidak dapat dihapus karena masih digunakan oleh transaksi penjualan atau pembelian"
-                                      style="cursor: not-allowed; opacity: 0.5;">
-                                    <i class="fa-solid fa-trash"></i>
-                                </span>
+                                <form action="{{ route('admin.branches.update-status', $cabang->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="is_active" value="1">
+                                    <button type="submit"
+                                        class="btn-action btn-action-edit"
+                                        title="Aktifkan Cabang">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </form>
                                 @endif
                             </div>
                         </td>

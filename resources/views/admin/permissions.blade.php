@@ -165,15 +165,28 @@
                                 </form>
                                 @endif
 
-                                <form action="{{ route('admin.permissions.destroy', $k->id) }}" method="POST" class="d-inline">
+                                <form action="{{ route('admin.permissions.update-status', $k->id) }}" method="POST" class="d-inline">
                                     @csrf
-                                    @method('DELETE')
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="{{ $k->status === 'inactive' ? 'active' : 'inactive' }}">
+                                    @if($k->status === 'inactive')
+                                    <button type="submit"
+                                        class="btn-action btn-action-edit"
+                                        title="Aktifkan User">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                    @else
                                     <button type="button"
                                         class="btn-action btn-action-delete"
-                                        title="Hapus"
+                                        title="Nonaktifkan User"
+                                        data-message="Nonaktifkan user ini? User non-aktif tidak dapat login."
+                                        data-title="Nonaktifkan User"
+                                        data-confirm-text="Nonaktifkan"
+                                        data-cancel-text="Batal"
                                         onclick="handleDeletePermission(this)">
-                                        <i class="fa-solid fa-trash"></i>
+                                        <i class="fa-solid fa-power-off"></i>
                                     </button>
+                                    @endif
                                 </form>
                             </div>
                         </td>
@@ -205,7 +218,11 @@
 
     function handleDeletePermission(button) {
         if (typeof window.confirmDelete === 'function') {
-            window.confirmDelete('Yakin mau hapus data ini?', 'Konfirmasi Hapus')
+            const message = button.dataset.message || 'Lanjutkan tindakan ini?';
+            const title = button.dataset.title || 'Konfirmasi Tindakan';
+            const confirmText = button.dataset.confirmText || 'Lanjutkan';
+            const cancelText = button.dataset.cancelText || 'Batal';
+            window.confirmDelete(message, title, confirmText, cancelText)
                 .then((result) => {
                     if (result.isConfirmed) {
                         button.form.submit();
