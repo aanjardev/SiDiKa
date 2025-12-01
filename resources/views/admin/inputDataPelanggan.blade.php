@@ -30,7 +30,6 @@
                             </div>
                             <h6 class="fw-bold mb-0">Riwayat Penjualan</h6>
                         </div>
-                        <a href="#" class="btn btn-sm btn-outline-light text-secondary border">Lihat Semua</a>
                     </div>
                     
                     <div class="card-body">
