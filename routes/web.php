@@ -121,6 +121,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
     Route::resource('/customers', CustomerController::class)->names('customers');
     Route::resource('/categories'   , CategoryController::class)->names('categories');
+    Route::patch('/branches/{branch}/status', [BranchController::class, 'updateStatus'])->name('branches.update-status');
     Route::resource('/branches', BranchController::class)->names('branches');
 
     // Transaksi
@@ -157,6 +158,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::put('/permissions/{id}', [PermissionsController::class, 'update'])->name('permissions.update');
         Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy'])->name('permissions.destroy');
         Route::post('/permissions/{id}/regenerate-token', [PermissionsController::class, 'regenerateToken'])->name('permissions.regenerate-token');
+        Route::patch('/permissions/{id}/status', [PermissionsController::class, 'updateStatus'])->name('permissions.update-status');
         Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('purchases.print');
         Route::get('sales/{id}/print', [PenjualanController::class, 'printNota'])->name('sales.print');
     });

@@ -188,7 +188,7 @@
                                         <button type="button"
                                                 class="btn-action btn-action-delete no-row-navigation"
                                                 title="Hapus"
-                                                onclick="handleDeletePembelian(this)">
+                                                data-message="Apakah Anda yakin ingin menghapus data pembelian ini?">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
@@ -226,49 +226,8 @@
 @push('scripts')
 <script src="{{ asset('js/admin-ajax-table.js') }}"></script>
 <script>
-    function handleDeletePembelian(button) {
-        if (typeof window.confirmDelete === 'function') {
-            window.confirmDelete('Apakah Anda yakin ingin menghapus data pembelian ini?', 'Konfirmasi Hapus')
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        button.form.submit();
-                    }
-                });
-        } else {
-            if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
-                button.form.submit();
-            }
-        }
-    }
-
-    // Fungsi helper untuk delete di partial dan controller
-    function handleDeletePembelian(button) {
-        if (typeof window.confirmDelete === 'function') {
-            window.confirmDelete('Apakah Anda yakin ingin menghapus data pembelian ini?', 'Konfirmasi Hapus')
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        button.form.submit();
-                    }
-                });
-        } else {
-            if (confirm('Apakah Anda yakin ingin menghapus data pembelian ini?')) {
-                button.form.submit();
-            }
-        }
-    }
-    
-    // Alias untuk kompatibilitas dengan partial
-    function confirmDeletePurchase(button) {
-        handleDeletePembelian(button);
-    }
-    
-    // Export ke window
-    window.handleDeletePembelian = handleDeletePembelian;
-    window.confirmDeletePurchase = confirmDeletePurchase;
-</script>
-
     document.addEventListener("DOMContentLoaded", function() {
-        const urlIndex = '{{ route('admin.purchases.index') }}';
+        const urlIndex = "{{ route('admin.purchases.index') }}";
 
         TableAjax.init({
             formSelector: '#filterForm',
@@ -286,4 +245,5 @@
         });
     });
 </script>
+@vite('resources/js/utils/handle-delete.js')
 @endpush

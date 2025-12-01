@@ -292,5 +292,5 @@
 @endpush
 
 @push('scripts')
-<script src="{{ asset('js/phone-input-validation.js') }}"></script>
+@vite('resources/js/utils/phone-input-validation.js')
 @endpush

@@ -20,11 +20,10 @@
 --}}
 <form action="{{ isset($branch) && (!isset($isShow) || !$isShow) ? route('admin.branches.update', $branch->id) : route('admin.branches.store') }}"
     method="POST"
-    {{ (!isset($isShow) || !$isShow) ? 'data-validate-form' : '' }}
-    >
+    {{ (!isset($isShow) || !$isShow) ? 'data-validate-form' : '' }}>
     @csrf
     @if(isset($branch) && (!isset($isShow) || !$isShow))
-        @method('PUT')
+    @method('PUT')
     @endif
 
     <div class="row">
@@ -59,14 +58,14 @@
                                 placeholder="Contoh: Dinoyo Kamera Pusat"
                                 {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
                                 @if(!isset($isShow) || !$isShow)
-                                    data-error-message="Nama cabang wajib diisi"
+                                data-error-message="Nama cabang wajib diisi"
                                 @endif
                                 autofocus>
                         </div>
                         @error('nama')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                         @else
-                            <div class="invalid-feedback">Nama cabang wajib diisi</div>
+                        <div class="invalid-feedback">Nama cabang wajib diisi</div>
                         @enderror
                     </div>
 
@@ -85,13 +84,13 @@
                                 placeholder="Masukkan alamat lengkap cabang (Jalan, No, RT/RW, Kota)..."
                                 {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
                                 @if(!isset($isShow) || !$isShow)
-                                    data-error-message="Alamat lengkap wajib diisi"
+                                data-error-message="Alamat lengkap wajib diisi"
                                 @endif>{{ old('alamat', $branch->alamat ?? '') }}</textarea>
                         </div>
                         @error('alamat')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
                         @else
-                            <div class="invalid-feedback">Alamat lengkap wajib diisi</div>
+                        <div class="invalid-feedback">Alamat lengkap wajib diisi</div>
                         @enderror
                     </div>
 
@@ -351,7 +350,6 @@
                                            {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
                                 </div>
                             </div>
-                        </div>
                     @endforeach
                 </div>
             </div>
@@ -381,70 +379,9 @@
 </form>
 
 @push('scripts')
+@vite('resources/js/utils/phone-input-validation.js')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const displayInput = document.getElementById('branch_nomor_telepon_display');
-        const hiddenInput  = document.getElementById('branch_nomor_telepon');
-
-        if (!displayInput || !hiddenInput) return;
-
-        function formatPhone(digits) {
-            if (!digits) return '';
-            const part1 = digits.slice(0, 4);
-            const part2 = digits.slice(4, 8);
-            const rest  = digits.slice(8);
-
-            let formatted = part1;
-            if (part2) formatted += '-' + part2;
-            if (rest)  formatted += '-' + rest;
-            return formatted;
-        }
-
-        (function initPhone() {
-            const raw = (hiddenInput.value || '').replace(/\D/g, '');
-            const limited = raw.slice(0, 15);
-            hiddenInput.value = limited;
-            displayInput.value = formatPhone(limited);
-        })();
-
-        displayInput.addEventListener('input', function () {
-            let digits = this.value.replace(/\D/g, '');
-            if (digits.length > 15) {
-                digits = digits.slice(0, 15);
-            }
-
-            hiddenInput.value  = digits;
-            displayInput.value = formatPhone(digits);
-        });
-
-        displayInput.addEventListener('blur', function () {
-            const digits = hiddenInput.value.replace(/\D/g, '');
-            const formControl = displayInput;
-
-            formControl.classList.remove('is-invalid');
-
-            if (!digits) {
-                formControl.classList.add('is-invalid');
-                const feedback = formControl.closest('.input-group').nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Nomor telepon wajib diisi.';
-                }
-                return;
-            }
-
-            const regex = /^(?:0|62|\+62)[0-9]{8,15}$/;
-            const withPrefix = digits;
-
-            if (!regex.test(withPrefix)) {
-                formControl.classList.add('is-invalid');
-                const feedback = formControl.closest('.input-group').nextElementSibling;
-                if (feedback && feedback.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.';
-                }
-                return;
-            }
-        });
-
         // Jam operasional toggle functionality
         const toggles = document.querySelectorAll('.jam-operasional-toggle');
         toggles.forEach(toggle => {
@@ -556,9 +493,5 @@
     }
 </script>
 @endpush
-
-@section('scripts')
-<script src="{{ asset('js/phone-input-validation.js') }}"></script>
-@endsection
 
 @endsection

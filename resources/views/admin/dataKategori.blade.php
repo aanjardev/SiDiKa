@@ -86,7 +86,7 @@
                                     <button type="button"
                                         class="btn-action btn-action-delete"
                                         title="Hapus"
-                                        onclick="handleDeleteKategori(this)">
+                                        data-message="Apakah Anda yakin ingin menghapus kategori ini?">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -124,46 +124,6 @@
 @endsection
 
 @push('scripts')
-<script>
-    function handleDeleteKategori(button) {
-        if (typeof window.confirmDelete === 'function') {
-            window.confirmDelete('Apakah Anda yakin ingin menghapus kategori ini?', 'Konfirmasi Hapus')
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        button.form.submit();
-                    }
-                });
-        } else {
-            if (confirm('Apakah Anda yakin ingin menghapus kategori ini?')) {
-                button.form.submit();
-            }
-        }
-    }
-
-    // Export ke window
-    window.handleDeleteKategori = handleDeleteKategori;
-
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.querySelector('#searchFormKategori input[name="search"]');
-        const searchForm = document.getElementById('searchFormKategori');
-        let searchTimeout;
-
-        if (searchInput && searchForm) {
-            searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(function() {
-                    searchForm.submit();
-                }, 500);
-            });
-
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    clearTimeout(searchTimeout);
-                    searchForm.submit();
-                }
-            });
-        }
-    });
-</script>
+@vite('resources/js/utils/handle-delete.js')
+@vite('resources/js/utils/search.js')
 @endpush

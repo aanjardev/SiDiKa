@@ -112,9 +112,9 @@ class PermissionsController extends Controller
     public function destroy($id)
     {
         $user = User::findOrFail($id);
-        $user->delete();
+        $user->update(['status' => 'inactive']);
 
-        return redirect()->route('admin.permissions')->with('success', 'User berhasil dihapus!');
+        return redirect()->route('admin.permissions')->with('success', 'User dinonaktifkan. Anda dapat mengaktifkannya kembali jika diperlukan.');
     }
 
     public function regenerateToken($id)
@@ -144,6 +144,22 @@ class PermissionsController extends Controller
                 ->with('success', 'Token aktivasi berhasil diperbarui! Namun email gagal dikirim.')
                 ->with('warning', 'Email activation failed. Please check email configuration.');
         }
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:active,inactive',
+        ]);
+
+        $user = User::findOrFail($id);
+        $user->update(['status' => $validated['status']]);
+
+        $message = $validated['status'] === 'active'
+            ? 'User berhasil diaktifkan.'
+            : 'User berhasil dinonaktifkan. User non-aktif tidak dapat login.';
+
+        return redirect()->route('admin.permissions')->with('success', $message);
     }
 
 }

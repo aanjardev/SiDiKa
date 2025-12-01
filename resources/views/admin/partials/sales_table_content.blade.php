@@ -62,7 +62,7 @@
                 <button type="button"
                     class="btn-action btn-action-delete no-row-navigation"
                     title="Hapus"
-                    onclick="handleDeletePenjualan(this)">
+                    data-message="Apakah Anda yakin ingin menghapus data penjualan ini?">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             </form>
