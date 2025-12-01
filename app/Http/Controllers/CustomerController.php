@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
+use App\Models\Penjualan;
+use App\Models\Pembelian;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -86,7 +88,66 @@ class CustomerController extends Controller
     public function show($id)
     {
         $pelanggan = Customer::findOrFail($id);
-        return view('admin.inputDataPelanggan', compact('pelanggan'))->with('readOnly', true);
+
+        $riwayat_penjualan = Penjualan::with([
+                'perusahaan_cabang:id,nama',
+                'detail_penjualan' => function ($query) {
+                    $query->select('id', 'penjualan_id', 'produk_id', 'qty');
+                },
+                'detail_penjualan.produk:id,nama_produk',
+            ])
+            ->where('customer_id', $pelanggan->id)
+            ->latest('created_at')
+            ->get(['id', 'customer_id', 'perusahaan_cabang_id', 'kode_transaksi', 'harga_total', 'kas', 'tanggal', 'created_at']);
+
+        $ringkasan_transaksi = [
+            'total_transaksi' => $riwayat_penjualan->count(),
+            'total_item' => $riwayat_penjualan->sum(function ($sale) {
+                return $sale->detail_penjualan->sum('qty');
+            }),
+            'total_nilai' => $riwayat_penjualan->sum('harga_total'),
+            'transaksi_terakhir' => optional($riwayat_penjualan->first())->created_at,
+        ];
+
+        $riwayat_pembelian = Pembelian::with([
+                'perusahaan_cabang:id,nama',
+                'item_pembelian_draft' => function ($query) {
+                    $query->select('id', 'pembelian_id', 'nama_item', 'qty');
+                },
+            ])
+            ->where('customer_id', $pelanggan->id)
+            ->latest('created_at')
+            ->get([
+                'id',
+                'customer_id',
+                'perusahaan_cabang_id',
+                'kode_transaksi',
+                'status_pembelian',
+                'harga_tawaran_customer',
+                'harga_tawaran_toko',
+                'harga_deal',
+                'created_at',
+            ]);
+
+        $ringkasan_pembelian = [
+            'total_transaksi' => $riwayat_pembelian->count(),
+            'total_deal' => $riwayat_pembelian->where('status_pembelian', 'deal')->count(),
+            'total_nominal_deal' => $riwayat_pembelian->where('status_pembelian', 'deal')->sum('harga_deal'),
+            'total_item' => $riwayat_pembelian->sum(function ($pembelian) {
+                $qty = $pembelian->item_pembelian_draft->sum('qty');
+                return $qty > 0 ? $qty : $pembelian->item_pembelian_draft->count();
+            }),
+            'deal_terakhir' => optional($riwayat_pembelian->firstWhere('status_pembelian', 'deal'))->created_at,
+        ];
+
+        return view('admin.inputDataPelanggan', compact(
+            'pelanggan',
+            'riwayat_penjualan',
+            'ringkasan_transaksi',
+            'riwayat_pembelian',
+            'ringkasan_pembelian'
+        ))
+            ->with('readOnly', true);
     }
 
     public function edit($id)

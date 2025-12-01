@@ -3,170 +3,115 @@
 @section('title', isset($readOnly) && $readOnly ? 'Detail Data Pelanggan' : 'Edit Data Pelanggan')
 
 @section('content')
-<div class="row">
-    <div class="col-12">
-        <div class="card shadow-sm">
-            <div class="card-body">
 
-                @if(isset($readOnly) && $readOnly)
-                    {{-- Mode Read-Only untuk melihat detail --}}
-                @else
-                <form method="POST" action="{{ route('admin.customers.update', $pelanggan->id) }}" data-validate-form>
-                    @csrf
-                    @method('PUT')
-                @endif
+{{-- ========================================== --}}
+{{-- LAYOUT 1: MODE READ-ONLY (Detail & Riwayat)--}}
+{{-- ========================================== --}}
+@if(isset($readOnly) && $readOnly)
+    <div class="row g-4">
+        
+        {{-- KOLOM KIRI: Informasi Pelanggan (Sidebar) --}}
+        <div class="col-lg-4 col-xl-3">
+            <div class="sticky-top" style="top: 1rem; z-index: 1;">
+                @include('admin.partials.customer_detail_card')
+            </div>
+        </div>
 
-                    {{-- Baris 1: Nama & Nomor Telepon --}}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="nama" class="form-label">Nama Pelanggan <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control required-field @error('nama') is-invalid @enderror" id="nama" name="nama" value="{{ old('nama', $pelanggan->nama ?? '') }}" placeholder="Masukkan nama pelanggan" {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }} data-error-message="Nama pelanggan wajib diisi" {{ !isset($readOnly) || !$readOnly ? 'autofocus' : '' }}>
-                                <div class="invalid-feedback">@error('nama') {{ $message }} @else Nama pelanggan wajib diisi @enderror</div>
+        {{-- KOLOM KANAN: Statistik & Riwayat (Konten Utama) --}}
+        <div class="col-lg-8 col-xl-9">
+            <div class="d-flex flex-column gap-4">
+                
+                {{-- 1. Kartu Ringkasan Penjualan --}}
+                <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                    <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="bg-primary bg-opacity-10 text-primary rounded p-2">
+                                <i class="fa-solid fa-receipt"></i>
+                            </div>
+                            <h6 class="fw-bold mb-0">Riwayat Penjualan</h6>
+                        </div>
+                        <a href="#" class="btn btn-sm btn-outline-light text-secondary border">Lihat Semua</a>
+                    </div>
+                    
+                    <div class="card-body">
+                        {{-- Stats Row --}}
+                        <div class="row g-3 mb-4">
+                            <div class="col-sm-4">
+                                <div class="p-3 bg-light rounded-3 border text-center h-100">
+                                    <small class="text-muted d-block mb-1">Total Transaksi</small>
+                                    <h4 class="fw-bold text-dark mb-0">{{ $ringkasan_transaksi['total_transaksi'] ?? 0 }}</h4>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="p-3 bg-light rounded-3 border text-center h-100">
+                                    <small class="text-muted d-block mb-1">Total Item</small>
+                                    <h4 class="fw-bold text-dark mb-0">{{ $ringkasan_transaksi['total_item'] ?? 0 }}</h4>
+                                </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="p-3 bg-primary bg-opacity-10 rounded-3 border border-primary text-center h-100">
+                                    <small class="text-primary d-block mb-1">Total Belanja</small>
+                                    <h5 class="fw-bold text-primary mb-0">Rp {{ number_format($ringkasan_transaksi['total_nilai'] ?? 0, 0, ',', '.') }}</h5>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="no_telp" class="form-label">Nomor Telepon</label>
-                                <input type="text"
-                                       class="form-control @error('no_telp') is-invalid @enderror"
-                                       id="no_telp"
-                                       name="no_telp"
-                                       value="{{ old('no_telp', $pelanggan->no_telp ?? '') }}"
-                                       placeholder="Masukkan nomor telepon"
-                                       inputmode="numeric"
-                                       pattern="[0-9]*"
-                                       maxlength="20"
-                                       data-phone-validation
-                                       data-max-digits="20"
-                                       {{ isset($readOnly) && $readOnly ? 'readonly' : 'required' }}>
-                                @error('no_telp')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+
+                        {{-- Table --}}
+                        <div class="table-responsive rounded border">
+                            {{-- Masukkan tabel riwayat penjualan Anda di sini --}}
+                            <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                                <thead class="bg-light text-secondary">
+                                    <tr>
+                                        <th class="ps-3 py-3">No</th>
+                                        <th class="py-3">Tanggal</th>
+                                        <th class="py-3">Status</th>
+                                        <th class="text-end pe-3 py-3">Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {{-- Loop Data Riwayat --}}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-4 text-muted">
+                                            <i class="fa-solid fa-inbox fa-2x mb-2 opacity-50"></i><br>
+                                            Data riwayat akan muncul di sini
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                </div>
 
-                    {{-- Baris 2: Jenis Kelamin & NIK --}}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="jenis_kelamin" class="form-label">Jenis Kelamin <span class="text-danger">*</span></label>
-                                <select class="form-select required-field @error('jenis_kelamin') is-invalid @enderror" id="jenis_kelamin" name="jenis_kelamin" {{ isset($readOnly) && $readOnly ? 'disabled' : 'required' }} data-error-message="Jenis kelamin wajib dipilih">
-                                    <option value="" selected disabled>Pilih Jenis Kelamin</option>
-                                    <option value="L" {{ old('jenis_kelamin', $pelanggan->jenis_kelamin ?? '') === 'L' ? 'selected' : '' }}>Laki-laki</option>
-                                    <option value="P" {{ old('jenis_kelamin', $pelanggan->jenis_kelamin ?? '') === 'P' ? 'selected' : '' }}>Perempuan</option>
-                                </select>
-                                <div class="invalid-feedback">@error('jenis_kelamin') {{ $message }} @else Jenis kelamin wajib dipilih @enderror</div>
+                {{-- 2. Kartu Ringkasan Pembelian (Deal/Nego) --}}
+                <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
+                    <div class="card-header bg-white p-3 border-bottom d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="bg-warning bg-opacity-10 text-warning rounded p-2">
+                                <i class="fa-solid fa-handshake"></i>
                             </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="identitas" class="form-label">NIK</label>
-                                <input type="text"
-                                       class="form-control @error('identitas') is-invalid @enderror"
-                                       id="identitas"
-                                       name="identitas"
-                                       value="{{ old('identitas', $pelanggan->identitas ?? '') }}"
-                                       placeholder="Masukkan NIK (opsional)"
-                                       inputmode="numeric"
-                                       pattern="[0-9]*"
-                                       maxlength="20"
-                                       data-phone-validation
-                                       data-max-digits="20"
-                                       {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>
-                                @error('identitas')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
+                            <h6 class="fw-bold mb-0">Riwayat Pembelian / Deal</h6>
                         </div>
                     </div>
-
-                    {{-- Baris 2.5: Email --}}
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email <small class="text-muted">(untuk pengiriman nota)</small></label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $pelanggan->email ?? '') }}" placeholder="contoh@email.com (opsional)" {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>
-                                @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                                <small class="form-text text-muted">Email digunakan untuk mengirim nota pembelian secara otomatis.</small>
-                            </div>
-                        </div>
+                    <div class="card-body">
+                         {{-- Masukkan logika ringkasan pembelian Anda di sini --}}
+                         <p class="text-muted text-center py-3 mb-0">Area Riwayat Pembelian</p>
                     </div>
-
-                    {{-- Baris 3: Alamat --}}
-                    <div class="mb-3">
-                        <label for="alamat" class="form-label">Alamat</label>
-                        <textarea class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat" rows="3" placeholder="Masukkan alamat lengkap pelanggan" {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>{{ old('alamat', $pelanggan->alamat ?? '') }}</textarea>
-                        @error('alamat')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    {{-- Baris 4: Referensi & Keterangan --}}
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="referensi" class="form-label">Referensi</label>
-                                <input type="text" class="form-control @error('referensi') is-invalid @enderror" id="referensi" name="referensi" value="{{ old('referensi', $pelanggan->referensi ?? '') }}" placeholder="Masukkan referensi (opsional)" {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>
-                                @error('referensi')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="keterangan" class="form-label">Keterangan</label>
-                                <textarea class="form-control @error('keterangan') is-invalid @enderror" id="keterangan" name="keterangan" rows="2" placeholder="Masukkan keterangan tambahan (opsional)" {{ isset($readOnly) && $readOnly ? 'readonly' : '' }}>{{ old('keterangan', $pelanggan->keterangan ?? '') }}</textarea>
-                                @error('keterangan')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                    </div>
-
-                    @if(isset($readOnly) && $readOnly)
-                        {{-- Tampilkan Kode Customer jika dalam mode read-only --}}
-                        <div class="mb-3">
-                            <label class="form-label">Kode Customer</label>
-                            <input type="text" class="form-control" value="{{ $pelanggan->kode_customer ?? '-' }}" readonly>
-                        </div>
-                    @endif
-
-                    {{-- Tombol Aksi --}}
-                    <div class="text-end mt-4">
-                        @if(isset($readOnly) && $readOnly)
-                            <a href="{{ route('admin.customers.index') }}" class="btn btn-light me-2">Kembali</a>
-                            <a href="{{ route('admin.customers.edit', $pelanggan->id) }}" class="btn btn-primary">Edit</a>
-                        @else
-                            <a href="{{ route('admin.customers.index') }}" class="btn btn-light me-2">Batal</a>
-                            <button type="submit" class="btn btn-primary">Simpan</button>
-                        @endif
-                    </div>
-                @if(!isset($readOnly) || !$readOnly)
-                </form>
-                @endif
+                </div>
 
             </div>
         </div>
     </div>
-</div>
-@endsection
 
-@push('styles')
-@if(isset($readOnly) && $readOnly)
-<style>
-    .form-control[readonly],
-    .form-select:disabled {
-        background-color: #f8f9fa;
-        cursor: not-allowed;
-    }
-</style>
+
+{{-- ========================================== --}}
+{{-- LAYOUT 2: MODE EDIT (Fokus Form Saja)      --}}
+{{-- ========================================== --}}
+@else
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            @include('admin.partials.customer_detail_card')
+        </div>
+    </div>
 @endif
-@endpush
-@push('scripts')
-<script src="{{ asset('js/phone-input-validation.js') }}"></script>
-<script>
 
+@endsection
