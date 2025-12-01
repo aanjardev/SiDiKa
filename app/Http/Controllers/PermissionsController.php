@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\Employee;
 use App\Models\User;
@@ -112,6 +113,12 @@ class PermissionsController extends Controller
 
     public function destroy($id)
     {
+        // Prevent users from deactivating themselves
+        if (Auth::id() && (int) $id === (int) Auth::id()) {
+            return redirect()->route('admin.permissions')
+                ->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
+        }
+
         $user = User::findOrFail($id);
         $user->update(['status' => 'inactive']);
         // Sinkronkan status karyawan
@@ -154,6 +161,12 @@ class PermissionsController extends Controller
         $validated = $request->validate([
             'status' => 'required|in:active,inactive',
         ]);
+
+        // Prevent users from deactivating themselves
+        if ($validated['status'] === 'inactive' && Auth::id() && (int) $id === (int) Auth::id()) {
+            return redirect()->route('admin.permissions')
+                ->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
+        }
 
         $user = User::findOrFail($id);
         $user->update(['status' => $validated['status']]);
