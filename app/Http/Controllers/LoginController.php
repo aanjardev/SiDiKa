@@ -28,7 +28,7 @@ class LoginController extends Controller
             // Jika user ada, cek status dulu
             if ($user->status === 'pending') {
                 return back()->withErrors([
-                    'email' => 'Akun Anda belum diaktivasi. Silakan aktivasi akun terlebih dahulu.',
+                    'email' => 'Akun Anda belum diaktivasi. Silakan <a href="' . route('activation.form') . '">aktivasi</a> akun terlebih dahulu.',
                 ])->onlyInput('email');
             }
 

@@ -271,7 +271,7 @@
 <body>
 
     {{-- Include Alerts jika ada --}}
-    @include('partials.alerts')
+    <!-- @include('partials.alerts') -->
 
     <div class="container-fluid g-0">
         <div class="row g-0 min-vh-100">
@@ -314,7 +314,7 @@
                                 </div>
                                 <div class="invalid-feedback">
                                     @error('email')
-                                        {{ $message }}
+                                        {!! $message !!}
                                     @else
                                         Email wajib diisi dengan format yang benar
                                     @enderror
