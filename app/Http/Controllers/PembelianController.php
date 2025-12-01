@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 
 class PembelianController extends Controller
@@ -91,7 +92,11 @@ class PembelianController extends Controller
     {
         // 1. Ambil semua data yang dibutuhkan untuk dropdown di form
         $data_customer = Customer::orderBy('nama', 'asc')->get();
-        $data_cabang = Branch::orderBy('nama', 'asc')->get();
+        $data_cabang = Branch::where('is_active', true)->orderBy('nama', 'asc')->get();
+        if ($data_cabang->isEmpty()) {
+            return redirect()->route('admin.purchases.index')
+                ->with('error', 'Tidak ada cabang aktif. Aktifkan cabang terlebih dahulu sebelum membuat transaksi.');
+        }
         $data_kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
 
         // 2. Kirim semua data itu ke view
@@ -115,7 +120,10 @@ class PembelianController extends Controller
             // pembelian_id WAJIB ADA, karena sudah dibuat oleh AJAX
             'pembelian_id' => 'required|exists:pembelian,id',
             'customer_id' => 'required|exists:customer,id',
-            'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
+            'perusahaan_cabang_id' => [
+                'required',
+                Rule::exists('perusahaan_cabang', 'id')->where('is_active', true),
+            ],
             'user_id' => 'required|exists:users,id',
             'status_pembelian' => 'required|in:draft,deal,tidak_deal',
             'harga_tawaran_customer' => 'nullable|numeric|min:0|max:' . $max_int,
@@ -127,7 +135,8 @@ class PembelianController extends Controller
             'harga_tawaran_customer.max' => 'Harga Tawaran Customer melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
             'harga_tawaran_toko.max' => 'Harga Tawaran Toko melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
             'harga_deal.max' => 'Harga Deal melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
-            'pembelian_id.required' => 'Terjadi kesalahan. Coba muat ulang halaman. (ID Pembelian tidak ditemukan)'
+            'pembelian_id.required' => 'Terjadi kesalahan. Coba muat ulang halaman. (ID Pembelian tidak ditemukan)',
+            'perusahaan_cabang_id.exists' => 'Cabang tidak tersedia atau sedang non-aktif.',
         ]);
 
         if ($validator->fails()) {
@@ -140,7 +149,12 @@ class PembelianController extends Controller
 
                     // Muat ulang data dropdown
                     $data_customer = Customer::orderBy('nama', 'asc')->get();
-                    $data_cabang = Branch::orderBy('nama', 'asc')->get();
+                    $data_cabang = Branch::orderBy('nama', 'asc')
+                        ->where(function ($query) use ($pembelian) {
+                            $query->where('is_active', true)
+                                ->orWhere('id', $pembelian->perusahaan_cabang_id);
+                        })
+                        ->get();
                     $data_kategori = Kategori::orderBy('nama_kategori', 'asc')->get(); // Pastikan Kategori di-load
 
                     // Kembalikan ke view dengan data LENGKAP dan error
@@ -277,7 +291,10 @@ class PembelianController extends Controller
             // Jika ini item PERTAMA, kita butuh data parent (Customer/Cabang)
             $parentRules = [
                 'customer_id' => 'required|exists:customer,id',
-                'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
+                'perusahaan_cabang_id' => [
+                    'required',
+                    Rule::exists('perusahaan_cabang', 'id')->where('is_active', true),
+                ],
                 'user_id' => 'required|exists:users,id',
             ];
         } else {
@@ -285,7 +302,13 @@ class PembelianController extends Controller
             $parentRules = ['pembelian_id' => 'required|exists:pembelian,id'];
         }
 
-        $validator = Validator::make($request->all(), array_merge($itemRules, $parentRules));
+        $validator = Validator::make(
+            $request->all(),
+            array_merge($itemRules, $parentRules),
+            [
+                'perusahaan_cabang_id.exists' => 'Cabang tidak tersedia atau sedang non-aktif.',
+            ]
+        );
 
         if ($validator->fails()) {
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
@@ -403,7 +426,12 @@ class PembelianController extends Controller
         $pembelian = Pembelian::with('item_pembelian_draft.kategori')->findOrFail($id);
         // 2. Ambil semua data yang dibutuhkan untuk dropdown di form
         $data_customer = Customer::orderBy('nama', 'asc')->get();
-        $data_cabang = Branch::orderBy('nama', 'asc')->get();
+        $data_cabang = Branch::orderBy('nama', 'asc')
+            ->where(function ($query) use ($pembelian) {
+                $query->where('is_active', true)
+                    ->orWhere('id', $pembelian->perusahaan_cabang_id);
+            })
+            ->get();
         $data_kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
 
         // 3. Kirim semua data itu ke view yang SAMA (inputPembelian)
@@ -420,12 +448,21 @@ class PembelianController extends Controller
     {
         $status = $request->input('status_pembelian', 'draft');
         $max_int = 2147483647; // Batasan maksimum untuk tipe data INTEGER (32-bit signed) MySQL
+        $pembelianSaatIni = Pembelian::findOrFail($id);
 
         // Validasi
         // Perhatikan: Kita sekarang menggunakan $id dari URL route, bukan dari hidden input request
         $validator = Validator::make($request->all(), [
             'customer_id' => 'required|exists:customer,id',
-            'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
+            'perusahaan_cabang_id' => [
+                'required',
+                Rule::exists('perusahaan_cabang', 'id')->where(function ($query) use ($pembelianSaatIni) {
+                    $query->where(function ($q) use ($pembelianSaatIni) {
+                        $q->where('is_active', true)
+                            ->orWhere('id', $pembelianSaatIni->perusahaan_cabang_id);
+                    });
+                }),
+            ],
             'user_id' => 'required|exists:users,id',
             'status_pembelian' => 'required|in:draft,deal,tidak_deal',
             'harga_tawaran_customer' => 'nullable|numeric|min:0|max:' . $max_int,
@@ -436,6 +473,7 @@ class PembelianController extends Controller
             'harga_tawaran_customer.max' => 'Harga Tawaran Customer melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
             'harga_tawaran_toko.max' => 'Harga Tawaran Toko melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
             'harga_deal.max' => 'Harga Deal melebihi batas maksimum (Rp ' . number_format($max_int, 0, ',', '.') . ').',
+            'perusahaan_cabang_id.exists' => 'Cabang tidak tersedia atau sedang non-aktif.',
         ]);
 
         if ($validator->fails()) {
@@ -447,7 +485,12 @@ class PembelianController extends Controller
 
                 // Muat ulang data dropdown
                 $data_customer = Customer::orderBy('nama', 'asc')->get();
-                $data_cabang = Branch::orderBy('nama', 'asc')->get();
+                $data_cabang = Branch::orderBy('nama', 'asc')
+                    ->where(function ($query) use ($pembelian) {
+                        $query->where('is_active', true)
+                            ->orWhere('id', $pembelian->perusahaan_cabang_id);
+                    })
+                    ->get();
                 $data_kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
 
                 // Kembalikan ke view dengan data lengkap dan error
@@ -467,7 +510,7 @@ class PembelianController extends Controller
         DB::beginTransaction();
         try {
             // Temukan data Pembelian berdasarkan ID dari URL ($id)
-            $pembelian = Pembelian::findOrFail($id);
+            $pembelian = $pembelianSaatIni;
 
             // Update data Induk
             $pembelian->customer_id = $request->customer_id;

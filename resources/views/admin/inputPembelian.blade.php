@@ -134,7 +134,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                                             {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}
                                         @endif
                                     >
-                                        {{ $cabang->nama }}
+                                        {{ $cabang->nama }}{{ !$cabang->is_active ? ' (Non-Aktif)' : '' }}
                                     </option>
                                     @endforeach
                                 </select>

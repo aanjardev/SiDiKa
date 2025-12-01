@@ -110,7 +110,7 @@ return [
                                 <select class="form-select border-start-0 ps-2 @error('perusahaan_cabang_id') is-invalid @enderror" id="perusahaan_cabang_id" name="perusahaan_cabang_id" required style="height: 45px;">
                                     @foreach ($semua_cabang as $branch)
                                     <option value="{{ $branch->id }}" {{ (string) old('perusahaan_cabang_id', $penjualan->perusahaan_cabang_id ?? '') === (string) $branch->id ? 'selected' : '' }}>
-                                        {{ $branch->nama }}
+                                        {{ $branch->nama }}{{ !$branch->is_active ? ' (Non-Aktif)' : '' }}
                                     </option>
                                     @endforeach
                                 </select>
@@ -246,12 +246,11 @@ return [
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label fw-medium text-secondary small">Depresiasi <small class="text-muted">(Info untuk Nota)</small></label>
+                        <label class="form-label fw-medium text-secondary small">Harga Depresiasi</small></label>
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-white text-muted border-end-0">Rp</span>
                             <input type="text" name="depresiasi" class="form-control border-start-0 ps-1 rupiah-mask" value="{{ old('depresiasi', $depresiasi_awal ?? 0) }}" min="0" maxlength="11">
                         </div>
-                        <small class="text-muted d-block mt-1">Nilai depresiasi hanya sebagai informasi untuk dicetak di nota, tidak mengurangi total pembayaran.</small>
                     </div>
 
                     {{-- Breakdown Kalkulasi --}}

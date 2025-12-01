@@ -24,7 +24,7 @@ $formatCurrency = fn ($value) => 'Rp' . number_format($value ?? 0, 0, ',', '.');
 
 <div class="row g-4">
     <div class="col-lg-5">
-        <div class="card shadow-sm border-0 h-100">
+        <div class="card shadow-sm border-0 h-auto">
             <div class="card-body">
                 <h6 class="fw-bold text-dark mb-3">
                     <i class="fa-solid fa-image me-2 text-primary"></i>
@@ -74,7 +74,7 @@ $formatCurrency = fn ($value) => 'Rp' . number_format($value ?? 0, 0, ',', '.');
                 </div>
             </div>
         </div>
-    </div>
+    </div> 
 
     <div class="col-lg-7">
         <div class="card shadow-sm border-0 mb-4">
