@@ -134,7 +134,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                                             {{ (Auth::user()->cabang_id_default ?? 1) == $cabang->id ? 'selected' : '' }}
                                         @endif
                                     >
-                                        {{ $cabang->nama }}{{ !$cabang->is_active ? ' (Non-Aktif)' : '' }}
+                                        {{ $cabang->nama }}
                                     </option>
                                     @endforeach
                                 </select>
@@ -541,7 +541,6 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                                    name="identitas"
                                    inputmode="numeric"
                                    pattern="[0-9]*"
-                                   data-phone-validation
                                    data-max-digits="20">
                         </div>
                         <div class="col-md-6">
