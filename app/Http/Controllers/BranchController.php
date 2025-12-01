@@ -163,10 +163,31 @@ class BranchController extends Controller
     public function destroy($id)
     {
         $branch = Branch::findOrFail($id);
-        $branch->delete();
+
+        if (!$branch->is_active) {
+            return redirect()->route('admin.branches.index')
+                ->with('info', 'Cabang sudah dalam kondisi non-aktif.');
+        }
+
+        $branch->update(['is_active' => false]);
 
         return redirect()->route('admin.branches.index')
-            ->with('success', 'Cabang berhasil dihapus.');
+            ->with('success', 'Cabang berhasil dinonaktifkan. Cabang non-aktif tidak dapat digunakan untuk transaksi baru.');
+    }
+
+    public function updateStatus(Request $request, Branch $branch)
+    {
+        $validated = $request->validate([
+            'is_active' => ['required', 'boolean'],
+        ]);
+
+        $branch->update(['is_active' => $validated['is_active']]);
+
+        $message = $validated['is_active']
+            ? 'Cabang berhasil diaktifkan.'
+            : 'Cabang berhasil dinonaktifkan. Cabang non-aktif tidak dapat digunakan untuk transaksi baru.';
+
+        return redirect()->route('admin.branches.index')->with('success', $message);
     }
 
     public function update(Request $request, Branch $branch)

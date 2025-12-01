@@ -11,6 +11,7 @@ use App\Models\Penjualan;
 use App\Models\Customer;
 use App\Models\Branch as PerusahaanCabang;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Validation\Rule;
 
 class PenjualanController extends Controller
 {
@@ -216,7 +217,11 @@ class PenjualanController extends Controller
         session(['cart_penjualan' => $normalizedCart]);
 
         $data_customer = Customer::orderBy('nama', 'asc')->get();
-        $data_cabang = PerusahaanCabang::orderBy('nama', 'asc')->get();
+        $data_cabang = PerusahaanCabang::where('is_active', true)->orderBy('nama', 'asc')->get();
+        if ($data_cabang->isEmpty()) {
+            return redirect()->route('admin.sales.create')
+                ->withErrors(['perusahaan_cabang_id' => 'Tidak ada cabang aktif. Aktifkan cabang terlebih dahulu sebelum membuat transaksi.']);
+        }
         $daftar_produk = Produk::with(['gambarUtama', 'gambar'])
             ->orderBy('nama_produk', 'asc')
             ->get(['id', 'nama_produk', 'kode_sku', 'harga_jual', 'stok_produk']);
@@ -235,15 +240,31 @@ class PenjualanController extends Controller
 
     public function store(Request $request)
     {
+        // Check if this is from checkout page
+        if ($request->input('from_checkout') == '1') {
+            // Handle checkout flow - redirect to input form
+            $validated = $request->validate([
+                'items' => 'required|string',
+            ]);
+
+            return $this->checkout($request);
+        }
+
+        // Normal store flow - validate all required fields
         $validated = $request->validate([
             'customer_id' => 'required|exists:customer,id',
-            'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
+            'perusahaan_cabang_id' => [
+                'required',
+                Rule::exists('perusahaan_cabang', 'id')->where('is_active', true),
+            ],
             'kas' => 'required|in:cash,transfer',
             'diskon' => 'nullable|numeric|min:0',
             'biaya_tambahan' => 'nullable|numeric|min:0',
             'depresiasi' => 'nullable|numeric|min:0',
             'keterangan' => 'nullable|string|max:200',
             'items' => 'required|string',
+        ], [
+            'perusahaan_cabang_id.exists' => 'Cabang tidak tersedia atau sedang non-aktif.',
         ]);
 
         [$detailItems, $subtotal, $products] = $this->prepareSaleItems($validated['items']);
@@ -328,7 +349,12 @@ class PenjualanController extends Controller
         $defaultDepresiasi = (float) ($sale->detail_penjualan->first()->harga_depresiasi ?? 0);
 
         $semua_customer = Customer::orderBy('nama', 'asc')->get();
-        $semua_cabang = PerusahaanCabang::orderBy('nama', 'asc')->get();
+        $semua_cabang = PerusahaanCabang::orderBy('nama', 'asc')
+            ->where(function ($query) use ($sale) {
+                $query->where('is_active', true)
+                    ->orWhere('id', $sale->perusahaan_cabang_id);
+            })
+            ->get();
 
         $daftar_produk = Produk::with(['gambarUtama', 'gambar'])
             ->orderBy('nama_produk', 'asc')
@@ -374,15 +400,28 @@ class PenjualanController extends Controller
 
     public function update(Request $request, Penjualan $sale)
     {
+        $currentBranchId = $sale->perusahaan_cabang_id;
         $validated = $request->validate([
             'customer_id' => 'required|exists:customer,id',
-            'perusahaan_cabang_id' => 'required|exists:perusahaan_cabang,id',
+            'perusahaan_cabang_id' => [
+                'required',
+                Rule::exists('perusahaan_cabang', 'id')->where(function ($query) use ($currentBranchId) {
+                    $query->where(function ($q) use ($currentBranchId) {
+                        $q->where('is_active', true);
+                        if ($currentBranchId) {
+                            $q->orWhere('id', $currentBranchId);
+                        }
+                    });
+                }),
+            ],
             'kas' => 'required|in:cash,transfer',
             'diskon' => 'nullable|numeric|min:0',
             'biaya_tambahan' => 'nullable|numeric|min:0',
             'depresiasi' => 'nullable|numeric|min:0',
             'keterangan' => 'nullable|string|max:200',
             'items' => 'required|string',
+        ], [
+            'perusahaan_cabang_id.exists' => 'Cabang tidak tersedia atau sedang non-aktif.',
         ]);
 
         $diskon = (int) ($validated['diskon'] ?? 0);
@@ -506,7 +545,6 @@ class PenjualanController extends Controller
                 'produk_id' => $productId,
                 'qty' => $qty,
                 'harga_jual_satuan' => $price,
-                'serial_number' => $product->kode_sku,
             ];
         }
 

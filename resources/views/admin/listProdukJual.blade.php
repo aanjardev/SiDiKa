@@ -207,9 +207,12 @@
     </div>
 </div>
 
-<form id="checkoutForm" action="{{ route('admin.sales.checkout') }}" method="POST" class="d-none">
+
+<form id="checkoutForm" action="{{ route('admin.sales.store') }}" method="POST" class="d-none">
+
     @csrf
     <input type="hidden" name="items" id="checkoutItems">
+    <input type="hidden" name="from_checkout" value="1">
 </form>
 
 <script type="application/json" id="cart-selections-json">
@@ -622,7 +625,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Checkout Action
-    checkoutBtn?.addEventListener('click', () => {
+    checkoutBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        
         const totalItems = Object.values(selections).reduce((sum, item) => sum + item.qty, 0);
         if (totalItems === 0) return;
         
@@ -632,7 +637,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
         
         document.getElementById('checkoutItems').value = JSON.stringify(payload);
-        document.getElementById('checkoutForm').submit();
+        
+        const form = document.getElementById('checkoutForm');
+        
+        // Create a submit button and click it
+        const submitButton = document.createElement('input');
+        submitButton.type = 'submit';
+        submitButton.style.display = 'none';
+        form.appendChild(submitButton);
+        
+        submitButton.click();
+        
+        // Clean up
+        setTimeout(() => {
+            if (submitButton.parentNode) {
+                submitButton.parentNode.removeChild(submitButton);
+            }
+        }, 100);
     });
 });
 </script>

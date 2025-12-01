@@ -157,23 +157,29 @@
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 
-                                @if(($cabang->sales_count ?? 0) == 0 && ($cabang->purchases_count ?? 0) == 0)
-                                <form action="{{ route('admin.branches.destroy', $cabang->id) }}" method="POST" class="d-inline">
+                                @if($cabang->is_active)
+                                <form action="{{ route('admin.branches.update-status', $cabang->id) }}" method="POST" class="d-inline">
                                     @csrf
-                                    @method('DELETE')
+                                    @method('PATCH')
+                                    <input type="hidden" name="is_active" value="0">
                                     <button type="button"
                                         class="btn-action btn-action-delete"
-                                        title="Hapus"
-                                        onclick="handleDeleteCabang(this)">
-                                        <i class="fa-solid fa-trash"></i>
+                                        title="Nonaktifkan Cabang"
+                                        data-message="Nonaktifkan cabang ini? Cabang yang non-aktif tidak bisa dipakai untuk transaksi baru.">
+                                        <i class="fa-solid fa-power-off"></i>
                                     </button>
                                 </form>
                                 @else
-                                <span class="btn-action text-muted"
-                                      title="Cabang tidak dapat dihapus karena masih digunakan oleh transaksi penjualan atau pembelian"
-                                      style="cursor: not-allowed; opacity: 0.5;">
-                                    <i class="fa-solid fa-trash"></i>
-                                </span>
+                                <form action="{{ route('admin.branches.update-status', $cabang->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="is_active" value="1">
+                                    <button type="submit"
+                                        class="btn-action btn-action-edit"
+                                        title="Aktifkan Cabang">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </form>
                                 @endif
                             </div>
                         </td>
@@ -202,49 +208,6 @@
 @endsection
 
 @push('scripts')
-<script>
-    // Gunakan nama yang berbeda untuk menghindari konflik dengan window.confirmDelete
-    function handleDeleteCabang(button) {
-        if (typeof window.confirmDelete === 'function') {
-            window.confirmDelete('Apakah Anda yakin ingin menghapus data cabang ini?', 'Konfirmasi Hapus')
-                .then((result) => {
-                    if (result.isConfirmed) {
-                        button.form.submit();
-                    }
-                });
-        } else {
-            // Fallback jika alert.js belum load
-            if (confirm('Apakah Anda yakin ingin menghapus data cabang ini?')) {
-                button.form.submit();
-            }
-        }
-    }
-    
-    // Export ke window untuk bisa dipanggil dari mana saja
-    window.handleDeleteCabang = handleDeleteCabang;
-
-    // Auto Search functionality
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.querySelector('input[name="search"]');
-        const searchForm = document.getElementById('searchForm');
-        let searchTimeout;
-
-        if (searchInput && searchForm) {
-            searchInput.addEventListener('input', function() {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(function() {
-                    searchForm.submit();
-                }, 500);
-            });
-
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    clearTimeout(searchTimeout);
-                    searchForm.submit();
-                }
-            });
-        }
-    });
-</script>
+@vite('resources/js/utils/handle-delete.js')
+@vite('resources/js/utils/search.js')
 @endpush
