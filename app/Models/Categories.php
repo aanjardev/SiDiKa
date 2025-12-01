@@ -16,9 +16,14 @@ class Categories extends Model
     /**
      * Relasi dengan Produk
      */
-    public function produk()
+    public function products()
     {
-        return $this->hasMany(Produk::class, 'id_kategori', 'id');
+        return $this->hasMany(Produk::class, 'id_kategori');
+    }
+
+    public function usedCount()
+    {
+        return $this->products()->count();
     }
 
     /**

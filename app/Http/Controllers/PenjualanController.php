@@ -94,13 +94,50 @@ class PenjualanController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
-        $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
-        $products = Produk::with(['gambarUtama', 'kategori'])
-            ->orderBy('updated_at', 'desc')
-            ->paginate(15);
+        // Ambil parameter filter dari request
+        $search_term = $request->input('search');
+        $selected_kategori = $request->input('kategori', 'all');
+        $sort_by = $request->input('sort_by', 'terbaru');
 
+        // Query produk dengan filter
+        $query = Produk::with(['gambarUtama', 'kategori']);
+
+        // Filter Search (nama produk atau SKU)
+        if ($search_term) {
+            $query->where(function($q) use ($search_term) {
+                $q->where('nama_produk', 'like', '%' . $search_term . '%')
+                  ->orWhere('kode_sku', 'like', '%' . $search_term . '%');
+            });
+        }
+
+        // Filter Kategori
+        if ($selected_kategori && $selected_kategori != 'all') {
+            $query->where('id_kategori', $selected_kategori);
+        }
+
+        // Sorting
+        switch ($sort_by) {
+            case 'nama_asc':
+                $query->orderBy('nama_produk', 'asc');
+                break;
+            case 'harga_asc':
+                $query->orderBy('harga_jual', 'asc');
+                break;
+            case 'terbaru':
+            default:
+                $query->orderBy('updated_at', 'desc');
+                break;
+        }
+
+        // Pagination dengan query string
+        $products = $query->paginate(20)->withQueryString();
+
+        // Ambil semua kategori untuk dropdown
+        $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
+
+        // Ambil data cart dari session
         $cartSelections = collect(session('cart_penjualan', []))
             ->map(function ($item) {
                 return [
@@ -118,6 +155,9 @@ class PenjualanController extends Controller
             'products' => $products,
             'kategori' => $kategori,
             'cartSelections' => $cartSelections,
+            'search_term' => $search_term,
+            'selected_kategori' => $selected_kategori,
+            'sort_by' => $sort_by,
         ]);
     }
 
