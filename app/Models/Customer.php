@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Penjualan;
+use App\Models\Pembelian;
 
 class Customer extends Model
 {
@@ -49,4 +51,13 @@ class Customer extends Model
         });
     }
 
+    public function penjualan()
+    {
+        return $this->hasMany(Penjualan::class, 'customer_id');
+    }
+
+    public function pembelian()
+    {
+        return $this->hasMany(Pembelian::class, 'customer_id');
+    }
 }
