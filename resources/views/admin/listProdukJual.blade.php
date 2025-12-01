@@ -207,7 +207,9 @@
     </div>
 </div>
 
+
 <form id="checkoutForm" action="{{ route('admin.sales.store') }}" method="POST" class="d-none">
+
     @csrf
     <input type="hidden" name="items" id="checkoutItems">
     <input type="hidden" name="from_checkout" value="1">
