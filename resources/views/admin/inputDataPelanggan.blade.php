@@ -58,7 +58,6 @@
 
                         {{-- Table --}}
                         <div class="table-responsive rounded border">
-                            {{-- Masukkan tabel riwayat penjualan Anda di sini --}}
                             <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
                                 <thead class="bg-light text-secondary">
                                     <tr>
@@ -69,13 +68,29 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {{-- Loop Data Riwayat --}}
+                                    @forelse($riwayat_penjualan as $index => $penjualan)
+                                    <tr>
+                                        <td class="ps-3 text-center text-muted fw-bold">{{ $index + 1 }}</td>
+                                        <td class="text-muted small">
+                                            <span class="fw-medium text-dark">{{ $penjualan->tanggal ? \Carbon\Carbon::parse($penjualan->tanggal)->format('d M Y') : $penjualan->created_at->format('d M Y') }}</span>
+                                            <br>
+                                            <span class="opacity-75">{{ $penjualan->created_at->format('H:i') }} WIB</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge rounded-pill bg-success bg-opacity-10 text-success">Selesai</span>
+                                        </td>
+                                        <td class="text-end pe-3 fw-bold text-dark">
+                                            Rp {{ number_format($penjualan->harga_total ?? 0, 0, ',', '.') }}
+                                        </td>
+                                    </tr>
+                                    @empty
                                     <tr>
                                         <td colspan="4" class="text-center py-4 text-muted">
                                             <i class="fa-solid fa-inbox fa-2x mb-2 opacity-50"></i><br>
                                             Data riwayat akan muncul di sini
                                         </td>
                                     </tr>
+                                    @endforelse
                                 </tbody>
                             </table>
                         </div>
@@ -93,8 +108,86 @@
                         </div>
                     </div>
                     <div class="card-body">
-                         {{-- Masukkan logika ringkasan pembelian Anda di sini --}}
-                         <p class="text-muted text-center py-3 mb-0">Area Riwayat Pembelian</p>
+                        {{-- Stats Row --}}
+                        <div class="row g-3 mb-4">
+                            <div class="col-sm-3">
+                                <div class="p-3 bg-light rounded-3 border text-center h-100">
+                                    <small class="text-muted d-block mb-1">Total Transaksi</small>
+                                    <h4 class="fw-bold text-dark mb-0">{{ $ringkasan_pembelian['total_transaksi'] ?? 0 }}</h4>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="p-3 bg-light rounded-3 border text-center h-100">
+                                    <small class="text-muted d-block mb-1">Total Deal</small>
+                                    <h4 class="fw-bold text-dark mb-0">{{ $ringkasan_pembelian['total_deal'] ?? 0 }}</h4>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="p-3 bg-light rounded-3 border text-center h-100">
+                                    <small class="text-muted d-block mb-1">Total Item</small>
+                                    <h4 class="fw-bold text-dark mb-0">{{ $ringkasan_pembelian['total_item'] ?? 0 }}</h4>
+                                </div>
+                            </div>
+                            <div class="col-sm-3">
+                                <div class="p-3 bg-warning bg-opacity-10 rounded-3 border border-warning text-center h-100">
+                                    <small class="text-warning d-block mb-1">Total Nilai Deal</small>
+                                    <h5 class="fw-bold text-warning mb-0">Rp {{ number_format($ringkasan_pembelian['total_nominal_deal'] ?? 0, 0, ',', '.') }}</h5>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Table --}}
+                        <div class="table-responsive rounded border">
+                            <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                                <thead class="bg-light text-secondary">
+                                    <tr>
+                                        <th class="ps-3 py-3">No</th>
+                                        <th class="py-3">Tanggal</th>
+                                        <th class="py-3">Status</th>
+                                        <th class="py-3">Harga Deal</th>
+                                        <th class="pe-3 py-3">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($riwayat_pembelian as $index => $pembelian)
+                                    <tr>
+                                        <td class="ps-3 text-center text-muted fw-bold">{{ $index + 1 }}</td>
+                                        <td class="text-muted small">
+                                            <span class="fw-medium text-dark">{{ $pembelian->created_at->format('d M Y') }}</span>
+                                            <br>
+                                            <span class="opacity-75">{{ $pembelian->created_at->format('H:i') }} WIB</span>
+                                        </td>
+                                        <td>
+                                            @if($pembelian->status_pembelian == 'deal')
+                                                <span class="badge rounded-pill bg-success bg-opacity-10 text-success">Deal</span>
+                                            @elseif($pembelian->status_pembelian == 'tidak_deal')
+                                                <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger">No-Deal</span>
+                                            @else
+                                                <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary">Draft</span>
+                                            @endif
+                                        </td>
+                                        <td class="fw-bold text-dark">
+                                            @if($pembelian->harga_deal)
+                                                Rp {{ number_format($pembelian->harga_deal, 0, ',', '.') }}
+                                            @else
+                                                <span class="text-muted">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="pe-3 text-muted small">
+                                            {{ $pembelian->keterangan ?? '-' }}
+                                        </td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4 text-muted">
+                                            <i class="fa-solid fa-handshake fa-2x mb-2 opacity-50"></i><br>
+                                            Belum ada data riwayat pembelian
+                                        </td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
