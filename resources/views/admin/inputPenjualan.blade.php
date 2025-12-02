@@ -426,6 +426,6 @@ return [
 <script type="application/json" id="produk-data-json">
     @json($produkUntukJs)
 </script>
-@vite(['resources/js/app.js', 'resources/js/penjualan/penjualan.js'])
+@vite('resources/js/penjualan/penjualan.js')
 @endpush
 @endsection

@@ -379,7 +379,6 @@
 </form>
 
 @push('scripts')
-@vite('resources/js/utils/phone-input-validation.js')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         // Jam operasional toggle functionality

@@ -113,5 +113,4 @@
         });
     });
 </script>
-@vite('resources/js/utils/handle-delete.js')
 @endpush

@@ -158,7 +158,3 @@
     }
 </style>
 @endpush
-
-@push('scripts')
-@vite('resources/js/utils/search.js')
-@endpush

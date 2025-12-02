@@ -129,6 +129,4 @@
 @endsection
 
 @push('scripts')
-@vite('resources/js/utils/handle-delete.js')
-@vite('resources/js/utils/search.js')
 @endpush

@@ -230,5 +230,4 @@
     // Export ke window
     window.handleDeleteProduk = handleDeleteProduk;
 </script>
-@vite('resources/js/utils/search.js')
 @endpush

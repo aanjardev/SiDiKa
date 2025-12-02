@@ -292,5 +292,4 @@
 @endpush
 
 @push('scripts')
-@vite('resources/js/utils/phone-input-validation.js')
 @endpush

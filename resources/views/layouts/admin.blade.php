@@ -276,8 +276,6 @@ $setting = \App\Models\CatalogSettings::first();
 
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
-    <!-- Clickable rows script -->
-    @vite('resources/js/utils/clickable-rows.js')
     <!-- Form Validation JS -->
     <script src="{{ asset('js/form-validation.js') }}"></script>
 
