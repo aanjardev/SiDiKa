@@ -8,98 +8,252 @@
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
 
     {{-- Fonts & Icons --}}
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="{{ asset('css/form-validation.css') }}" rel="stylesheet">
     <script src="https://kit.fontawesome.com/8794378048.js" crossorigin="anonymous"></script>
 
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-            background-color: #fff;
-            overflow-x: hidden;
+        :root {
+            --bs-primary: #3B8AFF;
+            --bs-primary-rgb: 59, 138, 255;
+            --bs-secondary: #0048B3;
+            --bs-secondary-rgb: 0, 72, 179;
         }
 
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fff;
+            overflow-x: hidden;
+            height: 100vh;
+        }
+
+        /* KOLOM KIRI: FORM */
         .setup-wrapper {
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         }
 
         .setup-card {
             width: 100%;
-            max-width: 450px;
+            max-width: 420px;
+        }
+
+        /* Hope UI Card Styling */
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            padding: 2.5rem;
+        }
+
+        /* Hope UI Input Styling */
+        .form-control {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            background-color: #fff;
+            border-color: var(--bs-primary);
+            box-shadow: 0 0 0 0.2rem rgba(59, 138, 255, 0.15);
         }
 
         .input-group-text {
             background-color: #f8f9fa;
-            border-right: 0;
+            border: 1px solid #e9ecef;
             color: #6c757d;
-        }
-
-        .form-control {
-            background-color: #fff;
-            border-left: 0;
-            padding: 0.7rem 1rem;
+            transition: all 0.3s ease;
         }
 
         .input-group:focus-within .input-group-text {
-            border-color: #86b7fe;
             background-color: #fff;
-            color: #0d6efd;
+            border-color: var(--bs-primary);
+            color: var(--bs-primary);
         }
 
         .input-group:focus-within .form-control {
-            border-color: #86b7fe;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            background-color: #fff;
+            border-color: var(--bs-primary);
         }
 
+        /* Toggle Password Button */
         .btn-toggle-password {
-            border-left: 0;
-            border-color: #dee2e6;
-            background-color: #fff;
+            border: 1px solid #e9ecef;
+            background-color: #f8f9fa;
             color: #6c757d;
-            z-index: 10;
+            transition: all 0.3s ease;
         }
 
         .btn-toggle-password:hover {
-            background-color: #f8f9fa;
-            color: #0d6efd;
-            border-color: #dee2e6;
+            background-color: #fff;
+            color: var(--bs-primary);
+            border-color: var(--bs-primary);
         }
 
-        .btn-toggle-password:focus {
-            box-shadow: none;
-            border-color: #86b7fe;
+        /* Hope UI Button Styling */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
 
-        .activation-bg-side {
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 25px rgba(59, 138, 255, 0.3);
+        }
+
+        /* KOLOM KANAN: BACKGROUND dengan SVG */
+        .login-bg-side {
             min-height: 100vh;
-            background-image: url('{{ asset('../mainIMG/Graphic Side.svg') }}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background: linear-gradient(135deg, #3B8AFF 0%, #0048B3 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .setup-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        /* Animated Background Elements */
+        .bg-element {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .bg-element-1 {
+            width: 300px;
+            height: 300px;
+            top: 10%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .bg-element-2 {
+            width: 200px;
+            height: 200px;
+            top: 60%;
+            right: 15%;
+            animation-delay: 2s;
+        }
+
+        .bg-element-3 {
+            width: 150px;
+            height: 150px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Content di tengah background */
+        .bg-content {
+            position: relative;
+            z-index: 10;
+            text-align: center;
             color: white;
             padding: 2rem;
-            border-radius: 10px 10px 0 0;
-            text-align: center;
         }
 
-        .setup-body {
-            padding: 2rem;
+        /* Logo Perusahaan Styling */
+        .brand-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 2rem;
         }
 
+        .company-logo {
+            flex-shrink: 0;
+        }
+
+        .logo-img {
+            width: 200px;
+            height: 200px;
+            object-fit: contain;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-img:hover {
+            transform: scale(1.05);
+        }
+
+        .brand-text {
+            text-align: left;
+        }
+
+        .company-name {
+            font-size: 5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 10px;
+        }
+
+        .company-tagline {
+            font-size: 1.5em;
+            opacity: 0.8;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        /* Password Strength Styling */
         .password-strength {
             height: 5px;
             border-radius: 3px;
             margin-top: 0.5rem;
             transition: all 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .login-bg-side {
+                display: none;
+            }
+            
+            .setup-wrapper {
+                background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
+            }
+            
+            .auth-card {
+                background: rgba(255, 255, 255, 0.98);
+            }
+        }
+
+        /* Logo Styling */
+        .auth-logo {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
         }
 
         .strength-weak { background-color: #dc3545; width: 33%; }
@@ -117,16 +271,21 @@
         <div class="row g-0">
 
             {{-- KOLOM KIRI (FORM) --}}
-            <div class="col-lg-6 bg-white setup-wrapper">
+            <div class="col-lg-6 setup-wrapper">
                 <div class="setup-card">
-                    
-                    <div class="setup-header">
-                        <i class="fa-solid fa-lock fa-3x mb-3"></i>
-                        <h3 class="fw-bold mb-2">Buat Password</h3>
-                        <p class="mb-0 opacity-90">Buat password untuk akun <strong>{{ $user->email }}</strong></p>
-                    </div>
+                    <div class="auth-card">
+                        {{-- Logo --}}
+                        <div class="auth-logo">
+                            <i class="fa-solid fa-lock"></i>
+                        </div>
 
-                    <div class="setup-body bg-light">
+                        {{-- Header --}}
+                        <div class="text-center mb-4">
+                            <h3 class="fw-bold mb-2">Buat Password</h3>
+                            <p class="text-muted mb-0">Buat password untuk akun <strong>{{ $user->email }}</strong></p>
+                        </div>
+
+                        {{-- Form --}}
                         <form method="POST" action="{{ route('activation.setup-password', $user->activation_token) }}" id="setupForm">
                             @csrf
 
@@ -140,14 +299,15 @@
                                         <i class="fa-solid fa-key"></i>
                                     </span>
                                     <input type="password"
-                                        class="form-control border-start-0 border-end-0 required-field @error('password') is-invalid @enderror"
+                                        class="form-control required-field @error('password') is-invalid @enderror"
                                         id="password"
                                         name="password"
                                         placeholder="Masukkan password"
                                         required
+                                        autofocus
                                         data-error-message="Password wajib diisi"
                                         minlength="6">
-                                    <button class="btn btn-outline-secondary btn-toggle-password border-start-0" type="button" id="togglePassword">
+                                    <button class="btn btn-toggle-password" type="button" id="togglePassword">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -174,13 +334,13 @@
                                         <i class="fa-solid fa-lock"></i>
                                     </span>
                                     <input type="password"
-                                        class="form-control border-start-0 border-end-0 required-field @error('password_confirmation') is-invalid @enderror"
+                                        class="form-control required-field @error('password_confirmation') is-invalid @enderror"
                                         id="password_confirmation"
                                         name="password_confirmation"
                                         placeholder="Ulangi password"
                                         required
                                         data-error-message="Konfirmasi password wajib diisi">
-                                    <button class="btn btn-outline-secondary btn-toggle-password border-start-0" type="button" id="togglePasswordConfirm">
+                                    <button class="btn btn-toggle-password" type="button" id="togglePasswordConfirm">
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -210,8 +370,29 @@
                 </div>
             </div>
 
-            {{-- KOLOM KANAN (IMAGE) --}}
-            <div class="col-lg-6 d-none d-lg-flex activation-bg-side"></div>
+            {{-- KOLOM KANAN (BACKGROUND DESIGN) --}}
+            <div class="col-lg-6 d-none d-lg-flex login-bg-side">
+                {{-- Animated Background Elements --}}
+                <div class="bg-element bg-element-1"></div>
+                <div class="bg-element bg-element-2"></div>
+                <div class="bg-element bg-element-3"></div>
+                
+                {{-- Content di tengah --}}
+                <div class="bg-content">
+                    <div class="brand-container">
+                        {{-- Logo Perusahaan --}}
+                        <div class="company-logo">
+                            <img src="{{ asset('mainIMG/logoDK.png') }}" alt="Dinoyo Kamera" class="logo-img">
+                        </div>
+                        
+                        {{-- Brand Text --}}
+                        <div class="brand-text">
+                            <h1 class="company-name">SiDiKa</h1>
+                            <p class="company-tagline">Sistem Informasi Dinoyo Kamera</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
