@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Categories;
+use App\Helpers\ImageUpload;
 
 class CategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Categories::query();
+        $query = Categories::query()->withCount('products as produk_count');
 
         if ($request->filled('search')) {
             $search = $request->input('search');
@@ -40,20 +41,31 @@ class CategoryController extends Controller
 
     public function create()
     {
-
         return view('admin.inputDataKategori');
     }
 
     public function store(Request $request)
     {
-        // Validasi data kategori
         $validated = $request->validate([
-            'nama_kategori' => 'required|string|max:50|regex:/^[A-Za-zÀ-ž\s\.,\-]+$/',
+            'nama_kategori' => 'required|string|max:50|regex:/^[A-Za-z0-9_\\s\\.,\\-]+$/',
+            'gambar' => 'nullable|image|max:5120',
         ], [
-            'nama_kategori.regex' => 'Nama kategori hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
+            'nama_kategori.regex' => 'Nama kategori hanya boleh mengandung huruf, angka, spasi, titik, koma, dan tanda hubung.',
         ]);
 
-        Categories::create($validated);
+        $category = Categories::create([
+            'nama_kategori' => $validated['nama_kategori'],
+        ]);
+
+        if ($request->hasFile('gambar')) {
+            $uploaded = ImageUpload::upload(
+                $request->file('gambar')->getPathname(),
+                "category/{$category->id}"
+            );
+
+            $category->update(['path_gambar' => $uploaded['path']]);
+        }
+
         return redirect()->route('admin.categories.index')
             ->with('success', 'Kategori berhasil ditambahkan.');
     }
@@ -63,12 +75,10 @@ class CategoryController extends Controller
         $category = Categories::findOrFail($id);
         $count = $category->usedCount();
 
-        // Cek apakah kategori digunakan oleh produk
         if ($count > 0) {
-        return redirect()->route('admin.categories.index')
-            ->with('error', "Kategori tidak dapat dihapus karena masih digunakan oleh {$count} produk.");
-        }   
-
+            return redirect()->route('admin.categories.index')
+                ->with('error', "Kategori tidak dapat dihapus karena masih digunakan oleh {$count} produk.");
+        }
 
         $category->delete();
 
@@ -78,20 +88,33 @@ class CategoryController extends Controller
 
     public function edit(Categories $category)
     {
-        // Reuse view 'admin.inputDataKategori' tapi kirim data category
         return view('admin.inputDataKategori', compact('category'));
     }
 
     public function update(Request $request, $id)
     {
-        // Validasi data kategori
         $validated = $request->validate([
-            'nama_kategori' => 'required|string|max:50|regex:/^[A-Za-zÀ-ž\s\.,\-]+$/',
+            'nama_kategori' => 'required|string|max:50|regex:/^[A-Za-z0-9_\\s\\.,\\-]+$/',
+            'gambar' => 'nullable|image|max:5120',
         ], [
-            'nama_kategori.regex' => 'Nama kategori hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
+            'nama_kategori.regex' => 'Nama kategori hanya boleh mengandung huruf, angka, spasi, titik, koma, dan tanda hubung.',
         ]);
+
         $category = Categories::findOrFail($id);
-        $category->update($validated);
+
+        $data = ['nama_kategori' => $validated['nama_kategori']];
+
+        if ($request->hasFile('gambar')) {
+            $uploaded = ImageUpload::upload(
+                $request->file('gambar')->getPathname(),
+                "category/{$category->id}"
+            );
+
+            $data['path_gambar'] = $uploaded['path'];
+        }
+
+        $category->update($data);
+
         return redirect()->route('admin.categories.index')
             ->with('success', 'Kategori berhasil diperbarui.');
     }

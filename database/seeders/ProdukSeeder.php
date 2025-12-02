@@ -214,64 +214,64 @@ Untuk memaksimalkan pengiriman :
 
 
         // produk 4
-        $produk = Produk::create([
-            'kode_sku' => '1258OOOOJT',
-            'id_kategori' => 7,
-            'nama_produk' => 'Lensa Nikon 28 300mm VR Kondisi Baik',
-            'harga_jual' => 5200000,
-            'stok_produk' => 1,
-            'status' => 'Second',
-            'grade' => 'Unggulan',
-            'deskripsi_produk' => 'TYPE : Lensa Nikon 28 300mm VR
+//         $produk = Produk::create([
+//             'kode_sku' => '1258OOOOJT',
+//             'id_kategori' => 7,
+//             'nama_produk' => 'Lensa Nikon 28 300mm VR Kondisi Baik',
+//             'harga_jual' => 5200000,
+//             'stok_produk' => 1,
+//             'status' => 'Second',
+//             'grade' => 'Unggulan',
+//             'deskripsi_produk' => 'TYPE : Lensa Nikon 28 300mm VR
 
-HARGA : 5.200.000
-
-
-
-KONDISI :
-● Second Baik
-● Tombol Baik
-● Body Fisik Paint Lost
-● AF/MF baik
-● Akurasi Baik
-● Fungsional Normal Baik
-● Jamur Tipis / Debu Micro (Tidak Berpengaruh Pada Hasil)
+// HARGA : 5.200.000
 
 
 
-KELENGKAPAN :
-● Lensa
-● Tutup Depan
-● Tutup Belakang
-● Nota Pembelian Dinoyo Kamera
+// KONDISI :
+// ● Second Baik
+// ● Tombol Baik
+// ● Body Fisik Paint Lost
+// ● AF/MF baik
+// ● Akurasi Baik
+// ● Fungsional Normal Baik
+// ● Jamur Tipis / Debu Micro (Tidak Berpengaruh Pada Hasil)
 
-Kode Barang : #1258_DK
 
-Jual beli kamera malang raya
-Kalian juga bisa jual kamera anda di toko kami, langsung aja ke Dinoyo Kamera
 
-Barang siap pakai, silahkan di order
+// KELENGKAPAN :
+// ● Lensa
+// ● Tutup Depan
+// ● Tutup Belakang
+// ● Nota Pembelian Dinoyo Kamera
 
-Untuk memaksimalkan pengiriman :
-● Luar pulau jawa Wajib pakai JNE
-● Dalam pulau Jawa wajib pakai JNT'
+// Kode Barang : #1258_DK
 
-        ]);
+// Jual beli kamera malang raya
+// Kalian juga bisa jual kamera anda di toko kami, langsung aja ke Dinoyo Kamera
 
-        $gambarList = [
-            ['path_gambar' => 'gambar_produk/41.png', 'is_main' => true],
-            ['path_gambar' => 'gambar_produk/42.jpg', 'is_main' => false],
-            ['path_gambar' => 'gambar_produk/43.jpg', 'is_main' => false],
-            ['path_gambar' => 'gambar_produk/44.png', 'is_main' => false],
-        ];
+// Barang siap pakai, silahkan di order
 
-        foreach ($gambarList as $gambar) {
-            GambarProduk::create([
-                'id_produk' => $produk->id,
-                'path_gambar' => $gambar['path_gambar'],
-                'is_main' => $gambar['is_main'],
-            ]);
-        }
+// Untuk memaksimalkan pengiriman :
+// ● Luar pulau jawa Wajib pakai JNE
+// ● Dalam pulau Jawa wajib pakai JNT'
+
+//         ]);
+
+        // $gambarList = [
+        //     ['path_gambar' => 'gambar_produk/41.png', 'is_main' => true],
+        //     ['path_gambar' => 'gambar_produk/42.jpg', 'is_main' => false],
+        //     ['path_gambar' => 'gambar_produk/43.jpg', 'is_main' => false],
+        //     ['path_gambar' => 'gambar_produk/44.png', 'is_main' => false],
+        // ];
+
+        // foreach ($gambarList as $gambar) {
+        //     GambarProduk::create([
+        //         'id_produk' => $produk->id,
+        //         'path_gambar' => $gambar['path_gambar'],
+        //         'is_main' => $gambar['is_main'],
+        //     ]);
+        // }
 
 
         // produk 5

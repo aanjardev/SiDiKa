@@ -7,6 +7,7 @@ use App\Models\Produk;
 use App\Models\CatalogSettings;
 use App\Models\CatalogBanners;
 use App\Models\CatalogPartnerLogo;
+use App\Models\Kategori;
 
 class PageController extends Controller
 {
@@ -26,8 +27,9 @@ class PageController extends Controller
         $cat_setting = CatalogSettings::first();
         $cat_banners = CatalogBanners::all();
         $cat_partner = CatalogPartnerLogo::all();
+        $kategoris = Kategori::orderBy('id')->get();
 
-        return view('mainPage', compact('latestProducts', 'produkUnggulan', 'cat_banners', 'cat_setting', 'cat_partner'));
+        return view('mainPage', compact('latestProducts', 'produkUnggulan', 'cat_banners', 'cat_setting', 'cat_partner', 'kategoris'));
 
     }
 
@@ -54,4 +56,3 @@ class PageController extends Controller
         return view("admin.edit");
     }
 }
-

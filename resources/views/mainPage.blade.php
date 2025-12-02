@@ -75,58 +75,21 @@ $setting = \App\Models\CatalogSettings::first();
     </section>
     <section id="Kategori-Display" class="py-4" data-aos="fade-up" data-aos-delay="150">
         <div class="container">
-            <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
-                <div class="col">
-                    <a href="{{ route('product.index', ['kategori' => 1]) }}" class="category-link">
-                        <img src="{{ asset('mCategoryIMG/1.png') }}" alt="Kamera DSLR" class="category-image">
-                    </a>
+            @if ($kategoris->isEmpty())
+                <div class="text-center text-muted py-4">Belum ada kategori yang dapat ditampilkan.</div>
+            @else
+                <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-3">
+                    @foreach ($kategoris as $kategori)
+                        <div class="col">
+                            <a href="{{ route('product.index', ['kategori' => $kategori->id]) }}" class="category-link">
+                                <img src="{{ $kategori->image_url ?? asset('images/placeholder.jpg') }}"
+                                     alt="{{ $kategori->nama_kategori }}"
+                                     class="category-image">
+                            </a>
+                        </div>
+                    @endforeach
                 </div>
-                <div class="col">
-                    <a href="{{ route('product.index', ['kategori' => 2]) }}" class="category-link">
-                        <img src="{{ asset('mCategoryIMG/2.png') }}" alt="Kamera Mirrorless" class="category-image">
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('product.index', ['kategori' => 3]) }}" class="category-link">
-                        <img src="{{ asset('mCategoryIMG/3.png') }}" alt="Kamera Digital" class="category-image">
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('product.index', ['kategori' => 4]) }}" class="category-link">
-                        <img src="{{ asset('mCategoryIMG/4.png') }}" alt="Handycam" class="category-image">
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('product.index', ['kategori' => 5]) }}" class="category-link">
-                        <img src="{{ asset('mCategoryIMG/5.png') }}" alt="Kamera Instan" class="category-image">
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('product.index', ['kategori' => 6]) }}" class="category-link">
-                        <img src="{{ asset('mCategoryIMG/6.png') }}" alt="Kamera Lain" class="category-image">
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('product.index', ['kategori' => 7]) }}" class="category-link">
-                        <img src="{{ asset('mCategoryIMG/7.png') }}" alt="Lensa" class="category-image">
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('product.index', ['kategori' => 8]) }}" class="category-link">
-                        <img src="{{ asset('mCategoryIMG/8.png') }}" alt="Baterai/Charger" class="category-image">
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('product.index', ['kategori' => 9]) }}" class="category-link">
-                        <img src="{{ asset('mCategoryIMG/9.png') }}" alt="Kartu Memori" class="category-image">
-                    </a>
-                </div>
-                <div class="col">
-                    <a href="{{ route('product.index', ['kategori' => 10]) }}" class="category-link">
-                        <img src="{{ asset('mCategoryIMG/10.png') }}" alt="Aksesoris Lain" class="category-image">
-                    </a>
-                </div>
-            </div>
+            @endif
         </div>
     </section>
 
