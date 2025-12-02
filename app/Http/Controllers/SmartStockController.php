@@ -3,18 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\Produk;
+use App\Models\ProductStockForecast;
 use App\Models\User;
-use App\Services\StockForecastingService;
+use App\Services\SmartStockCacheService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class SmartStockController extends Controller
 {
-    protected StockForecastingService $forecastingService;
-
-    public function __construct(StockForecastingService $forecastingService)
+    public function __construct(private SmartStockCacheService $cacheService)
     {
-        $this->forecastingService = $forecastingService;
     }
 
     /**
@@ -26,81 +24,82 @@ class SmartStockController extends Controller
         $sortBy = $request->input('sort', 'days_left'); // 'days_left', 'stock', 'name'
         $filter = $request->input('filter', 'all'); // 'all', 'critical', 'warning', 'safe'
 
-        // Get all products with stock > 0
-        $products = Produk::where('stok_produk', '>', 0)
-            ->orderBy('nama_produk', 'asc')
-            ->get();
+        // Refresh cache/tabel forecast jika sudah kedaluwarsa
+        $this->cacheService->refreshAllIfStale();
 
-        $analysisData = [];
+        $query = ProductStockForecast::query()
+            ->join('produk', 'product_stock_forecasts.product_id', '=', 'produk.id')
+            ->select('product_stock_forecasts.*')
+            ->with([
+                'product:id,nama_produk,kode_sku,harga_jual,stok_produk,id_kategori',
+                'product.kategori:id,nama_kategori',
+            ]);
 
-        foreach ($products as $product) {
-            try {
-                $currentStock = (int) $product->stok_produk;
-                $predictedDaysLeft = $this->forecastingService->predictStockDepletion(
-                    $product->id,
-                    $currentStock
-                );
-                $averageDailyUsage = $this->forecastingService->calculateDailyUsage($product->id);
-
-                // Determine status
-                $status = 'safe';
-                if ($predictedDaysLeft <= $threshold && $predictedDaysLeft < 999) {
-                    $status = $predictedDaysLeft <= 1 ? 'critical' : 'warning';
-                } elseif ($predictedDaysLeft >= 999) {
-                    $status = 'infinite';
-                }
-
-                $analysisData[] = [
-                    'product_id' => $product->id,
-                    'product_name' => $product->nama_produk,
-                    'current_stock' => $currentStock,
-                    'predicted_days_left' => $predictedDaysLeft,
-                    'average_daily_usage' => $averageDailyUsage,
-                    'status' => $status,
-                    'sku' => $product->kode_sku ?? '-',
-                    'harga_jual' => (int) $product->harga_jual,
-                ];
-            } catch (\Exception $e) {
-                // Skip products with errors
-                continue;
-            }
+        // Filter berdasarkan status
+        if ($filter === 'critical') {
+            $query->where('predicted_days_left', '<=', 1)->where('predicted_days_left', '<', 999);
+        } elseif ($filter === 'warning') {
+            $query->whereBetween('predicted_days_left', [2, max($threshold, 2)])->where('predicted_days_left', '<', 999);
+        } elseif ($filter === 'safe') {
+            $query->where('predicted_days_left', '>', $threshold)->where('predicted_days_left', '<', 999);
+        } elseif ($filter === 'infinite') {
+            $query->where('predicted_days_left', '>=', 999);
         }
 
-        // Apply filter
-        if ($filter !== 'all') {
-            $analysisData = array_filter($analysisData, function ($item) use ($filter) {
-                return $item['status'] === $filter;
-            });
+        // Sorting
+        switch ($sortBy) {
+            case 'stock':
+                $query->orderByDesc('product_stock_forecasts.current_stock');
+                break;
+            case 'name':
+                $query->orderBy('produk.nama_produk', 'asc');
+                break;
+            case 'days_left':
+            default:
+                $query->orderBy('product_stock_forecasts.predicted_days_left', 'asc');
+                break;
         }
 
-        // Apply sorting
-        usort($analysisData, function ($a, $b) use ($sortBy) {
-            switch ($sortBy) {
-                case 'stock':
-                    return $b['current_stock'] <=> $a['current_stock'];
-                case 'name':
-                    return strcmp($a['product_name'], $b['product_name']);
-                case 'days_left':
-                default:
-                    return $a['predicted_days_left'] <=> $b['predicted_days_left'];
+        $forecasts = $query->paginate(15);
+
+        $analysisData = $forecasts->getCollection()->transform(function ($item) use ($threshold) {
+            $status = 'safe';
+            if ($item->predicted_days_left <= $threshold && $item->predicted_days_left < 999) {
+                $status = $item->predicted_days_left <= 1 ? 'critical' : 'warning';
+            } elseif ($item->predicted_days_left >= 999) {
+                $status = 'infinite';
             }
+
+            return [
+                'product_id' => $item->product_id,
+                'product_name' => $item->product->nama_produk ?? 'Unknown',
+                'current_stock' => (int) $item->current_stock,
+                'predicted_days_left' => (int) $item->predicted_days_left,
+                'average_daily_usage' => (float) $item->average_daily_usage,
+                'status' => $status,
+                'sku' => $item->product->kode_sku ?? '-',
+                'harga_jual' => (int) ($item->product->harga_jual ?? 0),
+                'kategori' => $item->product->kategori->nama_kategori ?? null,
+            ];
         });
 
-        // Get statistics
+        $statsQuery = ProductStockForecast::query();
         $stats = [
-            'total_products' => count($analysisData),
-            'critical' => count(array_filter($analysisData, fn($item) => $item['status'] === 'critical')),
-            'warning' => count(array_filter($analysisData, fn($item) => $item['status'] === 'warning')),
-            'safe' => count(array_filter($analysisData, fn($item) => $item['status'] === 'safe')),
-            'infinite' => count(array_filter($analysisData, fn($item) => $item['status'] === 'infinite')),
+            'total_products' => (clone $statsQuery)->count(),
+            'critical' => (clone $statsQuery)->where('predicted_days_left', '<=', 1)->where('predicted_days_left', '<', 999)->count(),
+            'warning' => (clone $statsQuery)->whereBetween('predicted_days_left', [2, max($threshold, 2)])->where('predicted_days_left', '<', 999)->count(),
+            'safe' => (clone $statsQuery)->where('predicted_days_left', '>', $threshold)->where('predicted_days_left', '<', 999)->count(),
+            'infinite' => (clone $statsQuery)->where('predicted_days_left', '>=', 999)->count(),
         ];
 
         return view('admin.smart-stock.index', [
             'analysisData' => $analysisData,
+            'forecasts' => $forecasts,
             'stats' => $stats,
             'threshold' => $threshold,
             'sortBy' => $sortBy,
             'filter' => $filter,
+            'pagination' => $forecasts->appends($request->query()),
         ]);
     }
 
@@ -110,23 +109,24 @@ class SmartStockController extends Controller
     public function getProductPrediction(Request $request, $productId)
     {
         try {
-            $product = Produk::findOrFail($productId);
-            $currentStock = (int) $product->stok_produk;
-            $predictedDaysLeft = $this->forecastingService->predictStockDepletion(
-                $product->id,
-                $currentStock
-            );
-            $averageDailyUsage = $this->forecastingService->calculateDailyUsage($product->id);
+            $forecast = ProductStockForecast::where('product_id', $productId)->first();
+            if (!$forecast) {
+                // Refresh satu produk bila belum ada cache
+                $this->cacheService->refreshOne($productId);
+                $forecast = ProductStockForecast::where('product_id', $productId)->firstOrFail();
+            }
 
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'product_id' => $product->id,
-                    'product_name' => $product->nama_produk,
-                    'current_stock' => $currentStock,
-                    'predicted_days_left' => $predictedDaysLeft,
-                    'average_daily_usage' => $averageDailyUsage,
-                    'status' => $predictedDaysLeft <= 3 ? ($predictedDaysLeft <= 1 ? 'critical' : 'warning') : 'safe',
+                    'product_id' => $forecast->product_id,
+                    'product_name' => optional($forecast->product)->nama_produk ?? 'Unknown',
+                    'current_stock' => (int) $forecast->current_stock,
+                    'predicted_days_left' => (int) $forecast->predicted_days_left,
+                    'average_daily_usage' => (float) $forecast->average_daily_usage,
+                    'status' => $forecast->predicted_days_left <= 3
+                        ? ($forecast->predicted_days_left <= 1 ? 'critical' : 'warning')
+                        : ($forecast->predicted_days_left >= 999 ? 'infinite' : 'safe'),
                 ],
             ]);
         } catch (\Exception $e) {
@@ -207,4 +207,3 @@ class SmartStockController extends Controller
         ], 404);
     }
 }
-

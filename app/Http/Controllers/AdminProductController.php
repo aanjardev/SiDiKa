@@ -2,22 +2,26 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Http\Requests\ProductPhotoUploadRequest;
+use App\Http\Requests\ProductStoreRequest;
+use App\Http\Requests\ProductUpdateRequest;
+use App\Helpers\ImageUpload;
 use App\Models\Produk;
 use App\Models\Kategori;
 use App\Models\GambarProduk;
 use App\Jobs\CleanupProductAssets;
-use App\Jobs\ProcessProductImage;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use App\Services\ProductService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
-use Illuminate\Validation\Rule;
-use App\Helpers\ImageUpload;
+use Illuminate\Support\Facades\DB;
 
 
 class AdminProductController extends Controller
 {
+    public function __construct(private ProductService $productService)
+    {
+    }
+
     public function index(Request $request)
     {
         $query = Produk::with(['gambar', 'gambarUtama', 'kategori'])
@@ -133,49 +137,16 @@ class AdminProductController extends Controller
         ]);
     }
 
-    public function photosUploadStore(Request $request, $id)
+    public function photosUploadStore(ProductPhotoUploadRequest $request, $id)
     {
         $product = Produk::findOrFail($id);
 
-        $validated = $request->validate([
-            'images' => ['sometimes', 'array', 'min:1'],
-            'images.*' => ['image', 'max:5120'],
-            'main_image' => ['nullable', 'string'],
-        ]);
-
         try {
             $images = $request->file('images', []);
-            if (empty($images)) {
-                return back()->withInput()->withErrors(['error' => 'Tidak ada gambar yang diunggah.']);
-            }
-
-            // Handle existing main image selection (before queue processing)
-            if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'existing_')) {
-                $idToSet = intval(substr($validated['main_image'], strlen('existing_')));
-                GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
-                GambarProduk::where('id_produk', $product->id)
-                    ->where('id', $idToSet)
-                    ->update(['is_main' => true]);
-            }
-
-            // Store images temporarily in local storage
-            $temporaryPaths = [];
-            foreach ($images as $image) {
-                $tempPath = $image->store('temp/product-uploads', 'local');
-                $temporaryPaths[] = $tempPath;
-            }
-
-            // Extract main image index if provided (format: 'new_{index}')
-            $mainImageIndex = null;
-            if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'new_')) {
-                $mainImageIndex = intval(substr($validated['main_image'], strlen('new_')));
-            }
-
-            // Dispatch job to process images in background
-            ProcessProductImage::dispatch(
-                $product->id,
-                $temporaryPaths,
-                $mainImageIndex,
+            $this->productService->uploadAdditionalPhotos(
+                $product,
+                $images,
+                $request->input('main_image'),
                 Auth::id()
             );
 
@@ -186,14 +157,6 @@ class AdminProductController extends Controller
                 ->with('success', 'Foto berhasil diunggah.');
 
         } catch (\Throwable $th) {
-            // Clean up any temporary files if error occurs before dispatch
-            if (isset($temporaryPaths)) {
-                foreach ($temporaryPaths as $tempPath) {
-                    if (Storage::disk('local')->exists($tempPath)) {
-                        Storage::disk('local')->delete($tempPath);
-                    }
-                }
-            }
             return back()->withInput()->withErrors(['error' => 'Gagal mengunggah gambar: ' . $th->getMessage()]);
         }
     }
@@ -296,84 +259,28 @@ class AdminProductController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(ProductStoreRequest $request)
     {
-        $validated = $request->validate([
-            'nama_produk' => ['required', 'string', 'max:200'],
-            'kode_sku' => ['required', 'string', 'max:20', 'unique:produk,kode_sku'],
-            'id_kategori' => ['required', 'exists:kategori,id'],
-            'harga_jual' => ['nullable', 'integer', 'min:0'],
-            'harga_beli' => ['nullable', 'integer', 'min:0'],
-            'harga_servis' => ['nullable', 'integer', 'min:0'],
-            'stok_produk' => ['nullable', 'integer', 'min:0'],
-            'deskripsi_produk' => ['nullable', 'string'],
-            'status' => ['required', 'in:Second,Baru'],
-            'grade' => ['required', 'in:Unggulan,Standar,Minus'],
-            'images' => ['nullable', 'array', 'min:1'],
-            'images.*' => ['image', 'max:5120'],
-            'main_image' => ['nullable', 'string'],
-        ], [
-            'kode_sku.required' => 'Kode SKU wajib diisi.',
-            'kode_sku.unique' => 'Kode SKU sudah digunakan. Silakan gunakan kode SKU yang berbeda.',
-        ]);
-
-        $temporaryPaths = [];
-        $uploadedImages = $request->file('images', []);
-
-        foreach ($uploadedImages as $image) {
-            $temporaryPaths[] = $image->store('temp/product-creates', 'local');
-        }
-
-        $selectedMainIndex = null;
-        if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'new_')) {
-            $selectedMainIndex = intval(substr($validated['main_image'], strlen('new_')));
-        }
-
-        $produk = null;
-
-        DB::beginTransaction();
-
         try {
-            // 1. Create product
-            $produk = Produk::create([
-                'nama_produk' => $validated['nama_produk'],
-                'kode_sku' => $validated['kode_sku'],
-                'id_kategori' => $validated['id_kategori'],
-                'harga_jual' => $validated['harga_jual'] ?? null,
-                'harga_beli' => $validated['harga_beli'] ?? null,
-                'harga_servis' => $validated['harga_servis'] ?? null,
-                'stok_produk' => $validated['stok_produk'] ?? null,
-                'deskripsi_produk' => $validated['deskripsi_produk'] ?? null,
-                'status' => $validated['status'],
-                'grade' => $validated['grade'],
-            ]);
+            $product = $this->productService->createProduct(
+                $request->validated(),
+                $request->file('images', []),
+                $request->input('main_image'),
+                Auth::id()
+            );
 
-            DB::commit();
+            $message = $request->filled('images')
+                ? 'Produk berhasil ditambahkan. Foto sedang diproses di latar belakang.'
+                : 'Produk berhasil ditambahkan.';
+
+            return redirect()
+                ->route('admin.products.index')
+                ->with('success', $message);
         } catch (\Throwable $th) {
-
-            DB::rollBack();
-            $this->cleanupTemporaryUploads($temporaryPaths);
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Terjadi kesalahan saat menyimpan produk: ' . $th->getMessage()]);
         }
-
-        if (!empty($temporaryPaths)) {
-            ProcessProductImage::dispatch(
-                $produk->id,
-                $temporaryPaths,
-                $selectedMainIndex ?? 0,
-                Auth::id()
-            );
-
-            return redirect()
-                ->route('admin.products.index')
-                ->with('success', 'Produk berhasil ditambahkan. Foto sedang diproses di latar belakang.');
-        }
-
-        return redirect()
-            ->route('admin.products.index')
-            ->with('success', 'Produk berhasil ditambahkan.');
     }
 
 
@@ -388,129 +295,26 @@ class AdminProductController extends Controller
         ]);
     }
 
-    public function update(Request $request, Produk $product)
+    public function update(ProductUpdateRequest $request, Produk $product)
     {
-        $validated = $request->validate([
-            'nama_produk'      => ['required', 'string', 'max:200'],
-            'kode_sku'         => ['required', 'string', 'max:20', Rule::unique('produk', 'kode_sku')->ignore($product->id)],
-            'id_kategori'      => ['required', 'exists:kategori,id'],
-            'harga_jual'       => ['nullable', 'integer', 'min:0'],
-            'harga_beli'       => ['nullable', 'integer', 'min:0'],
-            'harga_servis'     => ['nullable', 'integer', 'min:0'],
-            'stok_produk'      => ['nullable', 'integer', 'min:0'],
-            'deskripsi_produk' => ['nullable', 'string'],
-            'status'           => ['required', 'in:Second,Baru'],
-            'grade'            => ['required', 'in:Unggulan,Standar,Minus'],
-
-            // file baru
-            'images'   => ['nullable', 'array'],
-            'images.*' => ['image', 'max:5120'],
-            'main_image' => ['nullable', 'string'],
-
-            // hidden input dari gambar lama
-            'remove_images'   => ['nullable', 'array'],
-            'remove_images.*' => ['nullable', 'integer'],
-        ], [
-            'kode_sku.required' => 'Kode SKU wajib diisi.',
-            'kode_sku.unique' => 'Kode SKU sudah digunakan. Silakan gunakan kode SKU yang berbeda.',
-        ]);
-
-        $temporaryPaths = [];
-        $pathsForCleanup = [];
-
-        $newImages = $request->file('images', []);
-        foreach ($newImages as $image) {
-            $temporaryPaths[] = $image->store('temp/product-updates', 'local');
-        }
-
-        $selectedMainIndex = null;
-        if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'new_')) {
-            $selectedMainIndex = intval(substr($validated['main_image'], strlen('new_')));
-        }
-        $selectedMainExistingId = null;
-        if (!empty($validated['main_image']) && str_starts_with($validated['main_image'], 'existing_')) {
-            $selectedMainExistingId = intval(substr($validated['main_image'], strlen('existing_')));
-        }
-
-        DB::beginTransaction();
-
         try {
-            $product->update([
-                'nama_produk'      => $validated['nama_produk'],
-                'kode_sku'         => $validated['kode_sku'],
-                'id_kategori'      => $validated['id_kategori'],
-                'harga_jual'       => $validated['harga_jual'] ?? null,
-                'harga_beli'       => $validated['harga_beli'] ?? null,
-                'harga_servis'     => $validated['harga_servis'] ?? null,
-                'stok_produk'      => $validated['stok_produk'] ?? null,
-                'deskripsi_produk' => $validated['deskripsi_produk'] ?? null,
-                'status'           => $validated['status'],
-                'grade'            => $validated['grade'],
-            ]);
+            $this->productService->updateProduct(
+                $product,
+                $request->validated(),
+                $request->file('images', []),
+                $request->input('main_image'),
+                $request->input('remove_images', []),
+                Auth::id()
+            );
 
-            $removeIds = array_filter($request->remove_images ?? [], fn ($v) => !empty($v));
-
-            if (!empty($removeIds)) {
-
-                $imagesToDelete = GambarProduk::whereIn('id', $removeIds)
-                    ->where('id_produk', $product->id)
-                    ->get();
-
-                foreach ($imagesToDelete as $img) {
-                    $pathsForCleanup[] = $img->path_gambar;
-                    // hapus database entry
-                    $img->delete();
-                }
-            }
-
-            if ($selectedMainExistingId !== null) {
-                $targetImage = $product->gambar()->where('id', $selectedMainExistingId)->first();
-                if ($targetImage) {
-                    GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
-                    $targetImage->is_main = true;
-                    $targetImage->save();
-                } else {
-                    $selectedMainExistingId = null;
-                }
-            }
-
-            if (!$product->gambarUtama()->exists()) {
-                $first = $product->gambar()->first();
-                if ($first) {
-                    $first->update(['is_main' => true]);
-                }
-            }
-            DB::commit();
+            return redirect()
+                ->route('admin.products.index')
+                ->with('success', 'Produk berhasil diperbarui.');
         } catch (\Throwable $th) {
-
-            DB::rollBack();
-            $this->cleanupTemporaryUploads($temporaryPaths);
-
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Terjadi kesalahan: ' . $th->getMessage()]);
         }
-
-        if (!empty($pathsForCleanup)) {
-            CleanupProductAssets::dispatch($pathsForCleanup);
-        }
-
-        if (!empty($temporaryPaths)) {
-            $product->refresh();
-            $productHasMain = $product->gambarUtama()->exists();
-            $mainIndexForJob = $selectedMainIndex;
-
-            ProcessProductImage::dispatch(
-                $product->id,
-                $temporaryPaths,
-                $mainIndexForJob !== null ? $mainIndexForJob : ($productHasMain ? null : 0),
-                Auth::id()
-            );
-        }
-
-        return redirect()
-            ->route('admin.products.index')
-            ->with('success', 'Produk berhasil diperbarui.');
     }
 
     public function destroy(Produk $product)
@@ -536,27 +340,5 @@ class AdminProductController extends Controller
         return redirect()
             ->route('admin.products.index')
             ->with('success', 'Produk berhasil dihapus.');
-    }
-
-    /**
-     * Delete temporary uploads if the queue job is not dispatched.
-     *
-     * @param array<int, string> $paths
-     */
-    private function cleanupTemporaryUploads(array $paths): void
-    {
-        foreach ($paths as $tempPath) {
-            try {
-                if (Storage::disk('local')->exists($tempPath)) {
-                    Storage::disk('local')->delete($tempPath);
-                }
-            } catch (\Throwable $th) {
-                // log silently to avoid breaking user flow
-                \Log::warning('Failed deleting temporary upload', [
-                    'path' => $tempPath,
-                    'error' => $th->getMessage(),
-                ]);
-            }
-        }
     }
 }
