@@ -130,15 +130,32 @@
             </tbody>
         </table>
 
+        {{-- HARGA DEPRESIASI (Per Transaksi) --}}
+        @if(($penjualan->harga_depresiasi_final ?? 0) > 0)
+        <div class="section-title" style="margin-top: 12px;">HARGA DEPRESIASI</div>
+        <table class="price-table" style="width: 50%; float: right; border: 1px solid #000; margin-top: 5px;">
+            <tr>
+                <td style="padding: 6px 8px; width: 60%;">Harga Depresiasi</td>
+                <td class="text-right fw-bold" style="padding: 6px 8px; width: 40%;">Rp {{ number_format((int) $penjualan->harga_depresiasi_final, 0, ',', '.') }}</td>
+            </tr>
+        </table>
+        <div style="clear: both;"></div>
+        @endif
+
+
         {{-- RINGKASAN HARGA (Menampilkan detail diskon & biaya tambahan) --}}
         <div style="clear: both;"></div>
         <div class="section-title" style="margin-top: 30px;">RINGKASAN HARGA</div>
         @php
             // Menggunakan variabel dari objek penjualan
-            $subtotal = $penjualan->subtotal ?? 0;
-            $diskon = $penjualan->diskon ?? 0;
-            $biayaTambahan = $penjualan->biaya_tambahan ?? 0;
-            $totalBayar = $penjualan->harga_total ?? ($subtotal - $diskon + $biayaTambahan);
+            $subtotal = (int) ($subtotal ?? ($penjualan->subtotal ?? 0));
+            $diskon = (int) ($penjualan->diskon ?? 0);
+            // Fallback hitung biaya tambahan jika kolomnya kosong tapi harga_total tersedia
+            $biayaTambahan = (int) ($penjualan->biaya_tambahan ?? 0);
+            if ($biayaTambahan === 0 && isset($penjualan->harga_total)) {
+                $biayaTambahan = max(0, (int) $penjualan->harga_total - $subtotal + $diskon);
+            }
+            $totalBayar = $penjualan->harga_total ?? max(0, $subtotal - $diskon + $biayaTambahan);
 
             // Harga Depresiasi Transaksi (Asumsi field ini ada di objek $penjualan)
             $hargaBeliKembaliMaksimal = $penjualan->harga_depresiasi_final ?? 0;

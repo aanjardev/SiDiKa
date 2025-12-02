@@ -28,7 +28,7 @@
 <div class="row mb-4">
     <div class="col-12">
         <div class="card shadow-sm border-0">
-            <div class="card-body">
+            <div class="card-body pb-2">
                 <form method="GET" action="{{ route('admin.dashboard') }}" id="filterForm" class="d-flex align-items-center gap-3 flex-wrap">
                     <div class="d-flex align-items-center gap-2">
                         <label for="year" class="form-label mb-0 text-muted small">Tahun:</label>
@@ -58,14 +58,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary btn-sm">
-                        <i class="fas fa-filter fa-fw"></i> Filter
-                    </button>
-                    @if($selectedMonth || $selectedYear != now()->year)
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-times fa-fw"></i> Reset
-                        </a>
-                    @endif
+                   
                 </form>
                 <div class="mt-3">
                 </div>

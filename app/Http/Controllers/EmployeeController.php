@@ -155,7 +155,7 @@ class EmployeeController extends Controller
                 'max:15',
                 'regex:/^(?:\+62|62|0)[0-9]{8,15}$/'
             ],
-            'tanggal_masuk' => 'required|date',
+            'tanggal_masuk' => 'required|date|before_or_equal:today',
             'gaji' => 'nullable|integer|min:0',
             'status' => 'required|in:aktif,non-aktif',
             'alamat' => 'nullable|string|max:100',
@@ -164,6 +164,7 @@ class EmployeeController extends Controller
             'nama_lengkap.regex' => 'Nama karyawan hanya boleh mengandung huruf, spasi, titik, koma, dan tanda hubung.',
             'nik.unique' => 'NIK sudah terdaftar.',
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
+            'tanggal_masuk'=>'Tanggal masuk harus berupa tanggal sebelum atau sama dengan hari ini.',
         ]);
 
         // Update karyawan

@@ -17,7 +17,7 @@ class LoginTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->visit('/login')
                     ->assertSee('SiDiKa');
-                    Sleep::for(10)->seconds();
+                    Sleep::for()->seconds();
         });
         
     }

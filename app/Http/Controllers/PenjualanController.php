@@ -393,8 +393,24 @@ class PenjualanController extends Controller
             'detail_penjualan.produk',
         ]);
 
+        $subtotal = $sale->detail_penjualan->sum(function ($detail) {
+            return (int) ($detail->qty ?? 0) * (int) ($detail->harga_jual_satuan ?? 0);
+        });
+
+        $diskon = (int) ($sale->diskon ?? 0);
+        $biayaTambahan = (int) ($sale->biaya_tambahan ?? 0);
+        if ($biayaTambahan === 0 && isset($sale->harga_total)) {
+            $biayaTambahan = max(0, (int) $sale->harga_total - $subtotal + $diskon);
+        }
+
+        $totalNominal = $sale->harga_total ?? max(0, $subtotal - $diskon + $biayaTambahan);
+
         return view('admin.showPenjualan', [
             'penjualan' => $sale,
+            'subtotal' => $subtotal,
+            'diskon' => $diskon,
+            'biaya_tambahan' => $biayaTambahan,
+            'total_nominal' => $totalNominal,
         ]);
     }
 

@@ -24,16 +24,27 @@
 
 @section('content')
 @php
-    $fallbackTotal = $penjualan->detail_penjualan->sum(function ($d) {
-        return ($d->qty ?? 0) * ($d->harga_jual_satuan ?? 0);
+    // Nilai disiapkan dari controller; fallback ke perhitungan di view jika belum ada
+    $subtotal = isset($subtotal) ? (int) $subtotal : $penjualan->detail_penjualan->sum(function ($d) {
+        return (int) ($d->qty ?? 0) * (int) ($d->harga_jual_satuan ?? 0);
     });
-    $totalNominal = ($penjualan->harga_total ?? 0) > 0 ? $penjualan->harga_total : $fallbackTotal;
+    $diskon = isset($diskon) ? (int) $diskon : (int) ($penjualan->diskon ?? 0);
+    $biayaTambahan = isset($biaya_tambahan) ? (int) $biaya_tambahan : (int) ($penjualan->biaya_tambahan ?? 0);
+
+    // Jika kolom biaya_tambahan kosong tapi harga_total tersedia, hitung selisihnya
+    if ($biayaTambahan === 0 && isset($penjualan->harga_total)) {
+        $biayaTambahan = max(0, (int) $penjualan->harga_total - $subtotal + $diskon);
+    }
+
+    $totalNominal = isset($total_nominal)
+        ? (int) $total_nominal
+        : ($penjualan->harga_total ?? max(0, $subtotal - $diskon + $biayaTambahan));
 @endphp
 
 <div class="row g-4">
     {{-- KOLOM KIRI: Informasi Transaksi --}}
     <div class="col-lg-4">
-        <div class="card shadow-sm border-0" style="border-radius: 14px; background: linear-gradient(135deg, #f8fafc, #eef2ff);">
+        <div class="card shadow-sm border-0" style="border-radius: 14px;">
             <div class="card-body">
                 <div class="d-flex align-items-center mb-3">
                     <div class="rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; background-color: #e0edff;">
@@ -65,7 +76,10 @@
                     <dd class="col-7 text-uppercase">{{ $penjualan->kas ?? '-' }}</dd>
 
                     <dt class="col-5 text-muted">Diskon</dt>
-                    <dd class="col-7">Rp{{ number_format($penjualan->diskon ?? 0, 0, ',', '.') }}</dd>
+                    <dd class="col-7">Rp{{ number_format($diskon, 0, ',', '.') }}</dd>
+
+                    <dt class="col-5 text-muted">Biaya Tambahan</dt>
+                    <dd class="col-7">Rp{{ number_format($biayaTambahan, 0, ',', '.') }}</dd>
 
                     <dt class="col-5 text-muted">Total</dt>
                     <dd class="col-7 fw-bold text-primary">Rp{{ number_format($totalNominal, 0, ',', '.') }}</dd>
