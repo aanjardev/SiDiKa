@@ -159,10 +159,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
         Route::delete('/permissions/{id}', [PermissionsController::class, 'destroy'])->name('permissions.destroy');
         Route::post('/permissions/{id}/regenerate-token', [PermissionsController::class, 'regenerateToken'])->name('permissions.regenerate-token');
         Route::patch('/permissions/{id}/status', [PermissionsController::class, 'updateStatus'])->name('permissions.update-status');
-        Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('purchases.print');
-        Route::get('sales/{id}/print', [PenjualanController::class, 'printNota'])->name('sales.print');
     });
-
+    
+    Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('purchases.print');
+    Route::get('sales/{id}/print', [PenjualanController::class, 'printNota'])->name('sales.print');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('/profile/resetPassword', [ProfileController::class, 'resetPassword'])->name('profile.resetPassword.show');
     Route::post('/profile/resetPassword', [ProfileController::class, 'update'])->name('profile.resetPassword.post');
