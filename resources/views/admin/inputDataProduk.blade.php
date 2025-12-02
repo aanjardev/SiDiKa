@@ -53,7 +53,7 @@ $backRoute = route('admin.products.index');
 
             {{-- CARD 1: INFORMASI PRODUK --}}
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 8px;">
-                <div class="card-header bg-white border-bottom-0 pt-4 ps-4">
+                <div class="card-header bg-white border-bottom-0 pt-4 ps-4 pb-0">
                     <h6 class="fw-bold text-dark mb-0">
                         <i class="fa-solid fa-box-open me-2 text-primary"></i>
                         Informasi Produk
@@ -63,7 +63,7 @@ $backRoute = route('admin.products.index');
 
                     {{-- Nama Produk --}}
                     <div class="mb-4">
-                        <label class="form-label text-secondary small fw-medium">Nama Produk cc</label>
+                        <label class="form-label text-secondary small fw-medium">Nama Produk <span class="text-danger">*</span></label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted">
                                 <i class="fa-solid fa-tag"></i>
@@ -100,7 +100,7 @@ $backRoute = route('admin.products.index');
 
             {{-- CARD 2: MEDIA PRODUK --}}
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 8px;">
-                <div class="card-header bg-white border-bottom-0 pt-4 ps-4">
+                <div class="card-header bg-white border-bottom-0 pt-4 ps-4 pb-0">
                     <h6 class="fw-bold text-dark mb-0">
                         <i class="fa-solid fa-images me-2 text-primary"></i>
                         Media Produk
@@ -179,7 +179,7 @@ $backRoute = route('admin.products.index');
 
         {{-- CARD 3: KLASIFIKASI & STOK --}}
         <div class="card shadow-sm border-0 mb-4" style="border-radius: 8px;">
-            <div class="card-header bg-white border-bottom-0 pt-4 ps-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 ps-4 pb-0">
                 <h6 class="fw-bold text-dark mb-0">
                     <i class="fa-solid fa-list-check me-2 text-warning"></i>
                     Klasifikasi & Stok
@@ -240,7 +240,7 @@ $backRoute = route('admin.products.index');
 
                 {{-- Stok --}}
                 <div class="mb-3">
-                    <label class="form-label text-secondary small fw-medium">Stok</label>
+                    <label class="form-label text-secondary small fw-medium">Stok <span class="text-danger">*</span></label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 text-muted">
                             <i class="fa-solid fa-cubes"></i>
@@ -299,7 +299,7 @@ $backRoute = route('admin.products.index');
 
         {{-- CARD 4: HARGA --}}
         <div class="card shadow-sm border-0 mb-4" style="border-radius: 8px;">
-            <div class="card-header bg-white border-bottom-0 pt-4 ps-4">
+            <div class="card-header bg-white border-bottom-0 pt-4 ps-4 pb-0">
                 <h6 class="fw-bold text-dark mb-0">
                     <i class="fa-solid fa-tags me-2 text-success"></i>
                     Harga
