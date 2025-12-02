@@ -7,6 +7,16 @@ export default defineConfig({
             input: [
                 "resources/css/app.css",
                 "resources/js/app.js",
+                // Page entries
+                "resources/js/penjualan/penjualan.js",
+                
+                "resources/js/pembelian/pembelian.js",
+                "resources/js/qualityControl/data-qc.js",
+                // Standalone utilities referenced directly via @vite in Blade
+                "resources/js/utils/clickable-rows.js",
+                "resources/js/utils/handle-delete.js",
+                "resources/js/utils/search.js",
+                "resources/js/utils/phone-input-validation.js",
 
                 // == ASET ADMIN (BARU) ==
                 // CSS Admin
