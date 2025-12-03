@@ -83,8 +83,10 @@ class DashboardMetricsService
 
             $growthPercentage = $this->calculateGrowth($year, $month, $branchId);
 
+            // Area chart pendapatan & HPP tetap annual (per tahun) agar overview,
+            // sedangkan donut chart transaksi mengikuti filter bulan bila dipilih.
             [$dataPendapatanChart, $dataHppChart] = $this->buildAreaChartData($year, $branchId);
-            $dataTransaksiChart = $this->buildDonutChartData($year, $branchId);
+            $dataTransaksiChart = $this->buildDonutChartData($year, $month, $branchId);
 
             $topProducts = $this->topProducts($year, $branchId);
             $recentSales = $this->recentSales($year, $branchId);
@@ -207,10 +209,20 @@ class DashboardMetricsService
         return [$dataPendapatanChart, $dataHppChart];
     }
 
-    private function buildDonutChartData(int $year, ?int $branchId): array
+    /**
+     * Build donut chart data untuk total transaksi (Penjualan vs Pembelian).
+     * Mengikuti filter tahun, bulan (jika ada), dan cabang.
+     */
+    private function buildDonutChartData(int $year, ?int $month, ?int $branchId): array
     {
         $countPenjualan = Penjualan::query()->whereYear('created_at', $year);
         $countPembelian = Pembelian::query()->whereYear('created_at', $year);
+
+        if ($month) {
+            $countPenjualan->whereMonth('created_at', $month);
+            $countPembelian->whereMonth('created_at', $month);
+        }
+
         if ($branchId) {
             $countPenjualan->where('perusahaan_cabang_id', $branchId);
             $countPembelian->where('perusahaan_cabang_id', $branchId);

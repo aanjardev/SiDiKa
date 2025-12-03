@@ -116,9 +116,11 @@
                         <i class="fas fa-coins text-success fa-lg"></i>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small">HPP: Rp {{ number_format($totalHPP, 0, ',', '.') }}</span>
-                </div>
+                @if(!is_null($selectedBranch))
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small">HPP: Rp {{ number_format($totalHPP, 0, ',', '.') }}</span>
+                    </div>
+                @endif
             </div>
         </div>
     </div>
