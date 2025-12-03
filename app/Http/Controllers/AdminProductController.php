@@ -262,6 +262,7 @@ class AdminProductController extends Controller
     public function store(ProductStoreRequest $request)
     {
         try {
+            
             $product = $this->productService->createProduct(
                 $request->validated(),
                 $request->file('images', []),
