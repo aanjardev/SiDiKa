@@ -236,12 +236,13 @@ class DashboardMetricsService
                 'produk.id',
                 'produk.nama_produk',
                 'produk.harga_jual',
+                'produk.kode_sku',
                 DB::raw('SUM(detail_penjualan.qty) as total_qty'),
             ])
             ->join('penjualan', 'detail_penjualan.penjualan_id', '=', 'penjualan.id')
             ->join('produk', 'detail_penjualan.produk_id', '=', 'produk.id')
             ->whereYear('penjualan.created_at', $year)
-            ->groupBy('produk.id', 'produk.nama_produk', 'produk.harga_jual')
+            ->groupBy('produk.id', 'produk.nama_produk', 'produk.harga_jual', 'produk.kode_sku')
             ->orderByDesc('total_qty')
             ->limit(5)
             ->addSelect(['main_image_path' => $mainImageSubquery]);
@@ -258,6 +259,7 @@ class DashboardMetricsService
             return [
                 'id' => $item->id,
                 'nama_produk' => $item->nama_produk,
+                'kode_sku' => $item->kode_sku ?? 'N/A',
                 'harga_jual' => (int) $item->harga_jual,
                 'total_qty' => (int) $item->total_qty,
                 'gambar' => $gambar,
@@ -290,7 +292,7 @@ class DashboardMetricsService
     private function recentPurchases(int $year, ?int $branchId): Collection
     {
         return Pembelian::query()
-            ->with(['customer', 'perusahaan_cabang'])
+            ->with(['customer', 'perusahaan_cabang', 'item_pembelian_draft'])
             ->whereYear('created_at', $year)
             ->when($branchId, fn ($q) => $q->where('perusahaan_cabang_id', $branchId))
             ->orderBy('created_at', 'desc')
@@ -305,6 +307,12 @@ class DashboardMetricsService
                     'status' => $pembelian->status_pembelian ?? 'draft',
                     'waktu' => $pembelian->created_at->format('d M Y, H:i'),
                     'cabang' => $pembelian->perusahaan_cabang->nama ?? 'N/A',
+                    'items' => $pembelian->item_pembelian_draft->map(function ($item) {
+                        return [
+                            'nama_produk' => $item->nama_item ?? 'N/A',
+                            'qty' => (int) ($item->qty ?? 0),
+                        ];
+                    })->toArray(),
                 ];
             });
     }

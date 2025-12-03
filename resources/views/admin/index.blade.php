@@ -3,12 +3,12 @@
 @section('title', 'Dashboard')
 
 @push('page-actions')
-    <a href="{{ route('admin.sales.index') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <a href="{{ route('admin.sales.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
         <i class="fas fa-plus fa-fw"></i>
         <span>Penjualan</span>
     </a>
-    @if(Route::has('admin.purchases.index'))
-        <a href="{{ route('admin.purchases.index') }}" class="btn btn-success btn-sm d-flex align-items-center gap-2" style="background-color: #198754; border-color: #198754;">
+    @if(Route::has('admin.purchases.create'))
+        <a href="{{ route('admin.purchases.create') }}" class="btn btn-success btn-sm d-flex align-items-center gap-2" style="background-color: #198754; border-color: #198754;">
             <i class="fas fa-plus fa-fw"></i>
             <span>Pembelian</span>
         </a>
@@ -58,7 +58,7 @@
                             @endforeach
                         </select>
                     </div>
-                   
+
                 </form>
                 <div class="mt-3">
                 </div>
@@ -175,8 +175,8 @@
 {{-- ======================================================= --}}
 <div class="row mb-4">
     {{-- Main Chart: Annual (Pendapatan & HPP) --}}
-    <div class="col-md-12 col-lg-7 mb-4">
-        <div class="card shadow-sm border-0">
+    <div class="col-md-12 col-lg-7 mb-4" >
+        <div class="card shadow-sm border-0" style="min-height: 417px">
             <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap p-3">
                 <h5 class="card-title fw-bold mb-0 text-dark">Grafik Annual ({{ $selectedYear }})</h5>
                 <div class="d-flex align-items-center gap-3">
@@ -202,9 +202,9 @@
 
     {{-- Donut Chart: Total Transaksi --}}
     <div class="col-md-12 col-lg-5 mb-4">
-        <div class="card shadow-sm border-0">
+        <div class="card shadow-sm border-0" style="min-height: 417px">
             <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center p-3">
-                <h5 class="card-title fw-bold mb-0 text-dark">Komposisi Transaksi</h5>
+                <h5 class="card-title fw-bold mb-0 text-dark">Transaksi</h5>
             </div>
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
@@ -254,8 +254,9 @@
                                 <tr>
                                     <th class="text-center" style="width: 5%;">No</th>
                                     <th>Produk</th>
+                                    <th>Kode SKU</th>
                                     <th class="text-end">Harga</th>
-                                    <th class="text-end">Terjual</th>
+                                    <th class="text-center">Terjual</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -265,7 +266,7 @@
                                         <td>
                                             <div class="d-flex align-items-center gap-3">
                                                 @if($product['gambar'] && $product['gambar']->url)
-                                                    <img src="{{ $product['gambar']->url }}" alt="{{ $product['nama_produk'] }}" 
+                                                    <img src="{{ $product['gambar']->url }}" alt="{{ $product['nama_produk'] }}"
                                                          class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
                                                 @else
                                                     <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
@@ -279,10 +280,13 @@
                                                 </div>
                                             </div>
                                         </td>
+                                        <td>
+                                            <span class="fw-medium text-secondary font-monospace">{{ $product['kode_sku'] }}</span>
+                                        </td>
                                         <td class="text-end">
                                             <span class="fw-bold text-dark">Rp {{ number_format($product['harga_jual'], 0, ',', '.') }}</span>
                                         </td>
-                                        <td class="text-end">
+                                        <td class="text-center">
                                             <span class="badge bg-success bg-opacity-10 text-success fw-bold">{{ $product['total_qty'] }}</span>
                                         </td>
                                     </tr>
@@ -322,6 +326,7 @@
                                     <th>Kode Transaksi</th>
                                     <th>Customer</th>
                                     <th>Cabang</th>
+                                    <th style="width: 25%;">Item Dibeli</th>
                                     <th class="text-end">Harga Deal</th>
                                     <th class="text-center">Status</th>
                                     <th>Waktu</th>
@@ -346,6 +351,15 @@
                                                 {{ $purchase['cabang'] }}
                                             </span>
                                         </td>
+                                        <td>
+                                            <ul class="list-unstyled mb-0">
+                                                @foreach($purchase['items'] as $item)
+                                                    <li>
+                                                        <span class="text-dark">{{ $item['nama_produk'] }} (x{{ $item['qty'] }})</span>
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+
                                         <td class="text-end">
                                             @if($purchase['harga_deal'] > 0)
                                                 <span class="fw-bold text-dark">Rp {{ number_format($purchase['harga_deal'], 0, ',', '.') }}</span>
@@ -399,13 +413,39 @@
             }).format(value);
         }
 
-        // 1. GRAFIK PENDAPATAN BULANAN (Area Chart)
+        // 1. GRAFIK PENDAPATAN BULANAN (Area Chart) - Nonaktifkan Zoom
         var optionsPendapatan = {
             chart: {
                 type: 'area',
                 height: 300,
-                toolbar: { show: false },
+                toolbar: {
+                    show: false, // Nonaktifkan toolbar termasuk zoom
+                    tools: {
+                        zoom: false, // Nonaktifkan zoom secara spesifik
+                        zoomin: false,
+                        zoomout: false,
+                        pan: false,
+                        reset: false,
+                        download: false
+                    }
+                },
+                zoom: {
+                    enabled: false // Nonaktifkan zooming
+                },
                 sparkline: { enabled: false },
+                animations: {
+                    enabled: true,
+                    easing: 'easeinout',
+                    speed: 800,
+                    animateGradually: {
+                        enabled: true,
+                        delay: 150
+                    },
+                    dynamicAnimation: {
+                        enabled: true,
+                        speed: 350
+                    }
+                }
             },
             series: [
                 {
@@ -421,28 +461,42 @@
             stroke: {
                 curve: 'smooth',
                 width: 3,
+                lineCap: 'round'
             },
             fill: {
                 type: 'gradient',
                 gradient: {
                     shade: 'light',
                     type: "vertical",
-                    opacityFrom: 0.4,
+                    shadeIntensity: 0.5,
+                    gradientToColors: ['#4E6BFF', '#0dcaf0'],
+                    opacityFrom: 0.6,
                     opacityTo: 0.1,
-                    stops: [0, 100]
+                    stops: [0, 90, 100]
                 }
             },
             xaxis: {
                 categories: @json($labelBulan),
-                labels: { 
+                labels: {
                     show: true,
                     style: {
                         colors: '#6c757d',
-                        fontSize: '12px'
+                        fontSize: '12px',
+                        fontFamily: 'Inter, sans-serif'
                     }
                 },
-                axisBorder: { show: true, color: '#e9ecef' },
-                axisTicks: { show: true, color: '#e9ecef' },
+                axisBorder: {
+                    show: true,
+                    color: '#e9ecef',
+                    height: 1
+                },
+                axisTicks: {
+                    show: true,
+                    color: '#e9ecef'
+                },
+                tooltip: {
+                    enabled: false
+                }
             },
             yaxis: {
                 labels: {
@@ -456,39 +510,82 @@
                     },
                     style: {
                         colors: '#6c757d',
-                        fontSize: '12px'
+                        fontSize: '12px',
+                        fontFamily: 'Inter, sans-serif'
                     }
+                },
+                axisBorder: {
+                    show: true,
+                    color: '#e9ecef'
                 }
             },
             grid: {
                 show: true,
                 strokeDashArray: 3,
-                borderColor: '#e9ecef'
+                borderColor: '#e9ecef',
+                padding: {
+                    top: 0,
+                    right: 10,
+                    bottom: 0,
+                    left: 10
+                }
             },
-            legend: { 
+            legend: {
                 show: false
             },
             tooltip: {
                 shared: true,
                 intersect: false,
-                x: { 
-                    show: true 
+                theme: 'light',
+                style: {
+                    fontSize: '12px',
+                    fontFamily: 'Inter, sans-serif'
+                },
+                x: {
+                    show: true,
+                    formatter: function(value, { series, seriesIndex, dataPointIndex, w }) {
+                        return w.globals.categoryLabels[dataPointIndex];
+                    }
                 },
                 y: {
-                    formatter: function (value) {
+                    formatter: function (value, { series, seriesIndex, dataPointIndex, w }) {
                         return formatRupiah(value);
+                    },
+                    title: {
+                        formatter: function(seriesName) {
+                            return seriesName + ':';
+                        }
                     }
+                },
+                marker: {
+                    show: true
                 }
             },
             dataLabels: {
                 enabled: false
+            },
+            markers: {
+                size: 0,
+                colors: ['#fff'],
+                strokeColors: ['#4E6BFF', '#0dcaf0'],
+                strokeWidth: 2,
+                strokeOpacity: 0.9,
+                strokeDashArray: 0,
+                fillOpacity: 1,
+                discrete: [],
+                shape: "circle",
+                radius: 2,
+                hover: {
+                    size: 6,
+                    sizeOffset: 3
+                }
             }
         };
 
         var chartPendapatan = new ApexCharts(document.querySelector("#chartPendapatanBulanan"), optionsPendapatan);
         chartPendapatan.render();
 
-        // 2. GRAFIK TOTAL TRANSAKSI (Donut Chart)
+        // 2. GRAFIK TOTAL TRANSAKSI (Donut Chart) - TETAP SEPERTI ASLI
         var optionsTransaksi = {
             chart: {
                 type: 'donut',
@@ -543,7 +640,7 @@
         document.getElementById('year').addEventListener('change', function() {
             document.getElementById('filterForm').submit();
         });
-        
+
         document.getElementById('month').addEventListener('change', function() {
             document.getElementById('filterForm').submit();
         });
