@@ -223,11 +223,11 @@
             .login-bg-side {
                 display: none;
             }
-            
+
             .login-wrapper {
                 background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
             }
-            
+
             .auth-card {
                 background: rgba(255, 255, 255, 0.98);
             }
@@ -280,7 +280,7 @@
             <div class="col-lg-6 login-wrapper">
                 <div class="login-card">
                     <div class="auth-card">
-                        
+
                         <!-- {{-- Logo --}}
                         <div class="auth-logo">
                             DK
@@ -349,7 +349,7 @@
                             </div>
 
                             {{-- Remember & Forgot --}}
-                            <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="d-flex justify-content-end align-items-center mb-4">
                                 <!-- <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
                                     <label class="form-check-label small text-secondary" for="remember">
@@ -359,7 +359,7 @@
                                 @if (Route::has('password.request'))
                                 <a href="{{ route('password.request') }}" class="small text-primary">Lupa Password?</a>
                                 @else
-                                <a href="#" class="small text-primary">Lupa Password?</a>
+                                <a href="{{ route('password.request') }}" class="small text-primary">Lupa Password?</a>
                                 @endif
                             </div>
 
@@ -375,7 +375,7 @@
                         <div class="mt-4 text-center">
                             <div class="border-top pt-3">
                                 <p class="text-muted small mb-0">
-                                    Baru mendaftar? 
+                                    Baru mendaftar?
                                     <a href="{{ route('activation.form') }}" class="text-primary">
                                         Aktivasi Akun
                                     </a>
@@ -392,7 +392,7 @@
                 <div class="bg-element bg-element-1"></div>
                 <div class="bg-element bg-element-2"></div>
                 <div class="bg-element bg-element-3"></div>
-                
+
                 {{-- Content di tengah --}}
                 <div class="bg-content">
                     <div class="brand-container">
@@ -400,7 +400,7 @@
                         <div class="company-logo">
                             <img src="{{ asset('mainIMG/logoDK.png') }}" alt="Dinoyo Kamera" class="logo-img">
                         </div>
-                        
+
                         {{-- Brand Text --}}
                         <div class="brand-text">
                             <h1 class="company-name">SiDiKa</h1>
