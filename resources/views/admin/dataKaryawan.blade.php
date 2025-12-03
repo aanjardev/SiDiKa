@@ -34,14 +34,14 @@
             <div class="d-flex align-items-center gap-2 pe-2">
 
                 {{-- Dropdown Jabatan --}}
-                <select name="jabatan"
+                {{-- <select name="jabatan"
                         class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="all" {{ ($selected_jabatan ?? 'all') == 'all' ? 'selected' : '' }}>Semua Jabatan</option>
                     <option value="Manager" {{ ($selected_jabatan ?? 'all') == 'Manager' ? 'selected' : '' }}>Manager</option>
                     <option value="Staff Operasional" {{ ($selected_jabatan ?? 'all') == 'Staff Operasional' ? 'selected' : '' }}>Staff Operasional</option>
-                </select>
+                </select> --}}
 
                 {{-- Dropdown Status --}}
                 <select name="status"
@@ -54,8 +54,8 @@
                 </select>
 
                 {{-- Dropdown Sort --}}
-                <select name="sort_by" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="sort_by"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="updated_at" {{ ($sort_by ?? 'updated_at') == 'updated_at' ? 'selected' : '' }}>Urutkan: Terakhir diubah</option>

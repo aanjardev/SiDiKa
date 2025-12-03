@@ -14,6 +14,10 @@ $backRoute = route('admin.products.index');
 <a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
     <i class="fas fa-arrow-left me-1"></i> Kembali
 </a>
+<button type="submit" form="product-form" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <i class="fa-solid fa-save"></i>
+    <span>{{ $isEdit ? 'Simpan Perubahan' : 'Simpan Produk Baru' }}</span>
+</button>
 @endpush
 
 @section('content')
@@ -354,14 +358,6 @@ $backRoute = route('admin.products.index');
 
     </div>
 
-    </div>
-
-    {{-- FOOTER ACTION BAR: Tombol Simpan --}}
-    <div class="d-flex justify-content-end align-items-center p-4">
-        <button type="submit" class="btn btn-primary fw-bold px-4 shadow-sm">
-            <i class="fa-solid fa-save me-2"></i>
-            {{ $isEdit ? 'Simpan Perubahan' : 'Simpan Produk Baru' }}
-        </button>
     </div>
 
 </form>

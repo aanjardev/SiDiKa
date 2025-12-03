@@ -145,7 +145,7 @@
                             <h6 class="fw-bold text-dark mb-4">
                                 <i class="fa-solid fa-address-book me-2 text-warning"></i>Kontak & Lokasi
                             </h6>
-
+                            
                             <div class="row">
                                 <div class="col-md-6">
                                     {{-- Status Aktif --}}
@@ -241,7 +241,7 @@
                         <i class="fa-solid fa-clock me-2 text-success"></i>Jam Operasional
                     </h6>
                     <p class="text-muted small mt-1">Atur jam buka untuk setiap hari.</p>
-
+                    
                     {{-- Tombol Aksi Cepat --}}
                     @if(!isset($isShow) || !$isShow)
                     <div class="d-flex gap-2 mt-3">
@@ -295,30 +295,30 @@
                                     {{ $hari }}
                                 </label>
                                 <div class="form-check form-switch">
-                                    <input class="form-check-input jam-operasional-toggle" type="checkbox"
-                                        id="jam_{{ strtolower($hari) }}_buka"
-                                        name="jam_operasional[{{ $hari }}][is_buka]"
-                                        value="1"
-                                        {{ old("jam_operasional.{$hari}.is_buka", ($jamOperasionalData[$hari]->is_buka ?? false)) ? 'checked' : '' }}
-                                        {{ isset($isShow) && $isShow ? 'disabled' : '' }}>
+                                    <input class="form-check-input jam-operasional-toggle" type="checkbox" 
+                                           id="jam_{{ strtolower($hari) }}_buka" 
+                                           name="jam_operasional[{{ $hari }}][is_buka]" 
+                                           value="1" 
+                                           {{ old("jam_operasional.{$hari}.is_buka", ($jamOperasionalData[$hari]->is_buka ?? false)) ? 'checked' : '' }}
+                                           {{ isset($isShow) && $isShow ? 'disabled' : '' }}>
                                     <label class="form-check-label small" for="jam_{{ strtolower($hari) }}_buka">
                                         Buka
                                     </label>
                                 </div>
                             </div>
-
+                            
                             <div class="row jam-operasional-fields" data-hari="{{ $hari }}">
                                 <div class="col-6">
                                     <div class="input-group input-group-sm">
                                         <span class="input-group-text bg-light border-end-0 text-muted ps-2">
                                             <i class="fa-solid fa-clock fa-xs"></i>
                                         </span>
-                                        <input type="time"
-                                            class="form-control border-start-0 ps-2 jam-buka-input clickable-time-input"
-                                            name="jam_operasional[{{ $hari }}][jam_buka]"
-                                            value="{{ old("jam_operasional.{$hari}.jam_buka", $jamOperasionalData[$hari]->jam_buka ?? '') }}"
-                                            placeholder="08:00"
-                                            {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                                        <input type="time" 
+                                               class="form-control border-start-0 ps-2 jam-buka-input clickable-time-input" 
+                                               name="jam_operasional[{{ $hari }}][jam_buka]" 
+                                               value="{{ old("jam_operasional.{$hari}.jam_buka", $jamOperasionalData[$hari]->jam_buka ?? '') }}"
+                                               placeholder="08:00"
+                                               {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
                                     </div>
                                 </div>
                                 <div class="col-6">
@@ -326,35 +326,34 @@
                                         <span class="input-group-text bg-light border-end-0 text-muted ps-2">
                                             <i class="fa-solid fa-clock fa-xs"></i>
                                         </span>
-                                        <input type="time"
-                                            class="form-control border-start-0 ps-2 jam-tutup-input clickable-time-input"
-                                            name="jam_operasional[{{ $hari }}][jam_tutup]"
-                                            value="{{ old("jam_operasional.{$hari}.jam_tutup", $jamOperasionalData[$hari]->jam_tutup ?? '') }}"
-                                            placeholder="21:00"
-                                            {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                                        <input type="time" 
+                                               class="form-control border-start-0 ps-2 jam-tutup-input clickable-time-input" 
+                                               name="jam_operasional[{{ $hari }}][jam_tutup]" 
+                                               value="{{ old("jam_operasional.{$hari}.jam_tutup", $jamOperasionalData[$hari]->jam_tutup ?? '') }}"
+                                               placeholder="21:00"
+                                               {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
                                     </div>
                                 </div>
                             </div>
-
+                            
                             {{-- Catatan Khusus (Collapse) --}}
                             <div class="mt-1">
-                                <button type="button"
-                                        class="btn btn-link btn-sm p-0 text-muted small text-decoration-none catatan-toggle border-0 bg-transparent"
+                                <button type="button" 
+                                        class="btn btn-link btn-sm p-0 text-muted small text-decoration-none catatan-toggle border-0 bg-transparent" 
                                         style="font-size: 0.75rem; color: #6c757d !important; outline: none !important; box-shadow: none !important;"
                                         onclick="toggleCatatan('{{ strtolower($hari) }}')">
                                     <i class="fa-solid fa-plus-circle me-1" style="color: #6c757d !important;"></i>
                                     <span id="catatan-text-{{ strtolower($hari) }}" style="color: #6c757d !important;">Tambah catatan</span>
                                 </button>
                                 <div id="catatan-collapse-{{ strtolower($hari) }}" class="collapse mt-1">
-                                    <input type="text"
-                                        class="form-control form-control-sm"
-                                        name="jam_operasional[{{ $hari }}][catatan]"
-                                        value="{{ old("jam_operasional.{$hari}.catatan", $jamOperasionalData[$hari]->catatan ?? '') }}"
-                                        placeholder="Catatan khusus (opsional)"
-                                        {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
+                                    <input type="text" 
+                                           class="form-control form-control-sm" 
+                                           name="jam_operasional[{{ $hari }}][catatan]" 
+                                           value="{{ old("jam_operasional.{$hari}.catatan", $jamOperasionalData[$hari]->catatan ?? '') }}"
+                                           placeholder="Catatan khusus (opsional)"
+                                           {{ isset($isShow) && $isShow ? 'readonly' : '' }}>
                                 </div>
                             </div>
-                        </div> {{-- PENUTUP div.mb-2 YANG TAMBAHAN --}}
                     @endforeach
                 </div>
             </div>
@@ -362,7 +361,6 @@
         </div>
     </div>
 </form>
-</div>
 
 @push('scripts')
 <script>
@@ -374,7 +372,7 @@
                 const hari = this.closest('.jam-operasional-fields').dataset.hari;
                 const fields = document.querySelector(`.jam-operasional-fields[data-hari="${hari}"]`);
                 const inputs = fields.querySelectorAll('input[type="time"], input[type="text"]');
-
+                
                 inputs.forEach(input => {
                     if (input.type === 'text' && input.name.includes('catatan')) {
                         // Catatan tetap bisa diisi meskipun tutup
@@ -383,7 +381,7 @@
                     input.disabled = !this.checked;
                 });
             });
-
+            
             // Trigger initial state
             toggle.dispatchEvent(new Event('change'));
         });
@@ -431,7 +429,7 @@
     function samakanSemuaJam() {
         const jamBuka = document.getElementById('global_jam_buka').value;
         const jamTutup = document.getElementById('global_jam_tutup').value;
-
+        
         if (!jamBuka || !jamTutup) {
             alert('Silakan isi jam buka dan jam tutup terlebih dahulu');
             return;
@@ -439,11 +437,11 @@
 
         const jamBukaInputs = document.querySelectorAll('.jam-buka-input');
         const jamTutupInputs = document.querySelectorAll('.jam-tutup-input');
-
+        
         jamBukaInputs.forEach(input => {
             input.value = jamBuka;
         });
-
+        
         jamTutupInputs.forEach(input => {
             input.value = jamTutup;
         });
@@ -457,7 +455,7 @@
         const collapse = document.getElementById(`catatan-collapse-${hari}`);
         const text = document.getElementById(`catatan-text-${hari}`);
         const icon = text.querySelector('i');
-
+        
         if (collapse.classList.contains('show')) {
             collapse.classList.remove('show');
             icon.className = 'fa-solid fa-plus-circle me-1';
@@ -466,7 +464,7 @@
             collapse.classList.add('show');
             icon.className = 'fa-solid fa-minus-circle me-1';
             text.innerHTML = '<i class="fa-solid fa-minus-circle me-1" style="color: #6c757d !important;"></i>Sembunyikan catatan';
-
+            
             // Focus ke input catatan
             setTimeout(() => {
                 const input = collapse.querySelector('input');
@@ -480,3 +478,4 @@
 @endpush
 
 @endsection
+

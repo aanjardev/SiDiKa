@@ -97,6 +97,9 @@ class EmployeeController extends Controller
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
         ]);
 
+        // Jika tanggal keluar diisi, paksa status menjadi non-aktif
+        $status = !empty($validated['tanggal_keluar']) ? 'non-aktif' : $validated['status'];
+
         // Simpan data karyawan
         Employee::create([
             'nama_lengkap' => $validated['nama_lengkap'],
@@ -105,7 +108,7 @@ class EmployeeController extends Controller
             'nomor_telepon' => $validated['nomor_telepon'],
             'tanggal_masuk' => $validated['tanggal_masuk'],
             'gaji' => $validated['gaji'] ?? null,
-            'status' => $validated['status'],
+            'status' => $status,
             'alamat' => $validated['alamat'] ?? null,
             'tanggal_keluar' => $validated['tanggal_keluar'] ?? null,
         ]);
@@ -167,6 +170,9 @@ class EmployeeController extends Controller
             'tanggal_masuk'=>'Tanggal masuk harus berupa tanggal sebelum atau sama dengan hari ini.',
         ]);
 
+        // Jika tanggal keluar diisi, paksa status menjadi non-aktif
+        $newStatus = !empty($validated['tanggal_keluar']) ? 'non-aktif' : $validated['status'];
+
         // Update karyawan
         $employee->update([
             'nama_lengkap' => $validated['nama_lengkap'],
@@ -175,13 +181,13 @@ class EmployeeController extends Controller
             'nomor_telepon' => $validated['nomor_telepon'],
             'tanggal_masuk' => $validated['tanggal_masuk'],
             'gaji' => $validated['gaji'] ?? null,
-            'status' => $validated['status'],
+            'status' => $newStatus,
             'alamat' => $validated['alamat'] ?? null,
             'tanggal_keluar' => $validated['tanggal_keluar'] ?? null,
         ]);
 
         // Auto-deactivate user jika karyawan status berubah menjadi non-aktif
-        if ($oldStatus !== 'non-aktif' && $validated['status'] === 'non-aktif') {
+        if ($oldStatus !== 'non-aktif' && $newStatus === 'non-aktif') {
             if ($employee->user) {
                 $employee->user->update(['status' => 'inactive']);
                 
@@ -193,7 +199,7 @@ class EmployeeController extends Controller
             }
         }
         // Auto-reactivate user jika karyawan status berubah menjadi aktif
-        elseif ($oldStatus !== 'aktif' && $validated['status'] === 'aktif') {
+        elseif ($oldStatus !== 'aktif' && $newStatus === 'aktif') {
             if ($employee->user) {
                 // Hanya re-activate jika user sebelumnya inactive, bukan pending
                 if ($employee->user->status === 'inactive') {
@@ -210,9 +216,9 @@ class EmployeeController extends Controller
         $message = 'Karyawan berhasil diperbarui.';
         
         // Tambahkan pesan khusus jika ada perubahan status user
-        if ($oldStatus !== 'non-aktif' && $validated['status'] === 'non-aktif' && $employee->user) {
+        if ($oldStatus !== 'non-aktif' && $newStatus === 'non-aktif' && $employee->user) {
             $message .= ' Hak akses user telah dinonaktifkan.';
-        } elseif ($oldStatus !== 'aktif' && $validated['status'] === 'aktif' && $employee->user && $employee->user->status === 'active') {
+        } elseif ($oldStatus !== 'aktif' && $newStatus === 'aktif' && $employee->user && $employee->user->status === 'active') {
             $message .= ' Hak akses user telah diaktifkan kembali.';
         }
 

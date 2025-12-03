@@ -12,7 +12,11 @@ class CustomerController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Customer::query();
+        $query = Customer::query()
+            ->withCount([
+                'penjualan as total_penjualan',
+                'pembelian as total_pembelian',
+            ]);
 
         // Search by nama or nomor telepon
         if ($request->filled('search')) {
