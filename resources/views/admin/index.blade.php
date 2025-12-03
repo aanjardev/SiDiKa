@@ -143,7 +143,8 @@
         </div>
     </div>
 
-    {{-- Card 4: Cabang Terbaik --}}
+{{-- Card 4: Cabang Terbaik - Hanya tampil jika filter "Semua Cabang" --}}
+@if($showBestBranch)
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card shadow-sm border-0 h-100" style="border-left: 4px solid #ffc107 !important;">
             <div class="card-body position-relative" style="overflow: hidden;">
@@ -151,19 +152,23 @@
                     <div>
                         <p class="text-muted small mb-1 fw-medium">Cabang Terbaik</p>
                         <h5 class="mb-1 fw-bold">{{ $namaCabangTerbaik }}</h5>
-                        <h6 class="mb-0 text-muted">Rp {{ number_format($omzetCabangTerbaik, 0, ',', '.') }}</h6>
+                        @if($labaCabangTerbaik > 0)
+                            <h6 class="mb-0 text-muted">Rp {{ number_format($labaCabangTerbaik, 0, ',', '.') }}</h6>
+                        @else
+                            <h6 class="mb-0 text-muted">-</h6>
+                        @endif
                     </div>
-                    <div class="bg-warning bg-opacity-10 rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                    <div class="bg-warning bg-opacity-10 rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items; center; justify-content: center;">
                         <i class="fas fa-trophy text-warning fa-lg"></i>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small">Omzet tertinggi</span>
+                    <span class="text-muted small">Laba bersih tertinggi</span>
                 </div>
             </div>
         </div>
     </div>
-</div>
+@endif
 
 {{-- ======================================================= --}}
 {{-- CHARTS SECTION: Area Chart & Donut Chart --}}

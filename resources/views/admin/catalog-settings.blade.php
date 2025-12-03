@@ -25,7 +25,7 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label for="site_name" class="form-label fw-medium small text-muted">Nama Website</label>
-                        <input type="text" class="form-control" id="site_name" name="site_name" value="{{ old('site_name', $cat_setting->nama_website) }}" placeholder="Contoh: Dinoyo Kamera" autofocus>
+                        <input type="text" class="form-control" id="site_name" name="site_name" value="{{ old('site_name', $cat_setting->nama_website) }}" placeholder="Contoh: Dinoyo Kamera">
                         @error('site_name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 
@@ -220,6 +220,17 @@
 @endsection
 
 @push('scripts')
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.querySelector('input[name="site_name"]');
+    if (input) {
+        input.focus();
+        const length = input.value.length;
+        input.setSelectionRange(length, length); // kursor ke akhir
+    }
+});
+</script>
 <script>
     // Logic Penghapusan
     let deletedPartnersArr = [];

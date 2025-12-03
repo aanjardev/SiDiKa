@@ -208,4 +208,15 @@
 @endsection
 
 @push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.querySelector('input[name="search"]');
+    if (input) {
+        input.focus();
+        const length = input.value.length;
+        input.setSelectionRange(length, length); // kursor ke akhir
+    }
+});
+</script>
+
 @endpush

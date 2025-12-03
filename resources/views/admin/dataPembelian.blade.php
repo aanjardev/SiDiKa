@@ -49,8 +49,7 @@
                        class="form-control border-0 shadow-none bg-transparent"
                        placeholder="Cari Kode Pembelian atau Nama Customer..."
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;"
-                       autofocus>
+                       style="font-size: 0.95rem;">
             </div>
 
             {{-- Bagian Kanan: Dropdown --}}
@@ -224,6 +223,18 @@
 @endsection
 
 @push('scripts')
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.querySelector('input[name="search"]');
+    if (input) {
+        input.focus();
+        const length = input.value.length;
+        input.setSelectionRange(length, length); // kursor ke akhir
+    }
+});
+</script>
+
 <script src="{{ asset('js/admin-ajax-table.js') }}"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {

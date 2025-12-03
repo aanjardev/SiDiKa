@@ -30,7 +30,8 @@ class DashboardMetricsService
     *   recentPurchases:Collection,
     *   dataCabang:Collection,
     *   namaCabangTerbaik:string,
-    *   omzetCabangTerbaik:int,
+    *   labaCabangTerbaik:int,
+    *   showBestBranch:bool,
     * }
     */
     public function getMetrics(int $year, ?int $month, ?int $branchId): array
@@ -89,7 +90,7 @@ class DashboardMetricsService
             $recentSales = $this->recentSales($year, $branchId);
             $recentPurchases = $this->recentPurchases($year, $branchId);
 
-            [$dataCabang, $namaCabangTerbaik, $omzetCabangTerbaik] = $this->branchPerformance(
+            [$dataCabang, $namaCabangTerbaik, $labaCabangTerbaik, $showBestBranch] = $this->branchPerformance(
                 $year,
                 $month,
                 $branchId
@@ -109,7 +110,8 @@ class DashboardMetricsService
                 'recentPurchases' => $recentPurchases,
                 'dataCabang' => $dataCabang,
                 'namaCabangTerbaik' => $namaCabangTerbaik,
-                'omzetCabangTerbaik' => $omzetCabangTerbaik,
+                'labaCabangTerbaik' => $labaCabangTerbaik,
+                'showBestBranch' => $showBestBranch,
             ];
         });
     }
@@ -308,10 +310,13 @@ class DashboardMetricsService
     }
 
     /**
-     * @return array{0:Collection,1:string,2:int}
+     * @return array{0:Collection,1:string,2:int,3:bool}
      */
     private function branchPerformance(int $year, ?int $month, ?int $branchId): array
     {
+        // Jika filter cabang spesifik dipilih, jangan tampilkan card cabang terbaik
+        $showBestBranch = $branchId === null;
+
         $branchesQuery = Branch::query();
         if ($branchId) {
             $branchesQuery->where('id', $branchId);
@@ -360,10 +365,14 @@ class DashboardMetricsService
             ];
         })->values();
 
-        $cabangTerbaik = $dataCabang->sortByDesc('pendapatanCabang')->first();
-        $namaCabangTerbaik = $cabangTerbaik ? $cabangTerbaik['namaCabang'] : 'N/A';
-        $omzetCabangTerbaik = $cabangTerbaik ? $cabangTerbaik['pendapatanCabang'] : 0;
+        // Urutkan berdasarkan laba bersih tertinggi (PERUBAHAN UTAMA)
+        $cabangTerbaik = $dataCabang->sortByDesc('labaBersihCabang')->first();
+        
+        // Jika semua cabang memiliki laba 0, tampilkan "-"
+        $labaTertinggi = $cabangTerbaik ? $cabangTerbaik['labaBersihCabang'] : 0;
+        $namaCabangTerbaik = ($cabangTerbaik && $labaTertinggi > 0) ? $cabangTerbaik['namaCabang'] : '-';
+        $labaCabangTerbaik = $labaTertinggi;
 
-        return [$dataCabang, $namaCabangTerbaik, $omzetCabangTerbaik];
+        return [$dataCabang, $namaCabangTerbaik, $labaCabangTerbaik, $showBestBranch];
     }
 }
