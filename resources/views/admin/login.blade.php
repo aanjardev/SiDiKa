@@ -365,7 +365,7 @@
 
                             {{-- Submit Button --}}
                             <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">
+                                <button dusk="btn-sign-in" type="submit" class="btn btn-primary">
                                     <i class="fa-solid fa-right-to-bracket me-2"></i> Sign In
                                 </button>
                             </div>
