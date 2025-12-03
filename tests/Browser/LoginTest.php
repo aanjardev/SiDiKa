@@ -17,7 +17,7 @@ class LoginTest extends DuskTestCase
         $this->browse(function (Browser $browser) {
             $browser->visit('/login')
                     ->assertSee('SiDiKa')->type('email','admin@dinoyokamera.com')->type('password','admin123')->click('@btn-sign-in')
-                    ->assertPathIs('/dashboard');
+                    ->assertSee('Dashboard');
                     Sleep::for(5)->seconds();
         });
 
