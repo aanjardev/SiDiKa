@@ -20,10 +20,10 @@ class PermissionsController extends Controller
     {
         $this->emailService = $emailService;
     }
-    public function index()
+    
+    public function index(Request $request)
     {
-        // Join users dan karyawan dengan pagination
-        $user_data = DB::table('users')
+        $query = DB::table('users')
             ->join('karyawan', 'users.id', '=', 'karyawan.id')
             ->select(
                 'users.id',
@@ -32,10 +32,36 @@ class PermissionsController extends Controller
                 'users.role',
                 'users.status',
                 'karyawan.status as karyawan_status'
-            )
-            ->paginate(10); // 10 items per page
+            );
 
-        return view('admin.permissions', compact('user_data'));
+        // Search by name or email
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function($q) use ($search) {
+                $q->where('users.name', 'like', "%{$search}%")
+                  ->orWhere('users.email', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by role (jabatan)
+        if ($request->filled('role') && $request->role !== 'all') {
+            $query->where('users.role', $request->role);
+        }
+
+        // Filter by status
+        if ($request->filled('status_filter') && $request->status_filter !== 'all') {
+            $query->where('users.status', $request->status_filter);
+        }
+
+        $user_data = $query->paginate(10)->withQueryString();
+
+        // Get unique roles for filter dropdown
+        $roles = DB::table('users')->distinct()->pluck('role');
+
+        return view('admin.permissions', compact('user_data', 'roles'))
+            ->with('search_term', $request->input('search', ''))
+            ->with('selected_role', $request->input('role', 'all'))
+            ->with('selected_status', $request->input('status_filter', 'all'));
     }
 
     public function create()
@@ -49,39 +75,39 @@ class PermissionsController extends Controller
 
 
     public function store(Request $request){
-    $request->validate([
-        'email' => 'required|email|unique:users,email',
-        'role' => 'required'
-    ]);
+        $request->validate([
+            'email' => 'required|email|unique:users,email',
+            'role' => 'required'
+        ]);
 
-    $karyawan = Employee::findOrFail($request->karyawan_name);
+        $karyawan = Employee::findOrFail($request->karyawan_name);
 
-    // Generate activation token
-    $activationToken = bin2hex(random_bytes(32));
+        // Generate activation token
+        $activationToken = bin2hex(random_bytes(32));
 
-    $user = User::create([
-        'id' => $karyawan->id,
-        'name' => $karyawan->nama_lengkap,
-        'email' => $request->email,
-        'password' => Hash::make(Str::random(32)), // Random password yang tidak akan digunakan
-        'role' => $request->role,
-        'status' => 'pending',
-        'activation_token' => $activationToken,
-        'token_expiry' => now()->addHours(72), // Token berlaku 3 hari
-    ]);
+        $user = User::create([
+            'id' => $karyawan->id,
+            'name' => $karyawan->nama_lengkap,
+            'email' => $request->email,
+            'password' => Hash::make(Str::random(32)), // Random password yang tidak akan digunakan
+            'role' => $request->role,
+            'status' => 'pending',
+            'activation_token' => $activationToken,
+            'token_expiry' => now()->addHours(72), // Token berlaku 3 hari
+        ]);
 
-    // Kirim email activation
-    $emailSent = $this->emailService->sendActivationEmail($user, $activationToken);
+        // Kirim email activation
+        $emailSent = $this->emailService->sendActivationEmail($user, $activationToken);
 
-    if ($emailSent) {
-        return redirect()->route('admin.permissions')
-            ->with('success', 'User berhasil dibuat! Email aktivasi telah dikirim ke ' . $user->email);
-    } else {
-        // Jika email gagal dikirim, masih lanjutkan tapi beri warning
-        return redirect()->route('admin.permissions')
-            ->with('success', 'User berhasil dibuat! Namun email aktivasi gagal dikirim. Silakan generate ulang token.')
-            ->with('warning', 'Email activation failed. Please check email configuration.');
-    }
+        if ($emailSent) {
+            return redirect()->route('admin.permissions')
+                ->with('success', 'User berhasil dibuat! Email aktivasi telah dikirim ke ' . $user->email);
+        } else {
+            // Jika email gagal dikirim, masih lanjutkan tapi beri warning
+            return redirect()->route('admin.permissions')
+                ->with('success', 'User berhasil dibuat! Namun email aktivasi gagal dikirim. Silakan generate ulang token.')
+                ->with('warning', 'Email activation failed. Please check email configuration.');
+        }
     }
 
     public function edit($id)

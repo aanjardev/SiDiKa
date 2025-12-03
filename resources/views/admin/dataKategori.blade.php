@@ -12,7 +12,7 @@
 @section('content')
 
 {{-- Filter dan Pencarian --}}
-<form method="GET" action="{{ route('admin.categories.index') }}" id="searchFormKategori">
+<form method="GET" action="{{ route('admin.categories.index') }}" id="searchForm">
     <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
         <div class="card-body p-2 d-flex align-items-center flex-wrap">
             {{-- Bagian Kiri: Input Search --}}
@@ -33,7 +33,7 @@
                 <select name="sort_by"
                         class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
-                        onchange="document.getElementById('searchFormKategori').submit();">
+                        onchange="document.getElementById('searchForm').submit();">
                     <option value="nama" {{ ($sort_by ?? 'nama') == 'nama' ? 'selected' : '' }}>Urutkan: A-Z</option>
                     <option value="nama_desc" {{ ($sort_by ?? '') == 'nama_desc' ? 'selected' : '' }}>Urutkan: Z-A</option>
                     <option value="terbaru" {{ ($sort_by ?? '') == 'terbaru' ? 'selected' : '' }}>Terbaru</option>

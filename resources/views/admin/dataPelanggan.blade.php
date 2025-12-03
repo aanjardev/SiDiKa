@@ -25,8 +25,7 @@
                        name="search"
                        placeholder="Cari pelanggan berdasarkan nama, telepon, atau NIK"
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;"
-                       autofocus>
+                       style="font-size: 0.95rem;">
             </div>
 
             {{-- Bagian Kanan: Dropdown Sort --}}
@@ -147,6 +146,17 @@
 @endsection
 
 @push('styles')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.querySelector('input[name="search"]');
+    if (input) {
+        input.focus();
+        const length = input.value.length;
+        input.setSelectionRange(length, length); // kursor ke akhir
+    }
+});
+</script>
+
 <style>
     .clickable-code {
         transition: all 0.2s ease;
