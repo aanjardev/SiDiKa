@@ -2,10 +2,21 @@
 
 @section('title', isset($user) ? 'Edit User' : 'Tambah User')
 
+@push('page-actions')
+    <a href="{{ route('admin.permissions') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Kembali</span>
+    </a>
+    <button type="submit" form="permissionsForm" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+        <i class="fa-solid fa-save"></i>
+        <span>{{ isset($user) ? 'Simpan Perubahan' : 'Simpan User Baru' }}</span>
+    </button>
+@endpush
+
 @section('content')
 
 {{-- Route action seharusnya ke permissions.store/update, yang sudah benar di kedua branch. --}}
-<form action="{{ isset($user) ? route('admin.permissions.update', $user->id) : route('admin.permissions.store') }}" method="POST" data-validate-form>
+<form id="permissionsForm" action="{{ isset($user) ? route('admin.permissions.update', $user->id) : route('admin.permissions.store') }}" method="POST" data-validate-form>
     @csrf
     @if(isset($user))
         @method('PUT')
@@ -149,20 +160,6 @@
                                 </ul>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Card Aksi --}}
-            <div class="card shadow-sm border-0" style="border-radius: 10px;">
-                <div class="card-body p-4">
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary fw-medium py-2">
-                            <i class="fa-solid fa-save me-2"></i> {{ isset($user) ? 'Simpan Perubahan' : 'Simpan User Baru' }}
-                        </button>
-                        <a href="{{ route('admin.permissions') }}" class="btn btn-light border fw-medium text-secondary py-2">
-                            <i class="fa-solid fa-arrow-left me-2"></i> Batal & Kembali
-                        </a>
                     </div>
                 </div>
             </div>

@@ -37,6 +37,7 @@ document.addEventListener("DOMContentLoaded", function () {
             iconClass: "fa-pen-to-square",
             btnClass: "btn-light border text-secondary",
             hint: "Menyimpan perubahan sebagai draft (status: Menunggu QC)",
+            requiresValidation: false, // <-- Tambah property baru
         },
         lolos_qc: {
             action: "save",
@@ -44,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
             iconClass: "fa-check-circle",
             btnClass: "btn-success",
             hint: "Menyimpan dan menandai produk lolos QC",
+            requiresValidation: true, // <-- Hanya ini yang perlu validasi
         },
         gagal_qc: {
             action: "archive",
@@ -51,10 +53,9 @@ document.addEventListener("DOMContentLoaded", function () {
             iconClass: "fa-archive",
             btnClass: "btn-danger",
             hint: "Menyimpan dan mengarsipkan produk (Gagal QC)",
+            requiresValidation: false, // <-- Tidak perlu validasi
         },
-        // 'diarsipkan': { action: 'archive', text: 'Tetap di Arsip', iconClass: 'fa-archive', btnClass: 'btn-secondary', hint: 'Tetap menyimpan dalam status arsip' }
     };
-
     function updateSmartButton() {
         if (!statusQcSelect) return;
         const status = statusQcSelect.value;
@@ -66,6 +67,9 @@ document.addEventListener("DOMContentLoaded", function () {
         smartActionBtn.className = `btn fw-medium py-2 ${config.btnClass}`;
         smartActionBtn.setAttribute("data-action", config.action);
         smartActionHint.textContent = config.hint;
+
+        // Toggle required attribute pada field berdasarkan status
+        toggleRequiredFields(status === "lolos_qc");
 
         // subtle highlight on the select (no giant font)
         if (statusQcSelect) {
@@ -100,6 +104,30 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     // ====== END SMART BUTTON LOGIC ======
 
+    // Fungsi untuk toggle required attribute berdasarkan status
+    function toggleRequiredFields(isLolosQc) {
+        const requiredFields = [
+            "nama_item",
+            "kategori_id",
+            "kode_sku",
+            "deskripsi_produk",
+            "harga_jual",
+        ];
+
+        requiredFields.forEach((fieldName) => {
+            const field = form?.querySelector(`[name="${fieldName}"]`);
+            if (field) {
+                if (isLolosQc) {
+                    field.setAttribute("required", "required");
+                    field.classList.add("required-field");
+                } else {
+                    field.removeAttribute("required");
+                    field.classList.remove("required-field");
+                }
+            }
+        });
+    }
+
     function markFormAsDirty() {
         if (!isFormDirty) {
             isFormDirty = true;
@@ -108,17 +136,80 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Deteksi perubahan pada semua input
     if (form) {
-        form.querySelectorAll("input, select, textarea").forEach((element) => {
+        // Real-time validation untuk required fields (hanya aktif saat lolos_qc)
+        form.querySelectorAll("input, select, textarea").forEach((field) => {
             // Skip hidden inputs dan submit buttons
-            if (element.type === "hidden" || element.type === "submit") return;
+            if (field.type === "hidden" || field.type === "submit") return;
 
-            element.addEventListener("input", markFormAsDirty);
-            element.addEventListener("change", markFormAsDirty);
-        });
+            // Only apply validation logic to fields that can be required
+            const isRequiredField = [
+                "nama_item",
+                "kategori_id",
+                "kode_sku",
+                "deskripsi_produk",
+                "harga_jual",
+            ].includes(field.name);
 
-        // Reset status dirty saat form berhasil disubmit
-        form.addEventListener("submit", function () {
-            isFormDirty = false;
+            if (isRequiredField) {
+                field.addEventListener("blur", function () {
+                    // Only validate if current status is lolos_qc
+                    const currentStatus =
+                        statusQcSelect?.value || "menunggu_qc";
+                    if (currentStatus !== "lolos_qc") return;
+
+                    const value = this.value.trim();
+
+                    // Validasi khusus untuk harga jual
+                    if (field.name === "harga_jual") {
+                        const numericValue = value.replace(/\./g, "");
+                        if (
+                            !numericValue ||
+                            !/^\d+$/.test(numericValue) ||
+                            parseInt(numericValue) <= 0
+                        ) {
+                            if (window.FormValidator) {
+                                FormValidator.setInvalid(
+                                    this,
+                                    "Harga Jual wajib diisi dan harus berupa angka lebih dari 0"
+                                );
+                            } else {
+                                this.classList.add("is-invalid");
+                            }
+                        } else {
+                            if (window.FormValidator) {
+                                FormValidator.clearValidation(this);
+                            } else {
+                                this.classList.remove("is-invalid");
+                            }
+                        }
+                    }
+                    // Validasi untuk field lainnya
+                    else if (!value) {
+                        if (window.FormValidator) {
+                            FormValidator.setInvalid(this);
+                        } else {
+                            this.classList.add("is-invalid");
+                        }
+                    } else {
+                        if (window.FormValidator) {
+                            FormValidator.clearValidation(this);
+                        } else {
+                            this.classList.remove("is-invalid");
+                        }
+                    }
+                });
+
+                // Clear error on input
+                field.addEventListener("input", function () {
+                    if (this.classList.contains("is-invalid")) {
+                        if (window.FormValidator) {
+                            FormValidator.clearValidation(this);
+                        } else {
+                            this.classList.remove("is-invalid");
+                        }
+                    }
+                });
+            }
         });
     }
 
@@ -232,9 +323,25 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!form) return;
 
     // Validasi form
+    // Validasi form
     form.addEventListener("submit", function (e) {
-        const actionInput = form.querySelector('input[name="action"]');
-        const action = actionInput?.value || "save";
+        let actionInput = form.querySelector('input[name="action"]');
+        let action = actionInput?.value;
+
+        // Jika action belum di-set (misal submit via Enter), turunkan dari select status_qc
+        if (!action && statusQcSelect) {
+            const status = statusQcSelect.value;
+            const config =
+                statusToAction[status] || statusToAction["menunggu_qc"];
+            action = config.action;
+            if (!actionInput) {
+                actionInput = document.createElement("input");
+                actionInput.type = "hidden";
+                actionInput.name = "action";
+                form.appendChild(actionInput);
+            }
+            actionInput.value = action;
+        }
 
         // strip formatting to plain digits before submit
         rupiahInputs.forEach(function (input) {
@@ -250,80 +357,120 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
 
-        // Jika action adalah draft, skip validasi
-        if (action === "draft") {
-            return true;
+        // Get current status untuk menentukan validasi
+        const currentStatus = statusQcSelect?.value || "menunggu_qc";
+        const requiresValidation =
+            statusToAction[currentStatus]?.requiresValidation || false;
+
+        // Jika tidak perlu validasi (draft atau gagal), langsung submit
+        if (!requiresValidation) {
+            return true; // Lanjutkan submit tanpa validasi
         }
 
-        // Validasi untuk action save/archive
-        let isValid = true;
-        const errors = [];
+        // Validasi hanya untuk status lolos_qc
+        if (requiresValidation) {
+            let isValid = true;
+            const errors = [];
 
-        // Helper function untuk set invalid
-        function setFieldInvalid(field) {
-            if (window.FormValidator) {
-                FormValidator.setInvalid(field);
-            } else {
-                field.classList.add("is-invalid");
+            // Helper function untuk set invalid
+            function setFieldInvalid(field) {
+                if (window.FormValidator) {
+                    FormValidator.setInvalid(field);
+                } else {
+                    field.classList.add("is-invalid");
+                }
             }
-        }
 
-        // Validasi Nama Item
-        const namaField = form.querySelector('[name="nama_item"]');
-        const nama = namaField?.value.trim() || "";
-        if (!nama) {
-            setFieldInvalid(namaField);
-            isValid = false;
-        }
-
-        // Validasi Kategori
-        const kategoriField = form.querySelector('[name="kategori_id"]');
-        const kategori = kategoriField?.value || "";
-        if (!kategori) {
-            setFieldInvalid(kategoriField);
-            isValid = false;
-        }
-
-        // Validasi Kode SKU
-        const kodeSkuField = form.querySelector('[name="kode_sku"]');
-        const kodeSku = kodeSkuField?.value.trim() || "";
-        if (!kodeSku) {
-            setFieldInvalid(kodeSkuField);
-            isValid = false;
-        }
-
-        // Validasi Deskripsi Produk
-        const deskripsiField = form.querySelector('[name="deskripsi_produk"]');
-        const deskripsi = deskripsiField?.value.trim() || "";
-        if (!deskripsi) {
-            setFieldInvalid(deskripsiField);
-            isValid = false;
-        }
-
-        // Validasi Harga Jual
-        const hargaJualField = form.querySelector('[name="harga_jual"]');
-        const hargaJual = hargaJualField?.value.trim() || "";
-        if (
-            !hargaJual ||
-            !/^\d+$/.test(hargaJual) ||
-            parseInt(hargaJual) <= 0
-        ) {
-            setFieldInvalid(hargaJualField);
-            isValid = false;
-        }
-
-        if (!isValid) {
-            e.preventDefault();
-            // Scroll ke error pertama
-            const firstError = form.querySelector(".is-invalid");
-            if (firstError) {
-                firstError.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center",
-                });
-                setTimeout(() => firstError.focus(), 300);
+            // Validasi Nama Item
+            const namaField = form.querySelector('[name="nama_item"]');
+            const nama = namaField?.value.trim() || "";
+            if (!nama) {
+                setFieldInvalid(namaField);
+                errors.push("Nama Item wajib diisi");
+                isValid = false;
             }
-            return false;
+
+            // Validasi Kategori
+            const kategoriField = form.querySelector('[name="kategori_id"]');
+            const kategori = kategoriField?.value || "";
+            if (!kategori) {
+                setFieldInvalid(kategoriField);
+                errors.push("Kategori wajib dipilih");
+                isValid = false;
+            }
+
+            // Validasi Kode SKU
+            const kodeSkuField = form.querySelector('[name="kode_sku"]');
+            const kodeSku = kodeSkuField?.value.trim() || "";
+            if (!kodeSku) {
+                setFieldInvalid(kodeSkuField);
+                errors.push("Kode SKU wajib diisi");
+                isValid = false;
+            }
+
+            // Validasi Deskripsi Produk
+            const deskripsiField = form.querySelector(
+                '[name="deskripsi_produk"]'
+            );
+            const deskripsi = deskripsiField?.value.trim() || "";
+            if (!deskripsi) {
+                setFieldInvalid(deskripsiField);
+                errors.push("Deskripsi Produk wajib diisi");
+                isValid = false;
+            }
+
+            // Validasi Harga Jual
+            const hargaJualField = form.querySelector('[name="harga_jual"]');
+            const hargaJual = hargaJualField?.value.trim() || "";
+            if (
+                !hargaJual ||
+                !/^\d+$/.test(hargaJual) ||
+                parseInt(hargaJual) <= 0
+            ) {
+                setFieldInvalid(hargaJualField);
+                errors.push(
+                    "Harga Jual wajib diisi dan harus berupa angka lebih dari 0"
+                );
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+
+                // Tampilkan pesan error
+                if (
+                    errors.length > 0 &&
+                    typeof window.showAlert === "function"
+                ) {
+                    window.showAlert({
+                        type: "error",
+                        title: "Validasi Gagal",
+                        message:
+                            "Harap lengkapi data berikut:<br><br>" +
+                            errors
+                                .map((err, i) => `${i + 1}. ${err}`)
+                                .join("<br>"),
+                    });
+                } else if (errors.length > 0) {
+                    alert(
+                        "Harap lengkapi data berikut:\n\n" +
+                            errors
+                                .map((err, i) => `${i + 1}. ${err}`)
+                                .join("\n")
+                    );
+                }
+
+                // Scroll ke error pertama
+                const firstError = form.querySelector(".is-invalid");
+                if (firstError) {
+                    firstError.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                    });
+                    setTimeout(() => firstError.focus(), 300);
+                }
+                return false;
+            }
         }
     });
 
@@ -408,4 +555,10 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         });
     }
+
+    if (statusQcSelect) {
+        const initialStatus = statusQcSelect.value;
+        toggleRequiredFields(initialStatus === "lolos_qc");
+    }
+
 });

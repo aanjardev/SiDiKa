@@ -70,7 +70,7 @@
 {{-- ======================================================= --}}
 {{-- SUMMARY CARDS: 4 Kolom (Total Pendapatan, Laba Bersih, Total Transaksi, Cabang Terbaik) --}}
 {{-- ======================================================= --}}
-<div class="row mb-4">
+<div class="row mb-1">
     {{-- Card 1: Total Pendapatan --}}
     <div class="col-xl-3 col-md-6 mb-4">
         <div class="card shadow-sm border-0 h-100" style="border-left: 4px solid #4E6BFF !important;">
@@ -175,9 +175,9 @@
 {{-- ======================================================= --}}
 {{-- CHARTS SECTION: Area Chart & Donut Chart --}}
 {{-- ======================================================= --}}
-<div class="row mb-4">
+<div class="row mb-1">
     {{-- Main Chart: Annual (Pendapatan & HPP) --}}
-    <div class="col-md-12 col-lg-7 mb-4" >
+    <div class="col-md-12 col-lg-7 " >
         <div class="card shadow-sm border-0" style="min-height: 417px">
             <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap p-3">
                 <h5 class="card-title fw-bold mb-0 text-dark">Grafik Annual ({{ $selectedYear }})</h5>

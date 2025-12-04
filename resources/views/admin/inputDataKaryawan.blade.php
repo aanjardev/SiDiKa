@@ -2,6 +2,24 @@
 
 @section('title', isset($readOnly) && $readOnly ? 'Detail Data Karyawan' : (isset($employee) ? 'Edit Data Karyawan' : 'Tambah Data Karyawan'))
 
+@push('page-actions')
+    <a href="{{ route('admin.employees.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Kembali</span>
+    </a>
+    @if(isset($readOnly) && $readOnly)
+        <a href="{{ route('admin.employees.edit', $employee->id) }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+            <i class="fa-solid fa-pen-to-square"></i>
+            <span>Edit</span>
+        </a>
+    @else
+        <button type="submit" form="employeeForm" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+            <i class="fa-solid fa-save"></i>
+            <span>{{ isset($employee) ? 'Simpan Perubahan' : 'Simpan Karyawan' }}</span>
+        </button>
+    @endif
+@endpush
+
 @section('content')
 {{-- UBAHAN: Hapus justify-content-center agar layout mulai dari kiri --}}
 <div class="row">
@@ -23,7 +41,7 @@
                 </h5>
                 <p class="text-muted small mt-1">
                     @if(isset($readOnly) && $readOnly)
-                        Mode lihat data (Read-only).
+                        {{-- Mode lihat data (Read-only). --}}
                     @else
                         Silakan isi data diri karyawan dengan lengkap dan benar.
                     @endif
@@ -34,12 +52,12 @@
 
                 {{-- Pembuka Form --}}
                 @if(!(isset($readOnly) && $readOnly))
-                    <form method="POST" action="{{ isset($employee) ? route('admin.employees.update', $employee->id) : route('admin.employees.store') }}" data-validate-form>
+                    <form id="employeeForm" method="POST" action="{{ isset($employee) ? route('admin.employees.update', $employee->id) : route('admin.employees.store') }}" data-validate-form>
                     @csrf
                     @if(isset($employee))
                         @method('PUT')
                     @endif
-                    
+
                 @endif
                     <input type="hidden" name="redirect_to" value="{{ request('from') }}">
 
@@ -241,25 +259,6 @@
 
                     <hr class="my-4 opacity-25">
 
-                    {{-- Tombol Aksi --}}
-                    <div class="d-flex justify-content-end gap-2">
-                        @if(isset($readOnly) && $readOnly)
-                            <a href="{{ route('admin.employees.index') }}" class="btn btn-light border px-4 fw-medium text-secondary">
-                                <i class="fa-solid fa-arrow-left me-1"></i> Kembali
-                            </a>
-                            <a href="{{ route('admin.employees.edit', $employee->id) }}" class="btn btn-primary px-4 fw-medium">
-                                <i class="fa-solid fa-pen-to-square me-1"></i> Edit Data
-                            </a>
-                        @else
-                            <a href="{{ route('admin.employees.index') }}" class="btn btn-light border px-4 fw-medium text-secondary">
-                                <i class="fa-solid fa-xmark me-1"></i> Batal
-                            </a>
-                            <button type="submit" class="btn btn-primary px-4 fw-medium">
-                                <i class="fa-solid fa-save me-1"></i> {{ isset($employee) ? 'Simpan Perubahan' : 'Simpan Karyawan' }}
-                            </button>
-                        @endif
-                    </div>
-
                 @if(!(isset($readOnly) && $readOnly))
                     </form>
                 @endif
@@ -292,4 +291,20 @@
 @endpush
 
 @push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const tanggalKeluar = document.querySelector('input[name="tanggal_keluar"]');
+        const statusSelect = document.querySelector('select[name="status"]');
+        if (!tanggalKeluar || !statusSelect) return;
+
+        function syncStatusToTanggalKeluar() {
+            if (tanggalKeluar.value) {
+                statusSelect.value = 'non-aktif';
+            }
+        }
+
+        tanggalKeluar.addEventListener('change', syncStatusToTanggalKeluar);
+        syncStatusToTanggalKeluar();
+    });
+</script>
 @endpush

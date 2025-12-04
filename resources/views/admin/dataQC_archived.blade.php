@@ -15,13 +15,13 @@
 <form method="GET" action="{{ route('admin.quality-control.archived') }}" id="searchForm">
     <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
         <div class="card-body p-2 d-flex align-items-center flex-wrap">
-            
+
             {{-- Bagian Kiri: Input Search --}}
             <div class="d-flex align-items-center flex-grow-1 ps-2">
                 <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                <input type="text" 
+                <input type="text"
                        class="form-control border-0 shadow-none bg-transparent"
                        name="search"
                        placeholder="Cari berdasarkan nama item atau serial number"
@@ -32,10 +32,10 @@
 
             {{-- Bagian Kanan: Dropdown Filter --}}
             <div class="d-flex align-items-center gap-2 pe-2">
-                
+
                 {{-- Dropdown Kategori --}}
-                <select name="kategori" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="kategori"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="all" {{ ($selected_kategori ?? 'all') == 'all' ? 'selected' : '' }}>Semua Kategori</option>
@@ -47,8 +47,8 @@
                 </select>
 
                 {{-- Dropdown Sort --}}
-                <select name="sort_by" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="sort_by"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="updated_at" {{ ($sort_by ?? 'updated_at') == 'updated_at' ? 'selected' : '' }}>Urutkan: Terakhir diubah</option>
@@ -72,7 +72,7 @@
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 5%;">No</th>
-                        <th style="width: 100px;">ID Beli</th>
+                        <th style="width: 120px;">Kode Beli</th>
                         <th style="width: 25%;">Nama Item</th>
                         <th>Serial Number</th>
                         <th>Kategori</th>
@@ -85,10 +85,10 @@
                     <tr>
                         <td class="text-center text-muted fw-bold">{{ ($data_qc->firstItem() ?? 0) + $index }}</td>
 
-                        {{-- ID Pembelian --}}
+                        {{-- Kode Transaksi Pembelian --}}
                         <td>
-                            <span class="fw-bold text-secondary font-monospace bg-light px-2 py-1 rounded small">
-                                #{{ $item->pembelian_id }}
+                            <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
+                                {{ $item->pembelian->kode_transaksi ?? ('#' . $item->pembelian_id) }}
                             </span>
                         </td>
 
@@ -120,11 +120,11 @@
                         <td class="text-center">
                             <form action="{{ route('admin.quality-control.restore', $item->id) }}" method="POST" class="d-inline restore-form">
                                 @csrf
-                                <button type="submit" 
-                                        class="btn btn-sm btn-success bg-opacity-10 text-success border-success shadow-sm px-3 rounded-3 fw-medium"
-                                        style="font-size: 0.85rem;"
-                                        title="Kembalikan ke Lolos QC">
-                                    <i class="fa-solid fa-rotate-left me-1"></i> Restore
+                                <button type="submit"
+                                        class="btn btn-sm btn-success text-white shadow-sm px-3 rounded-3"
+                                        style="font-size: 0.9rem;"
+                                        title="Kembalikan ke Antrian QC">
+                                    <i class="fa-solid fa-rotate-left"></i>
                                 </button>
                             </form>
                         </td>
@@ -193,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // ===== RESTORE CONFIRMATION =====
     let formToRestore = null;
-    
+
     // Modal Konfirmasi (Bootstrap 5)
     const modalHtml = `
     <div class="modal fade" id="confirmRestoreModal" tabindex="-1" aria-hidden="true">
@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
                 </div>
                 <div class="modal-body text-secondary">
-                    <p class="mb-0">Yakin ingin mengembalikan item ini dari arsip? Item akan ditandai sebagai <strong>"Lolos QC"</strong> dan kembali ke daftar aktif.</p>
+                    <p class="mb-0">Yakin ingin mengembalikan item ini dari arsip? item akan kembali ke daftar antrian.</p>
                 </div>
                 <div class="modal-footer border-top-0 pt-0 pb-4 pe-4">
                     <button type="button" class="btn btn-light border px-4 fw-medium text-secondary" data-bs-dismiss="modal">Batal</button>
@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Inject modal ke body
     document.body.insertAdjacentHTML('beforeend', modalHtml);
-    
+
     const confirmModalEl = document.getElementById('confirmRestoreModal');
     const confirmRestoreBtn = document.getElementById('confirmRestoreBtn');
     const bsModal = confirmModalEl ? new bootstrap.Modal(confirmModalEl) : null;
@@ -240,11 +240,11 @@ document.addEventListener('DOMContentLoaded', function() {
     if (confirmRestoreBtn) {
         confirmRestoreBtn.addEventListener('click', function() {
             if (!formToRestore) return;
-            
+
             // Disable tombol agar tidak double submit
             confirmRestoreBtn.disabled = true;
             confirmRestoreBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Memproses...';
-            
+
             formToRestore.submit();
         });
     }

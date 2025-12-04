@@ -105,13 +105,13 @@
                                 {{-- Bagian Teks --}}
                                 <div class="flex-grow-1" style="min-width: 200px; max-width: 320px;">
                                     <span class="text-dark fw-semibold d-block"
-                                        style="font-size: 0.95rem !important; 
-                                            line-height: 1.4 !important; 
-                                            display: -webkit-box !important; 
-                                            -webkit-line-clamp: 2 !important; 
-                                            -webkit-box-orient: vertical !important; 
-                                            overflow: hidden !important; 
-                                            text-overflow: ellipsis !important; 
+                                        style="font-size: 0.95rem !important;
+                                            line-height: 1.4 !important;
+                                            display: -webkit-box !important;
+                                            -webkit-line-clamp: 2 !important;
+                                            -webkit-box-orient: vertical !important;
+                                            overflow: hidden !important;
+                                            text-overflow: ellipsis !important;
                                             word-wrap: break-word !important;">
                                         {{ $product->nama_produk }}
                                     </span>
@@ -120,7 +120,7 @@
                         </td>
 
                         <td class="text-nowrap">
-                            <a href="{{ route('admin.products.show', $product->id) }}" 
+                            <a href="{{ route('admin.products.show', $product->id) }}"
                                class="fw-medium text-primary text-decoration-none clickable-code"
                                onclick="event.stopPropagation();">
                                 {{ $product->kode_sku ?? '-' }}
@@ -148,7 +148,7 @@
                         </td>
 
                         <td class="text-muted small text-nowrap">
-                            {{ $product->updated_at->format('d M Y') }} <br>
+                            {{ $product->updated_at->format('d M Y') }} 
                             <span class="opacity-75">{{ $product->updated_at->format('H:i') }}</span>
                         </td>
 
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     }
-    
+
     // Export ke window
     window.handleDeleteProduk = handleDeleteProduk;
 </script>
