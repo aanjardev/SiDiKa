@@ -32,8 +32,7 @@
                        class="form-control border-0 shadow-none bg-transparent"
                        placeholder="Cari SKU atau Nama Produk..."
                        value="{{ $search_term ?? '' }}"
-                       style="font-size: 0.95rem;"
-                       autofocus>
+                       style="font-size: 0.95rem;">
             </div>
 
             {{-- Filter Kategori --}}
@@ -104,6 +103,17 @@
 @endpush
 
 @push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.querySelector('input[name="search"]');
+    if (input) {
+        input.focus();
+        const length = input.value.length;
+        input.setSelectionRange(length, length); // kursor ke akhir
+    }
+});
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('filterFormPhoto') || document.querySelector('form[action*="products/photos"]');

@@ -30,7 +30,8 @@ class DashboardMetricsService
     *   recentPurchases:Collection,
     *   dataCabang:Collection,
     *   namaCabangTerbaik:string,
-    *   omzetCabangTerbaik:int,
+    *   labaCabangTerbaik:int,
+    *   showBestBranch:bool,
     * }
     */
     public function getMetrics(int $year, ?int $month, ?int $branchId): array
@@ -82,14 +83,16 @@ class DashboardMetricsService
 
             $growthPercentage = $this->calculateGrowth($year, $month, $branchId);
 
+            // Area chart pendapatan & HPP tetap annual (per tahun) agar overview,
+            // sedangkan donut chart transaksi mengikuti filter bulan bila dipilih.
             [$dataPendapatanChart, $dataHppChart] = $this->buildAreaChartData($year, $branchId);
-            $dataTransaksiChart = $this->buildDonutChartData($year, $branchId);
+            $dataTransaksiChart = $this->buildDonutChartData($year, $month, $branchId);
 
             $topProducts = $this->topProducts($year, $branchId);
             $recentSales = $this->recentSales($year, $branchId);
             $recentPurchases = $this->recentPurchases($year, $branchId);
 
-            [$dataCabang, $namaCabangTerbaik, $omzetCabangTerbaik] = $this->branchPerformance(
+            [$dataCabang, $namaCabangTerbaik, $labaCabangTerbaik, $showBestBranch] = $this->branchPerformance(
                 $year,
                 $month,
                 $branchId
@@ -109,7 +112,8 @@ class DashboardMetricsService
                 'recentPurchases' => $recentPurchases,
                 'dataCabang' => $dataCabang,
                 'namaCabangTerbaik' => $namaCabangTerbaik,
-                'omzetCabangTerbaik' => $omzetCabangTerbaik,
+                'labaCabangTerbaik' => $labaCabangTerbaik,
+                'showBestBranch' => $showBestBranch,
             ];
         });
     }
@@ -205,10 +209,20 @@ class DashboardMetricsService
         return [$dataPendapatanChart, $dataHppChart];
     }
 
-    private function buildDonutChartData(int $year, ?int $branchId): array
+    /**
+     * Build donut chart data untuk total transaksi (Penjualan vs Pembelian).
+     * Mengikuti filter tahun, bulan (jika ada), dan cabang.
+     */
+    private function buildDonutChartData(int $year, ?int $month, ?int $branchId): array
     {
         $countPenjualan = Penjualan::query()->whereYear('created_at', $year);
         $countPembelian = Pembelian::query()->whereYear('created_at', $year);
+
+        if ($month) {
+            $countPenjualan->whereMonth('created_at', $month);
+            $countPembelian->whereMonth('created_at', $month);
+        }
+
         if ($branchId) {
             $countPenjualan->where('perusahaan_cabang_id', $branchId);
             $countPembelian->where('perusahaan_cabang_id', $branchId);
@@ -316,10 +330,13 @@ class DashboardMetricsService
     }
 
     /**
-     * @return array{0:Collection,1:string,2:int}
+     * @return array{0:Collection,1:string,2:int,3:bool}
      */
     private function branchPerformance(int $year, ?int $month, ?int $branchId): array
     {
+        // Jika filter cabang spesifik dipilih, jangan tampilkan card cabang terbaik
+        $showBestBranch = $branchId === null;
+
         $branchesQuery = Branch::query();
         if ($branchId) {
             $branchesQuery->where('id', $branchId);
@@ -368,10 +385,14 @@ class DashboardMetricsService
             ];
         })->values();
 
-        $cabangTerbaik = $dataCabang->sortByDesc('pendapatanCabang')->first();
-        $namaCabangTerbaik = $cabangTerbaik ? $cabangTerbaik['namaCabang'] : 'N/A';
-        $omzetCabangTerbaik = $cabangTerbaik ? $cabangTerbaik['pendapatanCabang'] : 0;
+        // Urutkan berdasarkan laba bersih tertinggi (PERUBAHAN UTAMA)
+        $cabangTerbaik = $dataCabang->sortByDesc('labaBersihCabang')->first();
+        
+        // Jika semua cabang memiliki laba 0, tampilkan "-"
+        $labaTertinggi = $cabangTerbaik ? $cabangTerbaik['labaBersihCabang'] : 0;
+        $namaCabangTerbaik = ($cabangTerbaik && $labaTertinggi > 0) ? $cabangTerbaik['namaCabang'] : '-';
+        $labaCabangTerbaik = $labaTertinggi;
 
-        return [$dataCabang, $namaCabangTerbaik, $omzetCabangTerbaik];
+        return [$dataCabang, $namaCabangTerbaik, $labaCabangTerbaik, $showBestBranch];
     }
 }

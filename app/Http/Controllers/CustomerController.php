@@ -18,12 +18,13 @@ class CustomerController extends Controller
                 'pembelian as total_pembelian',
             ]);
 
-        // Search by nama or nomor telepon
+        // Search by nama, nomor telepon, atau NIK
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
-                  ->orWhere('no_telp', 'like', "%{$search}%");
+                  ->orWhere('no_telp', 'like', "%{$search}%")
+                  ->orWhere('identitas', 'like', "%{$search}%"); // ← Tambahan pencarian NIK
             });
         }
 
@@ -206,16 +207,25 @@ class CustomerController extends Controller
             return response()->json([]);
         }
 
+        // Pencarian berdasarkan nama, nomor telepon, atau NIK
         $customers = Customer::where('nama', 'LIKE', '%' . $query . '%')
                             ->orWhere('no_telp', 'LIKE', '%' . $query . '%')
+                            ->orWhere('identitas', 'LIKE', '%' . $query . '%') // ← Tambahan pencarian NIK
                             ->limit(10) // Batasi hasil
-                            ->get(['id', 'nama', 'no_telp']);
+                            ->get(['id', 'nama', 'no_telp', 'identitas']);
 
         // MENGUBAH FORMAT DATA KE FORMAT Select2: {id, text}
         $formattedCustomers = $customers->map(function ($customer) {
+            $text = $customer->nama . ' (Telp: ' . $customer->no_telp . ')';
+            
+            // Tambahkan NIK ke dalam text jika ada
+            if (!empty($customer->identitas)) {
+                $text .= ' - NIK: ' . $customer->identitas;
+            }
+            
             return [
                 'id' => $customer->id,
-                'text' => $customer->nama . ' (Telp: ' . $customer->no_telp . ')'
+                'text' => $text
             ];
         });
 

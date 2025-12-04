@@ -210,6 +210,18 @@
 @endpush
 
 @push('scripts')
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.querySelector('input[name="search"]');
+    if (input) {
+        input.focus();
+        const length = input.value.length;
+        input.setSelectionRange(length, length); // kursor ke akhir
+    }
+});
+</script>
+
 <script>
     // Fungsi Delete menggunakan sistem alert (nama berbeda untuk menghindari konflik)
     function handleDeleteProduk(button) {

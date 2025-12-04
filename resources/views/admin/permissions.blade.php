@@ -31,33 +31,49 @@
 </div>
 
 {{-- Filter dan Pencarian --}}
-<div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-    <div class="card-body p-2 d-flex align-items-center flex-wrap">
-        {{-- Bagian Kiri: Input Search --}}
-        <div class="d-flex align-items-center flex-grow-1 ps-2">
-            <span class="text-muted ms-2 me-3">
-                <i class="fa-solid fa-search text-muted"></i>
-            </span>
-            <input type="text" class="form-control border-0 shadow-none bg-transparent"
-                placeholder="Cari user berdasarkan nama..."
-                style="font-size: 0.95rem;"
-                autofocus>
-        </div>
+<form method="GET" action="{{ route('admin.permissions') }}" id="searchForm">
+    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+            {{-- Bagian Kiri: Input Search --}}
+            <div class="d-flex align-items-center flex-grow-1 ps-2">
+                <span class="text-muted ms-2 me-3">
+                    <i class="fa-solid fa-search text-muted"></i>
+                </span>
+                <input type="text" 
+                       class="form-control border-0 shadow-none bg-transparent"
+                       name="search"
+                       placeholder="Cari user berdasarkan nama atau email..."
+                       value="{{ $search_term ?? '' }}"
+                       style="font-size: 0.95rem;">
+            </div>
 
-        {{-- Bagian Kanan: Dropdown --}}
-        <div class="d-flex align-items-center gap-2 pe-2">
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option selected>Semua Jabatan</option>
-            </select>
+            {{-- Bagian Kanan: Dropdown --}}
+            <div class="d-flex align-items-center gap-2 pe-2">
+                <select name="role" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="all" {{ ($selected_role ?? 'all') == 'all' ? 'selected' : '' }}>Semua Jabatan</option>
+                    @foreach($roles as $role)
+                        <option value="{{ $role }}" {{ ($selected_role ?? 'all') == $role ? 'selected' : '' }}>
+                            {{ ucfirst($role) }}
+                        </option>
+                    @endforeach
+                </select>
 
-            <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" style="cursor: pointer;">
-                <option selected>Status</option>
-                <option value="aktif">Aktif</option>
-                <option value="non_aktif">Non Aktif</option>
-            </select>
+                <select name="status_filter" 
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                        style="cursor: pointer;"
+                        onchange="document.getElementById('searchForm').submit();">
+                    <option value="all" {{ ($selected_status ?? 'all') == 'all' ? 'selected' : '' }}>Semua Status</option>
+                    <option value="active" {{ ($selected_status ?? 'all') == 'active' ? 'selected' : '' }}>Aktif</option>
+                    <option value="pending" {{ ($selected_status ?? 'all') == 'pending' ? 'selected' : '' }}>Pending</option>
+                    <option value="inactive" {{ ($selected_status ?? 'all') == 'inactive' ? 'selected' : '' }}>Non Aktif</option>
+                </select>
+            </div>
         </div>
     </div>
-</div>
+</form>
 
 {{-- Table Card --}}
 <div class="card shadow-sm border-0" style="border-radius: 10px; overflow: hidden; min-height: 700px;">
@@ -76,7 +92,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($user_data as $index => $k)
+                    @forelse ($user_data as $index => $k)
                     <tr class="clickable-row" data-detail-url="{{ route('admin.permissions.edit', $k->id) }}">
                         <td class="text-center text-muted fw-bold">{{ ($user_data->firstItem() ?? 0) + $index }}</td>
 
@@ -146,7 +162,8 @@
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="{{ route('admin.permissions.edit', $k->id) }}"
                                     class="btn-action btn-action-edit"
-                                    title="Edit">
+                                    title="Edit"
+                                    onclick="event.stopPropagation();">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 
@@ -159,7 +176,7 @@
                                         title="Generate Ulang Token (3 hari)"
                                         data-bs-toggle="tooltip"
                                         data-bs-placement="top"
-                                        onclick="handleRegenerateToken(this)">
+                                        onclick="event.stopPropagation(); handleRegenerateToken(this)">
                                         <i class="fa-solid fa-rotate"></i>
                                     </button>
                                 </form>
@@ -172,7 +189,8 @@
                                     @if($k->status === 'inactive')
                                     <button type="submit"
                                         class="btn-action btn-action-edit"
-                                        title="Aktifkan User">
+                                        title="Aktifkan User"
+                                        onclick="event.stopPropagation();">
                                         <i class="fa-solid fa-rotate-left"></i>
                                     </button>
                                     @else
@@ -183,7 +201,7 @@
                                         data-title="Nonaktifkan User"
                                         data-confirm-text="Nonaktifkan"
                                         data-cancel-text="Batal"
-                                        onclick="handleDeletePermission(this)">
+                                        onclick="event.stopPropagation(); handleDeletePermission(this)">
                                         <i class="fa-solid fa-power-off"></i>
                                     </button>
                                     @endif
@@ -191,7 +209,21 @@
                             </div>
                         </td>
                     </tr>
-                    @endforeach
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="d-flex flex-column align-items-center opacity-50">
+                                <i class="fa-solid fa-user-slash fa-3x mb-3 text-muted"></i>
+                                <h6 class="text-muted">Tidak ada user yang ditemukan</h6>
+                                @if($search_term || ($selected_role ?? 'all') != 'all' || ($selected_status ?? 'all') != 'all')
+                                    <a href="{{ route('admin.permissions') }}" class="btn btn-sm btn-outline-secondary mt-2">
+                                        Reset Filter
+                                    </a>
+                                @endif
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
             </table>
         </div>
@@ -210,6 +242,12 @@
 <script>
     // Initialize Bootstrap tooltips
     document.addEventListener('DOMContentLoaded', function() {
+        const input = document.querySelector('input[name="search"]');
+        if (input) {
+            input.focus();
+            const length = input.value.length;
+            input.setSelectionRange(length, length); // kursor ke akhir
+        }
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
