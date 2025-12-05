@@ -3,17 +3,17 @@
 @section('title', 'Dashboard')
 
 @push('page-actions')
-    <a href="{{ route('admin.sales.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+    <a href="{{ route('admin.sales.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2 px-3">
         <i class="fas fa-plus fa-fw"></i>
         <span>Penjualan</span>
     </a>
     @if(Route::has('admin.purchases.create'))
-        <a href="{{ route('admin.purchases.create') }}" class="btn btn-success btn-sm d-flex align-items-center gap-2" style="background-color: #198754; border-color: #198754;">
+        <a href="{{ route('admin.purchases.create') }}" class="btn btn-success btn-sm d-flex align-items-center gap-2 px-3">
             <i class="fas fa-plus fa-fw"></i>
             <span>Pembelian</span>
         </a>
     @else
-        <button class="btn btn-success btn-sm d-flex align-items-center gap-2" style="background-color: #198754; border-color: #198754;" disabled>
+        <button class="btn btn-success btn-sm d-flex align-items-center gap-2 px-3" disabled>
             <i class="fas fa-plus fa-fw"></i>
             <span>Pembelian</span>
         </button>
@@ -23,33 +23,33 @@
 @section('content')
 
 {{-- ======================================================= --}}
-{{-- FILTER SECTION: Form dengan auto-submit --}}
+{{-- FILTER SECTION --}}
 {{-- ======================================================= --}}
-<div class="row mb-4">
+<div class="row mb-3">
     <div class="col-12">
-        <div class="card shadow-sm border-0">
-            <div class="card-body pb-2">
-                <form method="GET" action="{{ route('admin.dashboard') }}" id="filterForm" class="d-flex align-items-center gap-3 flex-wrap">
-                    <div class="d-flex align-items-center gap-2">
-                        <label for="year" class="form-label mb-0 text-muted small">Tahun:</label>
-                        <select name="year" id="year" class="form-select form-select-sm" style="width: auto; min-width: 100px;">
+        <div class="card shadow-sm border-0 rounded-xl">
+            <div class="card-body p-3">
+                <form method="GET" action="{{ route('admin.dashboard') }}" id="filterForm" class="row g-3 align-items-center">
+                    <div class="col-md-3">
+                        <label for="year" class="form-label mb-1 text-muted small fw-medium">Tahun</label>
+                        <select name="year" id="year" class="form-select form-select-sm ">
                             @for($y = now()->year; $y >= now()->year - 5; $y--)
                                 <option value="{{ $y }}" {{ $selectedYear == $y ? 'selected' : '' }}>{{ $y }}</option>
                             @endfor
                         </select>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <label for="month" class="form-label mb-0 text-muted small">Bulan:</label>
-                        <select name="month" id="month" class="form-select form-select-sm" style="width: auto; min-width: 120px;">
+                    <div class="col-md-3">
+                        <label for="month" class="form-label mb-1 text-muted small fw-medium">Bulan</label>
+                        <select name="month" id="month" class="form-select form-select-sm ">
                             <option value="">Semua Bulan</option>
                             @foreach(['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'] as $index => $bulan)
                                 <option value="{{ $index + 1 }}" {{ $selectedMonth == ($index + 1) ? 'selected' : '' }}>{{ $bulan }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <label for="branch_id" class="form-label mb-0 text-muted small">Cabang:</label>
-                        <select name="branch_id" id="branch_id" class="form-select form-select-sm" style="width: auto; min-width: 150px;">
+                    <div class="col-md-3">
+                        <label for="branch_id" class="form-label mb-1 text-muted small fw-medium">Cabang</label>
+                        <select name="branch_id" id="branch_id" class="form-select form-select-sm ">
                             <option value="">Semua Cabang</option>
                             @foreach($allBranches as $branchOption)
                                 <option value="{{ $branchOption->id }}" {{ $selectedBranch === $branchOption->id ? 'selected' : '' }}>
@@ -58,61 +58,64 @@
                             @endforeach
                         </select>
                     </div>
-
                 </form>
-                <div class="mt-3">
-                </div>
             </div>
         </div>
     </div>
 </div>
 
 {{-- ======================================================= --}}
-{{-- SUMMARY CARDS: 4 Kolom (Total Pendapatan, Laba Bersih, Total Transaksi, Cabang Terbaik) --}}
+{{-- SUMMARY CARDS: Flexible Layout --}}
 {{-- ======================================================= --}}
-<div class="row mb-1">
+<div class="row mb-3">
+    @php
+        $cardCount = $showBestBranch ? 4 : 3;
+        $colClass = $cardCount == 4 ? 'col-xl-3 col-md-6' : 'col-xl-4 col-md-4';
+    @endphp
+
     {{-- Card 1: Total Pendapatan --}}
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card shadow-sm border-0 h-100" style="border-left: 4px solid #4E6BFF !important;">
-            <div class="card-body position-relative" style="overflow: hidden;">
+    <div class="{{ $colClass }} mb-1">
+        <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #4E6BFF;">
+            <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <p class="text-muted small mb-1 fw-medium">Total Pendapatan</p>
                         <h3 class="mb-0 fw-bold">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</h3>
                     </div>
-                    <div class="bg-primary bg-opacity-10 rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                    <div class="bg-primary bg-opacity-10 rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
                         <i class="fas fa-chart-line text-primary fa-lg"></i>
                     </div>
                 </div>
                 @if($growthPercentage != 0)
                     <div class="d-flex align-items-center gap-2">
                         @if($growthPercentage > 0)
-                            <span class="badge bg-success bg-opacity-10 text-success">
-                                <i class="fas fa-arrow-up fa-xs"></i> {{ abs($growthPercentage) }}%
+                            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1">
+                                <i class="fas fa-arrow-up fa-xs me-1"></i>{{ abs($growthPercentage) }}%
                             </span>
-                            <span class="text-muted small">vs periode sebelumnya</span>
                         @else
-                            <span class="badge bg-danger bg-opacity-10 text-danger">
-                                <i class="fas fa-arrow-down fa-xs"></i> {{ abs($growthPercentage) }}%
+                            <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-2 py-1">
+                                <i class="fas fa-arrow-down fa-xs me-1"></i>{{ abs($growthPercentage) }}%
                             </span>
-                            <span class="text-muted small">vs periode sebelumnya</span>
                         @endif
+                        <span class="text-muted small">vs periode sebelumnya</span>
                     </div>
+                @else
+                    <div class="text-muted small">Tidak ada data sebelumnya</div>
                 @endif
             </div>
         </div>
     </div>
 
     {{-- Card 2: Laba Bersih --}}
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card shadow-sm border-0 h-100" style="border-left: 4px solid #198754 !important;">
-            <div class="card-body position-relative" style="overflow: hidden;">
+    <div class="{{ $colClass }} mb-1">
+        <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #198754;">
+            <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <p class="text-muted small mb-1 fw-medium">Laba Bersih</p>
                         <h3 class="mb-0 fw-bold">Rp {{ number_format($totalLabaBersih, 0, ',', '.') }}</h3>
                     </div>
-                    <div class="bg-success bg-opacity-10 rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                    <div class="bg-success bg-opacity-10 rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
                         <i class="fas fa-coins text-success fa-lg"></i>
                     </div>
                 </div>
@@ -126,108 +129,116 @@
     </div>
 
     {{-- Card 3: Total Transaksi --}}
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card shadow-sm border-0 h-100" style="border-left: 4px solid #0dcaf0 !important;">
-            <div class="card-body position-relative" style="overflow: hidden;">
+    <div class="{{ $colClass }} mb-1">
+        <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #0dcaf0;">
+            <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
                         <p class="text-muted small mb-1 fw-medium">Total Transaksi</p>
                         <h3 class="mb-0 fw-bold">{{ number_format($totalTransaksi, 0, ',', '.') }}</h3>
                     </div>
-                    <div class="bg-info bg-opacity-10 rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                    <div class="bg-info bg-opacity-10 rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
                         <i class="fas fa-shopping-cart text-info fa-lg"></i>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small">Penjualan: {{ $dataTransaksiChart[0] ?? 0 }} | Pembelian: {{ $dataTransaksiChart[1] ?? 0 }}</span>
+                    <span class="badge bg-primary bg-opacity-10 text-primary me-2 rounded-pill px-2 py-1">
+                        Penjualan: {{ $dataTransaksiChart[0] ?? 0 }}
+                    </span>
+                    <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1">
+                        Pembelian: {{ $dataTransaksiChart[1] ?? 0 }}
+                    </span>
                 </div>
             </div>
         </div>
     </div>
 
-{{-- Card 4: Cabang Terbaik - Hanya tampil jika filter "Semua Cabang" --}}
-@if($showBestBranch)
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card shadow-sm border-0 h-100" style="border-left: 4px solid #ffc107 !important;">
-            <div class="card-body position-relative" style="overflow: hidden;">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div>
-                        <p class="text-muted small mb-1 fw-medium">Cabang Terbaik</p>
-                        <h5 class="mb-1 fw-bold">{{ $namaCabangTerbaik }}</h5>
-                        @if($labaCabangTerbaik > 0)
-                            <h6 class="mb-0 text-muted">Rp {{ number_format($labaCabangTerbaik, 0, ',', '.') }}</h6>
-                        @else
-                            <h6 class="mb-0 text-muted">-</h6>
-                        @endif
+    {{-- Card 4: Cabang Terbaik -- Hanya tampil jika filter "Semua Cabang" --}}
+    @if($showBestBranch)
+        <div class="{{ $colClass }} mb-1">
+            <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #ffc107;">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <p class="text-muted small mb-1 fw-medium">Cabang Terbaik</p>
+                            <h5 class="mb-1 fw-bold text-truncate" title="{{ $namaCabangTerbaik }}">
+                                {{ $namaCabangTerbaik }}
+                            </h5>
+                            @if($labaCabangTerbaik > 0)
+                                <h6 class="mb-0 text-muted">Rp {{ number_format($labaCabangTerbaik, 0, ',', '.') }}</h6>
+                            @else
+                                <h6 class="mb-0 text-muted">-</h6>
+                            @endif
+                        </div>
+                        <div class="bg-warning bg-opacity-10 rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                            <i class="fas fa-trophy text-warning fa-lg"></i>
+                        </div>
                     </div>
-                    <div class="bg-warning bg-opacity-10 rounded-circle p-3" style="width: 60px; height: 60px; display: flex; align-items; center; justify-content: center;">
-                        <i class="fas fa-trophy text-warning fa-lg"></i>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small">Laba bersih tertinggi</span>
                     </div>
-                </div>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="text-muted small">Laba bersih tertinggi</span>
                 </div>
             </div>
         </div>
-    </div>
-@endif
+    @endif
+</div>
 
 {{-- ======================================================= --}}
-{{-- CHARTS SECTION: Area Chart & Donut Chart --}}
+{{-- CHARTS SECTION --}}
 {{-- ======================================================= --}}
-<div class="row mb-1">
-    {{-- Main Chart: Annual (Pendapatan & HPP) --}}
-    <div class="col-md-12 col-lg-7 " >
-        <div class="card shadow-sm border-0" style="min-height: 417px">
-            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap p-3">
+<div class="row mb-3">
+    {{-- Main Chart: Annual --}}
+    <div class="col-xl-7 col-lg-12 mb-1">
+        <div class="card shadow-sm border-0 h-100 overflow-hidden rounded-xl">
+            <div class="card-header bg-white border-0 p-4 pb-3">
                 <h5 class="card-title fw-bold mb-0 text-dark">Grafik Annual ({{ $selectedYear }})</h5>
-                <div class="d-flex align-items-center gap-3">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
-                            <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
-                        </div>
-                        <span class="text-muted small">Pendapatan</span>
-                    </div>
-                    <div class="d-flex align-items-center">
-                        <div class="bg-info bg-opacity-10 rounded-circle p-2 me-2" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
-                            <div class="bg-info rounded-circle" style="width: 8px; height: 8px;"></div>
-                        </div>
-                        <span class="text-muted small">HPP</span>
-                    </div>
-                </div>
             </div>
-            <div class="card-body">
-                <div id="chartPendapatanBulanan" style="min-height: 300px;"></div>
+            <div class="card-body p-4 pt-0">
+                <div id="chartPendapatanBulanan" style="min-height: 320px;"></div>
             </div>
         </div>
     </div>
 
-    {{-- Donut Chart: Total Transaksi --}}
-    <div class="col-md-12 col-lg-5 mb-4">
-        <div class="card shadow-sm border-0" style="min-height: 417px">
-            <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center p-3">
+   {{-- Donut Chart: Total Transaksi --}}
+    <div class="col-xl-5 col-lg-12 mb-1">
+        <div class="card shadow-sm border-0 h-100 overflow-hidden rounded-xl">
+            <div class="card-header bg-white border-0 p-4 pb-3">
                 <h5 class="card-title fw-bold mb-0 text-dark">Transaksi</h5>
             </div>
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div id="chartTotalTransaksi" style="min-height: 250px; width: 60%;"></div>
-                    <div class="d-grid gap-3" style="width: 40%;">
-                        <div class="d-flex align-items-start">
-                            <div class="bg-primary bg-opacity-10 rounded-circle p-2 me-2 mt-1" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
-                                <div class="bg-primary rounded-circle" style="width: 8px; height: 8px;"></div>
+            <div class="card-body p-4 pt-0">
+                <div class="row align-items-center h-100">
+                    <div class="col-7 d-flex align-items-center justify-content-center">
+                        <div id="chartTotalTransaksi" style="min-height: 250px; width: 100%;"></div>
+                    </div>
+                    <div class="col-5">
+                        <div class="d-grid gap-4">
+                            <div class="d-flex align-items-center">
+                                <div class="position-relative me-3">
+                                    <div class="bg-primary bg-opacity-10 rounded-circle p-2">
+                                        <div class="bg-primary rounded-circle" style="width: 14px; height: 14px;"></div>
+                                    </div>
+                                    <div class="position-absolute top-0 start-100 translate-middle badge bg-primary rounded-pill p-1" style="font-size: 9px; display: {{ $dataTransaksiChart[0] > 0 ? 'block' : 'none' }}">
+                                        {{ $dataTransaksiChart[0] > 0 ? round(($dataTransaksiChart[0] / array_sum($dataTransaksiChart)) * 100, 1) : 0 }}%
+                                    </div>
+                                </div>
+                                <div class="ms-2">
+                                    <span class="text-muted small d-block">Penjualan</span>
+                                    <h4 class="fw-bold mb-0">{{ $dataTransaksiChart[0] ?? 0 }}</h4>
+                                </div>
                             </div>
-                            <div>
-                                <span class="text-muted small d-block">Penjualan</span>
-                                <h6 class="fw-bold mb-0">{{ $dataTransaksiChart[0] ?? 0 }}</h6>
-                            </div>
-                        </div>
-                        <div class="d-flex align-items-start">
-                            <div class="bg-success bg-opacity-10 rounded-circle p-2 me-2 mt-1" style="width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
-                                <div class="bg-success rounded-circle" style="width: 8px; height: 8px;"></div>
-                            </div>
-                            <div>
-                                <span class="text-muted small d-block">Pembelian</span>
-                                <h6 class="fw-bold mb-0">{{ $dataTransaksiChart[1] ?? 0 }}</h6>
+                            <div class="d-flex align-items-center">
+                                <div class="position-relative me-3">
+                                    <div class="bg-success bg-opacity-10 rounded-circle p-2">
+                                        <div class="bg-success rounded-circle" style="width: 14px; height: 14px;"></div>
+                                    </div>
+                                    <div class="position-absolute top-0 start-100 translate-middle badge bg-success rounded-pill p-1" style="font-size: 9px; display: {{ $dataTransaksiChart[1] > 0 ? 'block' : 'none' }}">
+                                        {{ $dataTransaksiChart[1] > 0 ? round(($dataTransaksiChart[1] / array_sum($dataTransaksiChart)) * 100, 1) : 0 }}%
+                                    </div>
+                                </div>
+                                <div class="ms-2">
+                                    <span class="text-muted small d-block">Pembelian</span>
+                                    <h4 class="fw-bold mb-0">{{ $dataTransaksiChart[1] ?? 0 }}</h4>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -238,58 +249,64 @@
 </div>
 
 {{-- ======================================================= --}}
-{{-- WIDGET SECTION: Top Products (Full Width) --}}
+{{-- WIDGET SECTION: Top Products --}}
 {{-- ======================================================= --}}
-<div class="row mb-4">
+<div class="row mb-3">
     <div class="col-12">
-        <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
-            <div class="card-header bg-white border-bottom p-3">
+        <div class="card shadow-sm border-0 overflow-hidden rounded-xl">
+            <div class="card-header bg-white border-0 p-4">
                 <h5 class="card-title fw-bold mb-0 text-dark">
                     <i class="fas fa-star text-warning me-2"></i>Top 5 Produk Terlaris
                 </h5>
             </div>
             <div class="card-body p-0">
                 @if($topProducts->count() > 0)
-                    <div class="table-responsive">
+                    <div class="table-modern-container">
                         <table class="table table-modern mb-0">
                             <thead>
                                 <tr>
-                                    <th class="text-center" style="width: 5%;">No</th>
+                                    <th class="text-center ps-4" style="width: 5%;">No</th>
                                     <th>Produk</th>
                                     <th>Kode SKU</th>
                                     <th class="text-end">Harga</th>
-                                    <th class="text-center">Terjual</th>
+                                    <th class="text-center pe-4">Terjual</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($topProducts as $index => $product)
-                                    <tr>
-                                        <td class="text-center text-muted fw-bold">{{ $index + 1 }}</td>
-                                        <td>
+                                    <tr class="table-row-hover">
+                                        <td class="text-center align-middle ps-4">
+                                            <span class="badge bg-primary bg-opacity-10 text-primary fw-bold rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                                                {{ $index + 1 }}
+                                            </span>
+                                        </td>
+                                        <td class="align-middle">
                                             <div class="d-flex align-items-center gap-3">
                                                 @if($product['gambar'] && $product['gambar']->url)
                                                     <img src="{{ $product['gambar']->url }}" alt="{{ $product['nama_produk'] }}"
-                                                         class="rounded" style="width: 50px; height: 50px; object-fit: cover;">
+                                                         class="rounded" style="width: 40px; height: 40px; object-fit: cover;">
                                                 @else
-                                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                                    <div class="bg-light rounded d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
                                                         <i class="fas fa-image text-muted"></i>
                                                     </div>
                                                 @endif
                                                 <div>
-                                                    <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
+                                                    <span class="text-dark fw-semibold d-block" style="font-size: 0.9rem;">
                                                         {{ $product['nama_produk'] }}
                                                     </span>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td>
-                                            <span class="fw-medium text-secondary font-monospace">{{ $product['kode_sku'] }}</span>
+                                        <td class="align-middle">
+                                            <span class="font-monospace text-secondary bg-light rounded px-2 py-1">{{ $product['kode_sku'] }}</span>
                                         </td>
-                                        <td class="text-end">
+                                        <td class="text-end align-middle">
                                             <span class="fw-bold text-dark">Rp {{ number_format($product['harga_jual'], 0, ',', '.') }}</span>
                                         </td>
-                                        <td class="text-center">
-                                            <span class="badge bg-success bg-opacity-10 text-success fw-bold">{{ $product['total_qty'] }}</span>
+                                        <td class="text-center align-middle pe-4">
+                                            <span class="badge bg-success bg-opacity-10 text-success fw-bold rounded-pill px-3 py-2">
+                                                {{ $product['total_qty'] }}
+                                            </span>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -308,77 +325,82 @@
 </div>
 
 {{-- ======================================================= --}}
-{{-- TRANSACTION PURCHASES TABLE: Tabel Transaksi Pembelian --}}
+{{-- TRANSACTION PURCHASES TABLE --}}
 {{-- ======================================================= --}}
 <div class="row mb-4">
     <div class="col-12">
-        <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
-            <div class="card-header bg-white border-bottom p-3">
+        <div class="card shadow-sm border-0 overflow-hidden rounded-xl">
+            <div class="card-header bg-white border-0 p-4">
                 <h5 class="card-title fw-bold mb-0 text-dark">
                     <i class="fas fa-shopping-bag text-success me-2"></i>Transaksi Pembelian Terakhir
                 </h5>
             </div>
             <div class="card-body p-0">
                 @if(isset($recentPurchases) && $recentPurchases->count() > 0)
-                    <div class="table-responsive">
+                    <div class="table-modern-container">
                         <table class="table table-modern mb-0">
                             <thead>
                                 <tr>
-                                    <th class="text-center" style="width: 5%;">No</th>
+                                    <th class="text-center ps-4" style="width: 5%;">No</th>
                                     <th>Kode Transaksi</th>
                                     <th>Customer</th>
                                     <th>Cabang</th>
                                     <th style="width: 25%;">Item Dibeli</th>
                                     <th class="text-end">Harga Deal</th>
                                     <th class="text-center">Status</th>
-                                    <th>Waktu</th>
+                                    <th class="pe-4">Waktu</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($recentPurchases as $index => $purchase)
-                                    <tr>
-                                        <td class="text-center text-muted fw-bold">{{ $index + 1 }}</td>
-                                        <td>
-                                            <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
+                                    <tr class="table-row-hover">
+                                        <td class="text-center align-middle ps-4">
+                                            <span class="badge bg-primary bg-opacity-10 text-primary fw-bold rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                                                {{ $index + 1 }}
+                                            </span>
+                                        </td>
+                                        <td class="align-middle">
+                                            <span class="font-monospace text-primary fw-semibold bg-opacity-5 rounded px-2 py-1">
                                                 {{ $purchase['kode_transaksi'] }}
                                             </span>
                                         </td>
-                                        <td>
-                                            <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
+                                        <td class="align-middle">
+                                            <span class="text-dark fw-semibold d-block" style="font-size: 0.9rem;">
                                                 {{ $purchase['customer'] }}
                                             </span>
                                         </td>
-                                        <td>
-                                            <span class="fw-medium text-secondary">
+                                        <td class="align-middle">
+                                            <span class="fw-medium text-secondary rounded px-2 py-1">
                                                 {{ $purchase['cabang'] }}
                                             </span>
                                         </td>
-                                        <td>
-                                            <ul class="list-unstyled mb-0">
+                                        <td class="align-middle">
+                                            <div class="d-flex flex-column gap-1">
                                                 @foreach($purchase['items'] as $item)
-                                                    <li>
-                                                        <span class="text-dark">{{ $item['nama_produk'] }} (x{{ $item['qty'] }})</span>
-                                                    </li>
+                                                    <div class="rounded px-2 py-1">
+                                                        <span class="text-dark">{{ $item['nama_produk'] }}</span>
+                                                        <span class="text-muted small">(x{{ $item['qty'] }})</span>
+                                                    </div>
                                                 @endforeach
-                                            </ul>
-
-                                        <td class="text-end">
+                                            </div>
+                                        </td>
+                                        <td class="text-end align-middle">
                                             @if($purchase['harga_deal'] > 0)
                                                 <span class="fw-bold text-dark">Rp {{ number_format($purchase['harga_deal'], 0, ',', '.') }}</span>
                                             @else
                                                 <span class="text-muted">-</span>
                                             @endif
                                         </td>
-                                        <td class="text-center">
+                                        <td class="text-center align-middle">
                                             @if($purchase['status'] == 'deal')
-                                                <span class="badge bg-success bg-opacity-10 text-success">Deal</span>
+                                                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2">Deal</span>
                                             @elseif($purchase['status'] == 'tidak_deal')
-                                                <span class="badge bg-danger bg-opacity-10 text-danger">Tidak Deal</span>
+                                                <span class="badge bg-danger bg-opacity-10 text-danger rounded-pill px-3 py-2">Tidak Deal</span>
                                             @else
-                                                <span class="badge bg-secondary bg-opacity-10 text-secondary">Draft</span>
+                                                <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-3 py-2">Draft</span>
                                             @endif
                                         </td>
-                                        <td>
+                                        <td class="align-middle pe-4">
                                             <span class="text-muted small">{{ $purchase['waktu'] }}</span>
                                         </td>
                                     </tr>
@@ -415,38 +437,21 @@
             }).format(value);
         }
 
-        // 1. GRAFIK PENDAPATAN BULANAN (Area Chart) - Nonaktifkan Zoom
+        // 1. GRAFIK PENDAPATAN BULANAN
         var optionsPendapatan = {
             chart: {
                 type: 'area',
                 height: 300,
                 toolbar: {
-                    show: false, // Nonaktifkan toolbar termasuk zoom
-                    tools: {
-                        zoom: false, // Nonaktifkan zoom secara spesifik
-                        zoomin: false,
-                        zoomout: false,
-                        pan: false,
-                        reset: false,
-                        download: false
-                    }
+                    show: false
                 },
                 zoom: {
-                    enabled: false // Nonaktifkan zooming
+                    enabled: false
                 },
-                sparkline: { enabled: false },
                 animations: {
                     enabled: true,
                     easing: 'easeinout',
-                    speed: 800,
-                    animateGradually: {
-                        enabled: true,
-                        delay: 150
-                    },
-                    dynamicAnimation: {
-                        enabled: true,
-                        speed: 350
-                    }
+                    speed: 800
                 }
             },
             series: [
@@ -480,7 +485,6 @@
             xaxis: {
                 categories: @json($labelBulan),
                 labels: {
-                    show: true,
                     style: {
                         colors: '#6c757d',
                         fontSize: '12px',
@@ -495,9 +499,6 @@
                 axisTicks: {
                     show: true,
                     color: '#e9ecef'
-                },
-                tooltip: {
-                    enabled: false
                 }
             },
             yaxis: {
@@ -533,16 +534,21 @@
                 }
             },
             legend: {
-                show: false
+                show: true,
+                position: 'top',
+                horizontalAlign: 'right',
+                fontSize: '12px',
+                fontFamily: 'Inter, sans-serif',
+                markers: {
+                    width: 8,
+                    height: 8,
+                    radius: 4
+                }
             },
             tooltip: {
                 shared: true,
                 intersect: false,
                 theme: 'light',
-                style: {
-                    fontSize: '12px',
-                    fontFamily: 'Inter, sans-serif'
-                },
                 x: {
                     show: true,
                     formatter: function(value, { series, seriesIndex, dataPointIndex, w }) {
@@ -550,36 +556,21 @@
                     }
                 },
                 y: {
-                    formatter: function (value, { series, seriesIndex, dataPointIndex, w }) {
+                    formatter: function (value) {
                         return formatRupiah(value);
-                    },
-                    title: {
-                        formatter: function(seriesName) {
-                            return seriesName + ':';
-                        }
                     }
-                },
-                marker: {
-                    show: true
                 }
             },
             dataLabels: {
                 enabled: false
             },
             markers: {
-                size: 0,
+                size: 4,
                 colors: ['#fff'],
                 strokeColors: ['#4E6BFF', '#0dcaf0'],
                 strokeWidth: 2,
-                strokeOpacity: 0.9,
-                strokeDashArray: 0,
-                fillOpacity: 1,
-                discrete: [],
-                shape: "circle",
-                radius: 2,
                 hover: {
-                    size: 6,
-                    sizeOffset: 3
+                    size: 6
                 }
             }
         };
@@ -587,7 +578,7 @@
         var chartPendapatan = new ApexCharts(document.querySelector("#chartPendapatanBulanan"), optionsPendapatan);
         chartPendapatan.render();
 
-        // 2. GRAFIK TOTAL TRANSAKSI (Donut Chart) - TETAP SEPERTI ASLI
+        // 2. GRAFIK TOTAL TRANSAKSI
         var optionsTransaksi = {
             chart: {
                 type: 'donut',
@@ -606,19 +597,13 @@
                                 show: true,
                                 fontSize: '1.25rem',
                                 fontWeight: 'bold',
-                                color: '#2F353F',
-                                formatter: function (val) {
-                                    return val
-                                }
+                                color: '#2F353F'
                             },
                             total: {
                                 show: true,
                                 label: 'Total',
                                 color: '#6c757d',
-                                fontSize: '0.875rem',
-                                formatter: function (w) {
-                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
-                                }
+                                fontSize: '0.875rem'
                             }
                         }
                     }
@@ -638,21 +623,195 @@
         var chartTransaksi = new ApexCharts(document.querySelector("#chartTotalTransaksi"), optionsTransaksi);
         chartTransaksi.render();
 
-        // Auto-submit form saat dropdown berubah (optional)
-        document.getElementById('year').addEventListener('change', function() {
-            document.getElementById('filterForm').submit();
-        });
-
-        document.getElementById('month').addEventListener('change', function() {
-            document.getElementById('filterForm').submit();
-        });
-
-        const branchSelect = document.getElementById('branch_id');
-        if (branchSelect) {
-            branchSelect.addEventListener('change', function() {
-                document.getElementById('filterForm').submit();
+        // Auto-submit form on change
+        const filterForm = document.getElementById('filterForm');
+        if (filterForm) {
+            document.getElementById('year').addEventListener('change', function() {
+                filterForm.submit();
             });
+
+            document.getElementById('month').addEventListener('change', function() {
+                filterForm.submit();
+            });
+
+            const branchSelect = document.getElementById('branch_id');
+            if (branchSelect) {
+                branchSelect.addEventListener('change', function() {
+                    filterForm.submit();
+                });
+            }
         }
     });
 </script>
+@endpush
+
+@push('styles')
+<style>
+    /* Semua card menggunakan rounded-xl yang konsisten dengan overflow-hidden */
+    .card {
+        border-radius: 16px !important;
+    }
+
+    /* Container untuk tabel modern */
+    .table-modern-container {
+        overflow: hidden;
+        border-radius: 0 0 16px 16px;
+    }
+
+    /* Tabel dengan styling modern */
+    .table-modern {
+        --bs-table-bg: transparent;
+        --bs-table-striped-bg: rgba(0, 0, 0, 0.02);
+        --bs-table-hover-bg: rgba(79, 107, 255, 0.04);
+        border-collapse: separate;
+        border-spacing: 0;
+        width: 100%;
+    }
+
+    .table-modern thead tr {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+
+    .table-modern thead th {
+        border: none;
+        padding: 1rem 0.75rem;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #6c757d;
+        background: transparent;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    /* Hapus border radius pada header karena sudah dihandle oleh card */
+    .table-modern thead th:first-child,
+    .table-modern thead th:last-child {
+        border-radius: 0;
+    }
+
+    .table-modern tbody td {
+        border: none;
+        padding: 1rem 0.75rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        transition: all 0.2s ease;
+    }
+
+    .table-modern tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* Hapus border radius pada baris terakhir karena sudah dihandle oleh container */
+    .table-modern tbody tr:last-child td:first-child,
+    .table-modern tbody tr:last-child td:last-child {
+        border-radius: 0;
+    }
+
+    .table-row-hover:hover {
+        background-color: var(--bs-table-hover-bg) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    /* Badge dengan rounded-pill */
+    .badge {
+        border-radius: 50px !important;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    /* Form select rounded */
+    .form-select {
+        border-radius: 7px !important;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+
+    .form-select:focus {
+        border-color: #4E6BFF;
+        box-shadow: 0 0 0 0.25rem rgba(79, 107, 255, 0.25);
+    }
+
+    .apexcharts-donut-series path {
+    stroke-width: 0;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.apexcharts-donut-series polygon {
+    stroke-width: 2;
+    stroke: #fff;
+}
+
+.apexcharts-donut .apexcharts-datalabels-group {
+    transform: translateY(5px);
+}
+
+.apexcharts-donut .apexcharts-datalabel-value {
+    font-weight: 700 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Badge percentage */
+.position-relative .badge {
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    min-width: 30px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Chart container */
+#chartTotalTransaksi {
+    position: relative;
+}
+
+#chartTotalTransaksi:after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+    /* Responsif untuk mobile */
+    @media (max-width: 768px) {
+        .card-header, .card-body {
+            padding: 1.25rem !important;
+        }
+
+        .table-modern {
+            font-size: 0.85rem;
+        }
+
+        .table-modern thead th,
+        .table-modern tbody td {
+            padding: 0.75rem 0.5rem;
+        }
+
+        .row.align-items-center > .col-6 {
+            padding: 0.5rem !important;
+        }
+    }
+
+    /* Animasi untuk hover effects */
+    .table-row-hover,
+    .badge,
+    .btn {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+</style>
 @endpush

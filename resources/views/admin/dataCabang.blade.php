@@ -20,7 +20,7 @@
                 <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                <input type="text" 
+                <input type="text"
                        class="form-control border-0 shadow-none bg-transparent"
                        name="search"
                        placeholder="Cari cabang berdasarkan nama atau alamat..."
@@ -30,8 +30,8 @@
 
             {{-- Bagian Kanan: Dropdown Sort --}}
             <div class="d-flex align-items-center gap-2 pe-2">
-                <select name="sort_by" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="sort_by"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="updated_at" {{ ($sort_by ?? 'updated_at') == 'updated_at' ? 'selected' : '' }}>Urutkan: Terakhir diubah</option>
@@ -106,7 +106,7 @@
                                 @if($cabang->email)
                                 <div class="d-flex align-items-center gap-1">
                                     <i class="fa-solid fa-envelope text-muted"></i>
-                                    <span class="text-muted text-truncate" style="max-width: 120px;" title="{{ $cabang->email }}">
+                                    <span class="text-muted text-truncate" style="max-width: 150px;" title="{{ $cabang->email }}">
                                         {{ $cabang->email }}
                                     </span>
                                 </div>
