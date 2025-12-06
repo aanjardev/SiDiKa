@@ -83,6 +83,7 @@ return [
                                     type="text"
                                     class="form-control border-start-0 ps-2 @error('customer_id') is-invalid @enderror"
                                     id="customer_search"
+                                    dusk="customer-search"
                                     placeholder="Cari nama atau no. telp customer..."
                                     value="{{ old('customer_search', isset($penjualan) && $penjualan->customer ? $penjualan->customer->nama . ' (' . $penjualan->customer->no_telp . ')' : '') }}"
                                     data-search-url="{{ route('admin.customers.search') }}"
@@ -92,7 +93,7 @@ return [
                                 <div id="customer_suggestions" class="dropdown-menu" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 1050; max-height: 300px; overflow-y: auto;"></div>
 
                             </div>
-                            <div class="invalid-feedback d-block" id="customer_search_error" style="display: none !important;">
+                            <div class="invalid-feedback d-none" id="customer_search_error" dusk="customer-search-error">
                                 @error('customer_id') {{ $message }} @else Customer wajib dipilih @enderror
                             </div>
                             <div class="d-flex justify-content-end mt-1">
@@ -107,7 +108,7 @@ return [
                             <label class="form-label fw-medium text-secondary small">Lokasi Transaksi (Cabang)</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-store"></i></span>
-                                <select class="form-select border-start-0 ps-2 @error('perusahaan_cabang_id') is-invalid @enderror" id="perusahaan_cabang_id" name="perusahaan_cabang_id" required style="height: 45px;">
+                                <select class="form-select border-start-0 ps-2 @error('perusahaan_cabang_id') is-invalid @enderror" id="perusahaan_cabang_id" name="perusahaan_cabang_id" dusk="select-cabang" required style="height: 45px;">
                                     @foreach ($semua_cabang as $branch)
                                     <option value="{{ $branch->id }}" {{ (string) old('perusahaan_cabang_id', $penjualan->perusahaan_cabang_id ?? '') === (string) $branch->id ? 'selected' : '' }}>
                                         {{ $branch->nama }}{{ !$branch->is_active ? ' (Non-Aktif)' : '' }}
@@ -218,7 +219,7 @@ return [
                         @php $kasValue = old('kas', $penjualan->kas ?? 'cash'); @endphp
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-wallet"></i></span>
-                            <select name="kas" class="form-select border-start-0 ps-2" style="height: 45px;">
+                            <select name="kas" class="form-select border-start-0 ps-2" dusk="select-kas" style="height: 45px;">
                                 <option value="cash" {{ $kasValue === 'cash' ? 'selected' : '' }}>Tunai (Cash)</option>
                                 <option value="transfer" {{ $kasValue === 'transfer' ? 'selected' : '' }}>Transfer Bank</option>
                             </select>
@@ -283,7 +284,7 @@ return [
 
                     {{-- Tombol Submit --}}
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm">
+                        <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm" dusk="btn-proses-transaksi">
                             <i class="fa-solid fa-check-circle me-2"></i>
                             {{ $isEdit ? 'Update Transaksi' : 'Proses Transaksi' }}
                         </button>

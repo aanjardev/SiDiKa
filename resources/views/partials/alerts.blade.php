@@ -242,7 +242,7 @@
 @if (!empty($alertStack))
     <div class="ui-alert-region" role="region" aria-live="assertive">
         @foreach ($alertStack as $index => $alert)
-            <div class="ui-alert ui-alert--{{ $alert['type'] }}" role="alert" data-alert-index="{{ $index }}" data-alert-auto-dismiss="{{ $alert['autoDismiss'] ? 'true' : 'false' }}">
+            <div class="ui-alert ui-alert--{{ $alert['type'] }}" role="alert" data-alert-index="{{ $index }}" data-alert-auto-dismiss="{{ $alert['autoDismiss'] ? 'true' : 'false' }}" dusk="alert-{{ $alert['type'] }}">
                 <div class="ui-alert__icon">{!! $alert['icon'] !!}</div>
                 <div class="ui-alert__content">
                     <p class="ui-alert__title">{{ $alert['title'] }}</p>
@@ -344,4 +344,3 @@
         });
     </script>
 @endonce
-

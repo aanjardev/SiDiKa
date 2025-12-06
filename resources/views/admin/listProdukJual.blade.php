@@ -73,7 +73,8 @@
                      data-price="{{ $product->harga_jual ?? 0 }}"
                      data-stock="{{ $product->stok_produk ?? 0 }}"
                      data-name="{{ $product->nama_produk }}"
-                     data-sku="{{ $product->kode_sku }}">
+                     data-sku="{{ $product->kode_sku }}"
+                     dusk="product-card-{{ $product->id }}">
                     
                     {{-- Gambar Produk (Rasio 4:3 agar tidak terlalu tinggi) --}}
                     <div class="position-relative" style="padding-top: 75%; background-color: #f8f9fa;">
@@ -115,15 +116,15 @@
                         <div class="mt-auto d-flex align-items-center gap-2">
                             @if (($product->stok_produk ?? 0) > 0)
                                 {{-- Tombol Tambah --}}
-                                <button class="btn btn-primary btn-sm flex-grow-1 fw-medium btn-add-product py-1" type="button" style="border-radius: 8px; font-size: 0.85rem;">
+                                <button dusk="btn-add-{{ $product->id }}" class="btn btn-primary btn-sm flex-grow-1 fw-medium btn-add-product py-1" type="button" style="border-radius: 8px; font-size: 0.85rem;">
                                     <i class="fa-solid fa-plus me-1"></i> Tambah
                                 </button>
                                 
                                 {{-- Kontrol Qty (Hidden Awal) --}}
                                 <div class="qty-control d-none flex-grow-1 justify-content-between align-items-center px-1 bg-primary bg-opacity-10 rounded-3" style="height: 32px;">
-                                    <button class="btn btn-sm p-0 text-primary btn-dec" style="width: 24px;"><i class="fa-solid fa-minus" style="font-size: 0.8rem;"></i></button>
+                                    <button dusk="btn-dec-{{ $product->id }}" class="btn btn-sm p-0 text-primary btn-dec" style="width: 24px;"><i class="fa-solid fa-minus" style="font-size: 0.8rem;"></i></button>
                                     <span class="qty-value fw-bold text-primary small">0</span>
-                                    <button class="btn btn-sm p-0 text-primary btn-inc" style="width: 24px;"><i class="fa-solid fa-plus" style="font-size: 0.8rem;"></i></button>
+                                    <button dusk="btn-inc-{{ $product->id }}" class="btn btn-sm p-0 text-primary btn-inc" style="width: 24px;"><i class="fa-solid fa-plus" style="font-size: 0.8rem;"></i></button>
                                 </div>
 
                                 {{-- Info Stok --}}
@@ -175,7 +176,7 @@
     </div>
     <div class="ms-auto d-flex align-items-center gap-2">
         <span class="fw-bold me-2" id="summaryPrice">Rp0</span>
-        <button id="btnCheckout" class="btn btn-primary btn-sm rounded-pill px-3 fw-medium">
+        <button id="btnCheckout" dusk="btn-checkout" class="btn btn-primary btn-sm rounded-pill px-3 fw-medium">
             Checkout <i class="fa-solid fa-arrow-right ms-1" style="font-size: 0.7rem;"></i>
         </button>
     </div>

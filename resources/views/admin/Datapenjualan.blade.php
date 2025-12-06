@@ -3,7 +3,7 @@
 @section('title', 'Data Penjualan')
 
 @push('page-actions')
-<a href="{{ route('admin.sales.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+<a dusk="btn-direct-katalog" href="{{ route('admin.sales.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
     <i class="fas fa-plus fa-fw"></i>
     <span>Tambah Penjualan</span>
 </a>

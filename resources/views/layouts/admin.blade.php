@@ -143,7 +143,7 @@ $setting = \App\Models\CatalogSettings::first();
 
                 <div class="collapse submenu" id="transaksiMenu">
                     <div class="submenu-item">
-                        <a href="{{ route('admin.sales.index') }}" class="submenu-link">
+                        <a dusk= "btn-penjualan" href="{{ route('admin.sales.index') }}" class="submenu-link">
                             <i class="fas fa-shopping-cart submenu-icon"></i>
                             <span>Penjualan</span>
                         </a>
@@ -189,7 +189,7 @@ $setting = \App\Models\CatalogSettings::first();
 
                 <div class="collapse submenu" id="manajemenMenu">
                     <div class="submenu-item">
-                        <a href="{{ route('admin.catalog-settings.index') }}" class="submenu-link">
+                        <a dusk="btn-setting-katalog"href="{{ route('admin.catalog-settings.index') }}" class="submenu-link">
                             <i class="fas fa-cog submenu-icon"></i>
                             <span>Setting Web Katalog</span>
                         </a>
