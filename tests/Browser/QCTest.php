@@ -600,5 +600,158 @@ class QCTest extends AdminBrowserTestCase
         // Verifikasi pesan sukses muncul
         $browser->assertSee('lolos QC');
     }
+
+    /**
+     * Negatif: Form QC harus menolak submit jika field required kosong saat status 'lolos_qc'
+     * Langkah: login -> buat pembelian deal -> proses QC -> set status lolos_qc tanpa isi field required -> submit -> cek error
+     */
+    public function testQCGagalKarenaFieldRequiredKosongSaatLolosQC(): void
+    {
+        $this->browse(function (Browser $browser) {
+            // Step 1: Login sebagai admin
+            $this->loginAsAdmin($browser);
+
+            // Step 2: Buat transaksi pembelian
+            $purchaseData = $this->createPurchaseTransaction($browser);
+
+            // Step 3: Set status pembelian menjadi 'deal'
+            $this->finalizePurchaseAsDeal($browser, $purchaseData['pembelian_id']);
+
+            // Step 4: Navigasi ke halaman QC
+            $browser->visit('/admin/quality-control')
+                ->waitForText('Quality Control (QC)', 10)
+                ->pause(1000);
+
+            $itemName = $purchaseData['item_name'];
+            $browser->waitFor('table tbody tr', 10)
+                ->assertSee($itemName)
+                ->pause(500);
+
+            // Klik tombol "Proses"
+            $this->clickProcessButtonForItem($browser, $itemName);
+
+            // Step 5: Set status menjadi 'lolos_qc' tanpa mengisi field required
+            $browser->waitFor('#qcForm', 10)
+                ->pause(500);
+
+            // Kosongkan field required
+            $browser->script("
+                const form = document.getElementById('qcForm');
+                if (form) {
+                    const kodeSku = form.querySelector('[name=\"kode_sku\"]');
+                    const hargaJual = form.querySelector('[name=\"harga_jual\"]');
+                    const deskripsi = form.querySelector('[name=\"deskripsi_produk\"]');
+                    const qty = form.querySelector('[name=\"qty\"]');
+                    
+                    if (kodeSku) kodeSku.value = '';
+                    if (hargaJual) hargaJual.value = '';
+                    if (deskripsi) deskripsi.value = '';
+                    if (qty) qty.value = '';
+                }
+            ");
+
+            // Set status menjadi 'lolos_qc'
+            $browser->script("
+                const statusSelect = document.querySelector('select[name=\"status_qc\"]');
+                if (statusSelect) {
+                    statusSelect.value = 'lolos_qc';
+                    statusSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            ");
+
+            $browser->pause(1000);
+
+            // Submit form
+            $browser->script("
+                const form = document.getElementById('qcForm');
+                if (form) {
+                    let actionInput = form.querySelector('input[name=\"action\"]');
+                    if (!actionInput) {
+                        actionInput = document.createElement('input');
+                        actionInput.type = 'hidden';
+                        actionInput.name = 'action';
+                        form.appendChild(actionInput);
+                    }
+                    actionInput.value = 'save';
+                    form.submit();
+                }
+            ");
+
+            $browser->pause(2000);
+
+            // Verifikasi tetap di halaman form dengan error
+            $browser->assertPresent('#qcForm')
+                ->assertSee('Kode SKU wajib diisi')
+                ->pause(500);
+        });
+    }
+
+    /**
+     * Negatif: Form QC harus menolak submit jika harga_jual tidak valid (bukan integer)
+     * Langkah: login -> buat pembelian deal -> proses QC -> isi harga_jual dengan string -> submit -> cek error
+     */
+    public function testQCGagalKarenaHargaJualTidakValid(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $this->loginAsAdmin($browser);
+            $purchaseData = $this->createPurchaseTransaction($browser);
+            $this->finalizePurchaseAsDeal($browser, $purchaseData['pembelian_id']);
+
+            $browser->visit('/admin/quality-control')
+                ->waitForText('Quality Control (QC)', 10)
+                ->pause(1000);
+
+            $itemName = $purchaseData['item_name'];
+            $browser->waitFor('table tbody tr', 10)
+                ->assertSee($itemName)
+                ->pause(500);
+
+            $this->clickProcessButtonForItem($browser, $itemName);
+
+            $browser->waitFor('#qcForm', 10)
+                ->pause(500);
+
+            // Isi field dengan data valid kecuali harga_jual
+            $browser->type('input[name="kode_sku"]', 'SKU-INVALID-' . time())
+                ->type('input[name="harga_jual"]', 'invalid-price')
+                ->type('textarea[name="deskripsi_produk"]', 'Deskripsi test')
+                ->type('input[name="qty"]', '1')
+                ->pause(500);
+
+            // Set status menjadi 'lolos_qc'
+            $browser->script("
+                const statusSelect = document.querySelector('select[name=\"status_qc\"]');
+                if (statusSelect) {
+                    statusSelect.value = 'lolos_qc';
+                    statusSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+            ");
+
+            $browser->pause(1000);
+
+            // Submit form
+            $browser->script("
+                const form = document.getElementById('qcForm');
+                if (form) {
+                    let actionInput = form.querySelector('input[name=\"action\"]');
+                    if (!actionInput) {
+                        actionInput = document.createElement('input');
+                        actionInput.type = 'hidden';
+                        actionInput.name = 'action';
+                        form.appendChild(actionInput);
+                    }
+                    actionInput.value = 'save';
+                    form.submit();
+                }
+            ");
+
+            $browser->pause(2000);
+
+            // Verifikasi error muncul
+            $browser->assertPresent('#qcForm')
+                ->assertSee('harga jual')
+                ->pause(500);
+        });
+    }
 }
 

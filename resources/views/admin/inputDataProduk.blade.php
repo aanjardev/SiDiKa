@@ -134,7 +134,7 @@ $backRoute = route('admin.products.index');
                             </div>
                         </div>
 
-                        <div id="product-upload-grid" class="d-flex flex-wrap gap-3 mb-4">
+                        <div id="product-upload-grid" class="d-flex flex-wrap gap-3 mb-4" dusk="product-upload-grid">
                             {{-- Upload boxes akan ditambahkan via JavaScript --}}
                         </div>
 

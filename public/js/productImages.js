@@ -147,7 +147,7 @@
             box.dataset.boxIndex = idx;
 
             box.innerHTML = `
-                <input type="file" accept="image/*" class="d-none file-input" data-index="${idx}">
+                <input type="file" accept="image/*" class="d-none file-input" data-index="${idx}" dusk="file-input-${idx}">
                 <div class="empty-state">
                     <i class="fas fa-cloud-upload-alt fa-2x mb-2"></i>
                     <div style="font-size: 0.75rem; font-weight: 500;">Klik Upload</div>
