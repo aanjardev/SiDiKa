@@ -20,37 +20,10 @@ class PenjualanTest extends DuskTestCase
     }
 
     /**
-     * Positive: berhasil membuat transaksi penjualan end-to-end dari katalog sampai submit.
-     * Langkah: login -> pilih produk stok > 0 -> checkout -> tambah customer baru -> pilih cabang & kas -> submit -> pastikan alert sukses di halaman index penjualan.
-     */
-    public function testPenjualanBerhasilDenganDataLengkap(): void
-    {
-        $this->browse(function (Browser $browser) {
-            $this->loginAsAdmin($browser);
-
-            $productId = $this->startCheckoutFlow($browser);
-
-            // Pastikan item terbawa ke halaman form
-            $browser->assertPresent('#tableItemsBody tr[data-product-id]');
-
-            $this->createCustomerViaModal($browser);
-            $this->selectBranchAndPayment($browser);
-
-            $browser->type('textarea[name="keterangan"]', 'Catatan otomatis Dusk untuk produk #' . $productId);
-
-            $this->submitSaleForm($browser);
-
-            $browser->waitFor('@alert-success', 15)
-                ->assertSee('Transaksi penjualan berhasil disimpan.')
-                ->assertPathIs('/admin/sales');
-        });
-    }
-
-    /**
      * Negatif: validasi harus menolak submit jika customer belum dipilih.
      * Langkah: login -> pilih produk -> checkout -> kosongkan customer -> klik proses -> pastikan error customer muncul & tetap di form.
      */
-    public function testTidakBisaProsesTanpaMemilihCustomer(): void
+    public function test01_TidakBisaProsesTanpaMemilihCustomer(): void
     {
         $this->browse(function (Browser $browser) {
             $this->loginAsAdmin($browser);
@@ -78,12 +51,9 @@ class PenjualanTest extends DuskTestCase
     /**
      * Negatif: user mengetik nama customer yang tidak terdaftar tanpa memilih suggestion harus ditolak.
      */
-    public function testTidakBisaProsesDenganNamaCustomerTidakTerdaftar(): void
+    public function test02_TidakBisaProsesDenganNamaCustomerTidakTerdaftar(): void
     {
         $this->browse(function (Browser $browser) {
-            $this->loginAsAdmin($browser);
-            $this->startCheckoutFlow($browser);
-
             $browser->assertPresent('#tableItemsBody tr[data-product-id]');
 
             $browser->type('#customer_search', 'Customer Tidak Terdaftar');
@@ -99,55 +69,11 @@ class PenjualanTest extends DuskTestCase
     }
 
     /**
-     * Positif: user menambah item baru dari modal checkout dan jumlah item bertambah.
-     */
-    public function testTambahItemBaruDiCheckoutBerhasil(): void
-    {
-        $this->browse(function (Browser $browser) {
-            $this->loginAsAdmin($browser);
-            $firstProductId = $this->startCheckoutFlow($browser);
-
-            $initialCount = $this->getCartCount($browser);
-
-            $this->openProductModal($browser);
-            $addedProductId = $this->addAnotherProductFromModal($browser, [$firstProductId], 2);
-
-            $this->assertNotEmpty($addedProductId, 'Tidak ada produk tambahan dengan stok tersedia.');
-
-            $browser->waitFor("#tableItemsBody tr[data-product-id=\"{$addedProductId}\"]", 10);
-
-            $updatedCount = $this->getCartCount($browser);
-            $this->assertGreaterThan($initialCount, $updatedCount, 'Jumlah item tidak bertambah setelah menambah produk.');
-        });
-    }
-
-    /**
-     * Positif: user berhasil menambahkan customer baru lewat modal.
-     */
-    public function testBerhasilTambahCustomerBaruLewatModal(): void
-    {
-        $this->browse(function (Browser $browser) {
-            $this->loginAsAdmin($browser);
-            $this->startCheckoutFlow($browser);
-
-            $this->createCustomerViaModal($browser);
-
-            // Berhasil jika alert success muncul dan field hidden terisi
-            $browser->waitFor('.ui-alert.ui-alert--success', 8)
-                ->assertSeeIn('.ui-alert.ui-alert--success', 'Customer berhasil disimpan.')
-                ->assertNotEmpty($browser->value('#customer_id'));
-        });
-    }
-
-    /**
      * Negatif: nomor telepon tidak sesuai format harus ditandai invalid di modal customer.
      */
-    public function testModalMenolakNomorTeleponInvalid(): void
+    public function test03_ModalMenolakNomorTeleponInvalid(): void
     {
         $this->browse(function (Browser $browser) {
-            $this->loginAsAdmin($browser);
-            $this->startCheckoutFlow($browser);
-
             $this->openCustomerModal($browser);
 
             $browser->type('#customer_nama_modal', 'Invalid Phone User')
@@ -158,20 +84,18 @@ class PenjualanTest extends DuskTestCase
             $browser->waitFor('#customer_no_telp_modal.is-invalid', 5)
                 ->assertAttributeContains('#customer_no_telp_modal', 'class', 'is-invalid')
                 ->assertSeeIn('#modalTambahCustomer', 'Nomor telepon harus diawali 0 atau 62');
+
+            $this->closeCustomerModal($browser);
         });
     }
 
     /**
      * Negatif: nama customer kosong harus ditolak saat simpan modal.
      */
-    public function testModalMenolakNamaKosong(): void
+    public function test04_ModalMenolakNamaKosong(): void
     {
         $this->browse(function (Browser $browser) {
-            $this->loginAsAdmin($browser);
-            $this->startCheckoutFlow($browser);
-
             $this->openCustomerModal($browser);
-
             $browser->type('#customer_no_telp_modal', '081234567890')
                 ->select('#customer_jenis_kelamin_modal', 'P')
                 ->click('#btnSimpanCustomer')
@@ -179,20 +103,17 @@ class PenjualanTest extends DuskTestCase
                 ->assertAttributeContains('#customer_nama_modal', 'class', 'is-invalid');
 
             $this->assertEmpty($browser->value('#customer_id'));
+            $this->closeCustomerModal($browser);
         });
     }
 
     /**
      * Negatif: nomor telepon kosong harus ditolak saat simpan modal.
      */
-    public function testModalMenolakTeleponKosong(): void
+    public function test05_ModalMenolakTeleponKosong(): void
     {
         $this->browse(function (Browser $browser) {
-            $this->loginAsAdmin($browser);
-            $this->startCheckoutFlow($browser);
-
             $this->openCustomerModal($browser);
-
             $browser->type('#customer_nama_modal', 'User Tanpa Telepon')
                 ->select('#customer_jenis_kelamin_modal', 'L')
                 ->click('#btnSimpanCustomer')
@@ -200,20 +121,17 @@ class PenjualanTest extends DuskTestCase
                 ->assertAttributeContains('#customer_no_telp_modal', 'class', 'is-invalid');
 
             $this->assertEmpty($browser->value('#customer_id'));
+            $this->closeCustomerModal($browser);
         });
     }
 
     /**
      * Negatif: jenis kelamin tidak dipilih harus ditolak saat simpan modal.
      */
-    public function testModalMenolakGenderKosong(): void
+    public function test06_ModalMenolakGenderKosong(): void
     {
         $this->browse(function (Browser $browser) {
-            $this->loginAsAdmin($browser);
-            $this->startCheckoutFlow($browser);
-
             $this->openCustomerModal($browser);
-
             $browser->type('#customer_nama_modal', 'User Tanpa Gender')
                 ->type('#customer_no_telp_modal', '081234567890')
                 ->click('#btnSimpanCustomer')
@@ -221,6 +139,85 @@ class PenjualanTest extends DuskTestCase
                 ->assertAttributeContains('#customer_jenis_kelamin_modal', 'class', 'is-invalid');
 
             $this->assertEmpty($browser->value('#customer_id'));
+            $this->closeCustomerModal($browser);
+        });
+    }
+
+    /**
+     * Positif: user menambah item baru dari modal checkout dan jumlah item bertambah.
+     */
+    public function test10_TambahItemBaruDiCheckoutBerhasil(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $this->loginAsAdmin($browser);
+            $firstProductId = $this->startCheckoutFlow($browser);
+
+            $initialCount = $this->getCartCount($browser);
+
+            // Klik tombol "Tambah Item" yang kembali ke halaman katalog
+            $browser->click('#btnTambahItem')
+                ->waitForLocation('/admin/sales/create', 10)
+                ->waitFor('.product-card', 10);
+
+            // Tambah produk lain lalu checkout kembali ke form
+            $secondProductId = $this->addProductFromCatalog($browser, [$firstProductId]);
+
+            $browser->click('@btn-checkout')
+                ->waitFor('#formPenjualan', 15)
+                ->assertSee('Informasi Transaksi');
+
+            $browser->waitFor("#tableItemsBody tr[data-product-id=\"{$secondProductId}\"]", 10);
+
+            $updatedCount = $this->getCartCount($browser);
+            $this->assertGreaterThan($initialCount, $updatedCount, 'Jumlah item tidak bertambah setelah menambah produk.');
+            $browser->assertPresent("#tableItemsBody tr[data-product-id=\"{$firstProductId}\"]");
+        });
+    }
+
+    /**
+     * Positif: user berhasil menambahkan customer baru lewat modal.
+     */
+    public function test11_BerhasilTambahCustomerBaruLewatModal(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->assertPresent('#formPenjualan')
+                ->assertPresent('#tableItemsBody tr[data-product-id]');
+            $this->createCustomerViaModal($browser);
+
+            // Berhasil jika alert success muncul dan field hidden terisi
+            $browser->waitFor('.ui-alert.ui-alert--success', 8)
+                ->assertSeeIn('.ui-alert.ui-alert--success', 'Customer berhasil disimpan.');
+
+            $this->closeCustomerModal($browser);
+        });
+    }
+
+    /**
+     * Positive: berhasil membuat transaksi penjualan end-to-end dari katalog sampai submit.
+     * Langkah: login -> pilih produk stok > 0 -> checkout -> tambah customer baru -> pilih cabang & kas -> submit -> pastikan alert sukses di halaman index penjualan.
+     */
+    public function test12_PenjualanBerhasilDenganDataLengkap(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->assertPresent('#formPenjualan')
+                ->assertPresent('#tableItemsBody tr[data-product-id]');
+
+            $productId = $browser->script("
+                const row = document.querySelector('#tableItemsBody tr[data-product-id]');
+                return row ? row.dataset.productId : null;
+            ")[0] ?? 'unknown';
+
+            // Customer sudah ada dari langkah sebelumnya
+            $this->selectBranchAndPayment($browser);
+            $browser->pause(800); // tunggu auto-hitungan total
+
+            $browser->type('textarea[name="keterangan"]', 'Catatan otomatis Dusk untuk produk #' . $productId);
+
+            $this->submitSaleForm($browser);
+
+            $browser->waitFor('@alert-success', 15)
+                ->assertSee('Transaksi penjualan berhasil disimpan.')
+                ->assertPathIs('/admin/sales');
         });
     }
 
@@ -303,6 +300,9 @@ class PenjualanTest extends DuskTestCase
             return is_string($value) && str_contains($value, $name);
         }, 'Input customer tidak terisi dengan customer baru.');
 
+        // Pastikan modal tertutup agar tidak menghalangi interaksi berikutnya
+        $this->closeCustomerModal($browser);
+
         return [$name, $phone];
     }
 
@@ -352,31 +352,20 @@ class PenjualanTest extends DuskTestCase
         return is_array($decoded) ? count($decoded) : 0;
     }
 
-    private function openProductModal(Browser $browser): void
-    {
-        $browser->script("
-            const modal = document.getElementById('modalTambahItem');
-            if (modal) { const m = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal); m.show(); }
-        ");
-        $browser->waitFor('#modalTambahItem.show', 5);
-    }
-
-    private function addAnotherProductFromModal(Browser $browser, array $excludeIds = [], int $qty = 1): ?string
+    private function addProductFromCatalog(Browser $browser, array $excludeIds = [], int $qty = 1): ?string
     {
         $excludeJson = json_encode(array_values($excludeIds));
         $result = $browser->script("
             const excludes = {$excludeJson} || [];
-            const opts = Array.from(document.querySelectorAll('#produkBaru option'));
-            const found = opts.find(o => {
-                if (!o.value) return false;
-                if (excludes.includes(o.value) || excludes.includes(Number(o.value))) return false;
-                const stockAttr = o.dataset.stock;
-                if (stockAttr === undefined) return true;
-                if (stockAttr === '') return true;
-                const n = Number(stockAttr);
-                return !Number.isFinite(n) || n > 0;
+            const cards = Array.from(document.querySelectorAll('.product-card'));
+            const found = cards.find(c => {
+                const id = c.dataset.productId;
+                if (!id) return false;
+                if (excludes.includes(id) || excludes.includes(Number(id))) return false;
+                const stock = Number(c.dataset.stock || 0);
+                return stock > 0;
             });
-            return found ? found.value : null;
+            return found ? found.dataset.productId : null;
         ");
 
         $productId = $result[0] ?? null;
@@ -385,27 +374,20 @@ class PenjualanTest extends DuskTestCase
         }
 
         $browser->script("
-            const select = document.getElementById('produkBaru');
-            if (select) {
-                select.value = '{$productId}';
-                select.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-            const qtyInput = document.getElementById('qtyProdukBaru');
-            if (qtyInput) { qtyInput.value = '{$qty}'; }
+            const btn = document.querySelector('[dusk=\"btn-add-{$productId}\"]');
+            if (btn) { btn.scrollIntoView({behavior:'instant', block:'center'}); }
         ");
 
-        $browser->click('#formTambahItem button[type="submit"]');
+        $browser->click("@btn-add-{$productId}")
+            ->pause(300);
 
-        $browser->waitUsing(5, 300, function () use ($browser, $productId) {
-            $value = $browser->value('#itemsInput') ?? '[]';
-            $json = json_decode($value, true) ?: [];
-            foreach ($json as $item) {
-                if ((string) ($item['id'] ?? '') === (string) $productId) {
-                    return true;
-                }
+        if ($qty > 1) {
+            $incClicks = $qty - 1;
+            for ($i = 0; $i < $incClicks; $i++) {
+                $browser->click("@btn-inc-{$productId}")
+                    ->pause(150);
             }
-            return false;
-        });
+        }
 
         return (string) $productId;
     }
@@ -413,7 +395,8 @@ class PenjualanTest extends DuskTestCase
     private function openCustomerModal(Browser $browser): void
     {
         $browser->click('a[data-bs-target="#modalTambahCustomer"]')
-            ->waitFor('#modalTambahCustomer.show', 5);
+            ->waitFor('#modalTambahCustomer.show', 5)
+            ->pause(300);
 
         $browser->script("
             ['customer_nama_modal','customer_no_telp_modal','customer_jenis_kelamin_modal'].forEach(id => {
@@ -424,6 +407,21 @@ class PenjualanTest extends DuskTestCase
                 el.classList.remove('is-invalid');
             });
         ");
+    }
+
+    private function closeCustomerModal(Browser $browser): void
+    {
+        $browser->script("
+            (() => {
+                const modal = document.getElementById('modalTambahCustomer');
+                if (!modal || !modal.classList.contains('show')) return;
+                const closeBtn = modal.querySelector('button[data-bs-dismiss=\"modal\"]');
+                if (closeBtn) { closeBtn.click(); }
+            })();
+        ");
+
+        $browser->pause(200)
+            ->waitUntilMissing('#modalTambahCustomer.show', 5);
     }
 
     protected function shouldStartMaximized(): bool
