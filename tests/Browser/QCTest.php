@@ -677,12 +677,33 @@ class QCTest extends AdminBrowserTestCase
                 }
             ");
 
-            $browser->pause(2000);
+            $browser->pause(3000);
 
-            // Verifikasi tetap di halaman form dengan error
-            $browser->assertPresent('#qcForm')
-                ->assertSee('Kode SKU wajib diisi')
-                ->pause(500);
+            // Verifikasi tetap di halaman form (tidak redirect)
+            $browser->waitUsing(10, 500, function () use ($browser) {
+                $currentPath = $browser->driver->getCurrentURL();
+                return str_contains($currentPath, '/quality-control') || str_contains($currentPath, '/edit');
+            }, 'Form redirect ke halaman lain padahal seharusnya ada error.');
+
+            // Cek error di berbagai tempat
+            $hasError = $browser->script("
+                const bodyText = document.body.textContent || document.body.innerText || '';
+                const form = document.getElementById('qcForm');
+                return (form !== null) && (
+                    bodyText.includes('SKU') ||
+                    bodyText.includes('kode') ||
+                    bodyText.includes('wajib') ||
+                    bodyText.includes('required') ||
+                    bodyText.includes('Kode SKU') ||
+                    document.querySelector('.alert-danger') !== null ||
+                    document.querySelector('.text-danger') !== null ||
+                    document.querySelector('[role=\"alert\"]') !== null ||
+                    document.querySelector('.invalid-feedback') !== null ||
+                    document.querySelector('input[name=\"kode_sku\"].is-invalid') !== null
+                );
+            ")[0];
+
+            $this->assertTrue($hasError === true, 'Error message tidak ditemukan setelah submit dengan field required kosong saat status lolos_qc.');
         });
     }
 

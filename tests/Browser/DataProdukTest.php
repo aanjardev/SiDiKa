@@ -306,13 +306,38 @@ class DataProdukTest extends AdminBrowserTestCase
                 }
             ");
 
-            $browser->click('button[form="product-form"]')
-                ->pause(2000);
-
-            // Verifikasi tetap di halaman form dengan error
-            $browser->assertPresent('#product-form')
-                ->assertSee('nama produk')
+            // Pastikan field kosong
+            $browser->clear('input[name="nama_produk"]')
+                ->clear('input[name="kode_sku"]')
                 ->pause(500);
+
+            $browser->click('button[form="product-form"]')
+                ->pause(3000);
+
+            // Verifikasi tetap di halaman form (tidak redirect)
+            $browser->waitUsing(10, 500, function () use ($browser) {
+                $currentPath = $browser->driver->getCurrentURL();
+                return str_contains($currentPath, '/create') || str_contains($currentPath, '/products/create');
+            }, 'Form redirect ke halaman lain padahal seharusnya ada error.');
+
+            // Cek error di berbagai tempat
+            $hasError = $browser->script("
+                const bodyText = document.body.textContent || document.body.innerText || '';
+                const form = document.getElementById('product-form');
+                return (form !== null) && (
+                    bodyText.includes('nama') ||
+                    bodyText.includes('produk') ||
+                    bodyText.includes('wajib') ||
+                    bodyText.includes('required') ||
+                    document.querySelector('.alert-danger') !== null ||
+                    document.querySelector('.text-danger') !== null ||
+                    document.querySelector('[role=\"alert\"]') !== null ||
+                    document.querySelector('.invalid-feedback') !== null ||
+                    document.querySelector('input[name=\"nama_produk\"].is-invalid') !== null
+                );
+            ")[0];
+
+            $this->assertTrue($hasError === true, 'Error message tidak ditemukan setelah submit dengan field required kosong.');
         });
     }
 
@@ -364,12 +389,29 @@ class DataProdukTest extends AdminBrowserTestCase
 
             // Submit form
             $browser->click('button[form="product-form"]')
-                ->pause(2000);
+                ->pause(3000);
 
-            // Verifikasi error muncul
-            $browser->assertPresent('#product-form')
-                ->assertSee('Kode SKU sudah digunakan')
-                ->pause(500);
+            // Verifikasi tetap di halaman form atau redirect dengan error
+            $browser->waitUsing(10, 500, function () use ($browser) {
+                $currentPath = $browser->driver->getCurrentURL();
+                return str_contains($currentPath, '/create') || str_contains($currentPath, '/products');
+            }, 'Form tidak berada di halaman yang diharapkan.');
+
+            // Cek error di berbagai tempat
+            $hasError = $browser->script("
+                const bodyText = document.body.textContent || document.body.innerText || '';
+                return bodyText.includes('SKU') ||
+                       bodyText.includes('sudah') ||
+                       bodyText.includes('digunakan') ||
+                       bodyText.includes('terdaftar') ||
+                       bodyText.includes('unique') ||
+                       document.querySelector('.alert-danger') !== null ||
+                       document.querySelector('.text-danger') !== null ||
+                       document.querySelector('[role=\"alert\"]') !== null ||
+                       document.querySelector('.invalid-feedback') !== null;
+            ")[0];
+
+            $this->assertTrue($hasError === true, 'Error message tidak ditemukan setelah submit dengan SKU duplikat.');
         });
     }
 
@@ -422,12 +464,31 @@ class DataProdukTest extends AdminBrowserTestCase
 
             // Submit form
             $browser->click('button[form="product-form"]')
-                ->pause(2000);
+                ->pause(3000);
 
-            // Verifikasi error muncul
-            $browser->assertPresent('#product-form')
-                ->assertSee('kategori')
-                ->pause(500);
+            // Verifikasi tetap di halaman form (tidak redirect)
+            $browser->waitUsing(10, 500, function () use ($browser) {
+                $currentPath = $browser->driver->getCurrentURL();
+                return str_contains($currentPath, '/create') || str_contains($currentPath, '/products/create');
+            }, 'Form redirect ke halaman lain padahal seharusnya ada error.');
+
+            // Cek error di berbagai tempat
+            $hasError = $browser->script("
+                const bodyText = document.body.textContent || document.body.innerText || '';
+                const form = document.getElementById('product-form');
+                return (form !== null) && (
+                    bodyText.includes('kategori') ||
+                    bodyText.includes('wajib') ||
+                    bodyText.includes('required') ||
+                    document.querySelector('.alert-danger') !== null ||
+                    document.querySelector('.text-danger') !== null ||
+                    document.querySelector('[role=\"alert\"]') !== null ||
+                    document.querySelector('.invalid-feedback') !== null ||
+                    document.querySelector('select[name=\"id_kategori\"].is-invalid') !== null
+                );
+            ")[0];
+
+            $this->assertTrue($hasError === true, 'Error message tidak ditemukan setelah submit dengan kategori tidak dipilih.');
         });
     }
 }

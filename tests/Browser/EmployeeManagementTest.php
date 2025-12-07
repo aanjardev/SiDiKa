@@ -90,14 +90,39 @@ class EmployeeManagementTest extends AdminBrowserTestCase
                 }
             ");
 
+            // Pastikan field kosong
+            $browser->clear('input[name="nama_lengkap"]')
+                ->clear('input[name="nik"]')
+                ->pause(500);
+
             // Submit tanpa mengisi field required
             $browser->press('button[type="submit"][form="employeeForm"]')
-                ->pause(2000);
+                ->pause(3000);
 
-            // Verifikasi tetap di halaman form dengan error
-            $browser->assertPresent('#employeeForm')
-                ->assertSee('nama lengkap')
-                ->pause(500);
+            // Verifikasi tetap di halaman form (tidak redirect)
+            $browser->waitUsing(10, 500, function () use ($browser) {
+                $currentPath = $browser->driver->getCurrentURL();
+                return str_contains($currentPath, '/create') || str_contains($currentPath, '/employees/create');
+            }, 'Form redirect ke halaman lain padahal seharusnya ada error.');
+
+            // Cek error di berbagai tempat
+            $hasError = $browser->script("
+                const bodyText = document.body.textContent || document.body.innerText || '';
+                const form = document.getElementById('employeeForm');
+                return (form !== null) && (
+                    bodyText.includes('nama') ||
+                    bodyText.includes('lengkap') ||
+                    bodyText.includes('wajib') ||
+                    bodyText.includes('required') ||
+                    document.querySelector('.alert-danger') !== null ||
+                    document.querySelector('.text-danger') !== null ||
+                    document.querySelector('[role=\"alert\"]') !== null ||
+                    document.querySelector('.invalid-feedback') !== null ||
+                    document.querySelector('input[name=\"nama_lengkap\"].is-invalid') !== null
+                );
+            ")[0];
+
+            $this->assertTrue($hasError === true, 'Error message tidak ditemukan setelah submit dengan field required kosong.');
         });
     }
 

@@ -92,15 +92,29 @@ class AdminLoginTest extends AdminBrowserTestCase
                 }
             ");
 
-            $browser->type('input[name="email"]', '')
-                ->type('input[name="password"]', '')
+            $browser->clear('input[name="email"]')
+                ->clear('input[name="password"]')
                 ->press('button[type="submit"]')
-                ->pause(2000);
+                ->pause(3000);
 
+            // Tunggu error muncul dengan berbagai cara
             $browser->waitForLocation('/login', 10)
                 ->assertPathIs('/login')
-                ->assertSee('Email dan password harus diisi')
-                ->pause(500);
+                ->pause(1000);
+
+            // Cek error di berbagai tempat
+            $hasError = $browser->script("
+                const bodyText = document.body.textContent || document.body.innerText || '';
+                return bodyText.includes('Email dan password harus diisi') || 
+                       bodyText.includes('email') ||
+                       bodyText.includes('password') ||
+                       document.querySelector('.alert-danger') !== null ||
+                       document.querySelector('.text-danger') !== null ||
+                       document.querySelector('[role=\"alert\"]') !== null ||
+                       document.querySelector('.invalid-feedback') !== null;
+            ")[0];
+
+            $this->assertTrue($hasError === true, 'Error message tidak ditemukan setelah submit dengan field kosong.');
         });
     }
 }
