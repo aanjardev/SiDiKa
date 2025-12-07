@@ -52,8 +52,8 @@ class QCController extends Controller
             $query->latest('created_at');
         }
 
-    // 6. Paginate (keep simple paginator, we'll append query when rendering links)
-    $data_qc = $query->paginate(10);
+        // 6. Paginate
+        $data_qc = $query->paginate(10);
 
         // 7. Jika AJAX -> kembalikan JSON berisi HTML partial untuk tbody + pagination
         if ($request->ajax() || $request->wantsJson()) {
@@ -94,9 +94,14 @@ class QCController extends Controller
     {
         $item = ItemPembelian::findOrFail($id);
 
-        $rules = [
-            'nama_item' => 'required|string|max:200',
-            'kategori_id' => 'required|exists:kategori,id',
+        // Get status_qc dari request
+        $statusQc = $request->input('status_qc', $item->status_qc);
+        $action = $request->input('action', 'save');
+
+        // Define base rules untuk semua status
+        $baseRules = [
+            'nama_item' => 'nullable|string|max:200',
+            'kategori_id' => 'nullable|exists:kategori,id',
             'kode_sku' => 'nullable|string|max:20',
             'serial_number' => 'nullable|string|max:50',
             'serial_lens' => 'nullable|string|max:50',
@@ -130,30 +135,43 @@ class QCController extends Controller
             'catatan_qc' => 'nullable|string',
         ];
 
-        // If the user clicked the draft button, make validation more lenient
-        $action = $request->input('action', 'save');
-        if ($action === 'draft') {
-            // For draft, only nama_item and kategori_id are required
-            $rules['nama_item'] = 'required|string|max:200';
-            $rules['kategori_id'] = 'required|exists:kategori,id';
-            // Other fields are optional for draft
+        // Rules khusus berdasarkan status QC
+        if ($statusQc === 'lolos_qc' || $action === 'save') {
+            // Untuk lolos_qc, field tertentu harus required
+            $rules = array_merge($baseRules, [
+                'nama_item' => 'required|string|max:200',
+                'kategori_id' => 'required|exists:kategori,id',
+                'kode_sku' => 'required|string|max:20',
+                'harga_jual' => 'required|integer|min:1',
+                'deskripsi_produk' => 'required|string',
+                'qty' => 'required|integer|min:1',
+            ]);
+        } elseif ($statusQc === 'gagal_qc' || $statusQc === 'diarsipkan') {
+            // Untuk gagal/diarsipkan, semua optional
+            $rules = $baseRules;
+        } else {
+            // Untuk menunggu_qc (draft), minimal nama_item dan kategori
+            $rules = array_merge($baseRules, [
+                'nama_item' => 'required|string|max:200',
+                'kategori_id' => 'required|exists:kategori,id',
+            ]);
         }
 
+        // Validasi data
         $data = $request->validate($rules);
 
-        // If the user clicked the archive button, force status to diarsipkan
+        // Force status berdasarkan action
         if ($action === 'archive') {
             $data['status_qc'] = 'diarsipkan';
-        }
-
-        // If the user clicked the draft button, keep status as menunggu_qc
-        if ($action === 'draft') {
+            $statusQc = 'diarsipkan';
+        } elseif ($action === 'draft') {
             $data['status_qc'] = 'menunggu_qc';
+            $statusQc = 'menunggu_qc';
         }
 
         // Handle different QC outcomes
-        if (isset($data['status_qc']) && $data['status_qc'] === 'lolos_qc') {
-            // Create or update product in `produk` table and then redirect to product edit (for uploading photos)
+        if ($statusQc === 'lolos_qc') {
+            // Create or update product in `produk` table
             DB::beginTransaction();
             try {
                 // Ensure there's a SKU; generate one if missing
@@ -175,6 +193,9 @@ class QCController extends Controller
                     'deskripsi_produk' => $data['deskripsi_produk'] ?? $item->deskripsi_produk,
                     'status' => $data['status'] ?? $item->status,
                     'grade' => $data['grade'] ?? $item->grade,
+                    'serial_number' => $data['serial_number'] ?? $item->serial_number,
+                    'serial_lens' => $data['serial_lens'] ?? $item->serial_lens,
+                    'kelengkapan' => $data['kelengkapan'] ?? $item->kelengkapan,
                 ];
 
                 // If a product with same SKU exists, update it (increase stock), otherwise create
@@ -187,6 +208,9 @@ class QCController extends Controller
                     $existing->harga_servis = $productPayload['harga_servis'];
                     $existing->status = $productPayload['status'];
                     $existing->grade = $productPayload['grade'];
+                    $existing->serial_number = $productPayload['serial_number'];
+                    $existing->serial_lens = $productPayload['serial_lens'];
+                    $existing->kelengkapan = $productPayload['kelengkapan'];
                     $existing->stok_produk = ($existing->stok_produk ?? 0) + ($productPayload['stok_produk'] ?? 0);
                     $existing->deskripsi_produk = $productPayload['deskripsi_produk'];
                     $existing->save();
@@ -195,27 +219,30 @@ class QCController extends Controller
                     $createdProduct = Produk::create($productPayload);
                 }
 
-                // mark item as lolos_qc and save draft fields
+                // mark item as lolos_qc and save all fields
                 $item->fill($data);
                 $item->status_qc = 'lolos_qc';
                 $item->save();
 
                 DB::commit();
+
+                // Redirect back to QC list
+                return redirect()->route('admin.quality-control.index')
+                    ->with('success', 'Item lolos QC dan dipindahkan ke tabel Produk. Kode Produk: ' . $kodeSku);
+
             } catch (\Throwable $th) {
                 DB::rollBack();
                 return back()->withInput()->withErrors(['error' => 'Gagal memindahkan item ke produk: ' . $th->getMessage()]);
             }
-
-            // Redirect back to QC list (photo upload handled by different role)
-            return redirect()->route('admin.quality-control.index')
-                ->with('success', 'Item lolos QC dan dipindahkan ke tabel Produk.');
         }
 
-        // Jika status gagal_qc atau diarsipkan, simpan dan arahkan ke halaman arsip
-        if (isset($data['status_qc']) && in_array($data['status_qc'], ['gagal_qc', 'diarsipkan'])) {
+        // Jika status gagal_qc atau diarsipkan
+        if (in_array($statusQc, ['gagal_qc', 'diarsipkan'])) {
             $item->fill($data);
             $item->save();
-            return redirect()->route('admin.quality-control.archived')->with('success', 'Item telah dipindahkan ke arsip produk.');
+
+            return redirect()->route('admin.quality-control.archived')
+                ->with('success', 'Item telah dipindahkan ke arsip produk.');
         }
 
         // Default: simpan perubahan sebagai draft / menunggu QC
@@ -302,8 +329,9 @@ class QCController extends Controller
     public function restore(Request $request, $id)
     {
         $item = ItemPembelian::findOrFail($id);
-        $item->status_qc = 'lolos_qc';
+        // Kembalikan ke antrian QC (menunggu_qc), bukan langsung lolos
+        $item->status_qc = 'menunggu_qc';
         $item->save();
-        return redirect()->back()->with('success', 'Item berhasil dikembalikan dari arsip.');
+        return redirect()->back()->with('success', 'Item dikembalikan ke antrian QC untuk diperiksa ulang.');
     }
 }

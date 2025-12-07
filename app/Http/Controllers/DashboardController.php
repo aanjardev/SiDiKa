@@ -14,11 +14,10 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
-        // =======================================================
-        // FILTER DINAMIS: Ambil year & month dari request
-        // =======================================================
         $selectedYear = (int) $request->input('year', now()->year);
-        $selectedMonth = $request->input('month', now()->month);
+        
+        // PERBAIKAN: Jangan set default bulan, biarkan null untuk "Semua Bulan"
+        $selectedMonth = $request->input('month');
         $selectedMonth = $selectedMonth ? (int) $selectedMonth : null;
 
         $allBranches = Branch::orderBy('nama', 'asc')->get(['id', 'nama']);
@@ -43,15 +42,12 @@ class DashboardController extends Controller
         $metrics = $this->dashboardMetrics->getMetrics($selectedYear, $selectedMonth, $selectedBranch);
 
         return view('admin.index', [
-            // Filter
             'selectedYear' => $selectedYear,
             'selectedMonth' => $selectedMonth,
             'labelBulan' => $labelBulan,
             'selectedBranch' => $selectedBranch,
             'allBranches' => $allBranches,
             'selectedBranchName' => $selectedBranchName,
-
-            // Statistik Utama + Chart + Widget + Branch Data
             'totalPendapatan' => $metrics['totalPendapatan'],
             'totalHPP' => $metrics['totalHPP'],
             'totalLabaBersih' => $metrics['totalLabaBersih'],
@@ -68,5 +64,4 @@ class DashboardController extends Controller
             'labaCabangTerbaik' => $metrics['labaCabangTerbaik'],
             'showBestBranch' => $metrics['showBestBranch'],
         ]);
-    }
-}
+    }}

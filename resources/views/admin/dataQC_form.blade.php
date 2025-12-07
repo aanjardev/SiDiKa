@@ -42,219 +42,240 @@
                     </h6>
                 </div>
 
-                <div class="card-body p-4">
+<div class="card-body p-4">
 
-                    {{-- Identitas Item --}}
-                    <div class="mb-3">
-                        {{-- Logic Main: Added asterisk and required-field class --}}
-                        <label class="form-label fw-medium text-secondary small">Nama Item <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-tag"></i></span>
+    {{-- Identitas Item --}}
+    <div class="mb-3">
+        <label class="form-label fw-medium text-secondary small dynamic-label" data-field="nama_item">
+            Nama Item <span class="text-danger" style="display: none;">*</span>
+        </label>
+        <div class="input-group">
+            <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-tag"></i></span>
+            <input type="text" name="nama_item"
+                   class="form-control border-start-0 ps-2 dynamic-field"
+                   data-field="nama_item"
+                   data-lolos-qc-required="true"
+                   value="{{ old('nama_item', $item->nama_item) }}"
+                   autofocus>
+        </div>
+        <div class="invalid-feedback dynamic-error" data-field="nama_item" style="display: none;">
+            Nama Item wajib diisi
+        </div>
+    </div>
 
-                            <input type="text" name="nama_item" class="form-control border-start-0 ps-2 required-field" value="{{ old('nama_item', $item->nama_item) }}" data-error-message="Nama Item wajib diisi" autofocus>
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-medium text-secondary small dynamic-label" data-field="kategori_id">
+                Kategori <span class="text-danger" style="display: none;">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-layer-group"></i></span>
+                <select name="kategori_id"
+                        class="form-select border-start-0 ps-2 dynamic-field"
+                        data-field="kategori_id"
+                        data-lolos-qc-required="true">
+                    <option value="">Pilih Kategori</option>
+                    @foreach($semua_kategori as $kat)
+                        <option value="{{ $kat->id }}" {{ (old('kategori_id', $item->kategori_id) == $kat->id) ? 'selected' : '' }}>
+                            {{ $kat->nama_kategori }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="invalid-feedback dynamic-error" data-field="kategori_id" style="display: none;">
+                Kategori wajib dipilih
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-medium text-secondary small dynamic-label" data-field="kode_sku">
+                Kode SKU <span class="text-danger" style="display: none;">*</span>
+            </label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-barcode"></i></span>
+                <input type="text" name="kode_sku"
+                       class="form-control border-start-0 ps-2 dynamic-field"
+                       data-field="kode_sku"
+                       data-lolos-qc-required="true"
+                       value="{{ old('kode_sku', $item->kode_sku) }}">
+            </div>
+            <div class="invalid-feedback dynamic-error" data-field="kode_sku" style="display: none;">
+                Kode SKU wajib diisi
+            </div>
+        </div>
+    </div>
 
-                        </div>
-                        {{-- Logic Main: Error Message --}}
-                        <div class="invalid-feedback" id="nama_item_error">
-                            Nama Item wajib diisi
-                        </div>
-                    </div>
+    <div class="row mb-4">
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-medium text-secondary small">Serial Number (Body)</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-fingerprint"></i></span>
+                <input type="text" name="serial_number"
+                       class="form-control border-start-0 ps-2 font-monospace"
+                       value="{{ old('serial_number', $item->serial_number) }}">
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label fw-medium text-secondary small">Serial Number (Lensa)</label>
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-fingerprint"></i></span>
+                <input type="text" name="serial_lens"
+                       class="form-control border-start-0 ps-2 font-monospace"
+                       value="{{ old('serial_lens', $item->serial_lens) }}">
+            </div>
+        </div>
+    </div>
 
+    <hr class="my-4 opacity-25">
+
+    <h6 class="fw-bold text-dark mb-3">
+        <i class="fa-solid fa-clipboard-check me-2 text-success"></i>Pengecekan Kondisi
+    </h6>
+
+    <div class="accordion shadow-sm" id="qcConditionAccordion" style="border-radius: 8px; overflow: hidden;">
+
+        {{-- Accordion 1: Fisik --}}
+        <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button collapsed fw-medium bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+                    <i class="fa-solid fa-camera me-2 text-secondary"></i> Kondisi Fisik Unit
+                </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#qcConditionAccordion">
+                <div class="accordion-body bg-light">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Kategori <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-layer-group"></i></span>
-                                {{-- Logic Main: Added required-field class --}}
-                                <select name="kategori_id" class="form-select border-start-0 ps-2 required-field" data-error-message="Kategori wajib dipilih">
-                                    <option value="">Pilih Kategori</option>
-                                    @foreach($semua_kategori as $kat)
-                                        <option value="{{ $kat->id }}" {{ (old('kategori_id', $item->kategori_id) == $kat->id) ? 'selected' : '' }}>{{ $kat->nama_kategori }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            {{-- Logic Main: Error Message --}}
-                            <div class="invalid-feedback" id="kategori_id_error">
-                                Kategori wajib dipilih
-                            </div>
+                            <label class="form-label small text-muted">Kondisi Fisik</label>
+                            <input type="text" name="kondisi_fisik" class="form-control form-control-sm" value="{{ old('kondisi_fisik', $item->kondisi_fisik) }}">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Kode SKU <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-barcode"></i></span>
-                                {{-- Logic Main: Added required-field class --}}
-                                <input type="text" name="kode_sku" class="form-control border-start-0 ps-2 required-field" value="{{ old('kode_sku', $item->kode_sku) }}" data-error-message="Kode SKU wajib diisi">
-                            </div>
-                            {{-- Logic Main: Error Message --}}
-                            <div class="invalid-feedback" id="kode_sku_error">
-                                Kode SKU wajib diisi
-                            </div>
+                            <label class="form-label small text-muted">Kondisi Baut</label>
+                            <input type="text" name="kondisi_baut" class="form-control form-control-sm" value="{{ old('kondisi_baut', $item->kondisi_baut) }}">
                         </div>
                     </div>
-
-                    <div class="row mb-4">
+                    <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Serial Number (Body)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-fingerprint"></i></span>
-                                <input type="text" name="serial_number" class="form-control border-start-0 ps-2 font-monospace" value="{{ old('serial_number', $item->serial_number) }}">
-                            </div>
+                            <label class="form-label small text-muted">Tutup USB</label>
+                            <input type="text" name="kondisi_tutup_usb" class="form-control form-control-sm" value="{{ old('kondisi_tutup_usb', $item->kondisi_tutup_usb) }}">
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label fw-medium text-secondary small">Serial Number (Lensa)</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-fingerprint"></i></span>
-                                <input type="text" name="serial_lens" class="form-control border-start-0 ps-2 font-monospace" value="{{ old('serial_lens', $item->serial_lens) }}">
-                            </div>
+                            <label class="form-label small text-muted">Karet Grip</label>
+                            <input type="text" name="kondisi_grip" class="form-control form-control-sm" value="{{ old('kondisi_grip', $item->kondisi_grip) }}">
                         </div>
                     </div>
-
-                    <hr class="my-4 opacity-25">
-
-                    <h6 class="fw-bold text-dark mb-3">
-                        <i class="fa-solid fa-clipboard-check me-2 text-success"></i>Pengecekan Kondisi
-                    </h6>
-
-                    <div class="accordion shadow-sm" id="qcConditionAccordion" style="border-radius: 8px; overflow: hidden;">
-
-                        {{-- Accordion 1: Fisik --}}
-                        <div class="accordion-item border-0 border-bottom">
-                            <h2 class="accordion-header" id="headingOne">
-                                <button class="accordion-button collapsed fw-medium bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-                                    <i class="fa-solid fa-camera me-2 text-secondary"></i> Kondisi Fisik Unit
-                                </button>
-                            </h2>
-                            <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#qcConditionAccordion">
-                                <div class="accordion-body bg-light">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Kondisi Fisik</label>
-                                            <input type="text" name="kondisi_fisik" class="form-control form-control-sm" value="{{ old('kondisi_fisik', $item->kondisi_fisik) }}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Kondisi Baut</label>
-                                            <input type="text" name="kondisi_baut" class="form-control form-control-sm" value="{{ old('kondisi_baut', $item->kondisi_baut) }}">
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Tutup USB</label>
-                                            <input type="text" name="kondisi_tutup_usb" class="form-control form-control-sm" value="{{ old('kondisi_tutup_usb', $item->kondisi_tutup_usb) }}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Karet Grip</label>
-                                            <input type="text" name="kondisi_grip" class="form-control form-control-sm" value="{{ old('kondisi_grip', $item->kondisi_grip) }}">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Accordion 2: Lensa --}}
-                        <div class="accordion-item border-0 border-bottom">
-                            <h2 class="accordion-header" id="headingTwo">
-                                <button class="accordion-button collapsed fw-medium bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-                                    <i class="fa-solid fa-bullseye me-2 text-secondary"></i> Kondisi Lensa & Sensor
-                                </button>
-                            </h2>
-                            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#qcConditionAccordion">
-                                <div class="accordion-body bg-light">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Jamur Lensa</label>
-                                            <input type="text" name="kondisi_jamur_lensa" class="form-control form-control-sm" value="{{ old('kondisi_jamur_lensa', $item->kondisi_jamur_lensa) }}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Jamur Sensor</label>
-                                            <input type="text" name="kondisi_jamur_sensor" class="form-control form-control-sm" value="{{ old('kondisi_jamur_sensor', $item->kondisi_jamur_sensor) }}">
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Auto Fokus (AF)</label>
-                                            <input type="text" name="kondisi_af_lensa" class="form-control form-control-sm" value="{{ old('kondisi_af_lensa', $item->kondisi_af_lensa) }}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Diafragma (Aperture)</label>
-                                            <input type="text" name="kondisi_diafragma_lensa" class="form-control form-control-sm" value="{{ old('kondisi_diafragma_lensa', $item->kondisi_diafragma_lensa) }}">
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Zooming</label>
-                                            <input type="text" name="kondisi_zoom_lensa" class="form-control form-control-sm" value="{{ old('kondisi_zoom_lensa', $item->kondisi_zoom_lensa) }}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">View Finder</label>
-                                            <input type="text" name="kondisi_view_finder" class="form-control form-control-sm" value="{{ old('kondisi_view_finder', $item->kondisi_view_finder) }}">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Accordion 3: Lainnya --}}
-                        <div class="accordion-item border-0">
-                            <h2 class="accordion-header" id="headingThree">
-                                <button class="accordion-button collapsed fw-medium bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
-                                    <i class="fa-solid fa-list-check me-2 text-secondary"></i> Fungsi Lain & Kelengkapan
-                                </button>
-                            </h2>
-                            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#qcConditionAccordion">
-                                <div class="accordion-body bg-light">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Mounting</label>
-                                            <input type="text" name="kondisi_mounting" class="form-control form-control-sm" value="{{ old('kondisi_mounting', $item->kondisi_mounting) }}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Slot Memori</label>
-                                            <input type="text" name="kondisi_slot_memori" class="form-control form-control-sm" value="{{ old('kondisi_slot_memori', $item->kondisi_slot_memori) }}">
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">LCD</label>
-                                            <input type="text" name="kondisi_lcd" class="form-control form-control-sm" value="{{ old('kondisi_lcd', $item->kondisi_lcd) }}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Tombol</label>
-                                            <input type="text" name="kondisi_tombol" class="form-control form-control-sm" value="{{ old('kondisi_tombol', $item->kondisi_tombol) }}">
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Flash</label>
-                                            <input type="text" name="kondisi_flash" class="form-control form-control-sm" value="{{ old('kondisi_flash', $item->kondisi_flash) }}">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label class="form-label small text-muted">Sound / Mic</label>
-                                            <input type="text" name="kondisi_sound_mic" class="form-control form-control-sm" value="{{ old('kondisi_sound_mic', $item->kondisi_sound_mic) }}">
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label small text-muted">Kondisi Lain-lain</label>
-                                        <input type="text" name="kondisi_lain_lain" class="form-control form-control-sm" value="{{ old('kondisi_lain_lain', $item->kondisi_lain_lain) }}">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label small text-muted fw-bold">Kelengkapan</label>
-                                        <input type="text" name="kelengkapan" class="form-control form-control-sm" value="{{ old('kelengkapan', $item->kelengkapan) }}" placeholder="Box, Charger, dll">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-0 mt-4">
-                        <label class="form-label fw-medium text-secondary small">Deskripsi Produk (Final) <span class="text-danger">*</span></label>
-                        <textarea name="deskripsi_produk" class="form-control required-field" rows="4" data-error-message="Deskripsi Produk wajib diisi">{{ old('deskripsi_produk', $item->deskripsi_produk) }}</textarea>
-                         {{-- Logic Main: Error Message --}}
-                        <div class="invalid-feedback" id="deskripsi_produk_error">
-                            Deskripsi Produk wajib diisi
-                        </div>
-                    </div>
-
                 </div>
+            </div>
+        </div>
+
+        {{-- Accordion 2: Lensa --}}
+        <div class="accordion-item border-0 border-bottom">
+            <h2 class="accordion-header" id="headingTwo">
+                <button class="accordion-button collapsed fw-medium bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
+                    <i class="fa-solid fa-bullseye me-2 text-secondary"></i> Kondisi Lensa & Sensor
+                </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#qcConditionAccordion">
+                <div class="accordion-body bg-light">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">Jamur Lensa</label>
+                            <input type="text" name="kondisi_jamur_lensa" class="form-control form-control-sm" value="{{ old('kondisi_jamur_lensa', $item->kondisi_jamur_lensa) }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">Jamur Sensor</label>
+                            <input type="text" name="kondisi_jamur_sensor" class="form-control form-control-sm" value="{{ old('kondisi_jamur_sensor', $item->kondisi_jamur_sensor) }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">Auto Fokus (AF)</label>
+                            <input type="text" name="kondisi_af_lensa" class="form-control form-control-sm" value="{{ old('kondisi_af_lensa', $item->kondisi_af_lensa) }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">Diafragma (Aperture)</label>
+                            <input type="text" name="kondisi_diafragma_lensa" class="form-control form-control-sm" value="{{ old('kondisi_diafragma_lensa', $item->kondisi_diafragma_lensa) }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">Zooming</label>
+                            <input type="text" name="kondisi_zoom_lensa" class="form-control form-control-sm" value="{{ old('kondisi_zoom_lensa', $item->kondisi_zoom_lensa) }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">View Finder</label>
+                            <input type="text" name="kondisi_view_finder" class="form-control form-control-sm" value="{{ old('kondisi_view_finder', $item->kondisi_view_finder) }}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Accordion 3: Lainnya --}}
+        <div class="accordion-item border-0">
+            <h2 class="accordion-header" id="headingThree">
+                <button class="accordion-button collapsed fw-medium bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
+                    <i class="fa-solid fa-list-check me-2 text-secondary"></i> Fungsi Lain & Kelengkapan
+                </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#qcConditionAccordion">
+                <div class="accordion-body bg-light">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">Mounting</label>
+                            <input type="text" name="kondisi_mounting" class="form-control form-control-sm" value="{{ old('kondisi_mounting', $item->kondisi_mounting) }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">Slot Memori</label>
+                            <input type="text" name="kondisi_slot_memori" class="form-control form-control-sm" value="{{ old('kondisi_slot_memori', $item->kondisi_slot_memori) }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">LCD</label>
+                            <input type="text" name="kondisi_lcd" class="form-control form-control-sm" value="{{ old('kondisi_lcd', $item->kondisi_lcd) }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">Tombol</label>
+                            <input type="text" name="kondisi_tombol" class="form-control form-control-sm" value="{{ old('kondisi_tombol', $item->kondisi_tombol) }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">Flash</label>
+                            <input type="text" name="kondisi_flash" class="form-control form-control-sm" value="{{ old('kondisi_flash', $item->kondisi_flash) }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label small text-muted">Sound / Mic</label>
+                            <input type="text" name="kondisi_sound_mic" class="form-control form-control-sm" value="{{ old('kondisi_sound_mic', $item->kondisi_sound_mic) }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Kondisi Lain-lain</label>
+                        <input type="text" name="kondisi_lain_lain" class="form-control form-control-sm" value="{{ old('kondisi_lain_lain', $item->kondisi_lain_lain) }}">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted fw-bold">Kelengkapan</label>
+                        <input type="text" name="kelengkapan" class="form-control form-control-sm" value="{{ old('kelengkapan', $item->kelengkapan) }}" placeholder="Box, Charger, dll">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mb-0 mt-4">
+        <label class="form-label fw-medium text-secondary small dynamic-label" data-field="deskripsi_produk">
+            Deskripsi Produk (Final) <span class="text-danger" style="display: none;">*</span>
+        </label>
+        <textarea name="deskripsi_produk"
+                  class="form-control dynamic-field"
+                  data-field="deskripsi_produk"
+                  data-lolos-qc-required="true"
+                  rows="4">{{ old('deskripsi_produk', $item->deskripsi_produk) }}</textarea>
+        <div class="invalid-feedback dynamic-error" data-field="deskripsi_produk" style="display: none;">
+            Deskripsi Produk wajib diisi
+        </div>
+    </div>
+
+</div>
             </div>
         </div>
 
@@ -288,14 +309,18 @@
 
                     {{-- Harga Jual --}}
                     <div class="mb-3">
-                        {{-- Logic Main: Added asterisk and required-field class --}}
-                        <label class="form-label fw-medium text-secondary small">Rencana Harga Jual <span class="text-danger">*</span></label>
+                        <label class="form-label fw-medium text-secondary small dynamic-label" data-field="harga_jual">
+                            Rencana Harga Jual <span class="text-danger" style="display: none;">*</span>
+                        </label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">Rp</span>
-                            <input type="text" name="harga_jual" id="harga_jual" class="form-control border-start-0 ps-2 rupiah-mask required-field" value="{{ old('harga_jual', $item->harga_jual) }}" data-error-message="Harga Jual wajib diisi dan harus berupa angka lebih dari 0" data-validate="price">
+                            <input type="text" name="harga_jual" id="harga_jual"
+                                class="form-control border-start-0 ps-2 rupiah-mask dynamic-field"
+                                data-field="harga_jual"
+                                data-lolos-qc-required="true"
+                                value="{{ old('harga_jual', $item->harga_jual) }}">
                         </div>
-                        {{-- Logic Main: Error Message --}}
-                        <div class="invalid-feedback" id="harga_jual_error">
+                        <div class="invalid-feedback dynamic-error" data-field="harga_jual" style="display: none;">
                             Harga Jual wajib diisi dan harus berupa angka lebih dari 0
                         </div>
                     </div>
@@ -382,57 +407,66 @@
 
 @endsection
 
-{{-- Styles dari Main --}}
 @push('styles')
 <style>
-    /* Tambahan dari Main untuk validasi */
-    .required-field:invalid {
-        border-color: #dc3545;
+    .dynamic-field.lolos-qc-mode {
+        border-left: 3px solid #198754 !important;
+        background-color: rgba(25, 135, 84, 0.05) !important;
     }
 
-    .invalid-feedback {
-        display: none;
-        font-size: 0.875em;
-        color: #dc3545;
-        margin-top: 0.25rem;
+    .dynamic-field.lolos-qc-mode:focus {
+        border-color: #198754;
+        box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
     }
 
-    /* Custom rule agar invalid feedback muncul saat sibling input invalid,
-       bahkan jika di dalam input-group */
-    .required-field.is-invalid ~ .invalid-feedback,
-    .required-field.is-invalid ~ .invalid-feedback,
-    .input-group:has(.required-field.is-invalid) ~ .invalid-feedback, /* Modern Browsers */
-    .is-invalid + .invalid-feedback {
-        display: block;
+    .dynamic-label.lolos-qc-required {
+        color: #198754 !important;
+        font-weight: 600 !important;
     }
 
-    /* Fallback visual untuk input group jika is-invalid */
-    .input-group > .form-control.is-invalid {
-        border-color: #dc3545;
-        z-index: 4; /* Ensure border is visible */
-    }
-    .input-group > .form-control.is-invalid:focus {
-        box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+    .dynamic-label.lolos-qc-required .text-danger {
+        display: inline !important;
     }
 
-    .text-danger {
-        color: #dc3545 !important;
-    }
-    /* Subtle highlight for status selector without increasing font-size */
-    select[name="status_qc"] {
-        font-size: 0.95rem; /* slightly smaller than form-select-lg */
-    }
     select[name="status_qc"].status-highlight {
-        box-shadow: 0 0 0 0.12rem rgba(78, 107, 255, 0.16);
-        border-color: #4e6bff;
-        color: #1f2d5a;
-        font-weight: 600;
-        background-color: rgba(78, 107, 255, 0.04);
+        border-color: #198754 !important;
+        background-color: rgba(25, 135, 84, 0.1) !important;
     }
 </style>
 @endpush
 
-{{-- Scripts dari Main --}}
 @push('scripts')
+<script>
+    // Inisialisasi awal - beri class berdasarkan status awal
+    document.addEventListener('DOMContentLoaded', function() {
+        const statusSelect = document.querySelector('select[name="status_qc"]');
+        const dynamicFields = document.querySelectorAll('.dynamic-required[data-lolos-qc-required="true"]');
+
+        if (statusSelect && dynamicFields.length > 0) {
+            // Fungsi untuk update field mode
+            function updateFieldMode(isLolosQc) {
+                dynamicFields.forEach(field => {
+                    if (isLolosQc) {
+                        field.classList.add('lolos-qc-mode');
+                        field.setAttribute('required', 'required');
+                    } else {
+                        field.classList.remove('lolos-qc-mode');
+                        field.removeAttribute('required');
+                    }
+                });
+            }
+
+            // Set initial state
+            updateFieldMode(statusSelect.value === 'lolos_qc');
+
+            // Listen for changes
+            statusSelect.addEventListener('change', function() {
+                updateFieldMode(this.value === 'lolos_qc');
+            });
+        }
+    });
+</script>
+
+
 @vite('resources/js/qualityControl/data-qc.js')
 @endpush

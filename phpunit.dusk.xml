@@ -12,4 +12,8 @@
             <directory suffix="Test.php">./tests/Browser</directory>
         </testsuite>
     </testsuites>
+    <php>
+        <!-- Disable headless mode so browser window is visible -->
+        <env name="DUSK_HEADLESS_DISABLED" value="true"/>
+    </php>
 </phpunit>

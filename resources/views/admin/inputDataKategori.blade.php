@@ -2,6 +2,17 @@
 
 @section('title', isset($category) ? 'Edit Data Kategori' : 'Tambah Data Kategori')
 
+@push('page-actions')
+    <a href="{{ route('admin.categories.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Kembali</span>
+    </a>
+    <button type="submit" form="categoryForm" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+        <i class="fa-solid fa-save"></i>
+        <span>{{ isset($category) ? 'Simpan Perubahan' : 'Simpan Kategori' }}</span>
+    </button>
+@endpush
+
 @section('content')
 
 {{-- Hapus 'justify-content-center' agar tidak di tengah --}}
@@ -22,14 +33,14 @@
             </div>
 
             <div class="card-body p-4">
-                <form action="{{ isset($category) ? route('admin.categories.update', $category->id) : route('admin.categories.store') }}" method="POST" data-validate-form enctype="multipart/form-data">
+                <form id="categoryForm" action="{{ isset($category) ? route('admin.categories.update', $category->id) : route('admin.categories.store') }}" method="POST" data-validate-form enctype="multipart/form-data">
                     @csrf
                     @if(isset($category))
                         @method('PUT')
                     @endif
 
                     <div class="row">
-                        {{-- Kolom Input: Saya set col-md-7 agar input tidak 'stretching' terlalu panjang secara visual (Good UX), tapi Card tetap full width --}}
+                        {{-- Kolom Input --}}
                         <div class="col-md-7 col-lg-6">
                             <div class="mb-4">
                                 <label for="nama_kategori" class="form-label fw-medium text-secondary small">Nama Kategori <span class="text-danger">*</span></label>
@@ -84,28 +95,17 @@
                                 </div>
                             </div>
                         </div>
-
-                        {{-- Kolom Info Tambahan (Opsional): Mengisi sisa ruang kosong di kanan dengan tips/info --}}
-                        <div class="col-md-5 col-lg-6 ps-md-4 d-none d-md-block border-start">
-                            <div class="alert alert-light border-0 text-muted small">
-                                <i class="fa-solid fa-circle-info me-1 text-primary"></i>
-                                <strong>Tips:</strong><br>
-                                Pastikan nama kategori unik dan mudah dipahami. Nama kategori ini akan muncul di filter pencarian produk.
-                            </div>
-                        </div>
                     </div>
+
+                    {{-- <div class="mt-3">
+                        <div class="alert alert-light border-0 text-muted small">
+                            <i class="fa-solid fa-circle-info me-1 text-primary"></i>
+                            <strong>Tips:</strong><br>
+                            Pastikan nama kategori unik dan mudah dipahami. Nama kategori ini akan muncul di filter pencarian produk.
+                        </div>
+                    </div> --}}
 
                     <hr class="my-4 opacity-25">
-
-                    {{-- Tombol Aksi --}}
-                    <div class="d-flex justify-content-end gap-2">
-                        <a href="{{ route('admin.categories.index') }}" class="btn btn-light border px-4 fw-medium text-secondary d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-xmark"></i> Batal
-                        </a>
-                        <button type="submit" class="btn btn-primary px-4 fw-medium d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-save"></i> {{ isset($category) ? 'Simpan Perubahan' : 'Simpan Kategori' }}
-                        </button>
-                    </div>
 
                 </form>
             </div>

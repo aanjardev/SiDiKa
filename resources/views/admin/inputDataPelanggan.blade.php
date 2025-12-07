@@ -37,7 +37,7 @@
                         <div class="row g-3 mb-4">
                             <div class="col-sm-4">
                                 <div class="p-3 bg-light rounded-3 border text-center h-100">
-                                    <small class="text-muted d-block mb-1">Total Transaksi</small>
+                                    <small class="text-muted d-block mb-1">Total Transaksi</small>xa
                                     <h4 class="fw-bold text-dark mb-0">{{ $ringkasan_transaksi['total_transaksi'] ?? 0 }}</h4>
                                 </div>
                             </div>

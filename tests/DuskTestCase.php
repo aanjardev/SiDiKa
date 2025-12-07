@@ -25,6 +25,16 @@ abstract class DuskTestCase extends BaseTestCase
     }
 
     /**
+     * Determine if the browser should run in headless mode.
+     * 
+     * @return bool
+     */
+    protected function hasHeadlessDisabled(): bool
+    {
+        return env('DUSK_HEADLESS_DISABLED', true);
+    }
+
+    /**
      * Create the RemoteWebDriver instance.
      */
     protected function driver(): RemoteWebDriver
