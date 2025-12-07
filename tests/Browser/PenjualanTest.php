@@ -207,6 +207,10 @@ class PenjualanTest extends DuskTestCase
                 return row ? row.dataset.productId : null;
             ")[0] ?? 'unknown';
 
+            // Isi diskon & biaya tambahan pada form
+            $browser->type('input[name="diskon"]', '5000')
+                ->type('input[name="biaya_tambahan"]', '3000');
+
             // Customer sudah ada dari langkah sebelumnya
             $this->selectBranchAndPayment($browser);
             $browser->pause(800); // tunggu auto-hitungan total
@@ -218,6 +222,34 @@ class PenjualanTest extends DuskTestCase
             $browser->waitFor('@alert-success', 15)
                 ->assertSee('Transaksi penjualan berhasil disimpan.')
                 ->assertPathIs('/admin/sales');
+        });
+    }
+
+    /**
+     * Positif: setelah submit, buka detail terbaru dan cetak nota.
+     * Asumsi: test12 sudah menyimpan transaksi dan berada di halaman Data Penjualan.
+     */
+    public function test13_CetakNotaSetelahSubmit(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->assertPathIs('/admin/sales')
+                ->waitFor('.sales-row', 10);
+
+            $detailUrl = $browser->script("
+                const row = document.querySelector('tr.sales-row');
+                return row ? row.dataset.detailUrl : null;
+            ")[0] ?? null;
+            $this->assertNotEmpty($detailUrl, 'URL detail penjualan tidak ditemukan di tabel.');
+
+            $parts = explode('/', trim((string) $detailUrl, '/'));
+            $saleId = end($parts);
+
+            $browser->visit($detailUrl)
+                ->waitForText('Informasi Transaksi', 10)
+                ->assertPresent("a[href*=\"/admin/sales/{$saleId}/print\"]")
+                ->click("a[href*=\"/admin/sales/{$saleId}/print\"]");
+
+            // Tidak validasi isi cetak; cukup memastikan tombol dapat diklik.
         });
     }
 
