@@ -89,6 +89,23 @@ class PembelianTest extends DuskTestCase
     }
 
     /**
+     * Negatif: tidak boleh mengubah status (Draft/No-Deal/Deal) jika belum ada item.
+     */
+    public function test04_TombolStatusTerkunciJikaBelumAdaItem(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $this->loginAsAdmin($browser);
+            $this->openPurchaseForm($browser);
+            $this->ensureBranchSelected($browser);
+
+            $browser->waitFor('#btnDraft', 5);
+            $this->assertButtonDisabled($browser, '#btnDraft', 'Draft harus terkunci ketika keranjang kosong.');
+            $this->assertButtonDisabled($browser, '#btnNoDeal', 'No-Deal harus terkunci ketika keranjang kosong.');
+            $this->assertButtonDisabled($browser, '#btnDeal', 'Deal harus terkunci ketika keranjang kosong.');
+        });
+    }
+
+    /**
      * Positif: berhasil menambah customer baru dari modal dan terisi ke form.
      */
     public function test10_BerhasilTambahCustomerBaruViaModal(): void
@@ -265,6 +282,36 @@ class PembelianTest extends DuskTestCase
                 ->click("a[href*=\"/admin/purchases/\"][href$=\"/print\"]");
 
             // Tidak memeriksa output PDF, hanya memastikan tombol dapat diklik.
+        });
+    }
+
+    /**
+     * Negatif: tombol cetak nota tidak tersedia untuk transaksi yang bukan Deal.
+     */
+    public function test16_TidakAdaTombolCetakUntukNonDeal(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $this->loginAsAdmin($browser);
+            [, , $itemName] = $this->startPurchaseWithItem($browser);
+
+            $browser->type('#display_harga_tawaran_customer', '750000')
+                ->pause(200)
+                ->click('#btnNoDeal')
+                ->waitFor('@alert-success', 15)
+                ->assertPathIs('/admin/purchases')
+                ->waitFor('.purchase-row', 10);
+
+            $detailUrl = $browser->script("
+                const rows = Array.from(document.querySelectorAll('tr.purchase-row'));
+                const target = rows.find(r => r.textContent.includes({$this->jsonEncode($itemName)}));
+                return target ? target.dataset.detailUrl : null;
+            ")[0] ?? null;
+            $this->assertNotEmpty($detailUrl, 'Detail URL tidak ditemukan untuk transaksi No-Deal.');
+
+            $browser->visit($detailUrl)
+                ->waitForText('Informasi Transaksi', 10)
+                ->assertSee('TIDAK DEAL')
+                ->assertMissing("a[href$=\"/print\"]");
         });
     }
     private function loginAsAdmin(Browser $browser): void
