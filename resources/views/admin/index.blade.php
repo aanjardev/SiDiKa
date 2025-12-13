@@ -52,7 +52,7 @@
                         <select name="branch_id" id="branch_id" class="form-select form-select-sm ">
                             <option value="">Semua Cabang</option>
                             @foreach($allBranches as $branchOption)
-                                <option value="{{ $branchOption->id }}" {{ $selectedBranch === $branchOption->id ? 'selected' : '' }}>
+                            <option value="{{ $branchOption->id }}" {{ (int)$selectedBranch === (int)$branchOption->id ? 'selected' : '' }}>
                                     {{ $branchOption->nama }}
                                 </option>
                             @endforeach
@@ -106,24 +106,34 @@
         </div>
     </div>
 
-    {{-- Card 2: Laba Bersih --}}
+    {{-- Card 2: Gross Profit --}}
     <div class="{{ $colClass }} mb-1">
         <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #198754;">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                        <p class="text-muted small mb-1 fw-medium">Laba Bersih</p>
+                        <p class="text-muted small mb-1 fw-medium">Gross Profit</p>
                         <h3 class="mb-0 fw-bold">Rp {{ number_format($totalLabaBersih, 0, ',', '.') }}</h3>
                     </div>
                     <div class="bg-success bg-opacity-10 rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
                         <i class="fas fa-coins text-success fa-lg"></i>
                     </div>
                 </div>
-                @if(!is_null($selectedBranch))
+                @php
+                    $hppPercent = $totalPendapatan > 0 ? round(($totalHPP / $totalPendapatan) * 100, 1) : 0;
+                    $grossMargin = $totalPendapatan > 0 ? round(($totalLabaBersih / $totalPendapatan) * 100, 1) : 0;
+                @endphp
+                <div class="d-flex flex-column gap-1">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted small">HPP: Rp {{ number_format($totalHPP, 0, ',', '.') }}</span>
+                        <span class="text-muted small">HPP</span>
+                        <span class="text-muted small">Rp {{ number_format($totalHPP, 0, ',', '.') }}</span>
+                        <span class="badge bg-light text-secondary border border-secondary-subtle rounded-pill">{{ $hppPercent }}%</span>
                     </div>
-                @endif
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small">Gross Margin</span>
+                        <span class="badge bg-success bg-opacity-10 text-success border border-success-subtle rounded-pill">{{ $grossMargin }}%</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -175,7 +185,7 @@
                         </div>
                     </div>
                     <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted small">Laba bersih tertinggi</span>
+                        <span class="text-muted small">Gross Profit tertinggi</span>
                     </div>
                 </div>
             </div>
@@ -205,39 +215,48 @@
             <div class="card-header bg-white border-0 p-4 pb-3">
                 <h5 class="card-title fw-bold mb-0 text-dark">Transaksi</h5>
             </div>
-            <div class="card-body p-4 pt-0">
+            <div class="card-body pt-0" style="padding:  0px 50px !important;">
                 <div class="row align-items-center h-100">
                     <div class="col-7 d-flex align-items-center justify-content-center">
                         <div id="chartTotalTransaksi" style="min-height: 250px; width: 100%;"></div>
                     </div>
                     <div class="col-5">
-                        <div class="d-grid gap-4">
-                            <div class="d-flex align-items-center">
-                                <div class="position-relative me-3">
-                                    <div class="bg-primary bg-opacity-10 rounded-circle p-2">
-                                        <div class="bg-primary rounded-circle" style="width: 14px; height: 14px;"></div>
+                        @php
+                            $totalTransaksi = array_sum($dataTransaksiChart ?? []);
+                            $penjualan = $dataTransaksiChart[0] ?? 0;
+                            $pembelian = $dataTransaksiChart[1] ?? 0;
+                            $penjualanPct = $totalTransaksi > 0 ? round(($penjualan / $totalTransaksi) * 100, 1) : 0;
+                            $pembelianPct = $totalTransaksi > 0 ? round(($pembelian / $totalTransaksi) * 100, 1) : 0;
+                        @endphp
+                        <div class="transaksi-legend">
+                            <div class="transaksi-pill">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="transaksi-dot bg-primary bg-opacity-10">
+                                        <span class="transaksi-dot-inner"></span>
+                                        <i class="fas fa-bag-shopping text-primary transaksi-dot-icon"></i>
                                     </div>
-                                    <div class="position-absolute top-0 start-100 translate-middle badge bg-primary rounded-pill p-1" style="font-size: 9px; display: {{ $dataTransaksiChart[0] > 0 ? 'block' : 'none' }}">
-                                        {{ $dataTransaksiChart[0] > 0 ? round(($dataTransaksiChart[0] / array_sum($dataTransaksiChart)) * 100, 1) : 0 }}%
+                                    <div class="d-flex flex-column">
+                                        <span class="text-muted small d-block">Penjualan</span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <h4 class="fw-bold mb-0 text-primary">{{ number_format($penjualan) }}</h4>
+                                            <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold">{{ $penjualanPct }}%</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="ms-2">
-                                    <span class="text-muted small d-block">Penjualan</span>
-                                    <h4 class="fw-bold mb-0">{{ $dataTransaksiChart[0] ?? 0 }}</h4>
                                 </div>
                             </div>
-                            <div class="d-flex align-items-center">
-                                <div class="position-relative me-3">
-                                    <div class="bg-success bg-opacity-10 rounded-circle p-2">
-                                        <div class="bg-success rounded-circle" style="width: 14px; height: 14px;"></div>
+                            <div class="transaksi-pill">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="transaksi-dot bg-success bg-opacity-10">
+                                        <span class="transaksi-dot-inner"></span>
+                                        <i class="fas fa-cart-arrow-down text-success transaksi-dot-icon"></i>
                                     </div>
-                                    <div class="position-absolute top-0 start-100 translate-middle badge bg-success rounded-pill p-1" style="font-size: 9px; display: {{ $dataTransaksiChart[1] > 0 ? 'block' : 'none' }}">
-                                        {{ $dataTransaksiChart[1] > 0 ? round(($dataTransaksiChart[1] / array_sum($dataTransaksiChart)) * 100, 1) : 0 }}%
+                                    <div class="d-flex flex-column">
+                                        <span class="text-muted small d-block">Pembelian</span>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <h4 class="fw-bold mb-0 text-success">{{ number_format($pembelian) }}</h4>
+                                            <span class="badge bg-success bg-opacity-10 text-success fw-semibold">{{ $pembelianPct }}%</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="ms-2">
-                                    <span class="text-muted small d-block">Pembelian</span>
-                                    <h4 class="fw-bold mb-0">{{ $dataTransaksiChart[1] ?? 0 }}</h4>
                                 </div>
                             </div>
                         </div>
@@ -582,33 +601,34 @@
         var optionsTransaksi = {
             chart: {
                 type: 'donut',
-                height: 250
+                height: 300
             },
             series: @json($dataTransaksiChart),
             labels: ['Penjualan', 'Pembelian'],
             colors: ['#4E6BFF', '#198754'],
             plotOptions: {
                 pie: {
-                    donut: {
-                        size: '75%',
-                        labels: {
+                donut: {
+                    size: '75%',
+                    labels: {
+                        show: true,
+                        value: {
                             show: true,
-                            value: {
-                                show: true,
-                                fontSize: '1.25rem',
-                                fontWeight: 'bold',
-                                color: '#2F353F'
-                            },
-                            total: {
-                                show: true,
-                                label: 'Total',
-                                color: '#6c757d',
-                                fontSize: '0.875rem'
-                            }
+                            fontSize: '1.25rem',
+                            fontWeight: 'bold',
+                            color: '#1f2937'
+                        },
+                        total: {
+                            show: true,
+                            label: 'Total',
+                            color: '#1f2937',
+                            fontSize: '0.95rem',
+                            fontWeight: 700
                         }
                     }
                 }
-            },
+            }
+        },
             legend: { show: false },
             dataLabels: { enabled: false },
             tooltip: {
@@ -707,6 +727,38 @@
         border-radius: 0;
     }
 
+    /* Transaksi legend styling */
+    .transaksi-legend {
+        display: grid;
+        gap: 12px;
+    }
+    .transaksi-pill {
+        padding: 12px 14px;
+        border: 1px solid #e8eef6;
+        background: linear-gradient(135deg, #f8fafc 0%, #f4f7fb 100%);
+        border-radius: 14px;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    }
+    .transaksi-dot {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+    }
+    .transaksi-dot-inner {
+        display: block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+    }
+    .transaksi-dot-icon {
+        position: absolute;
+        font-size: 0.85rem;
+    }
+
     .table-row-hover:hover {
         background-color: var(--bs-table-hover-bg) !important;
         transform: translateY(-2px);
@@ -766,20 +818,6 @@
 /* Chart container */
 #chartTotalTransaksi {
     position: relative;
-}
-
-#chartTotalTransaksi:after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 70%);
-    pointer-events: none;
-    z-index: 1;
 }
 
     /* Responsif untuk mobile */
