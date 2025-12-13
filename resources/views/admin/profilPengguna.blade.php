@@ -28,14 +28,14 @@
                 <h5 class="fw-bold text-dark mb-1">{{ Auth::user()->name ?? 'Nama Pengguna' }}</h5>
                 <p class="text-muted small mb-4">{{ ucfirst(Auth::user()->role ?? 'Staff') }}</p>
 
-                <div class="d-grid w-100 gap-2">
+                <div class="d-flex w-100 gap-2">
                     {{-- Tombol Ganti Password (Modal Trigger) --}}
-                    <button type="button" class="btn btn-outline-primary fw-medium" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
+                    <button type="button" class="btn btn-outline-primary fw-medium flex-fill" data-bs-toggle="modal" data-bs-target="#changePasswordModal">
                         <i class="fa-solid fa-key me-2"></i> Ganti Password
                     </button>
 
                     {{-- Tombol Logout (Low Profile) --}}
-                    <button type="button" class="btn btn-outline-secondary fw-medium" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                    <button type="button" class="btn btn-outline-secondary fw-medium flex-fill" data-bs-toggle="modal" data-bs-target="#logoutModal">
                         <i class="fa-solid fa-right-from-bracket me-2"></i> Logout
                     </button>
                 </div>

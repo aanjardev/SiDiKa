@@ -8,7 +8,6 @@ use App\Models\GambarProduk;
 use App\Models\Pembelian;
 use App\Models\Penjualan;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class DashboardMetricsService
@@ -36,86 +35,80 @@ class DashboardMetricsService
     */
     public function getMetrics(int $year, ?int $month, ?int $branchId): array
     {
-        $cacheKey = sprintf(
-            'dashboard:%s:%s:%s',
+        $penjualanBase = Penjualan::query()->whereYear('created_at', $year);
+        if ($month) {
+            $penjualanBase->whereMonth('created_at', $month);
+        }
+        if ($branchId) {
+            $penjualanBase->where('perusahaan_cabang_id', $branchId);
+        }
+
+        $detailBase = DetailPenjualan::query()
+            ->join('penjualan', 'detail_penjualan.penjualan_id', '=', 'penjualan.id')
+            ->leftJoin('produk', 'detail_penjualan.produk_id', '=', 'produk.id')
+            ->whereYear('penjualan.created_at', $year);
+
+        if ($month) {
+            $detailBase->whereMonth('penjualan.created_at', $month);
+        }
+        if ($branchId) {
+            $detailBase->where('penjualan.perusahaan_cabang_id', $branchId);
+        }
+
+        $totalPendapatan = (int) (clone $penjualanBase)->sum('harga_total');
+        // HPP = harga_beli + harga_servis per item * qty terjual
+        $totalHPP = (int) (clone $detailBase)
+            ->selectRaw('SUM(detail_penjualan.qty * (COALESCE(produk.harga_beli, 0) + COALESCE(produk.harga_servis, 0))) as total')
+            ->value('total') ?? 0;
+        $totalLabaBersih = $totalPendapatan - $totalHPP;
+
+        $totalPenjualan = (clone $penjualanBase)->count();
+        $pembelianBase = Pembelian::query()->whereYear('created_at', $year);
+        if ($month) {
+            $pembelianBase->whereMonth('created_at', $month);
+        }
+        if ($branchId) {
+            $pembelianBase->where('perusahaan_cabang_id', $branchId);
+        }
+        // Hanya hitung pembelian yang deal
+        $pembelianBase->where('status_pembelian', 'deal');
+        $totalPembelian = (clone $pembelianBase)->count();
+        $totalTransaksi = $totalPenjualan + $totalPembelian;
+
+        $growthPercentage = $this->calculateGrowth($year, $month, $branchId);
+
+        // Area chart pendapatan & HPP tetap annual (per tahun) agar overview,
+        // sedangkan donut chart transaksi mengikuti filter bulan bila dipilih.
+        [$dataPendapatanChart, $dataHppChart] = $this->buildAreaChartData($year, $branchId);
+        $dataTransaksiChart = $this->buildDonutChartData($year, $month, $branchId);
+
+        $topProducts = $this->topProducts($year, $branchId);
+        $recentSales = $this->recentSales($year, $branchId);
+        $recentPurchases = $this->recentPurchases($year, $branchId);
+
+        [$dataCabang, $namaCabangTerbaik, $labaCabangTerbaik, $showBestBranch] = $this->branchPerformance(
             $year,
-            $month ?? 'all',
-            $branchId ?? 'all'
+            $month,
+            $branchId
         );
 
-        return Cache::remember($cacheKey, now()->addMinutes(10), function () use ($year, $month, $branchId) {
-            $penjualanBase = Penjualan::query()->whereYear('created_at', $year);
-            if ($month) {
-                $penjualanBase->whereMonth('created_at', $month);
-            }
-            if ($branchId) {
-                $penjualanBase->where('perusahaan_cabang_id', $branchId);
-            }
-
-            $detailBase = DetailPenjualan::query()
-                ->join('penjualan', 'detail_penjualan.penjualan_id', '=', 'penjualan.id')
-                ->leftJoin('produk', 'detail_penjualan.produk_id', '=', 'produk.id')
-                ->whereYear('penjualan.created_at', $year);
-
-            if ($month) {
-                $detailBase->whereMonth('penjualan.created_at', $month);
-            }
-            if ($branchId) {
-                $detailBase->where('penjualan.perusahaan_cabang_id', $branchId);
-            }
-
-            $totalPendapatan = (int) (clone $penjualanBase)->sum('harga_total');
-            $totalHPP = (int) (clone $detailBase)
-                ->selectRaw('SUM(detail_penjualan.qty * COALESCE(produk.harga_beli, 0)) as total')
-                ->value('total') ?? 0;
-            $totalLabaBersih = $totalPendapatan - $totalHPP;
-
-            $totalPenjualan = (clone $penjualanBase)->count();
-            $pembelianBase = Pembelian::query()->whereYear('created_at', $year);
-            if ($month) {
-                $pembelianBase->whereMonth('created_at', $month);
-            }
-            if ($branchId) {
-                $pembelianBase->where('perusahaan_cabang_id', $branchId);
-            }
-            $totalPembelian = (clone $pembelianBase)->count();
-            $totalTransaksi = $totalPenjualan + $totalPembelian;
-
-            $growthPercentage = $this->calculateGrowth($year, $month, $branchId);
-
-            // Area chart pendapatan & HPP tetap annual (per tahun) agar overview,
-            // sedangkan donut chart transaksi mengikuti filter bulan bila dipilih.
-            [$dataPendapatanChart, $dataHppChart] = $this->buildAreaChartData($year, $branchId);
-            $dataTransaksiChart = $this->buildDonutChartData($year, $month, $branchId);
-
-            $topProducts = $this->topProducts($year, $branchId);
-            $recentSales = $this->recentSales($year, $branchId);
-            $recentPurchases = $this->recentPurchases($year, $branchId);
-
-            [$dataCabang, $namaCabangTerbaik, $labaCabangTerbaik, $showBestBranch] = $this->branchPerformance(
-                $year,
-                $month,
-                $branchId
-            );
-
-            return [
-                'totalPendapatan' => $totalPendapatan,
-                'totalHPP' => $totalHPP,
-                'totalLabaBersih' => $totalLabaBersih,
-                'totalTransaksi' => $totalTransaksi,
-                'growthPercentage' => round($growthPercentage, 2),
-                'dataPendapatanChart' => $dataPendapatanChart,
-                'dataHppChart' => $dataHppChart,
-                'dataTransaksiChart' => $dataTransaksiChart,
-                'topProducts' => $topProducts,
-                'recentSales' => $recentSales,
-                'recentPurchases' => $recentPurchases,
-                'dataCabang' => $dataCabang,
-                'namaCabangTerbaik' => $namaCabangTerbaik,
-                'labaCabangTerbaik' => $labaCabangTerbaik,
-                'showBestBranch' => $showBestBranch,
-            ];
-        });
+        return [
+            'totalPendapatan' => $totalPendapatan,
+            'totalHPP' => $totalHPP,
+            'totalLabaBersih' => $totalLabaBersih,
+            'totalTransaksi' => $totalTransaksi,
+            'growthPercentage' => round($growthPercentage, 2),
+            'dataPendapatanChart' => $dataPendapatanChart,
+            'dataHppChart' => $dataHppChart,
+            'dataTransaksiChart' => $dataTransaksiChart,
+            'topProducts' => $topProducts,
+            'recentSales' => $recentSales,
+            'recentPurchases' => $recentPurchases,
+            'dataCabang' => $dataCabang,
+            'namaCabangTerbaik' => $namaCabangTerbaik,
+            'labaCabangTerbaik' => $labaCabangTerbaik,
+            'showBestBranch' => $showBestBranch,
+        ];
     }
 
     private function calculateGrowth(int $year, ?int $month, ?int $branchId): float
@@ -227,6 +220,9 @@ class DashboardMetricsService
             $countPenjualan->where('perusahaan_cabang_id', $branchId);
             $countPembelian->where('perusahaan_cabang_id', $branchId);
         }
+
+        // Hanya hitung pembelian dengan status deal
+        $countPembelian->where('status_pembelian', 'deal');
 
         return [
             (int) $countPenjualan->count(),
@@ -355,7 +351,7 @@ class DashboardMetricsService
         ], 'harga_total')->get();
 
         $hppPerBranch = DetailPenjualan::query()
-            ->selectRaw('penjualan.perusahaan_cabang_id, SUM(detail_penjualan.qty * COALESCE(produk.harga_beli, 0)) as total_hpp')
+            ->selectRaw('penjualan.perusahaan_cabang_id, SUM(detail_penjualan.qty * (COALESCE(produk.harga_beli, 0) + COALESCE(produk.harga_servis, 0))) as total_hpp')
             ->join('penjualan', 'detail_penjualan.penjualan_id', '=', 'penjualan.id')
             ->leftJoin('produk', 'detail_penjualan.produk_id', '=', 'produk.id')
             ->whereYear('penjualan.created_at', $year);
@@ -387,7 +383,7 @@ class DashboardMetricsService
 
         // Urutkan berdasarkan laba bersih tertinggi (PERUBAHAN UTAMA)
         $cabangTerbaik = $dataCabang->sortByDesc('labaBersihCabang')->first();
-        
+
         // Jika semua cabang memiliki laba 0, tampilkan "-"
         $labaTertinggi = $cabangTerbaik ? $cabangTerbaik['labaBersihCabang'] : 0;
         $namaCabangTerbaik = ($cabangTerbaik && $labaTertinggi > 0) ? $cabangTerbaik['namaCabang'] : '-';
