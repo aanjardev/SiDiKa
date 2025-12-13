@@ -11,6 +11,29 @@
     #photo-products-tbody td {
         vertical-align: middle !important;
     }
+
+    /* Chip style for SKU (selaras kode pembelian) */
+    .sku-chip {
+        display: inline-block;
+        font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #0d6efd;
+        background: rgba(13, 110, 253, 0.1);
+        border-radius: 10px;
+        padding: 0.35rem 0.65rem;
+        line-height: 1.2;
+        letter-spacing: -0.01em;
+    }
+    /* Keep table compact on desktop, allow wrap on smaller screens */
+    .photo-table {
+        table-layout: fixed;
+        width: 100%;
+    }
+    .photo-table th,
+    .photo-table td {
+        word-break: break-word;
+    }
 </style>
 @endpush
 
@@ -56,16 +79,14 @@
     <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
         <div class="card-body p-0 table-wrapper">
             <div class="table-responsive">
-                <table class="table table-modern mb-0 table-product table-md">
+                <table class="table table-modern mb-0 table-product table-md photo-table">
                 <thead>
                     <tr>
                         <th style="width:60px" class="text-center">No</th>
-                        <th>Kode SKU</th>
+                        <th style="width: 150px;">Kode SKU</th>
                         <th>Nama Produk</th>
-                        <th>Kategori</th>
-                        <th style="text-align: center;">Stok</th>
-                        <th>Harga Jual</th>
-                        <th class="text-center">Aksi</th>
+                        <th style="width: 160px;">Kategori</th>
+                        <th class="text-center" style="width: 140px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody id="photo-products-tbody">
@@ -154,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Render empty message dengan style yang sama
                 tbody.innerHTML = `
                     <tr class="tr-empty">
-                        <td colspan="7" class="p-0">
+                        <td colspan="5" class="p-0">
                             <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
                                 <i class="fa-solid fa-exclamation-triangle fa-2x text-muted mb-3"></i>
                                 <h5 class="mb-1">Gagal memuat data</h5>
@@ -196,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         // Render empty message dengan style yang sama
                         tbody.innerHTML = `
                             <tr class="tr-empty">
-                                <td colspan="7" class="p-0">
+                                <td colspan="5" class="p-0">
                                     <div class="d-flex flex-column align-items-center justify-content-center p-5 empty-message" style="min-height: 250px; width: 100%;">
                                         <i class="fa-solid fa-exclamation-triangle fa-2x text-muted mb-3"></i>
                                         <h5 class="mb-1">Gagal memuat data</h5>
@@ -215,4 +236,3 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endpush
-

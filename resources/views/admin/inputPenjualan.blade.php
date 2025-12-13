@@ -4,7 +4,7 @@
 
 @push('page-actions')
 @php
-$backRoute = route('admin.sales.index');
+$backRoute = route('admin.sales.create');
 if(isset($penjualan)) {
 $backRoute = route('admin.sales.show', $penjualan->id);
 }

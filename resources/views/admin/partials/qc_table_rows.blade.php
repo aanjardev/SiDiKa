@@ -4,7 +4,7 @@
 
         {{-- ID Pembelian --}}
         <td>
-            <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
+            <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small qc-code-chip">
                 #{{ $item->pembelian->kode_transaksi ?? '' }}
             </span>
         </td>
@@ -36,7 +36,7 @@
 
         {{-- Aksi --}}
         <td class="text-center no-row-navigation">
-            <a href="{{ route('admin.quality-control.edit', $item->id) }}" class="btn btn-sm btn-primary shadow-sm px-3 rounded-3 fw-medium" style="font-size: 0.85rem;" title="Proses QC">
+            <a href="{{ route('admin.quality-control.edit', $item->id) }}" class="btn btn-sm btn-primary shadow-sm px-3 rounded-3 fw-medium qc-nowrap" style="font-size: 0.85rem;" title="Proses QC">
                 <i class="fa-solid fa-clipboard-check me-1"></i> Proses
             </a>
         </td>
@@ -52,4 +52,3 @@
         </td>
     </tr>
 @endforelse
-

@@ -112,7 +112,7 @@ $backRoute = route('admin.products.index');
                 </div>
 
                 <div class="card-body p-4">
-                    @if ($errors->any())
+                    {{-- @if ($errors->any())
                     <div class="alert alert-danger mb-4 border-0 shadow-sm">
                         <h5 class="alert-heading small fw-bold"><i class="fa-solid fa-triangle-exclamation me-2"></i>Ada Kesalahan!</h5>
                         <ul class="mb-0 small">
@@ -121,7 +121,7 @@ $backRoute = route('admin.products.index');
                             @endforeach
                         </ul>
                     </div>
-                    @endif
+                    @endif --}}
 
                     <div class="product-media-uploader">
                         <input type="file" name="images[]" id="product-hidden-images-input" class="d-none" multiple>
@@ -152,7 +152,7 @@ $backRoute = route('admin.products.index');
                     <img src="{{ asset('storage/' . $photo->path) }}" class="card-img-top" style="height: 160px; object-fit: cover;" alt="Gambar produk">
                     <div class="card-body p-2">
                         <div class="d-flex justify-content-between align-items-center">
-                            
+
                             <div class="btn-group btn-group-sm">
                                 <button class="btn btn-outline-info btn-set-main" data-image-id="{{ $photo->id }}" title="Set sebagai Gambar Utama">
                                     <i class="fas fa-star"></i>
@@ -244,7 +244,7 @@ $backRoute = route('admin.products.index');
 
                 {{-- Stok --}}
                 <div class="mb-3">
-                    <label class="form-label text-secondary small fw-medium">Stok <span class="text-danger">*</span></label>
+                    <label class="form-label text-secondary small fw-medium">Stok</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 text-muted">
                             <i class="fa-solid fa-cubes"></i>
