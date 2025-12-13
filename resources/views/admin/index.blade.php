@@ -274,7 +274,7 @@
                             </thead>
                             <tbody>
                                 @foreach($topProducts as $index => $product)
-                                    <tr class="table-row-hover">
+                                    <tr class="table-row-hover clickable-row" data-detail-url="{{ route('admin.products.show', $product['id']) }}">
                                         <td class="text-center align-middle ps-4">
                                             <span class="badge bg-primary bg-opacity-10 text-primary fw-bold rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
                                                 {{ $index + 1 }}
@@ -353,7 +353,7 @@
                             </thead>
                             <tbody>
                                 @foreach($recentPurchases as $index => $purchase)
-                                    <tr class="table-row-hover">
+                                    <tr class="table-row-hover clickable-row" data-detail-url="{{ route('admin.purchases.show', $purchase['id']) }}">
                                         <td class="text-center align-middle ps-4">
                                             <span class="badge bg-primary bg-opacity-10 text-primary fw-bold rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
                                                 {{ $index + 1 }}

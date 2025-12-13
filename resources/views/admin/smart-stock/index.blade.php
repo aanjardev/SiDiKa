@@ -9,6 +9,62 @@
 </button>
 @endpush
 
+@push('styles')
+<style>
+    /* Inline filter styling inside card header */
+    .smart-inline-filters {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 16px;
+    }
+    .smart-inline-filters .filter-field {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+        flex: 0 0 auto;
+    }
+    .smart-inline-filters label {
+        margin: 0;
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+    .smart-inline-filters .form-select,
+    .smart-inline-filters .form-control {
+        padding: 6px 10px;
+        border: 1px solid #e5e7eb;
+        box-shadow: inset 0 1px 1px rgba(15,23,42,0.04);
+        min-width: 160px;
+    }
+
+    .form-control {
+        min-width: 70px !important;
+    }
+    .smart-inline-filters .form-control {
+        width: 90px;
+    }
+    .smart-inline-filters .input-group-text {
+        background: #f8fafc;
+        border: 1px solid #e5e7eb;
+        font-size: 0.85rem;
+        color: #475569;
+        padding-inline: 8px;
+    }
+    .smart-inline-filters .form-select:focus,
+    .smart-inline-filters .form-control:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.14);
+    }
+    .smart-inline-filters small {
+        color: #64748b;
+    }
+</style>
+@endpush
+
 @section('content')
 
 {{-- Statistics Cards --}}
@@ -76,49 +132,50 @@
 </div>
 
 {{-- Filters --}}
-<form method="GET" action="{{ route('admin.smart-stock.index') }}" id="filterForm">
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-        <div class="card-body p-2 d-flex align-items-center flex-wrap gap-3">
-            <div class="d-flex align-items-center gap-2">
-                <label class="text-muted small mb-0">Filter:</label>
-                <select name="filter" class="form-select form-select-sm border-0 shadow-none bg-transparent" 
-                        style="cursor: pointer; width: auto;" onchange="document.getElementById('filterForm').submit();">
-                    <option value="all" {{ $filter == 'all' ? 'selected' : '' }}>Semua</option>
-                    <option value="critical" {{ $filter == 'critical' ? 'selected' : '' }}>Kritis</option>
-                    <option value="warning" {{ $filter == 'warning' ? 'selected' : '' }}>Peringatan</option>
-                    <option value="safe" {{ $filter == 'safe' ? 'selected' : '' }}>Aman</option>
-                </select>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <label class="text-muted small mb-0">Urutkan:</label>
-                <select name="sort" class="form-select form-select-sm border-0 shadow-none bg-transparent" 
-                        style="cursor: pointer; width: auto;" onchange="document.getElementById('filterForm').submit();">
-                    <option value="days_left" {{ $sortBy == 'days_left' ? 'selected' : '' }}>Hari Tersisa (Terendah)</option>
-                    <option value="stock" {{ $sortBy == 'stock' ? 'selected' : '' }}>Stok (Tertinggi)</option>
-                    <option value="name" {{ $sortBy == 'name' ? 'selected' : '' }}>Nama Produk (A-Z)</option>
-                </select>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <label class="text-muted small mb-0">Threshold:</label>
-                <input type="number" name="threshold" value="{{ $threshold }}" min="1" max="30" 
-                       class="form-control form-control-sm border-0 shadow-none bg-transparent" 
-                       style="width: 80px;" onchange="document.getElementById('filterForm').submit();">
-                <span class="text-muted small">hari</span>
-            </div>
-        </div>
-    </div>
-</form>
-
 {{-- Analysis Table --}}
 <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden;">
     <div class="card-header bg-white border-0 py-3">
-        <h5 class="mb-0 fw-bold">
-            <i class="fas fa-chart-line text-primary me-2"></i>
-            Analisis Prediksi Stok
-        </h5>
-        <p class="text-muted small mb-0 mt-1">
-            Prediksi berdasarkan rata-rata penjualan 30 hari terakhir
-        </p>
+        <div class="d-flex align-items-start justify-content-between flex-wrap gap-3">
+            <div>
+                <h5 class="mb-0 fw-bold">
+                    <i class="fas fa-chart-line text-primary me-2"></i>
+                    Analisis Prediksi Stok
+                </h5>
+                <p class="text-muted small mb-0 mt-1">
+                    Prediksi berdasarkan rata-rata penjualan 30 hari terakhir
+                </p>
+            </div>
+            <form method="GET" action="{{ route('admin.smart-stock.index') }}" id="filterForm" class="smart-inline-filters">
+                <div class="filter-field">
+                    <label for="filter">Filter</label>
+                    <select name="filter" id="filter" class="form-select form-select-sm"
+                            style="cursor: pointer;" onchange="document.getElementById('filterForm').submit();">
+                        <option value="all" {{ $filter == 'all' ? 'selected' : '' }}>Semua</option>
+                        <option value="critical" {{ $filter == 'critical' ? 'selected' : '' }}>Kritis</option>
+                        <option value="warning" {{ $filter == 'warning' ? 'selected' : '' }}>Peringatan</option>
+                        <option value="safe" {{ $filter == 'safe' ? 'selected' : '' }}>Aman</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="sort">Urutkan</label>
+                    <select name="sort" id="sort" class="form-select form-select-sm"
+                            style="cursor: pointer; width:200px;" onchange="document.getElementById('filterForm').submit();">
+                        <option value="days_left" {{ $sortBy == 'days_left' ? 'selected' : '' }}>Hari Tersisa (Terendah)</option>
+                        <option value="stock" {{ $sortBy == 'stock' ? 'selected' : '' }}>Stok (Tertinggi)</option>
+                        <option value="name" {{ $sortBy == 'name' ? 'selected' : '' }}>Nama Produk (A-Z)</option>
+                    </select>
+                </div>
+                <div class="filter-field">
+                    <label for="threshold">Threshold</label>
+                    <div class="input-group input-group-sm">
+                        <input type="number" name="threshold"  id="threshold" value="{{ $threshold }}" min="1" max="30"
+                               class="form-control form-control-sm"
+                               onchange="document.getElementById('filterForm').submit();">
+                        <span class="input-group-text">hari</span>
+                    </div>
+                </div>
+            </form>
+        </div>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -192,8 +249,8 @@
                             </span>
                         </td>
                         <td class="text-center">
-                            <a href="{{ route('admin.products.edit', $item['product_id']) }}" 
-                               class="btn btn-sm btn-outline-primary" 
+                            <a href="{{ route('admin.products.edit', $item['product_id']) }}"
+                               class="btn btn-sm btn-outline-primary"
                                title="Edit Produk">
                                 <i class="fas fa-edit"></i>
                             </a>
@@ -255,7 +312,7 @@ function loadNotifications() {
     .then(response => response.json())
     .then(data => {
         const container = document.getElementById('notifications-container');
-        
+
         if (data.success && data.data.length > 0) {
             let html = '<div class="list-group">';
             data.data.forEach(notification => {
@@ -272,8 +329,8 @@ function loadNotifications() {
                         </div>
                         <div>
                             <small class="text-muted">${notification.created_at}</small>
-                            <button class="btn btn-sm btn-outline-secondary ms-2" 
-                                    onclick="markAsRead('${notification.id}')" 
+                            <button class="btn btn-sm btn-outline-secondary ms-2"
+                                    onclick="markAsRead('${notification.id}')"
                                     title="Tandai sudah dibaca">
                                 <i class="fas fa-check"></i>
                             </button>
@@ -326,10 +383,9 @@ function markAsRead(notificationId) {
 // Load notifications on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadNotifications();
-    
+
     // Auto-refresh notifications every 30 seconds
     setInterval(loadNotifications, 30000);
 });
 </script>
 @endpush
-

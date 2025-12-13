@@ -24,7 +24,7 @@ $setting = \App\Models\CatalogSettings::first();
           'resources/admin_theme/css/rtl.min.css'
       ]) -->
 
-    
+
     <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
 
     <!-- Fonts -->
@@ -211,31 +211,32 @@ $setting = \App\Models\CatalogSettings::first();
 
         <!-- Sidebar Footer - User Profile -->
         <div class="sidebar-footer">
-            <a class="user-profile" href="{{ route('admin.profile') }}">
-                <div class="user-avatar">
-                    <i class="fas fa-user"></i>
-                </div>
-                <div class="user-info">
-                    <p class="user-name">{{ Auth::user()->name ?? 'User' }}</p>
-                    <p class="user-role">{{ isset(Auth::user()->role) ? ucfirst(Auth::user()->role) : '' }}</p>
-                </div>
-                <i class="fas fa-chevron-right" style="color: var(--text-muted); font-size: 0.8rem;"></i>
-            </a>
+            <div class="dropdown dropup">
+                <button class="user-profile dropdown-toggle sidebar-profile-toggle text-start" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <p class="user-name">{{ Auth::user()->name ?? 'User' }}</p>
+                        <p class="user-role">{{ isset(Auth::user()->role) ? ucfirst(Auth::user()->role) : '' }}</p>
+                    </div>
+                    <i class="fas fa-chevron-down" style="color: var(--text-muted); font-size: 0.8rem;"></i>
+                </button>
 
-
-            <!-- Dropdown Menu -->
-            <ul class="dropdown-menu dropdown-menu-end" style="width: calc(100% - 2rem); margin: 0.5rem 1rem;">
-                <li><a class="dropdown-item" href="{{ route('admin.profile') }}"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li>
-                    <form action="{{ route('logout') }}" method="POST">
-                        @csrf
-                        <button type="submit" class="dropdown-item text-danger">
-                            <i class="fas fa-sign-out-alt me-2"></i> Logout
-                        </button>
-                    </form>
-                </li>
-            </ul>
+                <!-- Dropdown Menu -->
+                <ul class="dropdown-menu dropdown-menu-end sidebar-profile-menu" style="margin: 0.35rem 0;">
+                    <li><a class="dropdown-item" href="{{ route('admin.profile') }}"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li>
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
         </div>
     </aside>
 

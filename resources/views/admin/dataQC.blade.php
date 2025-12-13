@@ -20,6 +20,34 @@
         opacity: 0.8;
         text-decoration: underline !important;
     }
+
+    /* QC table: keep desktop width tight without horizontal scroll; allow wrap */
+    .qc-table-responsive {
+        overflow-x: auto;
+    }
+    @media (min-width: 992px) {
+        .qc-table-responsive {
+            overflow-x: visible;
+        }
+    }
+    .qc-table-fixed {
+        table-layout: fixed;
+        width: 100%;
+    }
+    .qc-table-fixed th,
+    .qc-table-fixed td {
+        white-space: normal;
+        word-break: break-word;
+    }
+    .qc-code-chip {
+        display: inline-block;
+        max-width: 100%;
+        white-space: normal;
+        word-break: break-word;
+    }
+    .qc-nowrap {
+        white-space: nowrap;
+    }
 </style>
 @endpush
 
@@ -183,18 +211,18 @@ document.addEventListener('DOMContentLoaded', function() {
 <div id="qc-list-container">
     <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-modern mb-0">
+            <div class="table-responsive qc-table-responsive">
+                <table class="table table-modern mb-0 qc-table-fixed">
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 5%;">No</th>
-                            <th style="width: 100px;">Kode</th>
+                            <th style="width: 150px;">Kode</th>
                             <th style="width: 25%;">Nama Item</th>
                             <th>Serial Number</th>
                             <th>SN Lensa</th>
                             <th>Kategori</th>
-                            <th style="width: 20%">Kelengkapan QC</th>
-                            <th class="text-center" style="width: 100px;">Aksi</th>
+                            <th style="width: 15%">Kelengkapan QC</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     {{-- ID qc-table-body PENTING untuk script AJAX --}}
@@ -205,8 +233,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             {{-- ID Pembelian --}}
                             <td>
-                                <a href="{{ route('admin.purchases.show', $item->pembelian->id) }}" 
-                                   class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none clickable-code"
+                                <a href="{{ route('admin.purchases.show', $item->pembelian->id) }}"
+                                   class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none clickable-code qc-code-chip"
                                    onclick="event.stopPropagation();">
                                     #{{ $item->pembelian->kode_transaksi }}
                                 </a>
@@ -256,7 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             {{-- Aksi --}}
                             <td class="text-center no-row-navigation">
                                 <a href="{{ route('admin.quality-control.edit', $item->id) }}"
-                                   class="btn btn-sm btn-primary shadow-sm px-3 rounded-3 fw-medium"
+                                   class="btn btn-sm btn-primary shadow-sm px-3 rounded-3 fw-medium qc-nowrap"
                                    style="font-size: 0.85rem;"
                                    title="Proses QC">
                                     <i class="fa-solid fa-clipboard-check me-1"></i> Proses
@@ -300,4 +328,3 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-
