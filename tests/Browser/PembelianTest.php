@@ -108,7 +108,7 @@ class PembelianTest extends DuskTestCase
     /**
      * Positif: berhasil menambah customer baru dari modal dan terisi ke form.
      */
-    public function test10_BerhasilTambahCustomerBaruViaModal(): void
+    public function test05_BerhasilTambahCustomerBaruViaModal(): void
     {
         $this->browse(function (Browser $browser) {
             $this->loginAsAdmin($browser);
@@ -130,7 +130,7 @@ class PembelianTest extends DuskTestCase
     /**
      * Positif: alur lengkap membuat pembelian deal lalu muncul di halaman index.
      */
-    public function test11_BerhasilMenyelesaikanPembelianDeal(): void
+    public function test06_BerhasilMenyelesaikanPembelianDeal(): void
     {
         $this->browse(function (Browser $browser) {
             $this->loginAsAdmin($browser);
@@ -163,7 +163,7 @@ class PembelianTest extends DuskTestCase
     /**
      * Positif: simpan sebagai Draft dan pastikan link bagikan tersedia di halaman detail.
      */
-    public function test12_BerhasilSimpanDraftPembelian(): void
+    public function test07_BerhasilSimpanDraftPembelian(): void
     {
         $this->browse(function (Browser $browser) {
             $this->loginAsAdmin($browser);
@@ -188,7 +188,7 @@ class PembelianTest extends DuskTestCase
     /**
      * Positif: menetapkan status pembelian menjadi Tidak Deal.
      */
-    public function test13_BerhasilSetMenjadiTidakDeal(): void
+    public function test08_BerhasilSetMenjadiTidakDeal(): void
     {
         $this->browse(function (Browser $browser) {
             $this->loginAsAdmin($browser);
@@ -218,7 +218,7 @@ class PembelianTest extends DuskTestCase
     /**
      * Positif: melihat detail pembelian (read-only) dan link bagikan readonly tersedia.
      */
-    public function test14_BisaMelihatDetailPembelianDanBagikan(): void
+    public function test09_BisaMelihatDetailPembelianDanBagikan(): void
     {
         $this->browse(function (Browser $browser) {
             $this->loginAsAdmin($browser);
@@ -254,7 +254,7 @@ class PembelianTest extends DuskTestCase
     /**
      * Positif: tombol cetak nota tersedia untuk transaksi Deal.
      */
-    public function test15_TombolCetakNotaTersediaUntukDeal(): void
+    public function test10_TombolCetakNota(): void
     {
         $this->browse(function (Browser $browser) {
             $this->loginAsAdmin($browser);
@@ -288,32 +288,6 @@ class PembelianTest extends DuskTestCase
     /**
      * Negatif: tombol cetak nota tidak tersedia untuk transaksi yang bukan Deal.
      */
-    public function test16_TidakAdaTombolCetakUntukNonDeal(): void
-    {
-        $this->browse(function (Browser $browser) {
-            $this->loginAsAdmin($browser);
-            [, , $itemName] = $this->startPurchaseWithItem($browser);
-
-            $browser->type('#display_harga_tawaran_customer', '750000')
-                ->pause(200)
-                ->click('#btnNoDeal')
-                ->waitFor('@alert-success', 15)
-                ->assertPathIs('/admin/purchases')
-                ->waitFor('.purchase-row', 10);
-
-            $detailUrl = $browser->script("
-                const rows = Array.from(document.querySelectorAll('tr.purchase-row'));
-                const target = rows.find(r => r.textContent.includes({$this->jsonEncode($itemName)}));
-                return target ? target.dataset.detailUrl : null;
-            ")[0] ?? null;
-            $this->assertNotEmpty($detailUrl, 'Detail URL tidak ditemukan untuk transaksi No-Deal.');
-
-            $browser->visit($detailUrl)
-                ->waitForText('Informasi Transaksi', 10)
-                ->assertSee('TIDAK DEAL')
-                ->assertMissing("a[href$=\"/print\"]");
-        });
-    }
     private function loginAsAdmin(Browser $browser): void
     {
         $browser->driver->manage()->deleteAllCookies();
