@@ -383,6 +383,14 @@ $setting = \App\Models\CatalogSettings::first();
                     linkPath = href.split(/[?#]/)[0];
                 }
 
+                const isProductPhotoUpload = /^\/admin\/products\/\d+\/photos-upload(\/)?$/i.test(currentPath);
+                // If we're on a product photo upload page, force the "Foto Produk" submenu active
+                if (isProductPhotoUpload && linkPath === '{{ route('admin.products.photos') }}'.replace(window.location.origin, '')) {
+                    link.classList.add('active');
+                    activateParentMenu(link);
+                    return;
+                }
+
                 // Check for exact match
                 if (linkPath === currentPath) {
                     link.classList.add('active');
@@ -394,7 +402,11 @@ $setting = \App\Models\CatalogSettings::first();
                 else if (currentPath.startsWith(linkPath + '/') && linkPath !== currentPath && linkPath !== '/') {
                     // Exclude /admin/products/photos and its child routes from being treated as child of /admin/products
                     // This ensures "Foto Produk" menu stays separate from "Produk" menu
-                    if (linkPath === '/admin/products' && currentPath.startsWith('/admin/products/photos')) {
+                    if (
+                        linkPath === '/admin/products' &&
+                        (currentPath.startsWith('/admin/products/photos') ||
+                            /\/admin\/products\/\d+\/photos-upload/.test(currentPath))
+                    ) {
                         // Skip - Foto Produk is a separate menu under Operasional, not under Produk
                         return;
                     }
