@@ -71,16 +71,16 @@
 <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-modern mb-0">
+            <table class="table table-modern mb-0 employee-table">
                 <thead>
                     <tr>
-                        <th class="text-center" style="width: 5%;">No</th>
-                        <th style="width: 30%;">Nama Karyawan</th>
+                        <th class="text-center">No</th>
+                        <th>Nama Karyawan</th>
                         <th>Nomor Telepon</th>
                         <th>Jabatan</th>
                         <th class="text-center">Lama Bekerja</th>
                         <th class="text-center">Status</th>
-                        <th class="text-center" style="width: 100px;">Aksi</th>
+                        <th class="text-center">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -106,7 +106,7 @@
                             </div>
                         </td>
 
-                        <td class="fw-medium text-secondary text-nowrap">
+                        <td class="fw-medium text-secondary text-break">
                             {{ $employee->nomor_telepon }}
                         </td>
 
@@ -185,7 +185,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="text-center py-5">
+                        <td colspan="7" class="text-center py-5">
                             <div class="d-flex flex-column align-items-center opacity-50">
                                 <i class="fa-solid fa-users-slash fa-3x mb-3 text-muted"></i>
                                 <h6 class="text-muted">Belum ada data karyawan</h6>
@@ -206,6 +206,94 @@
 </div>
 @endsection
 
+<style>
+    .table-responsive {
+        overflow-x: hidden !important;
+    }
+
+    .employee-table {
+        table-layout: fixed; /* Mengatur layout tabel */
+        width: 100%;
+    }
+
+    /* Atur lebar kolom secara spesifik */
+    .employee-table th:nth-child(1),
+    .employee-table td:nth-child(1) { /* No */
+        width: 60px;
+        min-width: 60px;
+        max-width: 60px;
+    }
+
+    .employee-table th:nth-child(2),
+    .employee-table td:nth-child(2) { /* Nama Karyawan */
+        width: 220px;
+        min-width: 220px;
+        max-width: 220px;
+    }
+
+    .employee-table th:nth-child(3),
+    .employee-table td:nth-child(3) { /* Nomor Telepon */
+        width: 140px;
+        min-width: 140px;
+        max-width: 140px;
+    }
+
+    .employee-table th:nth-child(4),
+    .employee-table td:nth-child(4) { /* Jabatan */
+        width: 180px;
+        min-width: 180px;
+        max-width: 180px;
+    }
+
+    .employee-table th:nth-child(5),
+    .employee-table td:nth-child(5) { /* Lama Bekerja */
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+    }
+
+    .employee-table th:nth-child(6),
+    .employee-table td:nth-child(6) { /* Status */
+        width: 100px;
+        min-width: 100px;
+        max-width: 100px;
+    }
+
+    .employee-table th:nth-child(7),
+    .employee-table td:nth-child(7) { /* Aksi */
+        width: 80px;
+        min-width: 80px;
+        max-width: 80px;
+    }
+
+    /* Pastikan konten tidak melebihi kolom */
+    .employee-table td {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    /* Khusus untuk kolom Nama Karyawan biar bisa multiline */
+    .employee-table td:nth-child(2) {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+    .table-modern tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .table-modern tbody tr.clickable-row:hover {
+        background-color: var(--bs-light);
+    }
+
+    /* Hapus max-width jika ada */
+    .table-responsive {
+        max-width: none;
+    }
+</style>
+
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const input = document.querySelector('input[name="search"]');
@@ -216,4 +304,3 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-
