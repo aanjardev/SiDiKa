@@ -168,7 +168,6 @@ class PermissionsController extends Controller
 
             return redirect()->route('admin.permissions')
                 ->with('success', 'User berhasil diperbarui!')
-                ->with('info', 'Email user telah diganti. Sistem telah mengirim ulang link aktivasi ke email baru. Jika ada kendala, hubungi administrator.');
         }
 
         return redirect()->route('admin.permissions')->with('success', 'User berhasil diperbarui!');

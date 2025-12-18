@@ -182,43 +182,47 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     updateNavBtn();
 
-    // SIMPLEST WORKING VERSION
+    // Toggle deskripsi hanya jika melebihi batas
     const desc = document.getElementById("descriptionText");
     const toggle = document.getElementById("toggleText");
 
     if (desc && toggle) {
-        // Langsung aktifkan
-        toggle.style.display = "inline";
-        toggle.style.color = "#007bff";
-        toggle.style.cursor = "pointer";
-        toggle.style.fontWeight = "500";
-        toggle.style.marginTop = "10px";
+        const collapsedHeight = 120; // px
+        const needsToggle = desc.scrollHeight > collapsedHeight + 5;
 
-        // Set initial state
-        desc.style.maxHeight = "120px";
-        desc.style.overflow = "hidden";
-        desc.style.transition = "max-height 0.3s ease";
+        if (needsToggle) {
+            toggle.style.display = "inline";
+            toggle.style.color = "#007bff";
+            toggle.style.cursor = "pointer";
+            toggle.style.fontWeight = "500";
+            toggle.style.marginTop = "10px";
 
-        // Add gradient fade
-        desc.style.maskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
-        desc.style.webkitMaskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
+            desc.style.maxHeight = collapsedHeight + "px";
+            desc.style.overflow = "hidden";
+            desc.style.transition = "max-height 0.3s ease";
+            desc.style.maskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
+            desc.style.webkitMaskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
 
-        // Event listener
-        toggle.addEventListener("click", function() {
-            if (desc.style.maxHeight === "120px") {
-                // Expand
-                desc.style.maxHeight = desc.scrollHeight + "px";
-                desc.style.maskImage = "none";
-                desc.style.webkitMaskImage = "none";
-                toggle.textContent = "Tampilkan lebih sedikit";
-            } else {
-                // Collapse
-                desc.style.maxHeight = "120px";
-                desc.style.maskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
-                desc.style.webkitMaskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
-                toggle.textContent = "Baca selengkapnya";
-            }
-        });
+            toggle.addEventListener("click", function() {
+                const isCollapsed = desc.style.maxHeight === collapsedHeight + "px";
+                if (isCollapsed) {
+                    desc.style.maxHeight = desc.scrollHeight + "px";
+                    desc.style.maskImage = "none";
+                    desc.style.webkitMaskImage = "none";
+                    toggle.textContent = "Tampilkan lebih sedikit";
+                } else {
+                    desc.style.maxHeight = collapsedHeight + "px";
+                    desc.style.maskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
+                    desc.style.webkitMaskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
+                    toggle.textContent = "Baca selengkapnya";
+                }
+            });
+        } else {
+            toggle.style.display = "none";
+            desc.style.maxHeight = "none";
+            desc.style.maskImage = "none";
+            desc.style.webkitMaskImage = "none";
+        }
     }
 });
 </script>
