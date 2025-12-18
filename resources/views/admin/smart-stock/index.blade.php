@@ -149,7 +149,7 @@
                 <div class="filter-field">
                     <label for="filter">Filter</label>
                     <select name="filter" id="filter" class="form-select form-select-sm"
-                            style="cursor: pointer;" onchange="document.getElementById('filterForm').submit();">
+                            style="cursor: pointer;" onchange="submitFilterForm()">
                         <option value="all" {{ $filter == 'all' ? 'selected' : '' }}>Semua</option>
                         <option value="critical" {{ $filter == 'critical' ? 'selected' : '' }}>Kritis</option>
                         <option value="warning" {{ $filter == 'warning' ? 'selected' : '' }}>Peringatan</option>
@@ -159,7 +159,7 @@
                 <div class="filter-field">
                     <label for="sort">Urutkan</label>
                     <select name="sort" id="sort" class="form-select form-select-sm"
-                            style="cursor: pointer; width:200px;" onchange="document.getElementById('filterForm').submit();">
+                            style="cursor: pointer; width:200px;" onchange="submitFilterForm()">
                         <option value="days_left" {{ $sortBy == 'days_left' ? 'selected' : '' }}>Hari Tersisa (Terendah)</option>
                         <option value="stock" {{ $sortBy == 'stock' ? 'selected' : '' }}>Stok (Tertinggi)</option>
                         <option value="name" {{ $sortBy == 'name' ? 'selected' : '' }}>Nama Produk (A-Z)</option>
@@ -168,11 +168,13 @@
                 <div class="filter-field">
                     <label for="threshold">Threshold</label>
                     <div class="input-group input-group-sm">
-                        <input type="number" name="threshold"  id="threshold" value="{{ $threshold }}" min="1" max="30"
+                        <input type="number" name="threshold" id="threshold" value="{{ $threshold }}" min="1" max="30" step="1"
                                class="form-control form-control-sm"
-                               onchange="document.getElementById('filterForm').submit();">
+                               inputmode="numeric"
+                               onchange="submitFilterForm()">
                         <span class="input-group-text">hari</span>
                     </div>
+
                 </div>
             </form>
         </div>
@@ -299,6 +301,33 @@ function refreshAnalysis() {
     window.location.reload();
 }
 
+function submitFilterForm() {
+    const form = document.getElementById('filterForm');
+    if (!form) return;
+
+    const thresholdInput = document.getElementById('threshold');
+    if (thresholdInput) clampThreshold(thresholdInput);
+
+    if (typeof form.requestSubmit === 'function') form.requestSubmit();
+    else form.submit();
+}
+
+function clampThreshold(inputEl) {
+    if (!inputEl) return;
+
+    const raw = (inputEl.value ?? '').toString().trim();
+    if (raw === '') return;
+
+    const parsed = Number(raw);
+    if (!Number.isFinite(parsed)) {
+        inputEl.value = '';
+        return;
+    }
+
+    const value = Math.trunc(parsed);
+    inputEl.value = Math.max(1, Math.min(30, value));
+}
+
 // Load notifications
 function loadNotifications() {
     fetch('{{ route("admin.smart-stock.notifications") }}', {
@@ -383,6 +412,17 @@ function markAsRead(notificationId) {
 // Load notifications on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadNotifications();
+
+    const thresholdInput = document.getElementById('threshold');
+    if (thresholdInput) {
+        clampThreshold(thresholdInput);
+        thresholdInput.addEventListener('input', () => clampThreshold(thresholdInput));
+
+        const form = document.getElementById('filterForm');
+        if (form) {
+            form.addEventListener('submit', () => clampThreshold(thresholdInput));
+        }
+    }
 
     // Auto-refresh notifications every 30 seconds
     setInterval(loadNotifications, 30000);

@@ -36,6 +36,16 @@
     Mirip dengan form, tapi semua data tidak bisa diedit.
 --}}
 
+{{-- Toast message untuk "Salin Link" --}}
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+    <div id="copyLinkToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="polite" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body" id="copyLinkToastBody">Link telah disalin.</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4 align-items-stretch">
     {{-- KOLOM KIRI: Informasi Transaksi --}}
     <div class="col-lg-8">
@@ -257,18 +267,42 @@
 {{-- SCRIPT UNTUK AUTO-COPY LINK & FUNGSI COPY TO CLIPBOARD --}}
 {{-- ======================================================= --}}
 <script>
-    window.copyToClipboard = function() {
-        const url = "{{ route('admin.purchases.show', $pembelian->id) }}";
-        if (navigator.clipboard?.writeText) {
-            navigator.clipboard.writeText(url);
+    function showCopyToast(message, variant = 'success') {
+        const toastEl = document.getElementById('copyLinkToast');
+        const toastBodyEl = document.getElementById('copyLinkToastBody');
+        if (!toastEl || !toastBodyEl) return;
+
+        toastBodyEl.textContent = message;
+        toastEl.classList.remove('text-bg-success', 'text-bg-danger', 'text-bg-secondary');
+        toastEl.classList.add(`text-bg-${variant}`);
+
+        if (window.bootstrap?.Toast) {
+            window.bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 1600 }).show();
         } else {
-            const tempInput = document.createElement('input');
-            tempInput.value = url;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            tempInput.setSelectionRange(0, 99999);
-            document.execCommand('copy');
-            tempInput.remove();
+            alert(message);
+        }
+    }
+
+    window.copyToClipboard = async function() {
+        const url = "{{ route('admin.purchases.show', $pembelian->id) }}";
+        try {
+            if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(url);
+            } else {
+                const tempInput = document.createElement('input');
+                tempInput.value = url;
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                tempInput.setSelectionRange(0, 99999);
+                const ok = document.execCommand('copy');
+                tempInput.remove();
+                if (!ok) throw new Error('execCommand copy failed');
+            }
+
+            showCopyToast('Link telah disalin.');
+        } catch (e) {
+            console.error(e);
+            showCopyToast('Gagal menyalin link.', 'danger');
         }
     }
 </script>

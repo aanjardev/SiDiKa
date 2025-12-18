@@ -20,7 +20,14 @@ class SmartStockController extends Controller
      */
     public function index(Request $request)
     {
-        $threshold = (int) $request->input('threshold', 3);
+        $thresholdInput = $request->input('threshold');
+        if ($thresholdInput === null || $thresholdInput === '') {
+            $threshold = 3;
+        } else {
+            $thresholdParsed = filter_var($thresholdInput, FILTER_VALIDATE_INT);
+            $threshold = $thresholdParsed === false ? 3 : (int) $thresholdParsed;
+        }
+        $threshold = max(1, min(30, $threshold));
         $sortBy = $request->input('sort', 'days_left'); // 'days_left', 'stock', 'name'
         $filter = $request->input('filter', 'all'); // 'all', 'critical', 'warning', 'safe'
 
