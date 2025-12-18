@@ -20,17 +20,17 @@
         $nomorWA = '62895411200308';
         $pesan = "Halo Dinoyo Kamera, saya tertarik dengan produk *{$produk->nama_produk}* (SKU: {$produk->kode_sku}). Apakah produk ini masih tersedia dan bisakah saya mendapatkan informasi lebih lanjut?";
         $linkWA = "https://wa.me/{$nomorWA}?text=" . urlencode($pesan);
-        
+
         // Get main image and other images
         $mainImage = $produk->gambar->firstWhere('is_main', true);
         $otherImages = $produk->gambar->filter(function($g) { return !$g->is_main; });
-        
+
         // If no main image is set, use the first image as main
         if (!$mainImage && $produk->gambar->isNotEmpty()) {
             $mainImage = $produk->gambar->first();
             $otherImages = $produk->gambar->skip(1);
         }
-        
+
         // Combine main image with other images for gallery
         $galleryImages = $mainImage ? collect([$mainImage])->concat($otherImages) : collect();
         $galleryImages = $galleryImages->values();
@@ -44,22 +44,19 @@
 
     <section id="product-detail" style="padding-top: 50px; padding-bottom:50px" >
     <div class="container">
-        <div class="row align-items-center mb-3">
-            <!-- Tombol Kembali -->
-            <div class="col-auto">
-                <a href="javascript:history.back()" class="btn btn-light border d-flex align-items-center gap-1">
-                    <i class="bi bi-arrow-left"></i> Kembali
-                </a>
-            </div>
-
-            <!-- Search bar -->
-            <div class="col-8 col-sm-7 col-md-5 col-lg-4 ms-auto">
-                <form method="GET" action="{{ route('product.index') }}">
-                    <div class="input-group">
-                        <span class="input-group-text"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control" name="search" placeholder="Cari produk..." value="{{ request('search') }}">
-                    </div>
-                </form>
+        <div class="row align-items-center gy-2 mb-3">
+            <div class="col-12">
+                <div class="d-flex align-items-center gap-2 flex-nowrap">
+                    <a href="javascript:history.back()" class="btn btn-light border d-flex align-items-center gap-1 action-btn">
+                        <i class="bi bi-arrow-left"></i> Kembali
+                    </a>
+                    <form method="GET" action="{{ route('product.index') }}" class="flex-grow-1 flex-shrink-1">
+                        <div class="input-group action-search w-100">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="text" class="form-control" name="search" placeholder="Cari produk..." value="{{ request('search') }}">
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -74,17 +71,18 @@
                          class="main-image fade-image img-fluid"
                          style="max-width: 400px; max-height: 400px; aspect-ratio: 1/1; object-fit: contain; border-radius: 12px; background: #fff;">
                 </div>
-                <div class="d-flex align-items-center justify-content-center gap-2 mt-2" style="position:relative;">
+                <div class="d-flex align-items-center justify-content-center gap-2 mt-2 w-100" style="position:relative;">
                     <button type="button" class="gallery-nav-btn left me-2" aria-label="Sebelumnya" onclick="switchThumb(-1)" id="galleryPrevBtn"><i class="bi bi-chevron-left"></i></button>
-                    <div class="d-flex flex-wrap gap-2 justify-content-center thumbnails-container mb-0" id="thumbsRow">
+                    <div class="thumbnails-container mb-0 flex-grow-1">
+                        <div class="d-flex flex-nowrap gap-2 thumbnails-scroll" id="thumbsRow">
                         @foreach ($galleryImages as $index => $gambar)
                             <img src="{{ $gambar->url }}"
                                 alt="{{ $produk->nama_produk }}"
                                 class="img-fluid thumbnail{{ $index === 0 ? ' active' : '' }}"
-                                style="width: 80px; height: 80px; object-fit: cover; cursor: pointer; border-radius: 8px; border: 2px solid transparent; background: white;"
                                 onclick="switchProductImage({{ $index }})"
                                 data-index="{{ $index }}">
                         @endforeach
+                        </div>
                     </div>
                     <button type="button" class="gallery-nav-btn right ms-2" aria-label="Selanjutnya" onclick="switchThumb(1)" id="galleryNextBtn"><i class="bi bi-chevron-right"></i></button>
                 </div>
@@ -141,66 +139,88 @@
     </script>
     <script src="{{ asset('js/productDetailGallery.js') }}"></script>
     <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        let currentGalleryIndex = 0;
-        const galleryImages = @json($galleryImageUrls->toArray());
-        const mainImg = document.getElementById('mainProductImage');
-        const thumbs = document.querySelectorAll('.thumbnail');
-        const prevBtn = document.getElementById('galleryPrevBtn');
-        const nextBtn = document.getElementById('galleryNextBtn');
+document.addEventListener('DOMContentLoaded', function() {
+    // Gallery function (existing code)
+    let currentGalleryIndex = 0;
+    const galleryImages = @json($galleryImageUrls->toArray());
+    const mainImg = document.getElementById('mainProductImage');
+    const thumbs = document.querySelectorAll('.thumbnail');
+    const prevBtn = document.getElementById('galleryPrevBtn');
+    const nextBtn = document.getElementById('galleryNextBtn');
 
-        function setMainImage(idx) {
-            if(idx === currentGalleryIndex) return;
-            mainImg.classList.add('fade-out');
-            setTimeout(() => {
-                mainImg.src = galleryImages[idx];
-                mainImg.classList.remove('fade-out');
-            }, 300);
-            thumbs.forEach((t,i)=>t.classList.toggle('active',i===idx));
-            currentGalleryIndex = idx;
-            updateNavBtn();
-        }
-        window.switchProductImage = setMainImage;
-        window.switchThumb = function(dir) {
-            let next = currentGalleryIndex + dir;
-            if(next < 0) next = galleryImages.length-1;
-            if(next >= galleryImages.length) next = 0;
-            setMainImage(next);
-        }
-        function updateNavBtn() {
-            if (galleryImages.length <= 1) {
-                prevBtn.setAttribute('disabled', 'disabled');
-                nextBtn.setAttribute('disabled', 'disabled');
-            } else {
-                prevBtn.removeAttribute('disabled');
-                nextBtn.removeAttribute('disabled');
-            }
-        }
+    function setMainImage(idx) {
+        if(idx === currentGalleryIndex) return;
+        mainImg.classList.add('fade-out');
+        setTimeout(() => {
+            mainImg.src = galleryImages[idx];
+            mainImg.classList.remove('fade-out');
+        }, 300);
+        thumbs.forEach((t,i) => t.classList.toggle('active', i === idx));
+        currentGalleryIndex = idx;
         updateNavBtn();
-    });
+    }
 
-    document.addEventListener("DOMContentLoaded", function () {
-        const desc = document.getElementById("descriptionText");
-        const toggle = document.getElementById("toggleText");
+    window.switchProductImage = setMainImage;
 
-        // Hitung tinggi maksimal untuk 20 baris
-        const lineHeight = parseFloat(getComputedStyle(desc).lineHeight) || 18;
-        const maxHeight = lineHeight * 18;
+    window.switchThumb = function(dir) {
+        let next = currentGalleryIndex + dir;
+        if(next < 0) next = galleryImages.length - 1;
+        if(next >= galleryImages.length) next = 0;
+        setMainImage(next);
+        const activeThumb = document.querySelector(`.thumbnail[data-index="${next}"]`);
+        activeThumb?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
 
-        // Tampilkan toggle hanya jika teks melebihi 20 baris
-        if (desc.scrollHeight > maxHeight) {
-            desc.classList.add("collapsed");
-            toggle.style.display = "inline";
+    function updateNavBtn() {
+        if (galleryImages.length <= 1) {
+            prevBtn.setAttribute('disabled', 'disabled');
+            nextBtn.setAttribute('disabled', 'disabled');
+        } else {
+            prevBtn.removeAttribute('disabled');
+            nextBtn.removeAttribute('disabled');
         }
+    }
+    updateNavBtn();
 
-        toggle.addEventListener("click", function () {
-            desc.classList.toggle("collapsed");
-            toggle.textContent = desc.classList.contains("collapsed")
-                ? "Baca selengkapnya"
-                : "Tampilkan lebih sedikit";
+    // SIMPLEST WORKING VERSION
+    const desc = document.getElementById("descriptionText");
+    const toggle = document.getElementById("toggleText");
+
+    if (desc && toggle) {
+        // Langsung aktifkan
+        toggle.style.display = "inline";
+        toggle.style.color = "#007bff";
+        toggle.style.cursor = "pointer";
+        toggle.style.fontWeight = "500";
+        toggle.style.marginTop = "10px";
+
+        // Set initial state
+        desc.style.maxHeight = "120px";
+        desc.style.overflow = "hidden";
+        desc.style.transition = "max-height 0.3s ease";
+
+        // Add gradient fade
+        desc.style.maskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
+        desc.style.webkitMaskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
+
+        // Event listener
+        toggle.addEventListener("click", function() {
+            if (desc.style.maxHeight === "120px") {
+                // Expand
+                desc.style.maxHeight = desc.scrollHeight + "px";
+                desc.style.maskImage = "none";
+                desc.style.webkitMaskImage = "none";
+                toggle.textContent = "Tampilkan lebih sedikit";
+            } else {
+                // Collapse
+                desc.style.maxHeight = "120px";
+                desc.style.maskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
+                desc.style.webkitMaskImage = "linear-gradient(to bottom, black 80%, transparent 100%)";
+                toggle.textContent = "Baca selengkapnya";
+            }
         });
-    });
-
-    </script>
+    }
+});
+</script>
 </body>
 </html>

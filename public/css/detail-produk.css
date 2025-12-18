@@ -60,6 +60,18 @@
     box-shadow: none;
 }
 
+.action-btn {
+    height: 48px;
+    padding: 0.55rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.action-search .input-group-text,
+.action-search .form-control {
+    height: 48px;
+}
+
 /* Product Images */
 .carousel,
 .carousel-inner,
@@ -107,10 +119,29 @@
 /* Thumbnails */
 .thumbnails-container {
     background: white;
-    padding: 1rem;
+    padding: 0.75rem;
     border-radius: 12px;
     margin-top: 1rem;
     box-shadow: var(--shadow-sm);
+    width: 100%;
+    overflow: hidden;
+}
+
+.thumbnails-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-300) transparent;
+}
+.thumbnails-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+.thumbnails-scroll::-webkit-scrollbar-thumb {
+    background: var(--gray-300);
+    border-radius: 8px;
+}
+.thumbnails-scroll::-webkit-scrollbar-track {
+    background: transparent;
 }
 
 .thumbnail {
@@ -119,6 +150,10 @@
     transition: var(--transition-base);
     background: white;
     padding: 0.25rem;
+    width: 80px;
+    height: 80px;
+    flex: 0 0 auto;
+    object-fit: cover;
 }
 
 .thumbnail:hover {
@@ -199,7 +234,7 @@
 }
 
 .description.collapsed {
-    max-height: 324px; /* 18 lines */
+    max-height: var(--desc-collapsed-height, 324px); /* default fallback */
 }
 
 .toggle-text {
@@ -270,11 +305,6 @@
         padding: 1rem 0;
     }
 
-    .thumbnail {
-        width: 60px;
-        height: 60px;
-    }
-
     .floating-wa {
         bottom: 1rem;
         right: 1rem;
@@ -288,6 +318,15 @@
     .main-image {
         max-width: 250px;
         max-height: 250px;
+    }
+
+    .thumbnail {
+        width: 64px;
+        height: 64px;
+    }
+
+    .thumbnails-container {
+        padding: 0.5rem 0.25rem;
     }
 }
 
