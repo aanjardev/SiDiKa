@@ -438,7 +438,7 @@
 .product-image-preview {
     position: relative;
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     height: 400px;
     margin: 0 auto 1.5rem auto;
     background: #fff;
@@ -447,6 +447,16 @@
     display: flex;
     align-items: center;
     justify-content: center;
+}
+@media (min-width: 992px) {
+    .product-image-preview {
+        max-width: 420px !important;
+        height: 420px;
+    }
+    .product-image-preview .main-image {
+        max-width: 420px !important;
+        max-height: 420px !important;
+    }
 }
 @media (max-width: 576px) {
     .product-image-preview {
