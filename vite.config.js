@@ -19,6 +19,7 @@ export default defineConfig({
                 "resources/js/utils/handle-delete.js",
                 "resources/js/utils/search.js",
                 "resources/js/utils/phone-input-validation.js",
+                "resources/js/admin/catalog-settings.js",
 
                 // == ASET ADMIN (BARU) ==
                 // CSS Admin

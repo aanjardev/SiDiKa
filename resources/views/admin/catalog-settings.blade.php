@@ -54,7 +54,12 @@
 @endpush
 
 @section('content')
-<form action="{{ route('admin.catalog-settings.update') }}" method="POST" enctype="multipart/form-data" id="settingsForm">
+<form action="{{ route('admin.catalog-settings.update') }}"
+      method="POST"
+      enctype="multipart/form-data"
+      id="settingsForm"
+      data-route-partner-destroy="{{ route('admin.catalog-settings.partner.destroy', ':id') }}"
+      data-route-banner-destroy="{{ route('admin.catalog-settings.banner.destroy', ':id') }}">
     @csrf
 
     <div class="row">
@@ -76,10 +81,12 @@
                                 @endphp
                                 <img src="{{ $cat_setting->logo_url }}" class="img-fluid">
                     </div>
-                    <input type="file" class="form-control form-control-sm" name="photo_logo" accept="image/*">
+                    <input type="file" class="form-control form-control-sm" name="photo_logo" accept="image/png,image/jpeg,image/jpg,image/webp" data-max-bytes="2097152" data-max-label="2MB">
+                    <div class="invalid-feedback">Ukuran file terlalu besar. Maksimal 2MB.</div>
                     <div class="form-text text-muted" style="font-size: 0.75rem;">
                         Format: PNG/JPG. Max: 2MB. Resolusi optimal: 400x400px (rasio 1:1).
                     </div>
+                    @error('photo_logo') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-sm card-save-btn-logo">Simpan Perubahan</button>
                     </div>
@@ -105,8 +112,17 @@
                                 <label class="form-label fw-medium small text-muted">Nomor Telepon / WhatsApp</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="fa-brands fa-whatsapp text-success"></i></span>
-                                    <input type="text" class="form-control border-start-0 ps-0" name="contact_phone" value="{{ old('contact_phone', $cat_setting->nomor_telfon) }}" placeholder="0812-xxxx-xxxx">
+                                    <input type="text"
+                                           class="form-control border-start-0 ps-0"
+                                           id="contact_phone_display"
+                                           value="{{ old('contact_phone', $cat_setting->nomor_telfon) }}"
+                                           placeholder="08xx-xxxx-xxxx">
+                                    <input type="hidden"
+                                           name="contact_phone"
+                                           id="contact_phone"
+                                           value="{{ old('contact_phone', $cat_setting->nomor_telfon) }}">
                                 </div>
+                                <div class="invalid-feedback">Nomor telepon wajib diawali 0/62 dan hanya berisi angka.</div>
                                 @error('contact_phone') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
 
@@ -193,8 +209,10 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label fw-medium small text-muted">Upload Banner Baru</label>
-                        <input type="file" class="form-control form-control-sm" name="banner" accept="image/*">
+                        <input type="file" class="form-control form-control-sm" name="banner" accept="image/png,image/jpeg,image/jpg,image/webp" data-max-bytes="4194304" data-max-label="4MB">
+                        <div class="invalid-feedback">Ukuran file terlalu besar. Maksimal 4MB.</div>
                         <div class="form-text text-muted" style="font-size: 0.75rem;">Format: JPG/PNG. Max: 4MB. Resolusi optimal: 1600x500px (rasio 16:5).</div>
+                        @error('banner') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="table-responsive border rounded-3">
@@ -234,8 +252,10 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label class="form-label fw-medium small text-muted">Upload Logo Baru</label>
-                        <input type="file" class="form-control form-control-sm" name="brand_logos" accept="image/*">
+                        <input type="file" class="form-control form-control-sm" name="brand_logos" accept="image/png,image/jpeg,image/jpg,image/webp" data-max-bytes="2097152" data-max-label="2MB">
+                        <div class="invalid-feedback">Ukuran file terlalu besar. Maksimal 2MB.</div>
                         <div class="form-text text-muted" style="font-size: 0.75rem;">Format: PNG/JPG. Max: 2MB. Resolusi optimal: 240x120px (rasio 2:1).</div>
+                        @error('brand_logos') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 
                     <div class="table-responsive border rounded-3" style="max-height: 300px; overflow-y: auto;">
@@ -281,87 +301,5 @@
 @endsection
 
 @push('scripts')
-
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const input = document.querySelector('input[name="site_name"]');
-    if (input) {
-        input.focus();
-        const length = input.value.length;
-        input.setSelectionRange(length, length); // kursor ke akhir
-    }
-
-    // Saat ada perubahan dalam card, beri penanda visual pada tombol simpan di card tersebut
-    document.querySelectorAll('.card').forEach((card) => {
-        const saveBtn = card.querySelector('.card-save-btn');
-        const logoBtn = card.querySelector('.card-save-btn-logo');
-        const targetBtn = logoBtn || saveBtn;
-        if (!targetBtn) return;
-
-        card.addEventListener('input', () => {
-            targetBtn.classList.add('btn-primary', 'show-save');
-        });
-        card.addEventListener('change', () => {
-            targetBtn.classList.add('btn-primary', 'show-save');
-        });
-    });
-});
-</script>
-<script>
-    // Logic Penghapusan
-    let deletedPartnersArr = [];
-    let deletedBannersArr = [];
-
-    document.addEventListener("click", function(e) {
-        const btn = e.target.closest('.btn-remove');
-        if (!btn) return;
-
-        e.preventDefault();
-        e.stopPropagation();
-
-        const row = btn.closest("tr");
-        const id = row?.getAttribute("data-id");
-        const type = row?.getAttribute("data-type");
-        if (!row || !id || !type) return;
-
-        const confirmFn = typeof window.confirmDelete === "function"
-            ? window.confirmDelete
-            : (msg, title) => Promise.resolve({ isConfirmed: window.confirm(msg || title || "Hapus data ini?") });
-
-        confirmFn('Apakah Anda yakin ingin menghapus item ini?', 'Konfirmasi Hapus')
-            .then((result) => {
-                if (!result?.isConfirmed) return;
-
-                const urlMap = {
-                    partner: '{{ route("admin.catalog-settings.partner.destroy", ":id") }}',
-                    banner: '{{ route("admin.catalog-settings.banner.destroy", ":id") }}',
-                };
-                const endpointTemplate = urlMap[type];
-                if (!endpointTemplate) return;
-                const finalUrl = endpointTemplate.replace(':id', id);
-
-                btn.disabled = true;
-                const pushUnique = (arr, value) => {
-                    if (!arr.includes(value)) arr.push(value);
-                };
-
-                if (type === 'partner') {
-                    pushUnique(deletedPartnersArr, id);
-                    document.getElementById("deletedPartners").value = JSON.stringify(deletedPartnersArr);
-                } else if (type === 'banner') {
-                    pushUnique(deletedBannersArr, id);
-                    document.getElementById("deletedBanners").value = JSON.stringify(deletedBannersArr);
-                }
-
-                row.style.transition = "all 0.3s";
-                row.style.opacity = "0";
-                setTimeout(() => row.remove(), 300);
-
-                const form = document.getElementById('settingsForm');
-                if (form) {
-                    form.requestSubmit();
-                }
-            });
-    });
-</script>
+@vite(['resources/js/utils/phone-input-validation.js', 'resources/js/admin/catalog-settings.js'])
 @endpush

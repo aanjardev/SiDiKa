@@ -8,6 +8,8 @@
 (function () {
     'use strict';
 
+    const MAX_DIGITS = 13;
+
     /* -------------------------------
      * Helper: Format 4-4-sisa
      * ------------------------------- */
@@ -26,7 +28,7 @@
     /* -------------------------------
      * Helper: Bersihkan angka & limit
      * ------------------------------- */
-    function cleanDigits(value, max = 15) {
+    function cleanDigits(value, max = MAX_DIGITS) {
         let digits = (value || '').replace(/\D/g, '');
         return digits.slice(0, max);
     }
@@ -40,18 +42,26 @@
 
         document.querySelectorAll(selectors).forEach(input => {
             input.addEventListener('input', function () {
-                this.value = cleanDigits(this.value, 15);
+                this.value = cleanDigits(this.value, MAX_DIGITS);
             });
 
             input.addEventListener('paste', function (e) {
                 e.preventDefault();
                 const paste = (e.clipboardData || window.clipboardData).getData('text');
-                this.value = cleanDigits(paste, 15);
+                this.value = cleanDigits(paste, MAX_DIGITS);
             });
 
             input.addEventListener('keypress', function (e) {
                 const char = String.fromCharCode(e.which);
+                const digits = cleanDigits(this.value, MAX_DIGITS);
+                const selectionLength = Math.abs(this.selectionEnd - this.selectionStart);
+
                 if (!/[0-9]/.test(char) && !e.ctrlKey && !e.metaKey) {
+                    e.preventDefault();
+                    return;
+                }
+
+                if (digits.length >= MAX_DIGITS && selectionLength === 0 && !e.ctrlKey && !e.metaKey) {
                     e.preventDefault();
                 }
             });
@@ -61,7 +71,8 @@
     /* ---------------------------------------------------------
      * MODE 2 — DISPLAY + HIDDEN (Cabang & Karyawan)
      * --------------------------------------------------------- */
-    function initFormattedPhonePair(displayId, hiddenId) {
+    function initFormattedPhonePair(displayId, hiddenId, options = {}) {
+        const { required = true } = options;
         const displayInput = document.getElementById(displayId);
         const hiddenInput = document.getElementById(hiddenId);
 
@@ -69,16 +80,30 @@
 
         // Initialize
         (function () {
-            const raw = cleanDigits(hiddenInput.value, 15);
+            const raw = cleanDigits(hiddenInput.value, MAX_DIGITS);
             hiddenInput.value = raw;
             displayInput.value = formatPhone(raw);
         })();
 
         // Input realtime
         displayInput.addEventListener('input', function () {
-            const digits = cleanDigits(this.value, 15);
+            const digits = cleanDigits(this.value, MAX_DIGITS);
             hiddenInput.value = digits;
             displayInput.value = formatPhone(digits);
+        });
+        displayInput.addEventListener('keypress', function (e) {
+            const char = String.fromCharCode(e.which);
+            const digits = cleanDigits(displayInput.value, MAX_DIGITS);
+            const selectionLength = Math.abs(displayInput.selectionEnd - displayInput.selectionStart);
+
+            if (!/[0-9]/.test(char) && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+                return;
+            }
+
+            if (digits.length >= MAX_DIGITS && selectionLength === 0 && !e.ctrlKey && !e.metaKey) {
+                e.preventDefault();
+            }
         });
 
         // Validasi saat blur
@@ -90,19 +115,23 @@
             formControl.classList.remove('is-invalid');
 
             if (!digits) {
-                formControl.classList.add('is-invalid');
-                if (feedback?.classList.contains('invalid-feedback')) {
-                    feedback.textContent = 'Nomor telepon wajib diisi.';
+                if (required) {
+                    formControl.classList.add('is-invalid');
+                    if (feedback?.classList.contains('invalid-feedback')) {
+                        feedback.textContent = 'Nomor telepon wajib diisi.';
+                    }
+                    return;
                 }
-                return;
+                return; // optional: allow empty
             }
 
-            const regex = /^(?:0|62|\+62)[0-9]{8,15}$/;
-            if (!regex.test(digits)) {
+            const lengthOk = digits.length >= 8 && digits.length <= MAX_DIGITS;
+            const prefixOk = digits.startsWith('0') || digits.startsWith('62');
+            if (!lengthOk || !prefixOk) {
                 formControl.classList.add('is-invalid');
                 if (feedback?.classList.contains('invalid-feedback')) {
                     feedback.textContent =
-                        'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.';
+                        `Nomor telepon harus berupa angka, diawali 0/62, dan maksimal ${MAX_DIGITS} digit.`;
                 }
             }
         });
@@ -122,5 +151,8 @@
 
         // Untuk Cabang
         initFormattedPhonePair('branch_nomor_telepon_display', 'branch_nomor_telepon');
+
+        // Untuk Catalog Settings (opsional)
+        initFormattedPhonePair('contact_phone_display', 'contact_phone', { required: false });
     });
 })();

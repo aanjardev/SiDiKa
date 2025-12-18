@@ -27,9 +27,9 @@ class CatalogSettingsController extends Controller
 
         $request->validate([
             'site_name'         => 'required|string|max:255',
-            'logo'              => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'brand_logos'       => 'nullable|image|max:2048',
-            'banner'            => 'nullable|image|max:4096',
+            'photo_logo'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'brand_logos'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'banner'            => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
             'social_facebook'   => 'nullable|url',
             'social_instagram'  => 'nullable|url',
             'social_tiktok'     => 'nullable|url',
