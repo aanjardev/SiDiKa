@@ -283,7 +283,7 @@ return [
 
                     {{-- Tombol Submit --}}
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm">
+                        <button type="submit" class="btn btn-primary fw-bold py-2 shadow-sm" id="btnSubmitPenjualan">
                             <i class="fa-solid fa-check-circle me-2"></i>
                             {{ $isEdit ? 'Update Transaksi' : 'Proses Transaksi' }}
                         </button>
@@ -425,6 +425,28 @@ return [
 @push('scripts')
 <script type="application/json" id="produk-data-json">
     @json($produkUntukJs)
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('formPenjualan');
+    const submitBtn = document.getElementById('btnSubmitPenjualan');
+    if (!form) return;
+
+    form.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+
+        const tag = (e.target.tagName || '').toLowerCase();
+        const type = (e.target.getAttribute && e.target.getAttribute('type'))?.toLowerCase();
+
+        // Biarkan textarea dan tombol/submit bawaan bekerja normal
+        if (tag === 'textarea' || type === 'submit' || type === 'button') {
+            return;
+        }
+
+        e.preventDefault();
+        submitBtn?.click();
+    });
+});
 </script>
 @vite('resources/js/penjualan/penjualan.js')
 @endpush
