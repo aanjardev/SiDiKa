@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Produk;
 use App\Models\Kategori;
+use App\Models\CatalogSettings;
 
 use Illuminate\Http\Request;
 
@@ -14,8 +15,9 @@ class ProductController extends Controller
     {
         // Ambil produk dengan relasi gambar dan kategori
         $produk = Produk::with(['gambar', 'kategori'])->findOrFail($id);
+        $cat_setting = CatalogSettings::first();
 
-        return view('product-detail', compact('produk'));
+        return view('product-detail', compact('produk', 'cat_setting'));
     }
 
     public function index(Request $request)

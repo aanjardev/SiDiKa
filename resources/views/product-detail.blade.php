@@ -3,8 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $produk->nama_produk }} - Detail Produk - Dinoyo Kamera</title>
-    <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
+    @php
+        $setting = $cat_setting ?? \App\Models\CatalogSettings::first();
+    @endphp
+    <title>{{ $produk->nama_produk }} - Detail Produk - {{ $setting?->nama_website ?? 'Katalog' }}</title>
+    <link rel="shortcut icon" href="{{ $setting?->logo_url ?? asset('mainIMG/logoDK.png') }}" type="image/png">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -17,9 +20,16 @@
     <script type="module" src="{{ asset('js/productHover.js') }}"></script>
     <script type="module" src="{{ asset('js/scrollNavigation.js') }}"></script>
     @php
-        $nomorWA = '62895411200308';
-        $pesan = "Halo Dinoyo Kamera, saya tertarik dengan produk *{$produk->nama_produk}* (SKU: {$produk->kode_sku}). Apakah produk ini masih tersedia dan bisakah saya mendapatkan informasi lebih lanjut?";
-        $linkWA = "https://wa.me/{$nomorWA}?text=" . urlencode($pesan);
+        $rawPhone = preg_replace('/\D+/', '', $setting?->nomor_telfon ?? '');
+        if ($rawPhone && str_starts_with($rawPhone, '0')) {
+            $rawPhone = '62' . substr($rawPhone, 1);
+        } elseif ($rawPhone && str_starts_with($rawPhone, '8')) {
+            $rawPhone = '62' . $rawPhone;
+        }
+
+        $storeName = $setting?->nama_website ?? 'Toko';
+        $pesan = "Halo {$storeName}, saya tertarik dengan produk *{$produk->nama_produk}* (SKU: {$produk->kode_sku}). Apakah produk ini masih tersedia dan bisakah saya mendapatkan informasi lebih lanjut?";
+        $linkWA = $rawPhone ? ("https://wa.me/{$rawPhone}?text=" . urlencode($pesan)) : null;
 
         // Get main image and other images
         $mainImage = $produk->gambar->firstWhere('is_main', true);
@@ -95,9 +105,15 @@
                     <p class="text-danger fw-bold fs-4 mb-2">Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}</p>
                     {{-- TOMBOL PESAN SEKARANG DI SINI --}}
                     @if ($produk->stok_produk > 0)
-                        <a href="{{ $linkWA }}" class="btn btn-lg flex-shrink-0 btn-custom-whatsapp" target="_blank" rel="noopener noreferrer">
-                             Pesan Sekarang
-                        </a>
+                        @if ($linkWA)
+                            <a href="{{ $linkWA }}" class="btn btn-lg flex-shrink-0 btn-custom-whatsapp" target="_blank" rel="noopener noreferrer">
+                                 Pesan Sekarang
+                            </a>
+                        @else
+                            <button class="btn btn-secondary btn-lg flex-shrink-0" disabled>
+                                WhatsApp belum disetel
+                            </button>
+                        @endif
                     @else
                         <button class="btn btn-secondary btn-lg flex-shrink-0" disabled>
                             <i class="bi bi-x-circle me-2"></i> Stok Habis
