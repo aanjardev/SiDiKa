@@ -163,6 +163,11 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 0.5rem;
 }
 
+.toggle-icon {
+    transition: transform 0.2s ease;
+    margin-top: -3px;
+}
+
 .store-closed {
     color: var(--danger);
     font-weight: 600;

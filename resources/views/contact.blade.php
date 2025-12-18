@@ -28,96 +28,61 @@
 
             <!-- Store Locations -->
             <div class="row g-4">
-                <!-- Dinoyo Kamera 1 -->
-                <div class="col-lg-4">
-                    <div class="location-card">
+                @foreach($branches as $branch)
+                <div class="col-lg-4 col-md-6">
+                    <div class="location-card h-100 d-flex flex-column">
                         <div class="map-container">
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.6400010975767!2d112.6038165!3d-7.932615299999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e78821258558e79%3A0x329993e281b05187!2sDinoyo%20Kamera!5e0!3m2!1sid!2sid!4v1747554465125!5m2!1sid!2sid" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            <iframe src="{{ $branch['embed'] }}" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                         </div>
-                        <div class="card-body">
-                            <h3 class="store-name">Dinoyo Kamera 1</h3>
+                        <div class="card-body d-flex flex-column">
+                            <h3 class="store-name">{{ $branch['nama'] }}</h3>
                             <div class="info-item">
                                 <i class="bi bi-clock"></i>
                                 <div>
-                                    <div class="store-hours">Setiap Hari - 10.00 - 20.00 WIB</div>
+                                    <button class="btn p-0 text-start d-inline-flex align-items-center justify-content-between w-300" style="margin-left:-2px;"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#jamLengkap{{ $loop->index }}"
+                                        aria-expanded="false"
+                                        aria-controls="jamLengkap{{ $loop->index }}">
+                                        <span class="fw-semibold text-dark">Hari ini ({{ $branch['jam']['hari_ini']['hari'] }}): {{ $branch['jam']['hari_ini']['slot'] }}</span>
+                                        <i class="fas fa-chevron-down small toggle-icon text-secondary" style="margin-left:10px; margin-top:-2px;"></i>
+                                    </button>
+                                    @if($branch['jam']['catatan'])
+                                        <div class="store-closed text-muted small">{{ $branch['jam']['catatan'] }}</div>
+                                    @endif
+                                    <div class="collapse mt-1" id="jamLengkap{{ $loop->index }}">
+                                        <ul class="list-unstyled mb-0 small">
+                                            @foreach($branch['jam']['harian'] as $hari)
+                                            <li class="d-flex justify-content-between">
+                                                <span class="text-muted">{{ $hari['hari'] }}</span>
+                                                <span class="text-end">{{ $hari['slot'] }}</span>
+                                            </li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
                                 </div>
                             </div>
                             <div class="info-item">
                                 <i class="bi bi-telephone"></i>
                                 <div>
-                                    <a href="tel:+6282345670014" class="text-decoration-none text-dark">+62 823-4567-0014</a>
+                                    <a href="tel:{{ preg_replace('/[^0-9+]/','', $branch['telepon']) }}" class="text-decoration-none text-dark">{{ $branch['telepon'] }}</a>
                                 </div>
                             </div>
                             <div class="info-item">
                                 <i class="bi bi-geo-alt"></i>
                                 <div>
-                                    RUKO TLOGOMAS SQUARE kav 9 lantai 1, Tlogomas, Kec Lowokwaru, Kota Malang, Jawa Timur, 65144
+                                    {{ $branch['alamat'] }}
                                 </div>
+                            </div>
+                            <div class="mt-auto pt-2">
+                                <a href="{{ $branch['link_maps'] ?? $branch['embed'] }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-map"></i> Buka di Google Maps
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Dinoyo Kamera 2 -->
-                <div class="col-lg-4">
-                    <div class="location-card">
-                        <div class="map-container">
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3951.557519855936!2d112.63811319999999!3d-7.941193300000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd6291d8fa42637%3A0xc8390745e1480bc!2sJual%20beli%20kamera%20bekas%20indonesia!5e0!3m2!1sid!2sid!4v1747554514731!5m2!1sid!2sid" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="store-name">Dinoyo Kamera 2</h3>
-                            <div class="info-item">
-                                <i class="bi bi-clock"></i>
-                                <div>
-                                    <div class="store-hours">Rabu - Senin (08.00 - 18.00)</div>
-                                    <div class="store-closed">Selasa Tutup</div>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <i class="bi bi-telephone"></i>
-                                <div>
-                                    <a href="tel:+6281230551552" class="text-decoration-none text-dark">+62 812-3055-1552</a>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <i class="bi bi-geo-alt"></i>
-                                <div>
-                                    Jl. C.Trowulan No.65B, Mojolangu, Kec. Lowokwaru, Kota Malang, Jawa Timur 65142
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Toko Kamera Pasuruan -->
-                <div class="col-lg-4">
-                    <div class="location-card">
-                        <div class="map-container">
-                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d7908.479203849883!2d112.9089841886383!3d-7.657367309665906!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2dd7c7118f8ee425%3A0x2e6af9e52800eab1!2sToko%20Kamera%20Pasuruan%20%2F%20Studio%20Foto%20Pasuruan%20%2F%20Servis%20Kamera%20%2F%20Uno%20Studio%20Pasuruan%20%2F%20Self%20Studio%20%2F%20Pas%20Foto!5e0!3m2!1sid!2sid!4v1747554559733!5m2!1sid!2sid" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-                        </div>
-                        <div class="card-body">
-                            <h3 class="store-name">Toko Kamera Pasuruan</h3>
-                            <div class="info-item">
-                                <i class="bi bi-clock"></i>
-                                <div>
-                                    <div class="store-hours">Setiap Hari - 10.00 - 20.00 WIB</div>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <i class="bi bi-telephone"></i>
-                                <div>
-                                    <a href="tel:+6282345670014" class="text-decoration-none text-dark">+62 823-4567-0014</a>
-                                </div>
-                            </div>
-                            <div class="info-item">
-                                <i class="bi bi-geo-alt"></i>
-                                <div>
-                                    Jl. Sunan Ampel, Petamanan, Kec. Bugul Kidul, Kota Pasuruan, Jawa Timur
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
 
             <!-- Contact Form -->

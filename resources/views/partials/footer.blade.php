@@ -2,11 +2,14 @@
 <footer id="main-footer" class="footer-area">
     @php
         $setting = \App\Models\CatalogSettings::first();
+        $branches = \App\Models\Branch::with('jamOperasional')
+            ->where('is_active', true)
+            ->get();
     @endphp
     <div class="container">
         <div class="row">
             <!-- Company Description -->
-            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+            <div class="col-lg-3 col-md-6 col-12 mb-4 mb-lg-0">
                 <div class="footer-widget">
                     <h4 class="widget-title">{{$setting->nama_website}}</h4>
                     <p class="company-desc">{{$setting->description}}</p>
@@ -15,94 +18,82 @@
                         <a href="{{$setting->instagram_link}}" class="social-link"><i class="fab fa-instagram"></i></a>
                         <a href="{{$setting->youtube_link}}" class="social-link"><i class="fab fa-youtube"></i></a>
                         <a href="{{$setting->tiktok_link}}" class="social-link"><i class="fab fa-tiktok"></i></a>
-                    </div>
-                    <div class="d-flex justify-content-start gap-3 mt-3">
+                    {{-- </div> --}}
+                    {{-- <div class="d-flex justify-content-start gap-3 mt-3"> --}}
                         <!-- Tokopedia -->
                         <a href="{{$setting->tokopedia_link}}" target="_blank" rel="noopener" class="social-link" title="Tokopedia">
-                            <img src="https://i0.wp.com/x-mos.com/wp-content/uploads/2020/11/logo-tokopedia-icon-mascot-400x400-copy.png?fit=400%2C400&ssl=1&w=640" alt="Tokopedia" style="width:28px;height:28px;object-fit:contain;">
+                            <img src="https://i0.wp.com/x-mos.com/wp-content/uploads/2020/11/logo-tokopedia-icon-mascot-400x400-copy.png?fit=400%2C400&ssl=1&w=640" alt="Tokopedia" style="width:25px;height:25px;object-fit:contain;">
                         </a>
                         <!-- Shopee -->
                         <a href="{{$setting->shopee_link}}" target="_blank" rel="noopener" class="social-link" title="Shopee">
-                            <img src="https://pngmax.com/_next/image?url=https%3A%2F%2Fpng-max.s3.ap-south-1.amazonaws.com%2Flow%2Fc7f66c3b-d50f-4afa-9090-052a98e8a27a.png&w=1200&q=75" alt="Shopee" style="width:28px;height:28px;object-fit:contain;">
+                            <img src="https://img.icons8.com/?size=100&id=OO5wGWyvSK0L&format=png&color=FFFFFF" alt="Shopee" style="width:20px;height:20px;object-fit:contain;">
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Dinoyo Kamera 1 -->
-            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
+            @foreach($branches as $branch)
+            @php
+                $hariMap = ['Monday'=>'Senin','Tuesday'=>'Selasa','Wednesday'=>'Rabu','Thursday'=>'Kamis','Friday'=>'Jumat','Saturday'=>'Sabtu','Sunday'=>'Minggu'];
+                $todayIndo = $hariMap[now()->format('l')] ?? now()->translatedFormat('l');
+                $todayRow = $branch->jamOperasional->firstWhere('hari', $todayIndo);
+                if ($todayRow && $todayRow->is_buka) {
+                    $slot = ($todayRow->jam_buka && $todayRow->jam_tutup)
+                        ? \Illuminate\Support\Str::of($todayRow->jam_buka)->beforeLast(':') . ' - ' . \Illuminate\Support\Str::of($todayRow->jam_tutup)->beforeLast(':')
+                        : 'Buka';
+                } else {
+                    $slot = 'Tutup';
+                }
+                $mapLink = $branch->link_maps ?: 'https://www.google.com/maps?q=' . urlencode($branch->nama . ' ' . $branch->alamat);
+            @endphp
+            <div class="col-lg-3 col-sm-6 col-12 mb-4 mb-lg-0">
                 <div class="footer-widget">
-                    <h4 class="widget-title">Dinoyo Kamera 1</h4>
+                    <h4 class="widget-title">{{ $branch->nama }}</h4>
                     <ul class="contact-info">
                         <li>
                             <i class="fas fa-clock"></i>
-                            <span>Setiap Hari - 10.00 - 20.00 WIB</span>
+                            <div class="d-flex flex-column">
+                                <button class="btn p-0 text-start d-inline-flex align-items-center justify-content-start gap-2 w-100"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#jamFooter{{ $loop->index }}"
+                                    aria-expanded="false"
+                                    aria-controls="jamFooter{{ $loop->index }}">
+                                    <span class="text-white">Hari ini ({{ $todayIndo }}): {{ $slot }} <i class="fas fa-chevron-down small text-white" style="margin-top:-3px"></i></span>
+                                </button>
+                                <div class="collapse mt-1" id="jamFooter{{ $loop->index }}">
+                                    <ul class="list-unstyled mb-0 small">
+                                        @foreach($branch->jamOperasional as $jam)
+                                        @php
+                                            $slotHarian = $jam->is_buka
+                                                ? (\Illuminate\Support\Str::of($jam->jam_buka)->beforeLast(':') . ' - ' . \Illuminate\Support\Str::of($jam->jam_tutup)->beforeLast(':'))
+                                                : 'Tutup';
+                                        @endphp
+                                        <li class="d-flex justify-content-between">
+                                            <span class="text-white-50">{{ $jam->hari }}</span>
+                                            <span class="text-white-50">{{ $slotHarian }}</span>
+                                        </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            </div>
                         </li>
                         <li>
                             <i class="fas fa-phone-alt"></i>
-                            <a href="tel:+6282345670014">+62 823-4567-0014</a>
+                            <a href="tel:{{ preg_replace('/[^0-9+]/','', $branch->nomor_telepon) }}">{{ $branch->nomor_telepon }}</a>
                         </li>
                         <li>
                             <i class="fas fa-map-marker-alt"></i>
-                            <span>RUKO TLOGOMAS SQUARE kav 9 lantai 1, Tlogomas, Kec Lowokwaru, Kota Malang, Jawa Timur, 65144</span>
+                            <span>{{ $branch->alamat }}</span>
                         </li>
                         <li>
                             <i class="fas fa-location-arrow"></i>
-                            <a href="https://g.co/kgs/HREiPqs" target="_blank">Lihat di Google Maps</a>
+                            <a href="{{ $mapLink }}" target="_blank">Lihat di Google Maps</a>
                         </li>
                     </ul>
                 </div>
             </div>
-
-            <!-- Dinoyo Kamera 2 -->
-            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
-                <div class="footer-widget">
-                    <h4 class="widget-title">Dinoyo Kamera 2</h4>
-                    <ul class="contact-info">
-                        <li>
-                            <i class="fas fa-clock"></i>
-                            <span>Rabu - Senin (08.00 - 18.00)<br>Selasa Tutup</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-phone-alt"></i>
-                            <a href="tel:+6281230551552">+62 812-3055-1552</a>
-                        </li>
-                        <li>
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Jl. C.Trowulan No.65B, Mojolangu, Kec. Lowokwaru, Kota Malang, Jawa Timur 65142</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-location-arrow"></i>
-                            <a href="https://g.co/kgs/siaqyp4" target="_blank">Lihat di Google Maps</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Toko Kamera Pasuruan -->
-            <div class="col-lg-3 col-md-6 mb-4 mb-lg-0">
-                <div class="footer-widget">
-                    <h4 class="widget-title">Toko Kamera Pasuruan</h4>
-                    <ul class="contact-info">
-                        <li>
-                            <i class="fas fa-clock"></i>
-                            <span>Setiap Hari - 10.00 - 20.00 WIB</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-phone-alt"></i>
-                            <a href="tel:+6282345670014">+62 823-4567-0014</a>
-                        </li>
-                        <li>
-                            <i class="fas fa-map-marker-alt"></i>
-                            <span>Jl. Sunan Ampel, Petamanan, Kec. Bugul Kidul, Kota Pasuruan, Jawa Timur</span>
-                        </li>
-                        <li>
-                            <i class="fas fa-location-arrow"></i>
-                            <a href="https://g.co/kgs/BR1Mnbn" target="_blank">Lihat di Google Maps</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
+            @endforeach
         </div>
 
         <!-- Copyright -->
