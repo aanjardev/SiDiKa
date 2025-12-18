@@ -24,7 +24,7 @@
 
     <div class="row">
         {{-- KOLOM KIRI: Informasi Utama --}}
-        <div class="col-lg-8 mb-4">
+        <div class="col-12 mb-4">
             <div class="card shadow-sm border-0 h-100" style="border-radius: 10px;">
                 <div class="card-header bg-white border-0 pt-4 ps-4 pe-4 pb-0">
                     <h6 class="fw-bold text-dark mb-0">
@@ -42,8 +42,7 @@
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">
                                 <i class="fa-solid fa-user-tie"></i>
                             </span>
-                            {{-- Atribut disabled dipertahankan agar tidak bisa diubah saat edit. Autofocus juga dipertahankan. --}}
-                            <select name="karyawan_name" class="form-select border-start-0 ps-2 required-field" style="height: 45px;" required {{ isset($user) ? 'disabled' : '' }} data-error-message="Karyawan wajib dipilih" autofocus>
+                            <select name="karyawan_name" class="form-select border-start-0 ps-2 required-field" style="height: 45px;" required data-error-message="Karyawan wajib dipilih" autofocus {{ isset($user) ? 'disabled' : '' }}>
                                 <option selected disabled value="">-- Pilih Karyawan --</option>
                                 @foreach ($karyawan_data as $k)
                                     <option value="{{ $k->id }}"
@@ -60,14 +59,13 @@
                                 Karyawan wajib dipilih
                             @enderror
                         </div>
-                        @if(isset($user))
-                            {{-- Field hidden untuk mengirimkan ID karyawan saat form disubmit (karena select di atas disabled) --}}
-                            <input type="hidden" name="karyawan_name" value="{{ $user->id }}">
-                            <div class="form-text small text-muted mt-1">
-                                <i class="fa-solid fa-circle-info me-1"></i>Nama karyawan terkunci pada mode edit.
-                            </div>
-                        @endif
                     </div>
+                    @if(isset($user))
+                        <input type="hidden" name="karyawan_name" value="{{ $user->id }}">
+                        {{-- <div class="form-text small text-muted mt-1">
+                            <i class="fa-solid fa-circle-info me-1"></i>Nama karyawan terkunci pada mode edit.
+                        </div> --}}
+                    @endif
 
                     {{-- Role atau Jabatan (Ditambahkan oleh teman Anda) --}}
                     <div class="mb-3">
@@ -77,14 +75,14 @@
                                 <i class="fa-solid fa-user-tag"></i> {{-- Mengganti ikon ke yang lebih sesuai --}}
                             </span>
                             {{-- Menambahkan required-field dan old value --}}
-                            <select name="role" id="role" class="form-select border-start-0 ps-2 required-field @error('role') is-invalid @enderror" style="height: 45px;" required {{ isset($user) ? 'disabled' : '' }} data-error-message="Role wajib dipilih">
+                            <select name="role" id="role" class="form-select border-start-0 ps-2 required-field @error('role') is-invalid @enderror" style="height: 45px;" required data-error-message="Role wajib dipilih">
                                 <option selected disabled value="">-- Pilih Role --</option>
                                 {{-- Role options: manager dan staff --}}
                                 <option value="manager" {{ (old('role') == 'manager' || (isset($user) && $user->role == 'manager')) ? 'selected' : '' }}>
-                                    Manager 
+                                    Manager
                                 </option>
                                 <option value="staff" {{ (old('role') == 'staff' || (isset($user) && $user->role == 'staff')) ? 'selected' : '' }}>
-                                    Staff 
+                                    Staff
                                 </option>
                             </select>
                         </div>
@@ -95,12 +93,8 @@
                                 Role wajib dipilih
                             @enderror
                         </div>
-                        @if(isset($user))
-                            {{-- Field hidden untuk mengirimkan ROLE saat form disubmit (karena select di atas disabled) --}}
-                            <input type="hidden" name="role" value="{{ $user->role }}">
-                        @endif
                     </div>
-                    
+
                     {{-- Alamat Email --}}
                     <div class="mb-3">
                         <label for="email" class="form-label fw-medium text-secondary small">Alamat Email <span class="text-danger">*</span></label>
@@ -116,8 +110,7 @@
                                 value="{{ old('email', isset($user) ? $user->email : '') }}"
                                 required
                                 data-error-message="Email wajib diisi"
-                                data-validate="email"
-                                {{ isset($user) ? 'readonly' : '' }}> {{-- Tambahkan readonly jika edit untuk email --}}
+                                data-validate="email"> {{-- Email dapat diedit pada mode edit --}}
                         </div>
                         <div class="invalid-feedback">
                             @error('email')
@@ -132,7 +125,8 @@
         </div>
 
         {{-- KOLOM KANAN: Keamanan & Aksi --}}
-        <div class="col-lg-4">
+        @if(!isset($user))
+        <div class="col-12">
 
             {{-- Card Keamanan --}}
             <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
@@ -143,10 +137,10 @@
                 </div>
                 <div class="card-body p-4">
                     <div class="form-text small text-muted mb-3">
-                        <i class="fa-solid fa-info-circle me-1 text-primary"></i> 
+                        <i class="fa-solid fa-info-circle me-1 text-primary"></i>
                         User akan dibuat dengan status <strong>Pending</strong>. Karyawan perlu mengaktifkan akun melalui halaman aktivasi yang akan dikirim ke email.
                     </div>
-                    
+
                     {{-- Edukasi Token Expiry --}}
                     <div class="alert alert-warning mb-0" style="font-size: 0.85rem;">
                         <div class="d-flex align-items-start">
@@ -165,6 +159,7 @@
             </div>
 
         </div>
+        @endif
     </div>
 </form>
 

@@ -20,7 +20,7 @@ class PermissionsController extends Controller
     {
         $this->emailService = $emailService;
     }
-    
+
     public function index(Request $request)
     {
         $query = DB::table('users')
@@ -124,15 +124,52 @@ class PermissionsController extends Controller
     {
         $request->validate([
             'password' => 'nullable|min:6',
-            'email' => 'required|email',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'role' => 'required|in:manager,staff',
         ]);
 
         $user = User::findOrFail($id);
 
-        $user->update([
-            'email' => $request->email,
-            'password' => $request->password ? Hash::make($request->password) : $user->password,
-        ]);
+        $emailChanged = $request->email !== $user->email;
+
+        $user->email = $request->email;
+        $user->role = $request->role;
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        if ($emailChanged) {
+            // Reset verifikasi email & siapkan token aktivasi baru
+            $user->email_verified_at = null;
+            $user->status = 'pending';
+            $user->activation_token = bin2hex(random_bytes(32));
+            $user->token_expiry = now()->addHours(72);
+        }
+
+        $user->save();
+
+        if ($emailChanged) {
+            // Kirim email aktivasi ke email baru
+            $this->emailService->sendActivationEmail($user, $user->activation_token);
+
+            // Coba akhiri sesi user yang bersangkutan (bukan editor)
+            try {
+                if (config('session.driver') === 'database') {
+                    $table = config('session.table', 'sessions');
+                    DB::table($table)->where('user_id', $user->id)->delete();
+                }
+                // Invalidasi remember_me
+                $user->remember_token = Str::random(60);
+                $user->save();
+            } catch (\Throwable $e) {
+                // Abaikan jika tidak bisa menghapus sesi (misal driver file)
+            }
+
+            return redirect()->route('admin.permissions')
+                ->with('success', 'User berhasil diperbarui!')
+                ->with('info', 'Email user telah diganti. Sistem telah mengirim ulang link aktivasi ke email baru. Jika ada kendala, hubungi administrator.');
+        }
 
         return redirect()->route('admin.permissions')->with('success', 'User berhasil diperbarui!');
     }
@@ -156,7 +193,7 @@ class PermissionsController extends Controller
     public function regenerateToken($id)
     {
         $user = User::findOrFail($id);
-        
+
         if ($user->status !== 'pending') {
             return redirect()->route('admin.permissions')
                 ->with('error', 'Token hanya bisa di-generate untuk user dengan status pending.');
