@@ -167,7 +167,7 @@ class PermissionsController extends Controller
             }
 
             return redirect()->route('admin.permissions')
-                ->with('success', 'User berhasil diperbarui!')
+                ->with('success', 'User berhasil diperbarui!');
         }
 
         return redirect()->route('admin.permissions')->with('success', 'User berhasil diperbarui!');
