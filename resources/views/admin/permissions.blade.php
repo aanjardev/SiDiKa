@@ -39,7 +39,7 @@
                 <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                <input type="text" 
+                <input type="text"
                        class="form-control border-0 shadow-none bg-transparent"
                        name="search"
                        placeholder="Cari user berdasarkan nama atau email..."
@@ -49,8 +49,8 @@
 
             {{-- Bagian Kanan: Dropdown --}}
             <div class="d-flex align-items-center gap-2 pe-2">
-                <select name="role" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="role"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="all" {{ ($selected_role ?? 'all') == 'all' ? 'selected' : '' }}>Semua Jabatan</option>
@@ -61,8 +61,8 @@
                     @endforeach
                 </select>
 
-                <select name="status_filter" 
-                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select name="status_filter"
+                        class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
                         onchange="document.getElementById('searchForm').submit();">
                     <option value="all" {{ ($selected_status ?? 'all') == 'all' ? 'selected' : '' }}>Semua Status</option>
@@ -159,6 +159,9 @@
                         </td>
 
                         <td class="text-center no-row-navigation">
+                            @php
+                                $isSelf = Auth::check() && (int) Auth::id() === (int) $k->id;
+                            @endphp
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="{{ route('admin.permissions.edit', $k->id) }}"
                                     class="btn-action btn-action-edit"
@@ -182,6 +185,7 @@
                                 </form>
                                 @endif
 
+                                @if(!$isSelf)
                                 <form action="{{ route('admin.permissions.update-status', $k->id) }}" method="POST" class="d-inline">
                                     @csrf
                                     @method('PATCH')
@@ -206,6 +210,7 @@
                                     </button>
                                     @endif
                                 </form>
+                                @endif
                             </div>
                         </td>
                     </tr>
@@ -272,7 +277,7 @@
             }
         }
     }
-    
+
     function handleRegenerateToken(button) {
         if (typeof window.confirmRegenerateToken === 'function') {
             window.confirmRegenerateToken('Generate ulang token aktivasi? Token lama akan tidak berlaku.')
@@ -287,7 +292,7 @@
             }
         }
     }
-    
+
     // Export ke window
     window.handleDeletePermission = handleDeletePermission;
     window.handleRegenerateToken = handleRegenerateToken;
