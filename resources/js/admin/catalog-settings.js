@@ -2,6 +2,34 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('settingsForm');
     if (!form) return;
 
+    // Deteksi error hanya dari input yang benar-benar invalid / feedback yang ditampilkan
+    const hasInlineErrors = !!form.querySelector('.is-invalid, .invalid-feedback.d-block');
+    const shouldHideButtons = hasInlineErrors;
+
+    const hasCardError = (card) => {
+        if (!card) return false;
+        return !!card.querySelector('.is-invalid, .invalid-feedback.d-block');
+    };
+
+    const hideCardButton = (btn) => {
+        if (!btn) return;
+        btn.classList.remove('show-save');
+        btn.style.display = 'none';
+        btn.disabled = true;
+    };
+
+    const hideCardButtons = () => {
+        form.querySelectorAll('.card-save-btn, .card-save-btn-logo').forEach(hideCardButton);
+    };
+
+    const showButtonIfClean = (card, btn) => {
+        if (!btn) return;
+        if (hasCardError(card)) return hideCardButton(btn);
+        btn.style.display = '';
+        btn.disabled = false;
+        btn.classList.add('btn-primary', 'show-save');
+    };
+
     // Fokus awal pada nama website
     const siteNameInput = form.querySelector('input[name="site_name"]');
     if (siteNameInput) {
@@ -11,16 +39,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Tampilkan tombol simpan per card saat ada perubahan
-    form.querySelectorAll('.card').forEach((card) => {
-        const saveBtn = card.querySelector('.card-save-btn');
-        const logoBtn = card.querySelector('.card-save-btn-logo');
-        const targetBtn = logoBtn || saveBtn;
-        if (!targetBtn) return;
+    if (shouldHideButtons) {
+        hideCardButtons();
+    } else {
+        form.querySelectorAll('.card').forEach((card) => {
+            const saveBtn = card.querySelector('.card-save-btn');
+            const logoBtn = card.querySelector('.card-save-btn-logo');
+            const targetBtn = logoBtn || saveBtn;
+            if (!targetBtn) return;
 
-        const markDirty = () => targetBtn.classList.add('btn-primary', 'show-save');
-        card.addEventListener('input', markDirty);
-        card.addEventListener('change', markDirty);
-    });
+            const markDirty = () => showButtonIfClean(card, targetBtn);
+            card.addEventListener('input', markDirty);
+            card.addEventListener('change', markDirty);
+        });
+    }
 
     // Logic penghapusan banner / partner
     const partnerRouteTemplate = form.dataset.routePartnerDestroy;
@@ -135,7 +167,24 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     fileInputs.forEach((input) => {
-        input.addEventListener('change', () => validateFile(input));
+        input.addEventListener('change', () => {
+            const card = input.closest('.card');
+            const btn = card?.querySelector('.card-save-btn, .card-save-btn-logo');
+            const ok = validateFile(input);
+            if (!ok) {
+                hideCardButton(btn);
+            } else {
+                showButtonIfClean(card, btn);
+            }
+        });
+    });
+
+    // Hilangkan state invalid saat user memperbaiki input
+    form.addEventListener('input', (e) => {
+        if (e.target.classList.contains('is-invalid')) {
+            e.target.classList.remove('is-invalid');
+            e.target.setCustomValidity('');
+        }
     });
 
     form.addEventListener('submit', (e) => {
@@ -145,11 +194,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!ok && !firstInvalid) firstInvalid = input;
         });
 
-        if (firstInvalid) {
+        // Cek invalid lain yang mungkin sudah ditandai
+        const otherInvalid = firstInvalid || form.querySelector('.is-invalid');
+
+        if (otherInvalid) {
             e.preventDefault();
             e.stopPropagation();
-            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            firstInvalid.focus();
+            otherInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            otherInvalid.focus();
         }
     });
 });

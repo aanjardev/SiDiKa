@@ -78,15 +78,15 @@
                                 @php
                                     $path = $cat_setting->logo_path;
                                     $url = Str::startsWith($path, 'photos/') ? asset('storage/' . $path) : asset($path);
-                                @endphp
-                                <img src="{{ $cat_setting->logo_url }}" class="img-fluid">
+                        @endphp
+                        <img src="{{ $cat_setting->logo_url }}" class="img-fluid">
                     </div>
                     <input type="file" class="form-control form-control-sm" name="photo_logo" accept="image/png,image/jpeg,image/jpg,image/webp" data-max-bytes="2097152" data-max-label="2MB">
                     <div class="invalid-feedback">Ukuran file terlalu besar. Maksimal 2MB.</div>
                     <div class="form-text text-muted" style="font-size: 0.75rem;">
                         Format: PNG/JPG. Max: 2MB. Resolusi optimal: 400x400px (rasio 1:1).
                     </div>
-                    @error('photo_logo') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                    @error('photo_logo') <div class="invalid-feedback d-block small">{{ $message }}</div> @enderror
                     <div class="text-center">
                         <button type="submit" class="btn btn-primary btn-sm card-save-btn-logo">Simpan Perubahan</button>
                     </div>
@@ -104,8 +104,8 @@
                         <div class="card-body">
                             <div class="mb-3">
                                 <label for="site_name" class="form-label fw-medium small text-muted">Nama Website</label>
-                                <input type="text" class="form-control" id="site_name" name="site_name" value="{{ old('site_name', $cat_setting->nama_website) }}" placeholder="Contoh: Dinoyo Kamera">
-                                @error('site_name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                <input type="text" class="form-control @error('site_name') is-invalid @enderror" id="site_name" name="site_name" value="{{ old('site_name', $cat_setting->nama_website) }}" placeholder="Contoh: Dinoyo Kamera">
+                                @error('site_name') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="mb-3">
@@ -113,7 +113,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="fa-brands fa-whatsapp text-success"></i></span>
                                     <input type="text"
-                                           class="form-control border-start-0 ps-0"
+                                           class="form-control border-start-0 ps-0 @error('contact_phone') is-invalid @enderror"
                                            id="contact_phone_display"
                                            value="{{ old('contact_phone', $cat_setting->nomor_telfon) }}"
                                            placeholder="08xx-xxxx-xxxx">
@@ -123,7 +123,7 @@
                                            value="{{ old('contact_phone', $cat_setting->nomor_telfon) }}">
                                 </div>
                                 <div class="invalid-feedback">Nomor telepon wajib diawali 0/62 dan hanya berisi angka.</div>
-                                @error('contact_phone') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                                @error('contact_phone') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
 
                             <div class="mb-0">
@@ -138,7 +138,7 @@
 
             {{-- Card: Media Sosial --}}
             <div class="card card-uniform position-relative shadow-sm border-0">
-                <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
+                        <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
                 <div class="card-header bg-white py-3">
                     <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-share-nodes me-2 text-primary"></i>Link Media Sosial</h6>
                 </div>
@@ -148,7 +148,8 @@
                             <label class="form-label fw-medium small text-muted">Instagram</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fa-brands fa-instagram text-danger"></i></span>
-                                <input type="text" class="form-control" name="social_instagram" value="{{ old('social_instagram', $cat_setting->instagram_link) }}" placeholder="https://instagram.com/...">
+                                <input type="text" class="form-control @error('social_instagram') is-invalid @enderror" name="social_instagram" value="{{ old('social_instagram', $cat_setting->instagram_link) }}" placeholder="https://instagram.com/...">
+                                @error('social_instagram') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
 
@@ -156,7 +157,8 @@
                             <label class="form-label fw-medium small text-muted">Facebook</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fa-brands fa-facebook text-primary"></i></span>
-                                <input type="text" class="form-control" name="social_facebook" value="{{ old('social_facebook', $cat_setting->facebook_link) }}" placeholder="https://facebook.com/...">
+                                <input type="text" class="form-control @error('social_facebook') is-invalid @enderror" name="social_facebook" value="{{ old('social_facebook', $cat_setting->facebook_link) }}" placeholder="https://facebook.com/...">
+                                @error('social_facebook') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
 
@@ -164,7 +166,8 @@
                             <label class="form-label fw-medium small text-muted">TikTok</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fa-brands fa-tiktok text-dark"></i></span>
-                                <input type="text" class="form-control" name="social_tiktok" value="{{ old('social_tiktok', $cat_setting->tiktok_link) }}" placeholder="https://tiktok.com/@...">
+                                <input type="text" class="form-control @error('social_tiktok') is-invalid @enderror" name="social_tiktok" value="{{ old('social_tiktok', $cat_setting->tiktok_link) }}" placeholder="https://tiktok.com/@...">
+                                @error('social_tiktok') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
 
@@ -172,7 +175,8 @@
                             <label class="form-label fw-medium small text-muted">YouTube</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fa-brands fa-youtube text-danger"></i></span>
-                                <input type="text" class="form-control" name="social_youtube" value="{{ old('social_youtube', $cat_setting->youtube_link) }}" placeholder="https://youtube.com/...">
+                                <input type="text" class="form-control @error('social_youtube') is-invalid @enderror" name="social_youtube" value="{{ old('social_youtube', $cat_setting->youtube_link) }}" placeholder="https://youtube.com/...">
+                                @error('social_youtube') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
 
@@ -180,7 +184,8 @@
                             <label class="form-label fw-medium small text-muted">Tokopedia</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fa-solid fa-store text-success"></i></span>
-                                <input type="text" class="form-control" name="social_tokopedia" value="{{ old('social_tokopedia', $cat_setting->tokopedia_link) }}" placeholder="Link Tokopedia">
+                                <input type="text" class="form-control @error('social_tokopedia') is-invalid @enderror" name="social_tokopedia" value="{{ old('social_tokopedia', $cat_setting->tokopedia_link) }}" placeholder="Link Tokopedia">
+                                @error('social_tokopedia') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
 
@@ -188,7 +193,8 @@
                             <label class="form-label fw-medium small text-muted">Shopee</label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light"><i class="fa-solid fa-bag-shopping" style="color: #ff4000ff"></i></span>
-                                <input type="text" class="form-control" name="social_shopee" value="{{ old('social_shopee', $cat_setting->shopee_link) }}" placeholder="Link Shopee">
+                                <input type="text" class="form-control @error('social_shopee') is-invalid @enderror" name="social_shopee" value="{{ old('social_shopee', $cat_setting->shopee_link) }}" placeholder="Link Shopee">
+                                @error('social_shopee') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                             </div>
                         </div>
                     </div>
