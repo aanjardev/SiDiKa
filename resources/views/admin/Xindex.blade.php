@@ -426,44 +426,50 @@
         document.getElementById('preview-container').addEventListener('click', function(event) {
             // Cek apakah yang diklik adalah tombol dengan kelas 'remove-image'
             if (event.target.classList.contains('remove-image')) {
+                event.preventDefault();
+                event.stopPropagation();
+
                 const button = event.target;
                 const imageId = button.dataset.imageId;
                 const container = button.closest('.image-container');
 
                 window.confirmDelete('Apakah Anda yakin ingin menghapus gambar ini?', 'Konfirmasi Hapus')
                     .then((result) => {
-                        if (result.isConfirmed) {
-                    // GUNAKAN NAMA RUTE YANG BENAR 'admin.delete.image'
-                    const url = '{{ route("admin.delete.image", ["id" => ":imageId"]) }}';
-                    const finalUrl = url.replace(':imageId', imageId);
+                        if (!result.isConfirmed) return;
 
-                    fetch(finalUrl, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        }
-                    }).then(response => response.json())
-                      .then(data => {
-                          if (data.success) {
-                              container.remove();
-                              // Opsional: Cek apakah gambar utama dihapus dan sesuaikan radio button
-                              const mainImageRadio = document.querySelector('input[name="main_image_existing"]:checked');
-                              if (!mainImageRadio && document.querySelectorAll('.image-container').length > 0) {
-                                  // Jika tidak ada gambar utama yang terpilih, pilih yang pertama jika ada
-                                  document.querySelector('.image-container input[type="radio"]').checked = true;
-                              }
-                              window.showSuccess('Gambar berhasil dihapus');
-                          } else {
-                              window.showError('Gagal menghapus gambar: ' + (data.message || 'Unknown error'));
-                          }
-                      })
-                      .catch(error => {
-                          console.error('Error during fetch:', error);
-                          window.showError('Terjadi kesalahan jaringan atau server.');
-                      });
-                        }
+                        button.disabled = true;
+                        const url = '{{ route("admin.delete.image", ["id" => ":imageId"]) }}';
+                        const finalUrl = url.replace(':imageId', imageId);
+
+                        fetch(finalUrl, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                button.disabled = false;
+
+                                if (data.success) {
+                                    container.remove();
+                                    // Opsional: Cek apakah gambar utama dihapus dan sesuaikan radio button
+                                    const mainImageRadio = document.querySelector('input[name="main_image_existing"]:checked');
+                                    if (!mainImageRadio && document.querySelectorAll('.image-container').length > 0) {
+                                        // Jika tidak ada gambar utama yang terpilih, pilih yang pertama jika ada
+                                        document.querySelector('.image-container input[type="radio"]').checked = true;
+                                    }
+                                    window.showSuccess('Gambar berhasil dihapus');
+                                } else {
+                                    window.showError('Gagal menghapus gambar: ' + (data.message || 'Unknown error'));
+                                }
+                            })
+                            .catch(error => {
+                                button.disabled = false;
+                                console.error('Error during fetch:', error);
+                                window.showError('Terjadi kesalahan jaringan atau server.');
+                            });
                     });
-                }
             }
             // Logic for main_image_index for existing images (radio button click)
             if (event.target.name === 'main_image_existing') {

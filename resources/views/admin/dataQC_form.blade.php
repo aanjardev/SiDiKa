@@ -47,7 +47,7 @@
     {{-- Identitas Item --}}
     <div class="mb-3">
         <label class="form-label fw-medium text-secondary small dynamic-label" data-field="nama_item">
-            Nama Item <span class="text-danger" style="display: none;">*</span>
+            Nama Item <span class="text-danger">*</span>
         </label>
         <div class="input-group">
             <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-tag"></i></span>
@@ -66,7 +66,7 @@
     <div class="row">
         <div class="col-md-6 mb-3">
             <label class="form-label fw-medium text-secondary small dynamic-label" data-field="kategori_id">
-                Kategori <span class="text-danger" style="display: none;">*</span>
+                Kategori <span class="text-danger">*</span>
             </label>
             <div class="input-group">
                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-layer-group"></i></span>
@@ -88,7 +88,7 @@
         </div>
         <div class="col-md-6 mb-3">
             <label class="form-label fw-medium text-secondary small dynamic-label" data-field="kode_sku">
-                Kode SKU <span class="text-danger" style="display: none;">*</span>
+                Kode SKU <span class="text-danger">*</span>
             </label>
             <div class="input-group">
                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-barcode"></i></span>
@@ -262,9 +262,9 @@
     </div>
 
     <div class="mb-0 mt-4">
-        <label class="form-label fw-medium text-secondary small dynamic-label" data-field="deskripsi_produk">
-            Deskripsi Produk (Final) <span class="text-danger" style="display: none;">*</span>
-        </label>
+            <label class="form-label fw-medium text-secondary small dynamic-label" data-field="deskripsi_produk">
+                Deskripsi Produk (Final) <span class="text-danger">*</span>
+            </label>
         <textarea name="deskripsi_produk"
                   class="form-control dynamic-field"
                   data-field="deskripsi_produk"
@@ -309,9 +309,9 @@
 
                     {{-- Harga Jual --}}
                     <div class="mb-3">
-                        <label class="form-label fw-medium text-secondary small dynamic-label" data-field="harga_jual">
-                            Rencana Harga Jual <span class="text-danger" style="display: none;">*</span>
-                        </label>
+                            <label class="form-label fw-medium text-secondary small dynamic-label" data-field="harga_jual">
+                                Harga Jual <span class="text-danger">*</span>
+                            </label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">Rp</span>
                             <input type="text" name="harga_jual" id="harga_jual"

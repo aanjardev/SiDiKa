@@ -2,11 +2,55 @@
 
 @section('title', 'Setting Web Katalog')
 
-@push('page-actions')
+{{-- @push('page-actions')
     <button type="button" onclick="document.getElementById('settingsForm').submit()" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
         <i class="fas fa-save fa-fw"></i>
         <span>Simpan Perubahan</span>
     </button>
+@endpush --}}
+
+@push('styles')
+<style>
+    .card.position-relative {
+        overflow: visible;
+    }
+    .card-save-btn {
+        display: none;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 2;
+    }
+    .card-save-btn.show-save {
+        display: inline-flex;
+    }
+
+    /* Logo card save button: pinned bottom-center inside the card body */
+    .card-save-btn-logo {
+        display: none;
+        position: static;
+        margin: 12px auto 0 auto;
+    }
+    .card-save-btn-logo.show-save {
+        display: inline-flex;
+    }
+
+
+    .card.card-uniform {
+        border-radius: 12px;
+        padding: 6px 6px 0 6px;
+    }
+    .card.card-uniform .card-header {
+        border: none;
+        background: #fff;
+        padding: 14px 16px 10px 16px;
+    }
+    .card.card-uniform .card-body {
+        padding: 20px;
+        padding-top: 5px;
+        padding-bottom: 30px;
+    }
+</style>
 @endpush
 
 @section('content')
@@ -14,40 +58,71 @@
     @csrf
 
     <div class="row">
-        {{-- KOLOM KIRI: Informasi Umum, Kontak, & Sosmed --}}
+        {{-- KOLOM KIRI: Logo, Informasi Umum, Kontak, & Sosmed --}}
         <div class="col-lg-7 mb-4">
 
-            {{-- Card: Identitas & Kontak --}}
-            <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-                <div class="card-header bg-white py-3">
-                    <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-circle-info me-2 text-primary"></i>Identitas & Kontak</h6>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label for="site_name" class="form-label fw-medium small text-muted">Nama Website</label>
-                        <input type="text" class="form-control" id="site_name" name="site_name" value="{{ old('site_name', $cat_setting->nama_website) }}" placeholder="Contoh: Dinoyo Kamera">
-                        @error('site_name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-medium small text-muted">Nomor Telepon / WhatsApp</label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-light border-end-0"><i class="fa-brands fa-whatsapp text-success"></i></span>
-                            <input type="text" class="form-control border-start-0 ps-0" name="contact_phone" value="{{ old('contact_phone', $cat_setting->nomor_telfon) }}" placeholder="0812-xxxx-xxxx">
+            <div class="row g-3 mb-4">
+                <div class="col-lg-4">
+                    {{-- Card: Logo Utama --}}
+                    <div class="card card-uniform position-relative shadow-sm border-0 h-100">
+                        <div class="card-header bg-white py-3">
+                            <h6 class="mb-0 fw-bold text-dark"><i class="fa-regular fa-image me-2 text-primary"></i>Logo Website</h6>
                         </div>
-                        @error('contact_phone') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                        <div class="card-body text-center">
+                            <div class="bg-light rounded-3 p-3 mb-3 border border-dashed d-flex align-items-center justify-content-center" style="min-height: 150px;">
+                                @php
+                                    $path = $cat_setting->logo_path;
+                                    $url = Str::startsWith($path, 'photos/') ? asset('storage/' . $path) : asset($path);
+                                @endphp
+                                <img src="{{ $cat_setting->logo_url }}" class="img-fluid">
                     </div>
+                    <input type="file" class="form-control form-control-sm" name="photo_logo" accept="image/*">
+                    <div class="form-text text-muted" style="font-size: 0.75rem;">
+                        Format: PNG/JPG. Max: 2MB. Resolusi optimal: 400x400px (rasio 1:1).
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary btn-sm card-save-btn-logo">Simpan Perubahan</button>
+                    </div>
+                </div>
+            </div>
+                </div>
 
-                    <div class="mb-0">
-                        <label class="form-label fw-medium small text-muted">Deskripsi Toko (Footer)</label>
-                        <textarea class="form-control" name="description_text" rows="4" placeholder="Tulis deskripsi singkat tentang toko...">{{ old('description_text', $cat_setting->description) }}</textarea>
-                        @error('description_text') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                <div class="col-lg-8">
+                    {{-- Card: Identitas & Kontak --}}
+                    <div class="card card-uniform position-relative shadow-sm border-0 h-100">
+                        <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
+                        <div class="card-header bg-white py-3">
+                            <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-circle-info me-2 text-primary"></i>Identitas & Kontak</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label for="site_name" class="form-label fw-medium small text-muted">Nama Website</label>
+                                <input type="text" class="form-control" id="site_name" name="site_name" value="{{ old('site_name', $cat_setting->nama_website) }}" placeholder="Contoh: Dinoyo Kamera">
+                                @error('site_name') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-medium small text-muted">Nomor Telepon / WhatsApp</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0"><i class="fa-brands fa-whatsapp text-success"></i></span>
+                                    <input type="text" class="form-control border-start-0 ps-0" name="contact_phone" value="{{ old('contact_phone', $cat_setting->nomor_telfon) }}" placeholder="0812-xxxx-xxxx">
+                                </div>
+                                @error('contact_phone') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+
+                            <div class="mb-0">
+                                <label class="form-label fw-medium small text-muted">Deskripsi Toko (Footer)</label>
+                                <textarea class="form-control" name="description_text" rows="4" placeholder="Tulis deskripsi singkat tentang toko...">{{ old('description_text', $cat_setting->description) }}</textarea>
+                                @error('description_text') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             {{-- Card: Media Sosial --}}
-            <div class="card shadow-sm border-0" style="border-radius: 10px;">
+            <div class="card card-uniform position-relative shadow-sm border-0">
+                <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
                 <div class="card-header bg-white py-3">
                     <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-share-nodes me-2 text-primary"></i>Link Media Sosial</h6>
                 </div>
@@ -109,26 +184,9 @@
         {{-- KOLOM KANAN: Aset Visual (Logo, Banner, Partner) --}}
         <div class="col-lg-5 mb-4">
 
-            {{-- Card: Logo Utama --}}
-            <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-                <div class="card-header bg-white py-3">
-                    <h6 class="mb-0 fw-bold text-dark"><i class="fa-regular fa-image me-2 text-primary"></i>Logo Website</h6>
-                </div>
-                <div class="card-body text-center">
-                    <div class="bg-light rounded-3 p-3 mb-3 border border-dashed d-flex align-items-center justify-content-center" style="min-height: 150px;">
-                        @php
-                            $path = $cat_setting->logo_path;
-                            $url = Str::startsWith($path, 'photos/') ? asset('storage/' . $path) : asset($path);
-                        @endphp
-                        <img src="{{ $cat_setting->logo_url }}" class="img-fluid">
-                    </div>
-                    <input type="file" class="form-control form-control-sm" name="photo_logo" accept="image/*">
-                    <div class="form-text small text-muted">Format: PNG/JPG. Max: 2MB.</div>
-                </div>
-            </div>
-
             {{-- Card: Banner Homepage --}}
-            <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+            <div class="card card-uniform position-relative shadow-sm border-0 mb-4">
+                <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-panorama me-2 text-primary"></i>Banner Slider</h6>
                 </div>
@@ -136,6 +194,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-medium small text-muted">Upload Banner Baru</label>
                         <input type="file" class="form-control form-control-sm" name="banner" accept="image/*">
+                        <div class="form-text text-muted" style="font-size: 0.75rem;">Format: JPG/PNG. Max: 4MB. Resolusi optimal: 1600x500px (rasio 16:5).</div>
                     </div>
 
                     <div class="table-responsive border rounded-3">
@@ -153,7 +212,7 @@
                                         <img src="{{ $banner->banner_url }}" class="rounded shadow-sm w-100" style="height:60px;object-fit:cover;">
                                     </td>
                                     <td class="text-center align-middle">
-                                        <button type="button" class="btn-action btn-action-delete btn-remove mx-auto" title="Hapus Banner">
+                                        <button type="button" class="btn-action btn-remove text-danger mx-auto" title="Hapus Banner">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </td>
@@ -167,7 +226,8 @@
             </div>
 
             {{-- Card: Logo Partner --}}
-            <div class="card shadow-sm border-0" style="border-radius: 10px;">
+            <div class="card card-uniform position-relative shadow-sm border-0">
+                <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
                 <div class="card-header bg-white py-3">
                     <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-handshake me-2 text-primary"></i>Logo Brand/Partner</h6>
                 </div>
@@ -175,6 +235,7 @@
                     <div class="mb-3">
                         <label class="form-label fw-medium small text-muted">Upload Logo Baru</label>
                         <input type="file" class="form-control form-control-sm" name="brand_logos" accept="image/*">
+                        <div class="form-text text-muted" style="font-size: 0.75rem;">Format: PNG/JPG. Max: 2MB. Resolusi optimal: 240x120px (rasio 2:1).</div>
                     </div>
 
                     <div class="table-responsive border rounded-3" style="max-height: 300px; overflow-y: auto;">
@@ -196,7 +257,7 @@
                                         </div>
                                     </td>
                                     <td class="text-center align-middle">
-                                        <button type="button" class="btn-action btn-action-delete btn-remove mx-auto" title="Hapus Logo">
+                                        <button type="button" class="btn-action btn-remove text-danger mx-auto" title="Hapus Logo">
                                             <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </td>
@@ -229,6 +290,21 @@ document.addEventListener('DOMContentLoaded', function () {
         const length = input.value.length;
         input.setSelectionRange(length, length); // kursor ke akhir
     }
+
+    // Saat ada perubahan dalam card, beri penanda visual pada tombol simpan di card tersebut
+    document.querySelectorAll('.card').forEach((card) => {
+        const saveBtn = card.querySelector('.card-save-btn');
+        const logoBtn = card.querySelector('.card-save-btn-logo');
+        const targetBtn = logoBtn || saveBtn;
+        if (!targetBtn) return;
+
+        card.addEventListener('input', () => {
+            targetBtn.classList.add('btn-primary', 'show-save');
+        });
+        card.addEventListener('change', () => {
+            targetBtn.classList.add('btn-primary', 'show-save');
+        });
+    });
 });
 </script>
 <script>
@@ -238,26 +314,54 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document.addEventListener("click", function(e) {
         const btn = e.target.closest('.btn-remove');
+        if (!btn) return;
 
-        if (btn) {
-            let row = btn.closest("tr");
-            let id = row.getAttribute("data-id");
-            let type = row.getAttribute("data-type");
+        e.preventDefault();
+        e.stopPropagation();
 
-            if(id && type) {
-                if(type === 'partner') {
-                    deletedPartnersArr.push(id);
+        const row = btn.closest("tr");
+        const id = row?.getAttribute("data-id");
+        const type = row?.getAttribute("data-type");
+        if (!row || !id || !type) return;
+
+        const confirmFn = typeof window.confirmDelete === "function"
+            ? window.confirmDelete
+            : (msg, title) => Promise.resolve({ isConfirmed: window.confirm(msg || title || "Hapus data ini?") });
+
+        confirmFn('Apakah Anda yakin ingin menghapus item ini?', 'Konfirmasi Hapus')
+            .then((result) => {
+                if (!result?.isConfirmed) return;
+
+                const urlMap = {
+                    partner: '{{ route("admin.catalog-settings.partner.destroy", ":id") }}',
+                    banner: '{{ route("admin.catalog-settings.banner.destroy", ":id") }}',
+                };
+                const endpointTemplate = urlMap[type];
+                if (!endpointTemplate) return;
+                const finalUrl = endpointTemplate.replace(':id', id);
+
+                btn.disabled = true;
+                const pushUnique = (arr, value) => {
+                    if (!arr.includes(value)) arr.push(value);
+                };
+
+                if (type === 'partner') {
+                    pushUnique(deletedPartnersArr, id);
                     document.getElementById("deletedPartners").value = JSON.stringify(deletedPartnersArr);
-                } else if(type === 'banner') {
-                    deletedBannersArr.push(id);
+                } else if (type === 'banner') {
+                    pushUnique(deletedBannersArr, id);
                     document.getElementById("deletedBanners").value = JSON.stringify(deletedBannersArr);
                 }
 
                 row.style.transition = "all 0.3s";
                 row.style.opacity = "0";
                 setTimeout(() => row.remove(), 300);
-            }
-        }
+
+                const form = document.getElementById('settingsForm');
+                if (form) {
+                    form.requestSubmit();
+                }
+            });
     });
 </script>
 @endpush
