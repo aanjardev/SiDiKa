@@ -175,7 +175,7 @@
     </div>
     <div class="ms-auto d-flex align-items-center gap-2">
         <span class="fw-bold me-2" id="summaryPrice">Rp0</span>
-        <button id="btnCheckout" class="btn btn-primary btn-sm rounded-pill px-3 fw-medium">
+        <button id="btnCheckout" class="btn btn-primary btn-sm rounded-pill px-3 fw-medium btn-checkout">
             Checkout <i class="fa-solid fa-arrow-right ms-1" style="font-size: 0.7rem;"></i>
         </button>
     </div>

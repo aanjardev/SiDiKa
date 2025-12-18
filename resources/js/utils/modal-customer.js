@@ -264,7 +264,7 @@ export default class CustomerModal {
                 type: uiTypeMap[type] || "info",
                 title: titleMap[type] || "Informasi",
                 message,
-                autoDismiss: type === "success" || type === "info"
+                autoDismiss: type !== "error"
             });
             return;
         }
