@@ -26,17 +26,17 @@
                 <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
-                <input type="text" class="form-control border-0 shadow-none bg-transparent" 
+                <input type="text" class="form-control border-0 shadow-none bg-transparent"
                     name="search"
                     value="{{ $search_term ?? '' }}"
                     placeholder="Cari produk berdasarkan nama atau SKU..."
                     style="font-size: 0.95rem;"
-                    autofocus>  
+                    autofocus>
             </div>
 
             {{-- Dropdown Kategori --}}
             <div class="d-flex align-items-center gap-2 pe-2">
-                <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                     name="kategori"
                     onchange="document.getElementById('searchForm').submit();"
                     style="cursor: pointer;">
@@ -49,7 +49,7 @@
                 </select>
 
                 {{-- Dropdown Sort --}}
-                <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium" 
+                <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                     name="sort_by"
                     onchange="document.getElementById('searchForm').submit();"
                     style="cursor: pointer;">
@@ -67,23 +67,23 @@
     <div id="gridView" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 mb-5">
         @forelse ($products as $product)
             <div class="col">
-                <div class="card h-100 shadow-sm border-0 product-card" 
+                <div class="card h-100 shadow-sm border-0 product-card"
                      style="border-radius: 12px; overflow: hidden;"
                      data-product-id="{{ $product->id }}"
                      data-price="{{ $product->harga_jual ?? 0 }}"
                      data-stock="{{ $product->stok_produk ?? 0 }}"
                      data-name="{{ $product->nama_produk }}"
                      data-sku="{{ $product->kode_sku }}">
-                    
+
                     {{-- Gambar Produk (Rasio 4:3 agar tidak terlalu tinggi) --}}
                     <div class="position-relative" style="padding-top: 75%; background-color: #f8f9fa;">
                         @php
                             $image = $product->gambarUtama ? $product->gambarUtama->url : asset('images/placeholder.jpg');
                         @endphp
-                        <img src="{{ $image }}" 
-                             class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover" 
+                        <img src="{{ $image }}"
+                             class="position-absolute top-0 start-0 w-100 h-100 object-fit-cover"
                              alt="{{ $product->nama_produk }}" loading="lazy">
-                        
+
                         {{-- Badge Stok (Opsional, jika ingin overlay) --}}
                         @if(($product->stok_produk ?? 0) <= 0)
                             <div class="position-absolute top-0 start-0 w-100 h-100 bg-white bg-opacity-75 d-flex align-items-center justify-content-center">
@@ -118,7 +118,7 @@
                                 <button class="btn btn-primary btn-sm flex-grow-1 fw-medium btn-add-product py-1" type="button" style="border-radius: 8px; font-size: 0.85rem;">
                                     <i class="fa-solid fa-plus me-1"></i> Tambah
                                 </button>
-                                
+
                                 {{-- Kontrol Qty (Hidden Awal) --}}
                                 <div class="qty-control d-none flex-grow-1 justify-content-between align-items-center px-1 bg-primary bg-opacity-10 rounded-3" style="height: 32px;">
                                     <button class="btn btn-sm p-0 text-primary btn-dec" style="width: 24px;"><i class="fa-solid fa-minus" style="font-size: 0.8rem;"></i></button>
@@ -160,14 +160,14 @@
 </div>
 
 {{-- Floating Cart Summary --}}
-<div id="cartSummary" class="position-fixed start-50 translate-middle-x bottom-0 mb-4 p-2 bg-dark text-white rounded-pill shadow-lg d-none align-items-center gap-3 z-3 cart-summary-clickable" 
+<div id="cartSummary" class="position-fixed start-50 translate-middle-x bottom-0 mb-4 p-2 bg-dark text-white rounded-pill shadow-lg d-none align-items-center gap-3 z-3 cart-summary-clickable"
      style="min-width: 300px; max-width: 90%; border: 1px solid rgba(255,255,255,0.1);">
     <div class="rounded-circle bg-white text-dark d-flex align-items-center justify-content-center ms-1" style="width: 32px; height: 32px;">
         <i class="fa-solid fa-bag-shopping" style="font-size: 0.9rem;"></i>
     </div>
     <div class="d-flex flex-column lh-1">
         <span class="fw-bold" id="summaryItems" style="font-size: 0.9rem;">0 Item</span>
-        <small class="text-white-50" style="font-size: 0.7rem;">Total Estimasi</small>
+        {{-- <small class="text-white-50" style="font-size: 0.7rem;">Total Estimasi</small> --}}
         <button type="button" class="btn btn-link btn-sm text-decoration-none text-white-50 p-0 mt-1"
                 id="btnToggleCartDetail" style="font-size: 0.7rem;">
             Lihat ringkasan
@@ -175,7 +175,7 @@
     </div>
     <div class="ms-auto d-flex align-items-center gap-2">
         <span class="fw-bold me-2" id="summaryPrice">Rp0</span>
-        <button id="btnCheckout" class="btn btn-primary btn-sm rounded-pill px-3 fw-medium">
+        <button id="btnCheckout" class="btn btn-primary btn-sm rounded-pill px-3 fw-medium btn-checkout">
             Checkout <i class="fa-solid fa-arrow-right ms-1" style="font-size: 0.7rem;"></i>
         </button>
     </div>
@@ -186,24 +186,34 @@
 
 
 {{-- Panel ringkasan keranjang (pop-out center) --}}
-<div id="cartDetail" class="position-fixed top-50 start-50 translate-middle bg-white rounded-4 shadow-lg border d-none cart-detail-panel">
+<div id="cartDetail" class="position-fixed top-50 start-50 translate-middle bg-white rounded-4 shadow-lg border d-none cart-detail-panel" style="min-width: 360px;">
     <div class="d-flex align-items-center justify-content-between px-3 pt-3 pb-2 border-bottom">
         <div>
             <div class="small text-muted text-uppercase fw-semibold">Ringkasan Keranjang</div>
-            <div class="fw-semibold" id="cartDetailTitle">Item yang akan dibuat penjualan</div>
+            <div class="fw-semibold text-dark" id="cartDetailTitle">List Item</div>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" id="btnCloseCartDetail" aria-label="Tutup ringkasan">
-            <i class="fa-solid fa-xmark"></i>
+        <button type="button" class="btn btn-light btn-sm d-inline-flex align-items-center justify-content-center rounded-circle border" style="width: 34px; height: 34px;" id="btnCloseCartDetail" aria-label="Tutup ringkasan">
+            <i class="fa-solid fa-xmark fw-bold"></i>
         </button>
     </div>
-    <div class="px-3 py-2 cart-detail-body">
+    <div class="px-3 py-2 cart-detail-body" style="background: #f8f9fb; min-height: 50vh; max-height: 50vh; overflow-y: auto;">
         <ul class="list-unstyled mb-0 small" id="cartDetailList">
             {{-- Diisi via JavaScript --}}
         </ul>
     </div>
-    <div class="px-3 py-2 border-top d-flex justify-content-between align-items-center small bg-light rounded-bottom-4">
-        <span class="text-muted">Total Estimasi</span>
-        <span class="fw-bold text-primary" id="cartDetailTotal">Rp0</span>
+    <div class="px-3 py-3 border-top bg-white rounded-bottom-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <span class="text-muted small d-block">Total Estimasi</span>
+                <span class="fw-bold text-primary fs-6" id="cartDetailTotal">Rp0</span>
+            </div>
+            <button type="button" class="btn btn-primary btn-sm btn-checkout rounded-pill px-3">
+                Checkout <i class="fa-solid fa-arrow-right ms-1" style="font-size: 0.7rem;"></i>
+            </button>
+        </div>
+        <div class="progress mt-2" style="height: 6px; background-color: #e9ecef;">
+            <div class="progress-bar bg-primary" role="progressbar" style="width: 100%; opacity: 0.2;"></div>
+        </div>
     </div>
 </div>
 
@@ -255,11 +265,11 @@
     .cart-detail-panel {
         width: 100%;
         max-width: 720px;
-        max-height: 65vh;
+        max-height: 55vh;
         z-index: 1050;
     }
     .cart-detail-body {
-        max-height: 45vh;
+        max-height: 35vh;
         overflow-y: auto;
     }
     .cart-detail-item-name {
@@ -277,9 +287,9 @@
         justify-content: center;
     }
     .cart-detail-qty-btn.cart-inc-btn {
-        background-color: #0d6efd;
-        color: #fff;
-        border: none;
+        background-color: #f8f9fa;
+        color: #0d6efd;
+        border: 1px solid rgba(13,110,253,.15);
     }
     .cart-detail-qty-btn.cart-dec-btn {
         background-color: #f8f9fa;
@@ -329,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const summaryEl = document.getElementById('cartSummary');
     const summaryItemsEl = document.getElementById('summaryItems');
     const summaryPriceEl = document.getElementById('summaryPrice');
-    const checkoutBtn = document.getElementById('btnCheckout');
+    const checkoutBtns = document.querySelectorAll('.btn-checkout');
     const cartDetailEl = document.getElementById('cartDetail');
     const cartDetailListEl = document.getElementById('cartDetailList');
     const cartDetailTotalEl = document.getElementById('cartDetailTotal');
@@ -424,6 +434,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const meta = productMeta[id] || {};
             const name = meta.name || `Produk #${id}`;
             const sku = meta.sku ? ` (${meta.sku})` : '';
+            const stock = typeof meta.stock === 'number' ? meta.stock : null;
+            const remaining = stock !== null ? Math.max(stock - (data.qty || 0), 0) : null;
             const lineTotal = (data.qty || 0) * (data.price || 0);
             totalPrice += lineTotal;
 
@@ -434,6 +446,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="me-3">
                     <div class="fw-semibold text-dark cart-detail-item-name">${name}</div>
                     <div class="text-muted cart-detail-item-sku">${sku || '&nbsp;'}</div>
+                    ${stock !== null ? `<div class="text-warning small">Sisa stok: ${remaining}</div>` : ''}
                 </div>
                 <div class="text-end">
                     <div class="d-flex align-items-center justify-content-end gap-2 mb-1">
@@ -512,6 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: name || (card.querySelector('.card-title')?.textContent || '').trim(),
                 sku: sku || (card.querySelector('.font-monospace')?.textContent || '').trim(),
                 price,
+                stock: isNaN(stock) ? null : stock,
             };
         }
 
@@ -616,7 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Jadikan seluruh area cartSummary (kecuali tombol Checkout) bisa membuka ringkasan
     summaryEl?.addEventListener('click', (e) => {
-        const isCheckout = e.target.closest('#btnCheckout');
+        const isCheckout = e.target.closest('.btn-checkout');
         if (isCheckout) {
             return;
         }
@@ -625,35 +639,48 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Checkout Action
-    checkoutBtn?.addEventListener('click', (e) => {
+    const handleCheckout = (e) => {
         e.preventDefault();
-        
+
         const totalItems = Object.values(selections).reduce((sum, item) => sum + item.qty, 0);
         if (totalItems === 0) return;
-        
+
+        // Validasi stok
+        for (const [productId, data] of Object.entries(selections)) {
+            const stock = typeof productMeta[productId]?.stock === 'number' ? productMeta[productId].stock : Infinity;
+            if (stock !== Infinity && data.qty > stock) {
+                showToast(`Stok ${productMeta[productId]?.name || 'produk'} tidak mencukupi`, 'warning');
+                return;
+            }
+        }
+
         const payload = Object.entries(selections).map(([id, data]) => ({
             id,
             qty: data.qty
         }));
-        
+
         document.getElementById('checkoutItems').value = JSON.stringify(payload);
-        
+
         const form = document.getElementById('checkoutForm');
-        
+
         // Create a submit button and click it
         const submitButton = document.createElement('input');
         submitButton.type = 'submit';
         submitButton.style.display = 'none';
         form.appendChild(submitButton);
-        
+
         submitButton.click();
-        
+
         // Clean up
         setTimeout(() => {
             if (submitButton.parentNode) {
                 submitButton.parentNode.removeChild(submitButton);
             }
         }, 100);
+    };
+
+    checkoutBtns.forEach((btn) => {
+        btn.addEventListener('click', handleCheckout);
     });
 });
 </script>

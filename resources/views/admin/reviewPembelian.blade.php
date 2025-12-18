@@ -22,6 +22,11 @@
             <span>Cetak Nota</span>
         </a>
     @endif
+    {{-- Tombol Salin Link --}}
+    <button type="button" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" onclick="window.copyToClipboard()">
+        <i class="fas fa-link fa-fw"></i>
+        <span>Salin Link</span>
+    </button>
 @endpush
 
 @section('content')
@@ -31,182 +36,191 @@
     Mirip dengan form, tapi semua data tidak bisa diedit.
 --}}
 
-<div class="row">
-    {{-- KOLOM KIRI (70%): Detail --}}
+<div class="row g-4 align-items-stretch">
+    {{-- KOLOM KIRI: Informasi Transaksi --}}
     <div class="col-lg-8">
-
-        {{-- CARD 1: INFORMASI TRANSAKSI --}}
-        <div class="card shadow-sm border-0 mb-4">
+        <div class="card shadow-sm border-0 h-100" style="border-radius: 14px;">
             <div class="card-body p-4">
-                <h5 class="card-title fw-bold mb-4">Informasi Transaksi</h5>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label text-muted small">Customer</label>
-                        <p class="fw-bold mb-0">{{ $pembelian->customer->nama ?? '-' }}</p>
-                        <small class="text-muted">{{ $pembelian->customer->no_telp ?? '' }}</small>
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; background-color: #e0edff;">
+                        <i class="fa-solid fa-file-invoice text-primary"></i>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label text-muted small">Cabang</label>
-                        <p class="fw-bold mb-0">{{ $pembelian->perusahaan_cabang->nama ?? '-' }}</p>
+                    <div>
+                        <h6 class="fw-bold mb-0">Informasi Transaksi</h6>
+                        <small class="text-muted">Ringkasan pembelian</small>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label text-muted small">Kasir</label>
-                        <p class="fw-bold mb-0">{{ $pembelian->user->name ?? '-' }}</p>
+
+                <div class="row small">
+                    <div class="col-md-6">
+                        <dl class="row mb-0">
+                            <dt class="col-5 text-muted">No. Transaksi</dt>
+                            <dd class="col-7 fw-semibold">{{ $pembelian->kode_transaksi ?? ('#' . $pembelian->id) }}</dd>
+
+                            <dt class="col-5 text-muted">Tanggal</dt>
+                            <dd class="col-7">{{ $pembelian->created_at?->format('d M Y, H:i') ?? '-' }}</dd>
+
+                            <dt class="col-5 text-muted">Kasir</dt>
+                            <dd class="col-7">{{ $pembelian->user->name ?? '-' }}</dd>
+
+                            <dt class="col-5 text-muted">Cabang</dt>
+                            <dd class="col-7">{{ $pembelian->perusahaan_cabang->nama ?? '-' }}</dd>
+                        </dl>
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label text-muted small">Tanggal Transaksi</label>
-                        <p class="fw-bold mb-0">{{ $pembelian->created_at->format('d M Y, H:i') }}</p>
+                    <div class="col-md-6">
+                        <dl class="row mb-0">
+                            <dt class="col-5 text-muted">Customer</dt>
+                            <dd class="col-7">{{ $pembelian->customer->nama ?? '-' }}</dd>
+
+                            <dt class="col-5 text-muted">Telp</dt>
+                            <dd class="col-7">{{ $pembelian->customer->no_telp ?? '-' }}</dd>
+
+                            <dt class="col-5 text-muted">Status</dt>
+                            <dd class="col-7">
+                                @if($pembelian->status_pembelian == 'deal')
+                                    <span class="badge bg-success-subtle text-success-emphasis px-2">DEAL</span>
+                                @elseif($pembelian->status_pembelian == 'tidak_deal')
+                                    <span class="badge bg-danger-subtle text-danger-emphasis px-2">TIDAK DEAL</span>
+                                @else
+                                    <span class="badge bg-secondary-subtle text-secondary-emphasis px-2">DRAFT</span>
+                                @endif
+                            </dd>
+
+                            <dt class="col-5 text-muted">Keterangan</dt>
+                            <dd class="col-7 small text-muted">{{ $pembelian->keterangan ?? '-' }}</dd>
+                        </dl>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        {{-- CARD 2: DAFTAR ITEM DRAFT --}}
-        <div class="card shadow-sm border-0 mb-4">
+    {{-- KOLOM KANAN: Rincian Total --}}
+    <div class="col-lg-4">
+        <div class="card shadow-sm border-0 h-100 position-sticky" style="border-radius: 14px; top: 20px;">
             <div class="card-body p-4">
-                <h5 class="card-title fw-bold mb-3">Daftar Item ({{ $pembelian->item_pembelian_draft->count() }} item)</h5>
+                <div class="d-flex align-items-center mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; background-color: #eaf7ef;">
+                        <i class="fa-solid fa-cash-register text-success"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-0">Rincian Total</h6>
+                        <small class="text-muted">Kalkulasi transaksi</small>
+                    </div>
+                </div>
 
-                {{-- Kita gunakan accordion untuk menampilkan semua 20+ data kondisi --}}
-                <div class="accordion" id="accordionItemReview">
-                    @forelse ($pembelian->item_pembelian_draft as $item)
-                        <div class="accordion-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed position-relative" type="button"
-                                        data-bs-toggle="collapse" data-bs-target="#collapse-{{ $item->id }}">
-
-                                    <div class="d-flex align-items-center">
-                                        <span class="fw-bold">{{ $item->nama_item }}</span>
-                                        <span class="ms-2 badge bg-secondary">{{ $item->kategori->nama_kategori ?? '-' }}</span>
-                                    </div>
-
-                                    <div class="position-absolute d-flex justify-content-end"
-                                        style="right: 50px; top: 50%; transform: translateY(-50%); width: 300px;">
-
-                                        <span class="text-muted small text-start" style="width: 150px; font-size: 13px;">
-                                            <b>SN: </b> {{ $item->serial_number ?? '-' }}
-                                        </span>
-
-                                        <span class="text-muted small text-start ms-2" style="width: 150px; font-size: 13px;">
-                                            <b>SNL: </b> {{ $item->serial_lens ?? '-' }}
-                                        </span>
-                                    </div>
-
-                                </button>
-                            </h2>
-
-                            <div id="collapse-{{ $item->id }}" class="accordion-collapse collapse" data-bs-parent="#accordionItemReview">
-                                <div class="accordion-body bg-light">
-                                    <h6 class="fw-bold text-primary">Detail Kondisi</h6>
-                                    <div class="row">
-                                        @php
-                                            $fields = [
-                                                'Fisik' => $item->kondisi_fisik,
-                                                'Baut' => $item->kondisi_baut,
-                                                'Tutup USB' => $item->kondisi_tutup_usb,
-                                                'Karet Grip' => $item->kondisi_grip,
-                                                'Jamur Lensa' => $item->kondisi_jamur_lensa,
-                                                'View Finder' => $item->kondisi_view_finder,
-                                                'Mounting' => $item->kondisi_mounting,
-                                                'Slot Memori' => $item->kondisi_slot_memori,
-                                                'Jamur Sensor' => $item->kondisi_jamur_sensor,
-                                                'LCD' => $item->kondisi_lcd,
-                                                'Tombol' => $item->kondisi_tombol,
-                                                'Zoom Lensa' => $item->kondisi_zoom_lensa,
-                                                'AF Lensa' => $item->kondisi_af_lensa,
-                                                'Diafragma Lensa' => $item->kondisi_diafragma_lensa,
-                                                'Kalibrasi Fokus' => $item->kondisi_kalibrasi_fokus,
-                                                'Flash' => $item->kondisi_flash,
-                                                'Sound/Mic' => $item->kondisi_sound_mic,
-                                                'Lain-lain' => $item->kondisi_lain_lain,
-                                            ];
-                                        @endphp
-
-                                        @foreach ($fields as $label => $value)
-                                            <div class="col-md-6 mb-1">
-                                                <div class="d-flex small">
-                                                    <div style="width: 140px; font-weight: 600;">{{ $label }}</div>
-                                                    <div class="flex-grow-1">: &nbsp;{{ $value ?? '-' }}</div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-
-                                    <hr>
-
-                                    <h6 class="fw-bold text-primary">Kelengkapan</h6>
-                                    <p class="small">{{ $item->kelengkapan ?? 'Tidak ada kelengkapan khusus.' }}</p>
-                                </div>
-                            </div>
-                        </div>
-                    @empty
-                        <p class="text-muted">Tidak ada item dalam transaksi draft ini.</p>
-                    @endforelse
+                <div class="bg-light rounded-3 p-3">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Tawaran Customer</span>
+                        <span class="fw-semibold">Rp {{ number_format($pembelian->harga_tawaran_customer, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Tawaran Toko</span>
+                        <span class="fw-semibold">Rp {{ number_format($pembelian->harga_tawaran_toko, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="border-top my-2"></div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-success">HARGA DEAL</span>
+                        <span class="fw-bold text-success fs-5">Rp {{ number_format($pembelian->harga_deal, 0, ',', '.') }}</span>
+                    </div>
                 </div>
             </div>
         </div>
 
     </div>
+</div>
 
-    {{-- KOLOM KANAN (30%): Harga & Status --}}
-    <div class="col-lg-4">
-
-        <div class="card shadow-sm border-0 mb-4 position-sticky" style="top: 20px;">
-            <div class="card-body p-4">
-                <h5 class="card-title fw-bold mb-3">Harga & Status</h5>
-
-                {{-- Status --}}
-                <div class="mb-3">
-                    <label class="form-label text-muted small">Status Transaksi</label>
-                    <p>
-                        @if($pembelian->status_pembelian == 'deal')
-                            <span class="badge fs-6 bg-success-subtle text-success-emphasis">DEAL</span>
-                        @elseif($pembelian->status_pembelian == 'tidak_deal')
-                            <span class="badge fs-6 bg-danger-subtle text-danger-emphasis">TIDAK DEAL</span>
-                        @else
-                            <span class="badge fs-6 bg-secondary-subtle text-secondary-emphasis">DRAFT</span>
-                        @endif
-                    </p>
+{{-- ITEM TERJUAL / ITEM DRAFT --}}
+<div class="card shadow-sm border-0 mt-4" style="border-radius: 14px;">
+    <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex align-items-center">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; background-color: #fff7e6;">
+                    <i class="fa-solid fa-cart-shopping text-warning"></i>
                 </div>
-
-                <hr>
-
-                {{-- Harga Tawaran --}}
-                <div class="mb-3">
-                    <label class="form-label text-muted small">Tawaran Customer (Total)</label>
-                    <h4 class="fw-normal">Rp {{ number_format($pembelian->harga_tawaran_customer, 0, ',', '.') }}</h4>
+                <div>
+                    <h6 class="fw-bold mb-0">Item Pembelian</h6>
+                    <small class="text-muted">Daftar produk dalam transaksi ini ({{ $pembelian->item_pembelian_draft->count() }} item)</small>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label text-muted small">Tawaran Toko (Total)</label>
-                    <h4 class="fw-normal">Rp {{ number_format($pembelian->harga_tawaran_toko, 0, ',', '.') }}</h4>
-                </div>
+            </div>
+        </div>
 
-                {{-- Harga Final (Paling Menonjol) --}}
-                <div class="mb-3 p-3 rounded" style="background-color: var(--bs-success-bg-subtle);">
-                    <label class="form-label fw-bold text-success small text-uppercase">Harga Deal (Final)</label>
-                    <h2 class="fw-bold text-success mb-0">
-                        Rp {{ number_format($pembelian->harga_deal, 0, ',', '.') }}
+        {{-- Accordion item --}}
+        <div class="accordion" id="accordionItemReview">
+            @forelse ($pembelian->item_pembelian_draft as $item)
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed position-relative" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#collapse-{{ $item->id }}">
+
+                            <div class="d-flex align-items-center">
+                                <span class="fw-bold">{{ $item->nama_item }}</span>
+                                <span class="ms-2 badge bg-secondary">{{ $item->kategori->nama_kategori ?? '-' }}</span>
+                            </div>
+
+                            <div class="position-absolute d-flex justify-content-end"
+                                style="right: 50px; top: 50%; transform: translateY(-50%); width: 300px;">
+
+                                <span class="text-muted small text-start" style="width: 150px; font-size: 13px;">
+                                    <b>SN: </b> {{ $item->serial_number ?? '-' }}
+                                </span>
+
+                                <span class="text-muted small text-start ms-2" style="width: 150px; font-size: 13px;">
+                                    <b>SNL: </b> {{ $item->serial_lens ?? '-' }}
+                                </span>
+                            </div>
+
+                        </button>
                     </h2>
-                </div>
-            </div>
-        </div>
 
-        {{-- CARD BARU: BAGIKAN LINK --}}
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body p-3">
-                <h6 class="card-title fw-bold mb-2"><i class="fas fa-share-alt me-1"></i> Bagikan Tinjauan</h6>
-                <p class="text-muted small mt-0 mb-2">Link ini dapat dibagikan (read-only).</p>
-                <div class="input-group">
-                    {{-- Ganti value di sini agar menggunakan fungsi route Laravel --}}
-                    <input type="text" class="form-control form-control-sm" id="shareable-link" value="{{ route('admin.purchases.show', $pembelian->id) }}" readonly>
-                    <button class="btn btn-outline-secondary btn-sm" type="button" onclick="copyToClipboard()">
-                        <i class="fas fa-copy me-1"></i> Salin
-                    </button>
-                </div>
-            </div>
-        </div>
+                    <div id="collapse-{{ $item->id }}" class="accordion-collapse collapse" data-bs-parent="#accordionItemReview">
+                        <div class="accordion-body bg-light">
+                            <h6 class="fw-bold text-primary">Detail Kondisi</h6>
+                            <div class="row">
+                                @php
+                                    $fields = [
+                                        'Fisik' => $item->kondisi_fisik,
+                                        'Baut' => $item->kondisi_baut,
+                                        'Tutup USB' => $item->kondisi_tutup_usb,
+                                        'Karet Grip' => $item->kondisi_grip,
+                                        'Jamur Lensa' => $item->kondisi_jamur_lensa,
+                                        'View Finder' => $item->kondisi_view_finder,
+                                        'Mounting' => $item->kondisi_mounting,
+                                        'Slot Memori' => $item->kondisi_slot_memori,
+                                        'Jamur Sensor' => $item->kondisi_jamur_sensor,
+                                        'LCD' => $item->kondisi_lcd,
+                                        'Tombol' => $item->kondisi_tombol,
+                                        'Zoom Lensa' => $item->kondisi_zoom_lensa,
+                                        'AF Lensa' => $item->kondisi_af_lensa,
+                                        'Diafragma Lensa' => $item->kondisi_diafragma_lensa,
+                                        'Kalibrasi Fokus' => $item->kondisi_kalibrasi_fokus,
+                                        'Flash' => $item->kondisi_flash,
+                                        'Sound/Mic' => $item->kondisi_sound_mic,
+                                        'Lain-lain' => $item->kondisi_lain_lain,
+                                    ];
+                                @endphp
 
+                                @foreach ($fields as $label => $value)
+                                    <div class="col-md-6 mb-1">
+                                        <div class="d-flex small">
+                                            <div style="width: 140px; font-weight: 600;">{{ $label }}</div>
+                                            <div class="flex-grow-1">: &nbsp;{{ $value ?? '-' }}</div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+
+                            <hr>
+
+                            <h6 class="fw-bold text-primary">Kelengkapan</h6>
+                            <p class="small mb-0">{{ $item->kelengkapan ?? 'Tidak ada kelengkapan khusus.' }}</p>
+                        </div>
+                    </div>
+                </div>
+            @empty
+                <p class="text-muted">Tidak ada item dalam transaksi draft ini.</p>
+            @endforelse
+        </div>
     </div>
 </div>
 @endsection
@@ -243,31 +257,19 @@
 {{-- SCRIPT UNTUK AUTO-COPY LINK & FUNGSI COPY TO CLIPBOARD --}}
 {{-- ======================================================= --}}
 <script>
-    // Fungsi yang dipanggil oleh tombol "Salin"
     window.copyToClipboard = function() {
-        const linkInput = document.getElementById('shareable-link');
-        linkInput.select();
-        linkInput.setSelectionRange(0, 99999);
-
-        // Coba salin ke clipboard
-        try {
+        const url = "{{ route('admin.purchases.show', $pembelian->id) }}";
+        if (navigator.clipboard?.writeText) {
+            navigator.clipboard.writeText(url);
+        } else {
+            const tempInput = document.createElement('input');
+            tempInput.value = url;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
             document.execCommand('copy');
-
-            // Karena UI Feedback sudah ada di sistem Anda, kita tidak perlu alert() lagi.
-            // Jika ada fungsi global untuk menampilkan notifikasi sukses (misalnya showSuccessToast), panggil di sini.
-
-        } catch (err) {
-            console.error('Gagal menyalin:', err);
-            // Anda bisa menambahkan feedback gagal kustom di sini jika diperlukan.
+            tempInput.remove();
         }
     }
-
-    @if(session('auto_copy_link'))
-    // Script ini dijalankan jika ada flash session 'auto_copy_link' (dari method store)
-    document.addEventListener("DOMContentLoaded", function() {
-        // Panggil fungsi salin yang kini tidak memiliki alert()
-        window.copyToClipboard();
-    });
-    @endif
 </script>
 @endpush

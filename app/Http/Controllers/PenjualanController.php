@@ -307,7 +307,9 @@ class PenjualanController extends Controller
 
             session()->forget('cart_penjualan');
 
-            return redirect()->route('admin.sales.index')->with('success', 'Transaksi penjualan berhasil disimpan.');
+            return redirect()
+                ->route('admin.sales.show', $penjualan->id)
+                ->with('success', 'Transaksi penjualan berhasil disimpan.');
         } catch (\Throwable $th) {
             DB::rollBack();
             return back()->with('error', 'Gagal menyimpan penjualan: ' . $th->getMessage())->withInput();

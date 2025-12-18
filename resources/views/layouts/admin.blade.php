@@ -228,12 +228,12 @@ $setting = \App\Models\CatalogSettings::first();
                     <li><a class="dropdown-item" href="{{ route('admin.profile') }}"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
                     <li><hr class="dropdown-divider"></li>
                     <li>
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">
-                                <i class="fas fa-sign-out-alt me-2"></i> Logout
-                            </button>
-                        </form>
+                        <button type="button"
+                                class="dropdown-item text-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#logoutConfirmModal">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </button>
                     </li>
                 </ul>
             </div>
@@ -279,6 +279,43 @@ $setting = \App\Models\CatalogSettings::first();
 
     <!-- Form Validation JS -->
     <script src="{{ asset('js/form-validation.js') }}"></script>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutConfirmModal" tabindex="-1" aria-labelledby="logoutConfirmLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold" id="logoutConfirmLabel">
+                        <i class="fa-solid fa-right-from-bracket me-2 text-warning"></i>Konfirmasi Logout
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-3">
+                        <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center text-warning mx-auto mb-3"
+                             style="width: 60px; height: 60px;">
+                            <i class="fa-solid fa-right-from-bracket fa-2x"></i>
+                        </div>
+                        <h6 class="fw-bold mb-2">Apakah Anda yakin ingin logout?</h6>
+                        <p class="text-muted small mb-0">
+                            Anda akan keluar dari sistem dan perlu login kembali untuk mengakses halaman admin.
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 justify-content-center">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fa-solid fa-times me-2"></i>Batal
+                    </button>
+                    <form id="logoutFormLayout" action="{{ route('logout') }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="fa-solid fa-right-from-bracket me-2"></i>Ya, Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Hide loader when page is loaded
@@ -383,6 +420,14 @@ $setting = \App\Models\CatalogSettings::first();
                     linkPath = href.split(/[?#]/)[0];
                 }
 
+                const isProductPhotoUpload = /^\/admin\/products\/\d+\/photos-upload(\/)?$/i.test(currentPath);
+                // If we're on a product photo upload page, force the "Foto Produk" submenu active
+                if (isProductPhotoUpload && linkPath === '{{ route('admin.products.photos') }}'.replace(window.location.origin, '')) {
+                    link.classList.add('active');
+                    activateParentMenu(link);
+                    return;
+                }
+
                 // Check for exact match
                 if (linkPath === currentPath) {
                     link.classList.add('active');
@@ -394,7 +439,11 @@ $setting = \App\Models\CatalogSettings::first();
                 else if (currentPath.startsWith(linkPath + '/') && linkPath !== currentPath && linkPath !== '/') {
                     // Exclude /admin/products/photos and its child routes from being treated as child of /admin/products
                     // This ensures "Foto Produk" menu stays separate from "Produk" menu
-                    if (linkPath === '/admin/products' && currentPath.startsWith('/admin/products/photos')) {
+                    if (
+                        linkPath === '/admin/products' &&
+                        (currentPath.startsWith('/admin/products/photos') ||
+                            /\/admin\/products\/\d+\/photos-upload/.test(currentPath))
+                    ) {
                         // Skip - Foto Produk is a separate menu under Operasional, not under Produk
                         return;
                     }
