@@ -52,7 +52,9 @@ $setting = \App\Models\CatalogSettings::first();
 
 
 <body class="  ">
-    @include('partials.alerts')
+    @unless ($__env->hasSection('disable_alerts'))
+        @include('partials.alerts')
+    @endunless
     <!-- loader Start -->
 
     <div id="loading">

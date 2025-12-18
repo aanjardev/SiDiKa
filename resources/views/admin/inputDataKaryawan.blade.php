@@ -1,6 +1,7 @@
 @extends('layouts.admin')
 
 @section('title', isset($readOnly) && $readOnly ? 'Detail Data Karyawan' : (isset($employee) ? 'Edit Data Karyawan' : 'Tambah Data Karyawan'))
+@section('disable_alerts', true)
 
 @push('page-actions')
     <a href="{{ route('admin.employees.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">

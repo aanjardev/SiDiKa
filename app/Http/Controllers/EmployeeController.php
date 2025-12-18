@@ -168,6 +168,7 @@ class EmployeeController extends Controller
             'nik.unique' => 'NIK sudah terdaftar.',
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
             'tanggal_masuk'=>'Tanggal masuk harus berupa tanggal sebelum atau sama dengan hari ini.',
+            'tanggal_keluar'=>'Tanggal keluar harus berupa tanggal setelah atau sama dengan tanggal masuk.',
         ]);
 
         // Jika tanggal keluar diisi, paksa status menjadi non-aktif

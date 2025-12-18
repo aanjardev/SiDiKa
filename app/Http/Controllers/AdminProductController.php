@@ -11,6 +11,7 @@ use App\Models\Kategori;
 use App\Models\GambarProduk;
 use App\Jobs\CleanupProductAssets;
 use App\Services\ProductService;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -329,9 +330,21 @@ class AdminProductController extends Controller
             $product->delete();
 
             DB::commit();
+        } catch (QueryException $e) {
+            DB::rollBack();
+            report($e);
+
+            if ($this->isForeignKeyConstraintViolation($e)) {
+                return back()->withErrors([
+                    'error' => 'Produk tidak dapat dihapus karena sudah digunakan pada transaksi penjualan.',
+                ]);
+            }
+
+            return back()->withErrors(['error' => 'Gagal menghapus produk. Silakan coba lagi.']);
         } catch (\Throwable $th) {
             DB::rollBack();
-            return back()->withErrors(['error' => 'Gagal menghapus produk: ' . $th->getMessage()]);
+            report($th);
+            return back()->withErrors(['error' => 'Gagal menghapus produk. Silakan coba lagi.']);
         }
 
         if (!empty($pathsForCleanup)) {
@@ -341,5 +354,24 @@ class AdminProductController extends Controller
         return redirect()
             ->route('admin.products.index')
             ->with('success', 'Produk berhasil dihapus.');
+    }
+
+    private function isForeignKeyConstraintViolation(QueryException $e): bool
+    {
+        $sqlState = (string)($e->errorInfo[0] ?? '');
+        $driverErrorCode = (int)($e->errorInfo[1] ?? 0);
+
+        // MySQL/MariaDB: 1451 (Cannot delete or update a parent row)
+        if ($driverErrorCode === 1451) {
+            return true;
+        }
+
+        // PostgreSQL: 23503 (foreign_key_violation)
+        if ($sqlState === '23503') {
+            return true;
+        }
+
+        // Fallback for other drivers/messages
+        return $sqlState === '23000' && str_contains(strtolower($e->getMessage()), 'foreign key');
     }
 }
