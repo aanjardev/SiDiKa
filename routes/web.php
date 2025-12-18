@@ -141,6 +141,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Manajemen
     Route::get('/catalog-settings', [CatalogSettingsController::class, 'edit'])->name('catalog-settings.index');
     Route::post('/catalog-settings', [CatalogSettingsController::class, 'update'])->name('catalog-settings.update');
+    Route::delete('/catalog-settings/banner/{id}', [CatalogSettingsController::class, 'destroyBanner'])->name('catalog-settings.banner.destroy');
+    Route::delete('/catalog-settings/partner/{id}', [CatalogSettingsController::class, 'destroyPartner'])->name('catalog-settings.partner.destroy');
     Route::get('/promotions', function () { return view('admin.promotions'); })->name('promotions');
     
     // Smart Stock Analysis

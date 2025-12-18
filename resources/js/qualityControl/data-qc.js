@@ -370,7 +370,6 @@ document.addEventListener("DOMContentLoaded", function () {
         // Validasi hanya untuk status lolos_qc
         if (requiresValidation) {
             let isValid = true;
-            const errors = [];
 
             // Helper function untuk set invalid
             function setFieldInvalid(field) {
@@ -386,7 +385,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const nama = namaField?.value.trim() || "";
             if (!nama) {
                 setFieldInvalid(namaField);
-                errors.push("Nama Item wajib diisi");
                 isValid = false;
             }
 
@@ -395,7 +393,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const kategori = kategoriField?.value || "";
             if (!kategori) {
                 setFieldInvalid(kategoriField);
-                errors.push("Kategori wajib dipilih");
                 isValid = false;
             }
 
@@ -404,7 +401,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const kodeSku = kodeSkuField?.value.trim() || "";
             if (!kodeSku) {
                 setFieldInvalid(kodeSkuField);
-                errors.push("Kode SKU wajib diisi");
                 isValid = false;
             }
 
@@ -415,7 +411,6 @@ document.addEventListener("DOMContentLoaded", function () {
             const deskripsi = deskripsiField?.value.trim() || "";
             if (!deskripsi) {
                 setFieldInvalid(deskripsiField);
-                errors.push("Deskripsi Produk wajib diisi");
                 isValid = false;
             }
 
@@ -428,37 +423,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 parseInt(hargaJual) <= 0
             ) {
                 setFieldInvalid(hargaJualField);
-                errors.push(
-                    "Harga Jual wajib diisi dan harus berupa angka lebih dari 0"
-                );
                 isValid = false;
             }
 
             if (!isValid) {
                 e.preventDefault();
-
-                // Tampilkan pesan error
-                if (
-                    errors.length > 0 &&
-                    typeof window.showAlert === "function"
-                ) {
-                    window.showAlert({
-                        type: "error",
-                        title: "Validasi Gagal",
-                        message:
-                            "Harap lengkapi data berikut:<br><br>" +
-                            errors
-                                .map((err, i) => `${i + 1}. ${err}`)
-                                .join("<br>"),
-                    });
-                } else if (errors.length > 0) {
-                    alert(
-                        "Harap lengkapi data berikut:\n\n" +
-                            errors
-                                .map((err, i) => `${i + 1}. ${err}`)
-                                .join("\n")
-                    );
-                }
 
                 // Scroll ke error pertama
                 const firstError = form.querySelector(".is-invalid");

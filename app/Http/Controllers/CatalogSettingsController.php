@@ -140,4 +140,34 @@ class CatalogSettingsController extends Controller
             $disk->delete($path);
         }
     }
+
+    public function destroyBanner($id)
+    {
+        $banner = CatalogBanners::find($id);
+        if (!$banner) {
+            return response()->json(['success' => false, 'message' => 'Banner tidak ditemukan'], 404);
+        }
+
+        $this->deleteImageVariants($banner->banner_path);
+        $banner->delete();
+
+        return redirect()
+            ->route('admin.catalog-settings.index')
+            ->with('success', 'Pengaturan katalog berhasil diperbarui.');
+    }
+
+    public function destroyPartner($id)
+    {
+        $partner = CatalogPartnerLogo::find($id);
+        if (!$partner) {
+            return response()->json(['success' => false, 'message' => 'Partner tidak ditemukan'], 404);
+        }
+
+        $this->deleteImageVariants($partner->logo_path);
+        $partner->delete();
+
+        return redirect()
+            ->route('admin.catalog-settings.index')
+            ->with('success', 'Pengaturan katalog berhasil diperbarui.');
+    }
 }
