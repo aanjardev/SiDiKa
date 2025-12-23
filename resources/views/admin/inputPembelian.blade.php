@@ -116,7 +116,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                                 <span id="customer_info_display" class="small text-muted me-2">
                                     {{-- Ini tidak lagi digunakan dengan Select2, tapi biarkan saja untuk berjaga-jaga --}}
                                 </span>
-                                    
+
                             </div>
                         </div>
 
@@ -199,7 +199,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                             {{-- Tambahkan class is-invalid pada input yang terlihat --}}
                             <input type="text" class="form-control fw-bold rupiah-mask @error('harga_tawaran_customer') is-invalid @enderror"
                                 id="display_harga_tawaran_customer" placeholder="0"
-                                value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}" maxlength="11">
+                                value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}" maxlength="11" data-maxdigits="11">
                             <input type="hidden" name="harga_tawaran_customer" id="harga_tawaran_customer"
                                 value="{{ old('harga_tawaran_customer', $pembelian->harga_tawaran_customer ?? '') }}">
                         </div>
@@ -219,7 +219,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                             {{-- Tambahkan class is-invalid pada input yang terlihat --}}
                             <input type="text" class="form-control fw-bold rupiah-mask @error('harga_tawaran_toko') is-invalid @enderror"
                                 id="display_harga_tawaran_toko" placeholder="0"
-                                value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}" maxlength="11">
+                                value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}" maxlength="11" data-maxdigits="11">
                             <input type="hidden" name="harga_tawaran_toko" id="harga_tawaran_toko"
                                 value="{{ old('harga_tawaran_toko', $pembelian->harga_tawaran_toko ?? '') }}">
                         </div>
@@ -240,7 +240,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                             {{-- Tambahkan class is-invalid pada input yang terlihat --}}
                             <input type="text" class="form-control border-0 fw-bold text-success fs-5 rupiah-mask @error('harga_deal') is-invalid @enderror"
                                 id="display_harga_deal" placeholder="0" style="height: 50px;"
-                                value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}" maxlength="11">
+                                value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}" maxlength="11" data-maxdigits="11">
                             <input type="hidden" name="harga_deal" id="harga_deal"
                                 value="{{ old('harga_deal', $pembelian->harga_deal ?? '') }}">
                         </div>
@@ -499,7 +499,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                     <div class="row g-3">
                         <div class="col-12">
                             <label class="form-label fw-semibold text-secondary small">Nama Customer <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control required-field" id="customer_nama_modal" name="nama" required data-error-message="Nama customer wajib diisi" autofocus>
+                            <input type="text" class="form-control required-field" maxlength="50" id="customer_nama_modal" name="nama" required data-error-message="Nama customer wajib diisi" autofocus>
                             <div class="invalid-feedback">
                                 Nama customer wajib diisi.
                             </div>

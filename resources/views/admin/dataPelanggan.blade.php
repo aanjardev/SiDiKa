@@ -54,8 +54,8 @@
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 5%;">No</th>
-                        <th style="width: 15%;">Nama Pelanggan</th>
                         <th>Kode</th>
+                        <th style="width: 15%;">Nama Pelanggan</th>
                         <th>Jenis Kelamin</th>
                         <th>No. Telepon</th>
                         <th style="width: 20%;">Alamat</th>
@@ -69,29 +69,25 @@
                     <tr class="clickable-row" data-detail-url="{{ route('admin.customers.show', $pelanggan->id) }}" style="cursor: pointer;">
                         <td class="text-center text-muted fw-bold">{{ ($data_pelanggan->firstItem() ?? 0) + $index }}</td>
                         <td>
-                            <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
-                                {{ $pelanggan->nama }}
-                            </span>
-                        </td>
-                        <td>
                             <span class="fw-medium text-secondary font-monospace">
                                 {{ $pelanggan->kode_customer ?? '-' }}
                             </span>
                         </td>
                         <td>
-                            @if(in_array(strtolower($pelanggan->jenis_kelamin), ['laki-laki', 'l']))
-                                <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary" style="font-size: 0.85rem; line-height: 1">
+                            <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
+                                {{ $pelanggan->nama }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="text-muted">
+                                @if(in_array(strtolower($pelanggan->jenis_kelamin), ['laki-laki', 'l']))
                                     Laki-laki
-                                </span>
-                            @elseif(in_array(strtolower($pelanggan->jenis_kelamin), ['perempuan', 'p']))
-                                <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger" style="font-size: 0.85rem; line-height: 1">
+                                @elseif(in_array(strtolower($pelanggan->jenis_kelamin), ['perempuan', 'p']))
                                     Perempuan
-                                </span>
-                            @else
-                                <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary" style="font-size: 0.85rem; line-height: 1">
+                                @else
                                     {{ $pelanggan->jenis_kelamin }}
-                                </span>
-                            @endif
+                                @endif
+                            </span>
                         </td>
 
                         <td>
@@ -118,7 +114,7 @@
                                 $totalTransaksi = ($pelanggan->total_penjualan ?? 0) + ($pelanggan->total_pembelian ?? 0);
                             @endphp
                             <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold">
-                                {{ $totalTransaksi }}
+                                {{ $totalTransaksi }} transaksi
                             </span>
                         </td>
 

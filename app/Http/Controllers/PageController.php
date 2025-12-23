@@ -15,6 +15,8 @@ class PageController extends Controller
     public function index(){
         $latestProducts = Produk::with('gambarUtama')
             ->where('stok_produk', '>', 0)
+            ->where('is_visible', true)
+            ->where('is_archived', false)
             ->latest()
             ->take(5)
             ->get();
@@ -22,6 +24,8 @@ class PageController extends Controller
         $produkUnggulan = Produk::with('gambarUtama')
             ->where('grade', 'Unggulan')
             ->where('stok_produk', '>', 0)
+            ->where('is_visible', true)
+            ->where('is_archived', false)
             ->take(5)
             ->get();
 

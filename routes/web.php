@@ -106,6 +106,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     // Page for products that need photos (no images yet) - register BEFORE the resource so it isn't captured by /products/{id}
     Route::get('/products/photos', [AdminProductController::class, 'photos'])->name('products.photos');
+    // Archived products list & actions
+    Route::get('/products/archived', [AdminProductController::class, 'archivedIndex'])->name('products.archived');
+    Route::post('/products/{product}/archive', [AdminProductController::class, 'archive'])->name('products.archive');
+    Route::post('/products/{id}/restore', [AdminProductController::class, 'restore'])->name('products.restore');
     // Upload photos for a specific product (uploader role)
     Route::get('/products/{id}/photos-upload', [AdminProductController::class, 'photosUpload'])->name('products.photos.upload');
     Route::post('/products/{id}/photos-upload', [AdminProductController::class, 'photosUploadStore'])->name('products.photos.uploadStore');

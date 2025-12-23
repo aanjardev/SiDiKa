@@ -7,10 +7,27 @@
     <i class="fas fa-arrow-left"></i>
     <span>Kembali</span>
 </a>
+@if(!$product->is_archived)
+<form action="{{ route('admin.products.archive', $product->id) }}" method="POST" class="d-inline">
+    @csrf
+    <button type="submit" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-2" onclick="return confirm('Arsipkan produk ini? Produk akan disembunyikan dari katalog.')">
+        <i class="fas fa-box-archive"></i>
+        <span>Arsipkan</span>
+    </button>
+</form>
 <a href="{{ route('admin.products.edit', $product->id) }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
     <i class="fas fa-pen"></i>
     <span>Edit</span>
 </a>
+@else
+<form action="{{ route('admin.products.restore', $product->id) }}" method="POST" class="d-inline">
+    @csrf
+    <button type="submit" class="btn btn-success btn-sm d-flex align-items-center gap-2">
+        <i class="fas fa-rotate-left"></i>
+        <span>Restore</span>
+    </button>
+</form>
+@endif
 <!-- <a href="{{ route('admin.products.photos.upload', $product->id) }}" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-2">
     <i class="fas fa-images"></i>
     <span>Kelola Foto</span>
@@ -31,7 +48,7 @@ $formatCurrency = fn ($value) => 'Rp' . number_format($value ?? 0, 0, ',', '.');
                     Galeri Produk
                 </h6>
 
-                <div class="ratio ratio-1x1 mb-3 rounded-4 bg-light overflow-hidden position-relative">
+                <div class="ratio ratio-1x1 mb-3 rounded-2 bg-light overflow-hidden position-relative">
                     @if ($mainImage)
                     <img src="{{ $mainImage->url }}"
                         alt="{{ $product->nama_produk }}"
@@ -74,7 +91,8 @@ $formatCurrency = fn ($value) => 'Rp' . number_format($value ?? 0, 0, ',', '.');
                 </div>
             </div>
         </div>
-    </div> 
+
+    </div>
 
     <div class="col-lg-7">
         <div class="card shadow-sm border-0 mb-4">
@@ -82,8 +100,16 @@ $formatCurrency = fn ($value) => 'Rp' . number_format($value ?? 0, 0, ',', '.');
                 <div class="d-flex align-items-start justify-content-between">
                     <div>
                         <p class="text-uppercase text-muted small mb-1">Produk</p>
-                        <h3 class="fw-bold mb-2">{{ $product->nama_produk }}</h3>
-                        <div class="badge bg-light text-dark border">{{ $product->kategori->nama_kategori ?? 'Tanpa kategori' }}</div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h3 class="fw-bold mb-0">{{ $product->nama_produk }}</h3> <br>
+                            <span class="badge bg-light text-dark border">{{ $product->kategori->nama_kategori ?? 'Tanpa kategori' }}</span>
+                            @if($product->is_archived)
+                            <span class="badge bg-light text-secondary border">Diarsipkan</span>
+                            @endif
+                            @if(!$product->is_visible)
+                            <span class="badge bg-light text-secondary border">Hidden</span>
+                            @endif
+                        </div>
                     </div>
                     <div class="text-end">
                         <p class="text-muted small mb-1">SKU</p>
@@ -111,26 +137,13 @@ $formatCurrency = fn ($value) => 'Rp' . number_format($value ?? 0, 0, ',', '.');
                         <div class="fw-bold text-success">{{ $formatCurrency($product->harga_jual) }}</div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
-                <h6 class="fw-bold text-dark mb-3">
-                    <i class="fa-solid fa-tags me-2 text-success"></i>
-                    Harga & Biaya
-                </h6>
-
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <p class="text-muted small mb-1">Harga Beli</p>
+                <div class="row g-3 mt-2">
+                    <div class="col-sm-6">
+                        <p class="text-muted small mb-1">Harga Beli (Modal)</p>
                         <div class="fw-semibold">{{ $formatCurrency($product->harga_beli) }}</div>
                     </div>
-                    <div class="col-md-4">
-                        <p class="text-muted small mb-1">Harga Jual</p>
-                        <div class="fw-semibold">{{ $formatCurrency($product->harga_jual) }}</div>
-                    </div>
-                    <div class="col-md-4">
+                    <div class="col-sm-6">
                         <p class="text-muted small mb-1">Biaya Servis</p>
                         <div class="fw-semibold">{{ $formatCurrency($product->harga_servis) }}</div>
                     </div>
@@ -145,9 +158,9 @@ $formatCurrency = fn ($value) => 'Rp' . number_format($value ?? 0, 0, ',', '.');
                     Deskripsi Produk
                 </h6>
 
-                <div class="text-muted" style="white-space: pre-line;">
-                    {{ $product->deskripsi_produk ?: 'Belum ada deskripsi yang ditambahkan.' }}
-                </div>
+                <div class="text-muted" style="white-space: pre-line;">{{ trim($product->deskripsi_produk) ?: 'Belum ada deskripsi yang ditambahkan.' }}</div>
+
+
             </div>
         </div>
     </div>
