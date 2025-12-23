@@ -1,26 +1,18 @@
 @extends('layouts.admin')
 
-@section('title', 'Data Produk')
+@section('title', 'Arsip Produk')
 
 @push('page-actions')
-<a href="{{ route('admin.products.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
-    <i class="fas fa-plus fa-fw"></i>
-    <span>Tambah Produk</span>
-</a>
-<a href="{{ route('admin.products.archived') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
-    <i class="fas fa-box-archive"></i>
-    <span>Lihat Arsip</span>
+<a href="{{ route('admin.products.index') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+    <i class="fas fa-arrow-left"></i>
+    <span>Kembali ke Produk Aktif</span>
 </a>
 @endpush
 
 @section('content')
-
-{{-- Search & Filter (Resolved: Visual HEAD + Logic Main) --}}
-<form method="GET" action="{{ route('admin.products.index') }}" id="searchForm">
+<form method="GET" action="{{ route('admin.products.archived') }}" id="searchForm">
     <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
         <div class="card-body p-2 d-flex align-items-center flex-wrap">
-
-            {{-- Bagian Kiri: Input Search --}}
             <div class="d-flex align-items-center flex-grow-1 ps-2">
                 <span class="text-muted ms-2 me-3">
                     <i class="fa-solid fa-search text-muted"></i>
@@ -28,16 +20,13 @@
                 <input type="text"
                        class="form-control border-0 shadow-none bg-transparent"
                        name="search"
-                       placeholder="Cari produk berdasarkan nama atau SKU"
+                       placeholder="Cari produk diarsipkan"
                        value="{{ $search_term ?? '' }}"
                        style="font-size: 0.95rem;"
                        autofocus>
             </div>
 
-            {{-- Bagian Kanan: Dropdown Filter --}}
             <div class="d-flex align-items-center gap-2 pe-2">
-
-                {{-- Dropdown Kategori --}}
                 <select name="kategori"
                         class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
@@ -50,7 +39,6 @@
                     @endforeach
                 </select>
 
-                {{-- Dropdown Sort --}}
                 <select name="sort_by"
                         class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
@@ -60,14 +48,12 @@
                     <option value="nama_desc" {{ ($sort_by ?? 'updated_at') == 'nama_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
                 </select>
 
-                {{-- Hidden Input --}}
                 <input type="hidden" name="sort_order" value="{{ $sort_order ?? 'desc' }}">
             </div>
         </div>
     </div>
 </form>
 
-{{-- Table Card --}}
 <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -80,7 +66,7 @@
                         <th>Harga</th>
                         <th class="text-center">Stok</th>
                         <th>Last Update</th>
-                        <th class="text-center" style="width: 100px;">Aksi</th>
+                        <th class="text-center" style="width: 140px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -90,7 +76,6 @@
 
                         <td>
                             <div class="d-flex align-items-center gap-3">
-                                {{-- Bagian Gambar --}}
                                 <div class="flex-shrink-0 position-relative">
                                     @if ($product->gambarUtama)
                                     <img src="{{ $product->gambarUtama->url }}" loading="lazy"
@@ -98,7 +83,6 @@
                                          class="rounded-3 shadow-sm"
                                          style="width: 45px; height: 45px; object-fit: cover;">
                                     @else
-                                    {{-- Placeholder --}}
                                     <div class="rounded-3 bg-light d-flex align-items-center justify-content-center text-secondary fw-bold"
                                          style="width: 45px; height: 45px; font-size: 0.7rem;">
                                         Img
@@ -106,7 +90,6 @@
                                     @endif
                                 </div>
 
-                                {{-- Bagian Teks --}}
                                 <div class="flex-grow-1" style="min-width: 200px; max-width: 320px;">
                                     <span class="text-dark fw-semibold d-block"
                                         style="font-size: 0.95rem !important;
@@ -119,8 +102,9 @@
                                             word-wrap: break-word !important;">
                                         {{ $product->nama_produk }}
                                     </span>
+                                    <span class="badge bg-light border text-secondary mt-1">Diarsipkan</span>
                                     @if(!$product->is_visible)
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary">Disembunyikan</span>
+                                    <span class="badge bg-light text-secondary border mt-1">Hidden</span>
                                     @endif
                                 </div>
                             </div>
@@ -161,11 +145,12 @@
 
                         <td class="text-center no-row-navigation">
                             <div class="d-flex justify-content-center gap-2">
-                                <a href="{{ route('admin.products.edit', $product->id) }}"
-                                    class="btn-action btn-action-edit"
-                                    title="Edit">
-                                    <i class="fa-solid fa-pen-to-square"></i>
-                                </a>
+                                <form action="{{ route('admin.products.restore', $product->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn-action btn-action-edit" title="Restore" onclick="event.stopPropagation();">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </button>
+                                </form>
 
                                 <form action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="d-inline">
                                     @csrf
@@ -173,7 +158,7 @@
                                     <button type="button"
                                             class="btn-action btn-action-delete"
                                             title="Hapus"
-                                            onclick="handleDeleteProduk(this)">
+                                            onclick="event.stopPropagation(); handleDeleteProduk(this);">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>
@@ -185,7 +170,7 @@
                         <td colspan="7" class="text-center py-5">
                             <div class="d-flex flex-column align-items-center opacity-50">
                                 <i class="fa-solid fa-box-open fa-3x mb-3 text-muted"></i>
-                                <h6 class="text-muted">Belum ada data produk</h6>
+                                <h6 class="text-muted">Belum ada produk diarsipkan</h6>
                             </div>
                         </td>
                     </tr>
@@ -217,36 +202,33 @@
 @endpush
 
 @push('scripts')
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const input = document.querySelector('input[name="search"]');
     if (input) {
         input.focus();
         const length = input.value.length;
-        input.setSelectionRange(length, length); // kursor ke akhir
+        input.setSelectionRange(length, length);
     }
 });
 </script>
 
 <script>
-    // Fungsi Delete menggunakan sistem alert (nama berbeda untuk menghindari konflik)
     function handleDeleteProduk(button) {
         if (typeof window.confirmDelete === 'function') {
-            window.confirmDelete('Apakah Anda yakin ingin menghapus produk ini?', 'Konfirmasi Hapus')
+            window.confirmDelete('Apakah Anda yakin ingin menghapus produk ini secara permanen?', 'Konfirmasi Hapus')
                 .then((result) => {
                     if (result.isConfirmed) {
                         button.form.submit();
                     }
                 });
         } else {
-            if (confirm('Apakah Anda yakin ingin menghapus produk ini?')) {
+            if (confirm('Apakah Anda yakin ingin menghapus produk ini secara permanen?')) {
                 button.form.submit();
             }
         }
     }
 
-    // Export ke window
     window.handleDeleteProduk = handleDeleteProduk;
 </script>
 @endpush

@@ -254,7 +254,7 @@
                         <label class="form-label fw-medium small text-muted">Upload Logo Baru</label>
                         <input type="file" class="form-control form-control-sm" name="brand_logos" accept="image/png,image/jpeg,image/jpg,image/webp" data-max-bytes="2097152" data-max-label="2MB">
                         <div class="invalid-feedback">Ukuran file terlalu besar. Maksimal 2MB.</div>
-                        <div class="form-text text-muted" style="font-size: 0.75rem;">Format: PNG/JPG. Max: 2MB. Resolusi optimal: 240x120px (rasio 2:1).</div>
+                        <div class="form-text text-muted" style="font-size: 0.75rem;">Format: PNG/JPG. Max: 2MB. Resolusi optimal: 300x100px (rasio 3:1).</div>
                         @error('brand_logos') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 

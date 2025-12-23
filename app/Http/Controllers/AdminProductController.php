@@ -26,6 +26,7 @@ class AdminProductController extends Controller
     public function index(Request $request)
     {
         $query = Produk::with(['gambar', 'gambarUtama', 'kategori'])
+            ->where('is_archived', false)
             ->orderBy('updated_at', 'desc');
 
         // Search by nama produk or SKU
@@ -48,6 +49,8 @@ class AdminProductController extends Controller
 
         if ($sortBy === 'nama') {
             $query->orderBy('nama_produk', $sortOrder);
+        } elseif ($sortBy === 'nama_desc') {
+            $query->orderBy('nama_produk', 'desc');
         } else {
             $query->orderBy('updated_at', $sortOrder);
         }
@@ -90,7 +93,8 @@ class AdminProductController extends Controller
     public function photos(Request $request)
     {
         $query = Produk::with('kategori')
-            ->whereDoesntHave('gambar');
+            ->whereDoesntHave('gambar')
+            ->where('is_archived', false);
 
         if ($request->filled('search')) {
             $s = $request->input('search');
@@ -263,7 +267,7 @@ class AdminProductController extends Controller
     public function store(ProductStoreRequest $request)
     {
         try {
-            
+
             $product = $this->productService->createProduct(
                 $request->validated(),
                 $request->file('images', []),
@@ -288,6 +292,12 @@ class AdminProductController extends Controller
 
     public function edit(Produk $product)
     {
+        if ($product->is_archived) {
+            return redirect()
+                ->route('admin.products.show', $product->id)
+                ->withErrors(['error' => 'Produk diarsipkan. Kembalikan terlebih dahulu untuk mengedit.']);
+        }
+
         $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
         $product->load(['gambar', 'gambarUtama']);
 
@@ -299,6 +309,9 @@ class AdminProductController extends Controller
 
     public function update(ProductUpdateRequest $request, Produk $product)
     {
+        if ($product->is_archived) {
+            return back()->withErrors(['error' => 'Produk diarsipkan. Kembalikan terlebih dahulu untuk mengedit.']);
+        }
         try {
             $this->productService->updateProduct(
                 $product,
@@ -354,6 +367,69 @@ class AdminProductController extends Controller
         return redirect()
             ->route('admin.products.index')
             ->with('success', 'Produk berhasil dihapus.');
+    }
+
+    public function archive(Produk $product)
+    {
+        $product->update([
+            'is_archived' => true,
+            'is_visible' => false,
+        ]);
+
+        return back()->with('success', 'Produk berhasil diarsipkan. Produk disembunyikan dari katalog.');
+    }
+
+    public function archivedIndex(Request $request)
+    {
+        $query = Produk::with(['gambarUtama', 'kategori'])
+            ->where('is_archived', true)
+            ->orderBy('updated_at', 'desc');
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_produk', 'like', "%{$search}%")
+                    ->orWhere('kode_sku', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('kategori') && $request->input('kategori') !== 'all') {
+            $query->where('id_kategori', $request->input('kategori'));
+        }
+
+        $sortBy = $request->input('sort_by', 'updated_at');
+        $sortOrder = $request->input('sort_order', 'desc');
+
+        if ($sortBy === 'nama') {
+            $query->orderBy('nama_produk', $sortOrder);
+        } else {
+            $query->orderBy('updated_at', $sortOrder);
+        }
+
+        $products = $query->paginate(10)->withQueryString();
+        $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
+
+        return view('admin.dataProdukArchived', [
+            'products' => $products,
+            'semua_kategori' => $kategori,
+            'search_term' => $request->input('search', ''),
+            'selected_kategori' => $request->input('kategori', 'all'),
+            'sort_by' => $sortBy,
+            'sort_order' => $sortOrder,
+        ]);
+    }
+
+    public function restore($id)
+    {
+        $product = Produk::findOrFail($id);
+        $product->update([
+            'is_archived' => false,
+            'is_visible' => true,
+        ]);
+
+        return redirect()
+            ->route('admin.products.archived')
+            ->with('success', 'Produk berhasil di-restore.');
     }
 
     private function isForeignKeyConstraintViolation(QueryException $e): bool

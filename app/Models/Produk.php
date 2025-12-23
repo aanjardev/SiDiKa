@@ -22,6 +22,13 @@ class Produk extends Model
         'grade',
         'harga_beli',
         'harga_servis',
+        'is_visible',
+        'is_archived',
+    ];
+
+    protected $casts = [
+        'is_visible' => 'boolean',
+        'is_archived' => 'boolean',
     ];
 
     public function kategori()

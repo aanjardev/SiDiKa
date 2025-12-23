@@ -14,6 +14,15 @@ $backRoute = route('admin.products.index');
 <a href="{{ $backRoute }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" id="btnKembali">
     <i class="fas fa-arrow-left me-1"></i> Kembali
 </a>
+@if($isEdit && !($product->is_archived ?? false))
+<form id="archive-product-form" action="{{ route('admin.products.archive', $product->id) }}" method="POST" class="d-inline">
+    @csrf
+    <button type="button" id="archiveProductTrigger" class="btn btn-outline-danger btn-sm d-flex align-items-center gap-2">
+        <i class="fa-solid fa-box-archive"></i>
+        <span>Arsipkan</span>
+    </button>
+</form>
+@endif
 <button type="submit" form="product-form" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
     <i class="fa-solid fa-save"></i>
     <span>{{ $isEdit ? 'Simpan Perubahan' : 'Simpan Produk Baru' }}</span>
@@ -96,7 +105,7 @@ $backRoute = route('admin.products.index');
                         <textarea
                             class="form-control py-2 @error('deskripsi_produk') is-invalid @enderror"
                             name="deskripsi_produk"
-                            rows="5"
+                            rows="5" style="min-height:200px; font-size: 13px;"
                             placeholder="Tuliskan spesifikasi, kelengkapan, dan kondisi detail produk...">{{ old('deskripsi_produk', $isEdit ? $product->deskripsi_produk : '') }}</textarea>
                     </div>
                 </div>
@@ -298,6 +307,21 @@ $backRoute = route('admin.products.index');
                     </div>
                 </div>
 
+                {{-- Visibility --}}
+                <div class="form-check form-switch mt-4">
+                    <input type="hidden" name="is_visible" value="0">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        id="is_visible"
+                        name="is_visible"
+                        value="1"
+                        {{ old('is_visible', $isEdit ? $product->is_visible : 1) ? 'checked' : '' }}>
+                    <label class="form-check-label fw-semibold text-dark" for="is_visible">Tampilkan di katalog</label>
+                    {{-- <div class="text-muted small">Matikan jika produk mau disembunyikan tanpa menghapus data.</div> --}}
+                </div>
+
             </div>
         </div>
 
@@ -325,6 +349,20 @@ $backRoute = route('admin.products.index');
                     </div>
                 </div>
 
+                {{-- Harga Servis --}}
+                <div class="mb-0">
+                    <label class="form-label text-secondary small fw-medium">Biaya Servis (opsional)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
+                        <input
+                            type="text"
+                            class="form-control border-start-0 ps-2 py-2 rupiah-mask numeric-only"
+                            name="harga_servis"
+                            value="{{ old('harga_servis', $isEdit ? $product->harga_servis : '') }}"
+                            placeholder="0" maxlength="11">
+                    </div>
+                </div>
+
                 {{-- Harga Jual --}}
                 <div class="mb-3">
                     <label class="form-label text-secondary small fw-medium">Harga Jual</label>
@@ -339,19 +377,6 @@ $backRoute = route('admin.products.index');
                     </div>
                 </div>
 
-                {{-- Harga Servis --}}
-                <div class="mb-0">
-                    <label class="form-label text-secondary small fw-medium">Biaya Servis</label>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-end-0 text-muted">Rp</span>
-                        <input
-                            type="text"
-                            class="form-control border-start-0 ps-2 py-2 rupiah-mask numeric-only"
-                            name="harga_servis"
-                            value="{{ old('harga_servis', $isEdit ? $product->harga_servis : '') }}"
-                            placeholder="0" maxlength="11">
-                    </div>
-                </div>
 
             </div>
         </div>
@@ -361,6 +386,41 @@ $backRoute = route('admin.products.index');
     </div>
 
 </form>
+
+{{-- Modal Konfirmasi Arsip --}}
+@if($isEdit && !($product->is_archived ?? false))
+<div class="modal fade" id="archiveConfirmModal" tabindex="-1" aria-labelledby="archiveConfirmLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="archiveConfirmLabel">
+                    <i class="fa-solid fa-box-archive text-warning me-2"></i>Konfirmasi Arsip
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center text-warning mx-auto mb-3" style="width: 64px; height: 64px;">
+                        <i class="fa-solid fa-box-archive fa-lg"></i>
+                    </div>
+                    <h6 class="fw-semibold">Arsipkan produk ini?</h6>
+                    <p class="text-muted small mb-0">
+                        Produk akan disembunyikan dari katalog, daftar produk, dan pemilihan penjualan hingga di-restore.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer border-0 justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-times me-2"></i>Batal
+                </button>
+                <button type="button" id="archiveConfirmBtn" class="btn btn-danger">
+                    <i class="fa-solid fa-box-archive me-2"></i>Ya, Arsipkan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 
 @endsection
 
@@ -401,4 +461,26 @@ $existingPhotosData = ($isEdit && isset($product) && $product->photos)
     });
 </script>
 <script src="{{ asset('js/productImages.js') }}"></script>
+@if($isEdit && !($product->is_archived ?? false))
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const trigger = document.getElementById('archiveProductTrigger');
+        const form = document.getElementById('archive-product-form');
+        const modalEl = document.getElementById('archiveConfirmModal');
+        const confirmBtn = document.getElementById('archiveConfirmBtn');
+
+        if (!trigger || !form || !modalEl || !window.bootstrap) return;
+
+        const modal = new bootstrap.Modal(modalEl);
+        trigger.addEventListener('click', function (e) {
+            e.preventDefault();
+            modal.show();
+        });
+
+        confirmBtn?.addEventListener('click', function () {
+            form.submit();
+        });
+    });
+</script>
+@endif
 @endpush

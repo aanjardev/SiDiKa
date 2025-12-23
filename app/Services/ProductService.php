@@ -30,6 +30,8 @@ class ProductService
                 'deskripsi_produk' => $data['deskripsi_produk'] ?? null,
                 'status'           => $data['status'],
                 'grade'            => $data['grade'],
+                'is_visible'       => $data['is_visible'] ?? true,
+                'is_archived'      => false,
             ]);
 
             DB::commit();
@@ -71,6 +73,7 @@ class ProductService
                 'deskripsi_produk' => $data['deskripsi_produk'] ?? null,
                 'status'           => $data['status'],
                 'grade'            => $data['grade'],
+                'is_visible'       => $data['is_visible'] ?? true,
             ]);
 
             $removeIds = array_filter($removeImages, fn ($v) => !empty($v));

@@ -103,7 +103,9 @@ class PenjualanController extends Controller
         $sort_by = $request->input('sort_by', 'terbaru');
 
         // Query produk dengan filter
-        $query = Produk::with(['gambarUtama', 'kategori']);
+        $query = Produk::with(['gambarUtama', 'kategori'])
+            ->where('is_archived', false)
+            ->where('is_visible', true);
 
         // Filter Search (nama produk atau SKU)
         if ($search_term) {
@@ -176,7 +178,11 @@ class PenjualanController extends Controller
         }
 
         $productIds = collect($decoded)->pluck('id')->unique()->values()->all();
-        $products = Produk::with(['gambarUtama', 'gambar', 'kategori'])->whereIn('id', $productIds)->get();
+        $products = Produk::with(['gambarUtama', 'gambar', 'kategori'])
+            ->where('is_archived', false)
+            ->where('is_visible', true)
+            ->whereIn('id', $productIds)
+            ->get();
 
         $items = [];
         $total = 0;
@@ -223,6 +229,8 @@ class PenjualanController extends Controller
                 ->withErrors(['perusahaan_cabang_id' => 'Tidak ada cabang aktif. Aktifkan cabang terlebih dahulu sebelum membuat transaksi.']);
         }
         $daftar_produk = Produk::with(['gambarUtama', 'gambar'])
+            ->where('is_archived', false)
+            ->where('is_visible', true)
             ->orderBy('nama_produk', 'asc')
             ->get(['id', 'nama_produk', 'kode_sku', 'harga_jual', 'stok_produk']);
 
@@ -359,6 +367,8 @@ class PenjualanController extends Controller
             ->get();
 
         $daftar_produk = Produk::with(['gambarUtama', 'gambar'])
+            ->where('is_archived', false)
+            ->where('is_visible', true)
             ->orderBy('nama_produk', 'asc')
             ->get(['id', 'nama_produk', 'kode_sku', 'harga_jual', 'stok_produk'])
             ->keyBy('id');
@@ -532,7 +542,11 @@ class PenjualanController extends Controller
             return [[], 0, collect()];
         }
 
-        $products = Produk::whereIn('id', $productIds)->get()->keyBy('id');
+        $products = Produk::whereIn('id', $productIds)
+            ->where('is_archived', false)
+            ->where('is_visible', true)
+            ->get()
+            ->keyBy('id');
 
         $detailItems = [];
         $subtotal = 0;

@@ -14,7 +14,10 @@ class ProductController extends Controller
     public function show($id)
     {
         // Ambil produk dengan relasi gambar dan kategori
-        $produk = Produk::with(['gambar', 'kategori'])->findOrFail($id);
+        $produk = Produk::with(['gambar', 'kategori'])
+            ->where('is_visible', true)
+            ->where('is_archived', false)
+            ->findOrFail($id);
         $cat_setting = CatalogSettings::first();
 
         return view('product-detail', compact('produk', 'cat_setting'));
@@ -31,7 +34,9 @@ class ProductController extends Controller
         $sort = $request->query('sort', 'terbaru'); // Default sort: terbaru
 
         // Inisialisasi query produk
-        $query = Produk::with(['gambarUtama', 'kategori']);
+        $query = Produk::with(['gambarUtama', 'kategori'])
+            ->where('is_visible', true)
+            ->where('is_archived', false);
 
         // Filter pencarian
         if ($search) {

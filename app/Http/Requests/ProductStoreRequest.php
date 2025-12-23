@@ -24,6 +24,7 @@ class ProductStoreRequest extends FormRequest
             'deskripsi_produk' => ['nullable', 'string'],
             'status'           => ['required', 'in:Second,Baru'],
             'grade'            => ['required', 'in:Unggulan,Standar,Minus'],
+            'is_visible'       => ['required', 'boolean'],
             'images'           => ['nullable', 'array', 'min:1'],
             'images.*'         => ['image', 'max:5120'],
             'main_image'       => ['nullable', 'string'],

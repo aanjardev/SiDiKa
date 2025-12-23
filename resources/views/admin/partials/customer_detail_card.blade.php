@@ -32,7 +32,7 @@
             {{-- Nama --}}
             <div class="{{ $colClass }}">
                 <label class="form-label fw-semibold text-secondary small">Nama Lengkap <span class="text-danger">*</span></label>
-                <input type="text" class="form-control" name="nama" value="{{ old('nama', $pelanggan->nama ?? '') }}"
+                <input type="text" class="form-control" maxlength="50" name="nama" value="{{ old('nama', $pelanggan->nama ?? '') }}"
                     {{ isset($readOnly) && $readOnly ? 'readonly style=background-color:#f8f9fa;' : 'required' }}>
             </div>
 
@@ -73,7 +73,7 @@
             {{-- Alamat (Full Width) --}}
             <div class="col-12">
                 <label class="form-label fw-semibold text-secondary small">Alamat Lengkap</label>
-                <textarea class="form-control" name="alamat" rows="3" {{ isset($readOnly) && $readOnly ? 'readonly style=background-color:#f8f9fa;' : '' }}>{{ old('alamat', $pelanggan->alamat ?? '') }}</textarea>
+                <textarea class="form-control" name="alamat" rows="3" maxlength="100" {{ isset($readOnly) && $readOnly ? 'readonly style=background-color:#f8f9fa;' : '' }}>{{ old('alamat', $pelanggan->alamat ?? '') }}</textarea>
             </div>
 
             {{-- Keterangan (Full Width) --}}
