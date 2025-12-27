@@ -131,6 +131,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Transaksi
     Route::resource('/sales', PenjualanController::class)->names('sales');
     Route::resource('/purchases', PembelianController::class)->names('purchases');
+    Route::get('/sales/export/pdf', [PenjualanController::class, 'exportMonthlyPdf'])->name('sales.export.pdf');
+    Route::get('/sales/export/excel', [PenjualanController::class, 'exportMonthlyExcel'])->name('sales.export.excel');
+    Route::get('/purchases/export/pdf', [PembelianController::class, 'exportMonthlyPdf'])->name('purchases.export.pdf');
+    Route::get('/purchases/export/excel', [PembelianController::class, 'exportMonthlyExcel'])->name('purchases.export.excel');
     Route::post('/purchases/store-item-draft', [PembelianController::class, 'ajaxStoreItemDraft'])->name('purchases.ajaxStoreItemDraft');
     Route::put('/purchases/update-item-draft/{item_id}', [PembelianController::class, 'ajaxUpdateItemDraft'])->name('purchases.ajaxUpdateItemDraft');
     Route::delete('/purchases/delete-item-draft/{item_id}', [PembelianController::class, 'ajaxDeleteItemDraft'])->name('purchases.ajaxDeleteItemDraft');

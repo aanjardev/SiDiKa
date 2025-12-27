@@ -217,7 +217,7 @@
                         <label class="form-label fw-medium small text-muted">Upload Banner Baru</label>
                         <input type="file" class="form-control form-control-sm" name="banner" accept="image/png,image/jpeg,image/jpg,image/webp" data-max-bytes="4194304" data-max-label="4MB">
                         <div class="invalid-feedback">Ukuran file terlalu besar. Maksimal 4MB.</div>
-                        <div class="form-text text-muted" style="font-size: 0.75rem;">Format: JPG/PNG. Max: 4MB. Resolusi optimal: 1600x500px (rasio 16:5).</div>
+                        <div class="form-text text-muted" style="font-size: 0.75rem;">Format: JPG/PNG. Max: 4MB. Resolusi optimal: 700x300px (rasio 7:3).</div>
                         @error('banner') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 
