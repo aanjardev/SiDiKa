@@ -25,7 +25,7 @@ $setting = \App\Models\CatalogSettings::first();
       ]) -->
 
 
-    <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
+    <link rel="shortcut icon" href="{{ $setting?->logo_url ?? asset('mainIMG/logoDK.png') }}" type="image/png">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">

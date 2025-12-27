@@ -1,10 +1,13 @@
+@php
+    $setting = \App\Models\CatalogSettings::first();
+@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Auth | Dinoyo Kamera')</title>
-    <link rel="shortcut icon" href="{{ asset('mainIMG/logoDK.png') }}" type="image/png">
+    <link rel="shortcut icon" href="{{ $setting?->logo_url ?? asset('mainIMG/logoDK.png') }}" type="image/png">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -34,7 +37,7 @@
                 <div class="bg-content">
                     <div class="brand-container">
                         <div class="company-logo">
-                            <img src="{{ asset('mainIMG/logoDK.png') }}" alt="Dinoyo Kamera" class="logo-img">
+                            <img src="{{ $setting?->logo_url ?? asset('mainIMG/logoDK.png') }}" alt="{{ $setting?->nama_website ?? 'Dinoyo Kamera' }}" class="logo-img">
                         </div>
                         <div class="brand-text">
                             <h1 class="company-name">SiDiKa</h1>
