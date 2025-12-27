@@ -12,6 +12,10 @@ use App\Models\Customer;
 use App\Models\Branch as PerusahaanCabang;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Validation\Rule;
+use App\Exports\SalesMonthlyExport;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Str;
 
 class PenjualanController extends Controller
 {
@@ -607,5 +611,87 @@ class PenjualanController extends Controller
         $pdf = Pdf::loadView('admin.notaPenjualan', $data)->setPaper('A4', 'portrait');
 
         return $pdf->stream('Nota_Penjualan_'.$penjualan->kode_transaksi.'.pdf');
+    }
+
+    public function exportMonthlyPdf(Request $request)
+    {
+        $validated = $request->validate([
+            'month' => 'required|date_format:Y-m',
+            'cabang' => 'nullable|integer',
+        ]);
+
+        $start = Carbon::createFromFormat('Y-m', $validated['month'])->startOfMonth();
+        $end = Carbon::createFromFormat('Y-m', $validated['month'])->endOfMonth();
+
+        $query = Penjualan::with(['customer', 'perusahaan_cabang', 'detail_penjualan.produk'])
+            ->whereBetween('created_at', [$start, $end]);
+
+        $branchLabel = 'Semua Cabang';
+        $branchSlug = 'semua-cabang';
+        if (!empty($validated['cabang'])) {
+            $query->where('perusahaan_cabang_id', $validated['cabang']);
+            $branch = PerusahaanCabang::find($validated['cabang']);
+            if ($branch) {
+                $branchLabel = $branch->nama;
+                $branchSlug = Str::slug($branch->nama);
+            }
+        }
+
+        $rows = $query->orderBy('created_at')->get();
+
+        $totalNominal = $rows->sum(function ($sale) {
+            $fallbackTotal = $sale->detail_penjualan->sum(function ($detail) {
+                return (int) ($detail->qty ?? 0) * (int) ($detail->harga_jual_satuan ?? 0);
+            });
+            return ($sale->harga_total ?? 0) > 0 ? $sale->harga_total : $fallbackTotal;
+        });
+
+        $totalHpp = $rows->sum(function ($sale) {
+            return $sale->detail_penjualan->sum(function ($detail) {
+                $hargaBeli = (int) ($detail->produk->harga_beli ?? 0);
+                $hargaServis = (int) ($detail->produk->harga_servis ?? 0);
+                return (int) ($detail->qty ?? 0) * ($hargaBeli + $hargaServis);
+            });
+        });
+
+        $pdf = Pdf::loadView('admin.exports.sales-monthly', [
+            'rows' => $rows,
+            'period' => $start->format('F Y'),
+            'totalNominal' => $totalNominal,
+            'totalHpp' => $totalHpp,
+            'branchLabel' => $branchLabel,
+        ])->setPaper('A4', 'landscape');
+
+        $filename = 'Laporan_Penjualan_' . $start->format('Y_m') . '_' . $branchSlug . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    public function exportMonthlyExcel(Request $request)
+    {
+        $validated = $request->validate([
+            'month' => 'required|date_format:Y-m',
+            'cabang' => 'nullable|integer',
+        ]);
+
+        $start = Carbon::createFromFormat('Y-m', $validated['month'])->startOfMonth();
+        $end = Carbon::createFromFormat('Y-m', $validated['month'])->endOfMonth();
+
+        $query = Penjualan::with(['customer', 'perusahaan_cabang', 'detail_penjualan'])
+            ->whereBetween('created_at', [$start, $end]);
+
+        $branchSlug = 'semua-cabang';
+        if (!empty($validated['cabang'])) {
+            $query->where('perusahaan_cabang_id', $validated['cabang']);
+            $branch = PerusahaanCabang::find($validated['cabang']);
+            if ($branch) {
+                $branchSlug = Str::slug($branch->nama);
+            }
+        }
+
+        $rows = $query->orderBy('created_at')->get();
+        $filename = 'Laporan_Penjualan_' . $start->format('Y_m') . '_' . $branchSlug . '.xlsx';
+
+        return Excel::download(new SalesMonthlyExport($rows), $filename);
     }
 }

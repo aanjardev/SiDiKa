@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Validator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use App\Exports\PurchasesMonthlyExport;
+use Carbon\Carbon;
+use Maatwebsite\Excel\Facades\Excel;
 
 
 class PembelianController extends Controller
@@ -67,7 +70,7 @@ class PembelianController extends Controller
             'sort_filter' => $sort,
             'semua_cabang' => $semua_cabang,
             'filter_cabang' => $filterCabang,
-            
+
         ];
 
         // LOGIKA BARU UNTUK AJAX: RENDERING LANGSUNG
@@ -578,5 +581,97 @@ class PembelianController extends Controller
                 'message' => 'Gagal menghapus item: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function exportMonthlyPdf(Request $request)
+    {
+        $validated = $request->validate([
+            'month' => 'required|date_format:Y-m',
+            'cabang' => 'nullable|integer',
+            'status' => 'nullable|string',
+        ]);
+
+        $start = Carbon::createFromFormat('Y-m', $validated['month'])->startOfMonth();
+        $end = Carbon::createFromFormat('Y-m', $validated['month'])->endOfMonth();
+
+        $query = Pembelian::with(['customer', 'perusahaan_cabang', 'item_pembelian_draft'])
+            ->whereBetween('created_at', [$start, $end]);
+
+        $branchLabel = 'Semua Cabang';
+        $branchSlug = 'semua-cabang';
+        if (!empty($validated['cabang'])) {
+            $query->where('perusahaan_cabang_id', $validated['cabang']);
+            $branch = Branch::find($validated['cabang']);
+            if ($branch) {
+                $branchLabel = $branch->nama;
+                $branchSlug = Str::slug($branch->nama);
+            }
+        }
+
+        if (!empty($validated['status']) && $validated['status'] !== 'semua') {
+            $query->where('status_pembelian', $validated['status']);
+        }
+
+        $rows = $query->orderBy('created_at')->get();
+        $totalDeal = $rows->sum(function ($purchase) {
+            return (int) ($purchase->harga_deal ?? 0);
+        });
+        $totalItemDeal = $rows->sum(function ($purchase) {
+            if (($purchase->status_pembelian ?? null) !== 'deal') {
+                return 0;
+            }
+            return $purchase->item_pembelian_draft->sum(function ($item) {
+                return (int) ($item->qty ?? 0);
+            });
+        });
+        $totalTransaksiDeal = $rows->where('status_pembelian', 'deal')->count();
+        $totalTransaksiNoDeal = $rows->where('status_pembelian', 'tidak_deal')->count();
+
+        $pdf = Pdf::loadView('admin.exports.purchases-monthly', [
+            'rows' => $rows,
+            'period' => $start->format('F Y'),
+            'totalDeal' => $totalDeal,
+            'totalItemDeal' => $totalItemDeal,
+            'totalTransaksiDeal' => $totalTransaksiDeal,
+            'totalTransaksiNoDeal' => $totalTransaksiNoDeal,
+            'branchLabel' => $branchLabel,
+        ])->setPaper('A4', 'landscape');
+
+        $filename = 'Laporan_Pembelian_' . $start->format('Y_m') . '_' . $branchSlug . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    public function exportMonthlyExcel(Request $request)
+    {
+        $validated = $request->validate([
+            'month' => 'required|date_format:Y-m',
+            'cabang' => 'nullable|integer',
+            'status' => 'nullable|string',
+        ]);
+
+        $start = Carbon::createFromFormat('Y-m', $validated['month'])->startOfMonth();
+        $end = Carbon::createFromFormat('Y-m', $validated['month'])->endOfMonth();
+
+        $query = Pembelian::with(['customer', 'perusahaan_cabang', 'item_pembelian_draft'])
+            ->whereBetween('created_at', [$start, $end]);
+
+        $branchSlug = 'semua-cabang';
+        if (!empty($validated['cabang'])) {
+            $query->where('perusahaan_cabang_id', $validated['cabang']);
+            $branch = Branch::find($validated['cabang']);
+            if ($branch) {
+                $branchSlug = Str::slug($branch->nama);
+            }
+        }
+
+        if (!empty($validated['status']) && $validated['status'] !== 'semua') {
+            $query->where('status_pembelian', $validated['status']);
+        }
+
+        $rows = $query->orderBy('created_at')->get();
+        $filename = 'Laporan_Pembelian_' . $start->format('Y_m') . '_' . $branchSlug . '.xlsx';
+
+        return Excel::download(new PurchasesMonthlyExport($rows), $filename);
     }
 }

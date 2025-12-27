@@ -1156,7 +1156,7 @@ footer a:hover {
                     <div class="submenu-item">
                         <a href="{{ route('admin.permissions') }}" class="submenu-link">
                             <i class="fas fa-user-shield submenu-icon"></i>
-                            <span>Manajemen Hak Akses</span>
+                            <span>Manajemen Akses</span>
                         </a>
                     </div>
                     @endif

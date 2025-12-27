@@ -29,6 +29,10 @@
     <i class="fas fa-plus fa-fw"></i>
     <span>Tambah Pembelian</span>
 </a>
+<button type="button" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#exportPurchasesModal">
+    <i class="fa-solid fa-file-export"></i>
+    <span>Export</span>
+</button>
 @endpush
 
 @section('content')
@@ -222,6 +226,61 @@
 </div>
 @endsection
 
+<div class="modal fade" id="exportPurchasesModal" tabindex="-1" aria-labelledby="exportPurchasesModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="exportPurchasesForm" method="GET" action="{{ route('admin.purchases.export.pdf') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exportPurchasesModalLabel">Export Pembelian Bulanan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Periode</label>
+                        <div class="d-flex gap-2">
+                            @php
+                                $currentYear = now()->year;
+                                $currentMonth = (int) now()->format('m');
+                            @endphp
+                            <select id="export-purchases-year" class="form-select" required>
+                                @for ($year = $currentYear; $year >= $currentYear - 5; $year--)
+                                    <option value="{{ $year }}">{{ $year }}</option>
+                                @endfor
+                            </select>
+                            <select id="export-purchases-month" class="form-select" required>
+                                @for ($month = 1; $month <= 12; $month++)
+                                    <option value="{{ str_pad($month, 2, '0', STR_PAD_LEFT) }}" {{ $month === $currentMonth ? 'selected' : '' }}>
+                                        {{ \Carbon\Carbon::createFromDate(null, $month, 1)->translatedFormat('F') }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+                        <input type="hidden" name="month" id="export-purchases-period" value="{{ now()->format('Y-m') }}">
+                    </div>
+                    <div class="mb-3">
+                        <label for="export-purchases-cabang" class="form-label">Cabang</label>
+                        <select id="export-purchases-cabang" name="cabang" class="form-select">
+                            <option value="">Semua Cabang</option>
+                            @foreach ($semua_cabang ?? [] as $cab)
+                                <option value="{{ $cab->id }}">{{ $cab->nama }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <input type="hidden" name="status" id="export-purchases-status" value="">
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-outline-danger" data-export-type="pdf">
+                        <i class="fa-solid fa-file-pdf me-1"></i> PDF
+                    </button>
+                    <button type="submit" class="btn btn-outline-success" data-export-type="excel">
+                        <i class="fa-solid fa-file-excel me-1"></i> Excel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @push('scripts')
 
 <script>
@@ -253,6 +312,62 @@ document.addEventListener('DOMContentLoaded', function () {
                 ignoreSelector: '.no-row-navigation',
                 urlFrom: (row) => row.dataset.detailUrl,
             },
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const exportForm = document.getElementById('exportPurchasesForm');
+        const cabangInput = document.getElementById('export-purchases-cabang');
+        const statusInput = document.getElementById('export-purchases-status');
+        const cabangSelect = document.getElementById('filter-cabang');
+        const statusSelect = document.getElementById('filter-status');
+        const yearSelect = document.getElementById('export-purchases-year');
+        const monthSelect = document.getElementById('export-purchases-month');
+        const periodInput = document.getElementById('export-purchases-period');
+
+        if (cabangInput && cabangSelect) {
+            cabangInput.value = cabangSelect.value || '';
+            cabangSelect.addEventListener('change', function() {
+                cabangInput.value = this.value || '';
+            });
+        }
+
+        if (statusInput && statusSelect) {
+            statusInput.value = statusSelect.value || 'semua';
+            statusSelect.addEventListener('change', function() {
+                statusInput.value = this.value || 'semua';
+            });
+        }
+
+        function syncPeriod() {
+            if (!periodInput || !yearSelect || !monthSelect) {
+                return;
+            }
+            periodInput.value = `${yearSelect.value}-${monthSelect.value}`;
+        }
+
+        if (yearSelect && monthSelect) {
+            syncPeriod();
+            yearSelect.addEventListener('change', syncPeriod);
+            monthSelect.addEventListener('change', syncPeriod);
+        }
+
+        exportForm.addEventListener('submit', function(event) {
+            const target = event.submitter;
+            if (!target) {
+                return;
+            }
+            if (target.dataset.exportType === 'excel') {
+                exportForm.action = "{{ route('admin.purchases.export.excel') }}";
+            } else {
+                exportForm.action = "{{ route('admin.purchases.export.pdf') }}";
+            }
+            const modalElement = document.getElementById('exportPurchasesModal');
+            if (modalElement && window.bootstrap) {
+                const modalInstance = window.bootstrap.Modal.getInstance(modalElement) || new window.bootstrap.Modal(modalElement);
+                modalInstance.hide();
+            }
         });
     });
 </script>
