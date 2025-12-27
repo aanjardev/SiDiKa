@@ -21,6 +21,20 @@
         opacity: 0.8;
         text-decoration: underline !important;
     }
+
+    @media (min-width: 992px) {
+        .purchase-table-responsive {
+            overflow-x: visible;
+        }
+        .purchase-table-fixed {
+            table-layout: fixed;
+        }
+        .purchase-table-fixed th,
+        .purchase-table-fixed td {
+            white-space: normal;
+            word-break: break-word;
+        }
+    }
 </style>
 @endpush
 
@@ -97,8 +111,8 @@
 <div id="purchase-list-container">
     <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-modern mb-0">
+            <div class="table-responsive purchase-table-responsive">
+                <table class="table table-modern mb-0 purchase-table-fixed">
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 5%;">No</th>

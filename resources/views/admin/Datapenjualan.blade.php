@@ -2,6 +2,24 @@
 
 @section('title', 'Data Penjualan')
 
+@push('styles')
+<style>
+    @media (min-width: 992px) {
+        .sales-table-responsive {
+            overflow-x: visible;
+        }
+        .sales-table-fixed {
+            table-layout: fixed;
+        }
+        .sales-table-fixed th,
+        .sales-table-fixed td {
+            white-space: normal;
+            word-break: break-word;
+        }
+    }
+</style>
+@endpush
+
 @push('page-actions')
 <a href="{{ route('admin.sales.create') }}" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
     <i class="fas fa-plus fa-fw"></i>
@@ -62,8 +80,8 @@
 <div id="sales-list-container">
     <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
         <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-modern mb-0">
+            <div class="table-responsive sales-table-responsive">
+                <table class="table table-modern mb-0 sales-table-fixed">
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 5%;">No</th>
