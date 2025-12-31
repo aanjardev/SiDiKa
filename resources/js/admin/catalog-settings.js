@@ -54,9 +54,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Logic penghapusan banner / partner
+    // Logic penghapusan banner / partner / gallery
     const partnerRouteTemplate = form.dataset.routePartnerDestroy;
     const bannerRouteTemplate = form.dataset.routeBannerDestroy;
+    const galleryRouteTemplate = form.dataset.routeGalleryDestroy;
 
     const pushUnique = (arr, value) => {
         if (!arr.includes(value)) arr.push(value);
@@ -64,6 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let deletedPartnersArr = [];
     let deletedBannersArr = [];
+    let deletedGalleriesArr = [];
 
     document.addEventListener('click', (e) => {
         const btn = e.target.closest('.btn-remove');
@@ -72,10 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         e.stopPropagation();
 
-        const row = btn.closest('tr');
-        const id = row?.getAttribute('data-id');
-        const type = row?.getAttribute('data-type');
-        if (!row || !id || !type) return;
+        const container = btn.closest('[data-id][data-type]');
+        const id = container?.getAttribute('data-id');
+        const type = container?.getAttribute('data-type');
+        if (!container || !id || !type) return;
 
         const confirmFn = typeof window.confirmDelete === 'function'
             ? window.confirmDelete
@@ -85,10 +87,11 @@ document.addEventListener('DOMContentLoaded', () => {
             .then((result) => {
                 if (!result?.isConfirmed) return;
 
-                const urlMap = {
-                    partner: partnerRouteTemplate,
-                    banner: bannerRouteTemplate,
-                };
+        const urlMap = {
+            partner: partnerRouteTemplate,
+            banner: bannerRouteTemplate,
+            gallery: galleryRouteTemplate,
+        };
                 const endpointTemplate = urlMap[type];
                 if (!endpointTemplate) return;
                 const finalUrl = endpointTemplate.replace(':id', id);
@@ -103,11 +106,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     pushUnique(deletedBannersArr, id);
                     const field = document.getElementById('deletedBanners');
                     if (field) field.value = JSON.stringify(deletedBannersArr);
+                } else if (type === 'gallery') {
+                    pushUnique(deletedGalleriesArr, id);
+                    const field = document.getElementById('deletedGalleries');
+                    if (field) field.value = JSON.stringify(deletedGalleriesArr);
                 }
 
-                row.style.transition = 'all 0.3s';
-                row.style.opacity = '0';
-                setTimeout(() => row.remove(), 300);
+                container.style.transition = 'all 0.3s';
+                container.style.opacity = '0';
+                setTimeout(() => container.remove(), 300);
 
                 if (form) {
                     form.requestSubmit();

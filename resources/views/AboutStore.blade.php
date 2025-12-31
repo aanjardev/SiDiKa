@@ -1,45 +1,191 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tentang Kami - {{ $cat_setting->nama_website}}</title>
-    <link rel="shortcut icon" href="{{ $cat_setting?->logo_url ?? asset('mainIMG/logoDK.png') }}" type="image/png">
+@extends('layouts.customer')
 
+@section('title', 'Tentang Kami - ' . ($cat_setting->nama_website ?? 'Dinoyo Kamera'))
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
-    <!-- Styles -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/AboutStore.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body>
-    <!-- Navigation -->
-    @include('partials.header')
+    <style>
+        .hero-section {
+            position: relative;
+            background: url("{{ asset('mAboutIMG/about.avif') }}") center/cover no-repeat;
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .hero-section::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.699);
+            z-index: 0;
+        }
+
+        .hero-section > .container {
+            position: relative;
+            z-index: 1;
+        }
+
+        .customer-gallery {
+            position: relative;
+            overflow: hidden;
+            height: 340px;
+            display: flex;
+            align-items: center;
+        }
+
+        .customer-gallery-track {
+            display: flex;
+            transition: transform 0.6s ease;
+            will-change: transform;
+            align-items: center;
+        }
+
+        .customer-gallery-item {
+            flex: 0 0 220px;
+            padding: 0 8px;
+            transition: transform 0.4s ease, opacity 0.4s ease, flex-basis 0.4s ease;
+            opacity: 0.55;
+        }
+
+        .customer-gallery-item.is-active {
+            flex-basis: 235px;
+            transform: scale(1.01);
+            opacity: 1;
+
+        }
+
+        .customer-gallery-frame {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 10px;
+            background: #f8f9fa;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            overflow: hidden; /* Pastikan ini ada */
+
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            will-change: transform;
+            padding: 6px;
+            box-sizing: border-box;
+        }
+
+        .customer-gallery-item.is-active .customer-gallery-frame {
+            transform: scale(1.01);
+            padding: 8px;
+            transform-origin: center;
+            translate: 0 -6px;
+        }
+
+        .customer-gallery-media {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            /* Tambahkan ini untuk memaksa clipping */
+            isolation: isolate;
+            -webkit-mask-image: -webkit-radial-gradient(white, black);
+
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            outline: 1px solid transparent;
+        }
+
+        .customer-gallery-item.is-active .customer-gallery-media {
+            transform: scale(1.04);
+        }
+
+        .customer-gallery-controls {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            pointer-events: none;
+        }
+
+        .customer-gallery-btn {
+            pointer-events: auto;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #1f2a37;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .customer-gallery-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.16);
+        }
+
+        .customer-gallery-btn:focus-visible {
+            outline: 2px solid #1f2a37;
+            outline-offset: 3px;
+        }
+
+        .customer-gallery-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 10px;
+            outline: 1px solid transparent;
+            transform: translateZ(0);
+        }
+
+        @media (min-width: 992px) {
+            .customer-gallery-item {
+                flex-basis: 260px;
+            }
+
+            .customer-gallery-item.is-active {
+                flex-basis: 280px;
+            }
+
+            .customer-gallery {
+                height: 380px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .customer-gallery-item {
+                flex-basis: 180px;
+            }
+
+            .customer-gallery-item.is-active {
+                flex-basis: 200px;
+            }
+
+            .customer-gallery {
+                height: 280px;
+            }
+        }
+    </style>
+@endpush
+
+@section('content')
 
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6" data-aos="fade-right">
+            <div class="row align-items-center justify-content-center text-center">
+                <div class="col-lg-10 col-xl-8" data-aos="fade-up">
                     <h1 class="hero-title">
                         {{ $cat_setting->nama_website}}
-                        Passion Fotografi Anda
                     </h1>
-                    <p class="hero-description">Kami adalah destinasi terpercaya untuk semua kebutuhan fotografi Anda. Dengan pengalaman lebih dari 10 tahun, kami menyediakan peralatan berkualitas dan layanan profesional untuk membantu mewujudkan visi kreatif Anda.</p>
-                    <div class="d-flex gap-3 py-3">
+                    <p class="hero-description">
+                        {{ $cat_setting->description ?? 'Kami adalah destinasi terpercaya untuk semua kebutuhan fotografi Anda. Dengan pengalaman lebih dari 10 tahun, kami menyediakan peralatan berkualitas dan layanan profesional untuk membantu mewujudkan visi kreatif Anda.' }}
+                    </p>
+                    <div class="d-flex justify-content-center gap-3 py-3">
                         <a href="#about" class="btn btn-primary" style="background-color: var(--secondary-color); border: none;">Pelajari Lebih Lanjut</a>
-                        <a href="#contact" class="btn btn-outline-light">Hubungi Kami</a>
+                        <a href="/contact" class="btn btn-outline-light">Hubungi Kami</a>
                     </div>
-                </div>
-                <div class="col-lg-6" data-aos="fade-left">
-                    <img src="https://i.pinimg.com/736x/80/66/bf/8066bf936d8d61b7512c815e2f7bdcc5.jpg" alt="Camera equipment" class="img-fluid rounded-4 shadow-lg">
                 </div>
             </div>
         </div>
@@ -130,91 +276,167 @@
                     <div class="col-md-4" data-aos="fade-up">
                         <div class="feature-card text-center">
                             <div class="feature-icon">
-                                <i class="bi bi-camera"></i>
+                                <i class="bi bi-arrow-down-circle"></i>
                             </div>
-                            <h3 class="h5 mb-3">Peralatan Berkualitas</h3>
-                            <p class="text-muted">Kami menyediakan berbagai peralatan fotografi berkualitas tinggi untuk memenuhi kebutuhan Anda.</p>
+                            <h3 class="h5 mb-3">Pembelian Kamera</h3>
+                            <p class="text-muted">Punya kamera bekas yang jarang dipakai? Jual aja ke Dinoyo Kamera! Proses cepat, penilaian jujur & transparan, dan uang langsung cair tanpa ribet.</p>
                         </div>
                     </div>
                     <div class="col-md-4" data-aos="fade-up">
                         <div class="feature-card text-center">
                             <div class="feature-icon">
-                                <i class="bi bi-gear-fill"></i>
+                                <i class="bi bi-cart-check"></i>
                             </div>
-                            <h3 class="h5 mb-3">Layanan Tambahan</h3>
-                            <p class="text-muted">Layanan tambahan seperti rental kamera, jasa servis, konsultasi perlengkapan, dan pelatihan dasar fotografi untuk pemula hingga profesional.</p>
+                            <h3 class="h5 mb-3">Penjualan Kamera</h3>
+                            <p class="text-muted">Cari kamera atau aksesoris? Di Dinoyo Kamera ada banyak pilihan kamera baru & bekas berkualitas. Kondisi terjamin, siap nemenin setiap momen terbaikmu.</p>
                         </div>
                     </div>
                     <div class="col-md-4" data-aos="fade-up">
                         <div class="feature-card text-center">
                             <div class="feature-icon">
-                                <i class="bi bi-people-fill"></i>
+                                <i class="bi bi-tools"></i>
                             </div>
-                            <h3 class="h5 mb-3">Tim Berpengalaman</h3>
-                            <p class="text-muted">Tim kami yang ramah dan berpengalaman selalu berkomitmen memberikan produk dan layanan terbaik untuk passion Anda dalam dunia visual.</p>
+                            <h3 class="h5 mb-3">Servis Kamera</h3>
+                            <p class="text-muted">Kamera bermasalah? Tenang! Bawa ke Dinoyo Kamera dan biarkan teknisi profesional kami yang menangani. Dicek dengan teliti, dijelasin dengan jelas, dan siap dipakai lagi.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- Testimonial Section -->
-        <section class="py-5" id="testimonials">
-            <div class="container">
+        @if ($gallery->isNotEmpty())
+        <section class="py-5" id="gallery">
+            <div class="container mb-5">
                 <div class="text-center mb-5">
-                    <p class="section-subtitle" data-aos="fade-up">Testimoni</p>
-                    <h2 class="section-title" data-aos="fade-up" data-aos-delay="100">Apa Kata Mereka?</h2>
+                    <p class="section-subtitle" data-aos="fade-up">Galeri Customer</p>
+                    <h2 class="section-title" data-aos="fade-up" data-aos-delay="100">Momen Bersama Dinoyo Kamera</h2>
                 </div>
-                <div class="row g-4">
-                    <div class="col-md-4" data-aos="fade-up">
-                        <div class="testimonial-card text-center">
-                            <img src="https://images.pexels.com/photos/21852309/pexels-photo-21852309/free-photo-of-pria-laki-laki-lelaki-kedudukan.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" alt="Customer" class="testimonial-img rounded-circle mx-auto">
-                            <h4 class="h5 mb-3">Ferdiansyah</h4>
-                            <p class="text-muted">"Pelayanan di {{ $cat_setting->nama_website}} sangat memuaskan! Tim mereka sangat membantu dalam memilih peralatan yang tepat."</p>
-                        </div>
+                <div class="customer-gallery">
+                    <div class="customer-gallery-track" id="customerGalleryTrack">
+                        @foreach ($gallery as $index => $item)
+                            <div class="customer-gallery-item {{ $index === 0 ? 'is-active' : '' }}">
+                                <div class="customer-gallery-frame">
+                                    <div class="customer-gallery-media">
+                                        <img src="{{ $item->url }}" alt="Galeri customer {{ $index + 1 }}">
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
                     </div>
-                    <div class="col-md-4" data-aos="fade-up">
-                        <div class="testimonial-card text-center">
-                            <img src="https://static.promediateknologi.id/crop/0x0:0x0/750x500/webp/photo/p1/983/2024/11/16/unnamed-355406532.png" alt="Customer" class="testimonial-img rounded-circle mx-auto">
-                            <h4 class="h5 mb-3">Rosul</h4>
-                            <p class="text-muted">"Saya menyewa kamera untuk proyek fotografi dan sangat puas dengan kondisi peralatannya. Harga sewa juga terjangkau, dan stafnya ramah sekali!"</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4" data-aos="fade-up">
-                        <div class="testimonial-card text-center">
-                            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRDLcaoMqauKXsMZwJOio8tds2bjfB3WK3HnQ&s" alt="Customer" class="testimonial-img rounded-circle mx-auto">
-                            <h4 class="h5 mb-3">Imtiaz Hussain</h4>
-                            <p class="text-muted">"{{ $cat_setting->nama_website}} adalah tempat terbaik untuk servis kamera di Malang. Kamera saya yang bermasalah jadi seperti baru lagi setelah diperbaiki di sini."</p>
-                        </div>
+                    <div class="customer-gallery-controls">
+                        <button type="button" class="customer-gallery-btn" id="customerGalleryPrev" aria-label="Geser ke kiri">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <button type="button" class="customer-gallery-btn" id="customerGalleryNext" aria-label="Geser ke kanan">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
                     </div>
                 </div>
             </div>
         </section>
+        @endif
 
-        <!-- CTA Section -->
-        <section class="about-banner" id="contact">
-            <div class="about-banner-content">
-                <div class="container text-center">
-                    <h2 class="display-4 fw-bold mb-4" data-aos="fade-up">Siap Memulai Perjalanan Fotografi Anda?</h2>
-                    <p class="lead mb-5" data-aos="fade-up" data-aos-delay="100">Hubungi kami sekarang untuk konsultasi gratis dan temukan solusi terbaik untuk kebutuhan fotografi Anda.</p>
-                    <a href="/contact"  class="btn btn-primary btn-lg" style="background-color: var(--secondary-color); border: none;" data-aos="fade-up" data-aos-delay="200">Mulai Sekarang</a>
-                </div>
-            </div>
-        </section>
+
     </main>
-
-    <!-- Footer -->
-    @include('partials.footer')
-    @include('partials.floating-wa')
 
     <!-- Back to Top -->
     <button id="backToTop" class="btn">
         <i class="bi bi-arrow-up"></i>
     </button>
 
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+@endsection
+
+@push('scripts')
     <script src="{{ asset('js/about.js') }}"></script>
-</body>
-</html>
+    @if ($gallery->isNotEmpty())
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const track = document.getElementById('customerGalleryTrack');
+            if (!track) return;
+
+            const originalItems = Array.from(track.querySelectorAll('.customer-gallery-item'));
+            if (originalItems.length === 0) return;
+
+            const prevButton = document.getElementById('customerGalleryPrev');
+            const nextButton = document.getElementById('customerGalleryNext');
+
+            const cloneCount = Math.min(originalItems.length, 6);
+            const prependClones = originalItems.slice(-cloneCount).map(item => {
+                const clone = item.cloneNode(true);
+                clone.classList.add('is-clone');
+                return clone;
+            });
+            const appendClones = originalItems.slice(0, cloneCount).map(item => {
+                const clone = item.cloneNode(true);
+                clone.classList.add('is-clone');
+                return clone;
+            });
+
+            prependClones.forEach(clone => track.prepend(clone));
+            appendClones.forEach(clone => track.appendChild(clone));
+
+            const items = Array.from(track.querySelectorAll('.customer-gallery-item'));
+
+            let activeIndex = cloneCount;
+            let isAnimating = false;
+            let autoTimer = null;
+
+            const setPosition = (animate = true) => {
+                track.style.transition = animate ? 'transform 0.6s ease' : 'none';
+                const itemWidth = items[0].getBoundingClientRect().width;
+                const offset = (track.parentElement.getBoundingClientRect().width / 2) - (itemWidth / 2) - (activeIndex * itemWidth);
+                track.style.transform = `translateX(${offset}px)`;
+            };
+
+            const updateGallery = (animate = true) => {
+                items.forEach((item, index) => {
+                    item.classList.toggle('is-active', index === activeIndex);
+                });
+
+                setPosition(animate);
+            };
+
+            const goTo = (direction) => {
+                if (isAnimating) return;
+                isAnimating = true;
+                activeIndex += direction;
+                updateGallery(true);
+            };
+
+            const startAuto = () => {
+                if (autoTimer) clearInterval(autoTimer);
+                autoTimer = setInterval(() => {
+                    goTo(1);
+                }, 3000);
+            };
+
+            track.addEventListener('transitionend', () => {
+                isAnimating = false;
+                const maxIndex = items.length - cloneCount;
+                if (activeIndex >= maxIndex) {
+                    activeIndex = cloneCount;
+                    updateGallery(false);
+                }
+                if (activeIndex < cloneCount) {
+                    activeIndex = items.length - (cloneCount * 2);
+                    updateGallery(false);
+                }
+            });
+
+            prevButton?.addEventListener('click', () => {
+                goTo(-1);
+                startAuto();
+            });
+
+            nextButton?.addEventListener('click', () => {
+                goTo(1);
+                startAuto();
+            });
+
+            updateGallery(false);
+            startAuto();
+            window.addEventListener('resize', () => updateGallery(false));
+        });
+    </script>
+    @endif
+@endpush

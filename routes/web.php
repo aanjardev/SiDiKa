@@ -76,6 +76,7 @@ Route::get('/test-auth', function() {
 
 
 Route::get("/katalog", [ProductController::class, "index"])->name('product.index');
+Route::get("/katalog/suggest", [ProductController::class, "suggest"])->name('product.suggest');
 Route::get("/katalog/{id}", [ProductController::class, "show"])->name('product.show');
 // Route::resource('admin', AdminProductController::class);
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -151,6 +152,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/catalog-settings', [CatalogSettingsController::class, 'update'])->name('catalog-settings.update');
     Route::delete('/catalog-settings/banner/{id}', [CatalogSettingsController::class, 'destroyBanner'])->name('catalog-settings.banner.destroy');
     Route::delete('/catalog-settings/partner/{id}', [CatalogSettingsController::class, 'destroyPartner'])->name('catalog-settings.partner.destroy');
+    Route::delete('/catalog-settings/gallery/{id}', [CatalogSettingsController::class, 'destroyGallery'])->name('catalog-settings.gallery.destroy');
     Route::get('/promotions', function () { return view('admin.promotions'); })->name('promotions');
     
     // Smart Stock Analysis

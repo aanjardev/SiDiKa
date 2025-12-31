@@ -1,31 +1,13 @@
-@php
-$setting = \App\Models\CatalogSettings::first();
-@endphp
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Katalog Produk - Dinoyo Kamera</title>
-    <link rel="shortcut icon" href="{{ $setting?->logo_url ?? asset('mainIMG/logoDK.png') }}" type="image/png">
+@extends('layouts.customer')
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+@section('title', 'Katalog Produk - Dinoyo Kamera')
+
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/mainPage.css') }}">
     <link rel="stylesheet" href="{{ asset('css/katalog.css') }}">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script type="module" src="{{ asset('js/loadingScreen.js') }}"></script>
-    <script type="module" src="{{ asset('js/productHover.js') }}"></script>
-    <script type="module" src="{{ asset('js/scrollNavigation.js') }}"></script>
-</head>
-<body>
-    @include('partials.header')
+@endpush
+
+@section('content')
 
     <!-- Category Pills -->
     <div class="category-pills-container bg-white border-bottom py-3">
@@ -182,9 +164,12 @@ $setting = \App\Models\CatalogSettings::first();
         </div>
     </section>
 
-    @include('partials.footer')
-    @include('partials.floating-wa')
+@endsection
 
+@push('scripts')
+    <script type="module" src="{{ asset('js/loadingScreen.js') }}"></script>
+    <script type="module" src="{{ asset('js/productHover.js') }}"></script>
+    <script type="module" src="{{ asset('js/scrollNavigation.js') }}"></script>
     <script>
         // Initialize AOS
         AOS.init({
@@ -217,5 +202,4 @@ $setting = \App\Models\CatalogSettings::first();
             });
         });
     </script>
-</body>
-</html>
+@endpush

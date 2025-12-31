@@ -1,34 +1,43 @@
-    @php
-    $setting = \App\Models\CatalogSettings::first();
-    @endphp
+@extends('layouts.customer')
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Dinoyo Kamera</title>
-    <link rel="shortcut icon" href="{{ $setting?->logo_url ?? asset('mainIMG/logoDK.png') }}" type="image/png">
+@section('title', 'Dinoyo Kamera')
 
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <!-- Animation Libraries -->
-        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-        <link href="https://cdn.jsdelivr.net/npm/typeit@8.7.1/dist/index.min.css" rel="stylesheet">
+@push('styles')
+    <link href="https://cdn.jsdelivr.net/npm/typeit@8.7.1/dist/index.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ asset('css/mainPage.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/katalog.css') }}">
+@endpush
 
-        <link rel="stylesheet" href="{{ asset('css/mainPage.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/katalog.css') }}">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <script type="module" src="{{ asset('js/loadingScreen.js') }}"></script>
-        <script type="module" src="{{ asset('js/productHover.js') }}"></script>
-        <script type="module" src="{{ asset('js/scrollNavigation.js') }}"></script>
-    </head>
-    <body>
-        @include('partials.header')
+@section('content')
+
+            <!-- Quick Search -->
+            <section class="mt-5 mb-0 home-search-section" data-aos="fade-up">
+                <div class="container">
+                    <form method="GET" action="{{ route('product.index') }}" data-suggest-url="{{ route('product.suggest') }}">
+                        <div class="search-suggest-wrapper">
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-search"></i>
+                                </span>
+                                <input type="text"
+                                       class="form-control search-input"
+                                       id="homeSearchInput"
+                                       name="search"
+                                       placeholder="Cari produk..."
+                                       value="{{ request('search') }}"
+                                       autocomplete="off"
+                                       aria-autocomplete="list"
+                                       aria-controls="searchSuggestions"
+                                       aria-expanded="false">
+                                <button type="submit" class="btn btn-search-plain">
+                                    Cari
+                                </button>
+                            </div>
+                            <div class="search-suggestions" id="searchSuggestions" role="listbox"></div>
+                        </div>
+                    </form>
+                </div>
+            </section>
 
             <!-- Promotion Carousel -->
             <section id="promotion" class="py-4" data-aos="fade-up">
@@ -286,15 +295,131 @@
             </div>
         </section>
 
-        <!-- Footer -->
-        @include('partials.footer')
+@endsection
 
-        <!-- WhatsApp Float Icon -->
-        @include('partials.floating-wa')
+@push('scripts')
+    <script type="module" src="{{ asset('js/loadingScreen.js') }}"></script>
+    <script type="module" src="{{ asset('js/productHover.js') }}"></script>
+    <script type="module" src="{{ asset('js/scrollNavigation.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/typeit@8.7.1/dist/index.umd.min.js"></script>
+    <script src="{{ asset('js/animations.js') }}"></script>
+    <script>
+        const searchInput = document.getElementById('homeSearchInput');
+        const suggestions = document.getElementById('searchSuggestions');
+        const suggestForm = searchInput ? searchInput.closest('form') : null;
+        const suggestUrl = suggestForm ? suggestForm.getAttribute('data-suggest-url') : '';
+        let suggestTimeout;
+        let activeController;
+        let isPointerInside = false;
 
-        <!-- Scripts -->
-        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/typeit@8.7.1/dist/index.umd.min.js"></script>
-        <script src="{{ asset('js/animations.js') }}"></script>
-    </body>
-    </html>
+        function hideSuggestions() {
+            if (suggestions) {
+                suggestions.classList.remove('show');
+                suggestions.innerHTML = '';
+            }
+            if (searchInput) {
+                searchInput.setAttribute('aria-expanded', 'false');
+            }
+        }
+
+        function showSuggestions(items) {
+            if (!suggestions) return;
+            suggestions.innerHTML = '';
+            if (!items.length) {
+                hideSuggestions();
+                return;
+            }
+
+            items.forEach(item => {
+                const link = document.createElement('a');
+                link.href = item.url;
+                link.className = 'suggestion-item';
+                link.setAttribute('role', 'option');
+                link.innerHTML = `
+                    <span class="suggestion-media">
+                        <img src="${item.thumbnail}" alt="${item.name}">
+                    </span>
+                    <span class="suggestion-text">
+                        <span class="suggestion-name">${item.name}</span>
+                        <span class="suggestion-meta">${item.price_formatted}</span>
+                    </span>
+                `;
+                suggestions.appendChild(link);
+            });
+
+            suggestions.classList.add('show');
+            if (searchInput) {
+                searchInput.setAttribute('aria-expanded', 'true');
+            }
+        }
+
+        function fetchSuggestions(query) {
+            if (!suggestUrl) return;
+            if (activeController) {
+                activeController.abort();
+            }
+            activeController = new AbortController();
+            const url = `${suggestUrl}?q=${encodeURIComponent(query)}`;
+
+            fetch(url, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                signal: activeController.signal
+            })
+                .then(response => response.ok ? response.json() : [])
+                .then(data => showSuggestions(Array.isArray(data) ? data : []))
+                .catch(err => {
+                    if (err.name !== 'AbortError') {
+                        hideSuggestions();
+                    }
+                });
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                const value = searchInput.value.trim();
+                clearTimeout(suggestTimeout);
+
+                if (value.length < 2) {
+                    hideSuggestions();
+                    return;
+                }
+
+                suggestTimeout = setTimeout(() => {
+                    fetchSuggestions(value);
+                }, 250);
+            });
+
+            searchInput.addEventListener('focus', () => {
+                if (suggestions && suggestions.children.length) {
+                    suggestions.classList.add('show');
+                    searchInput.setAttribute('aria-expanded', 'true');
+                }
+            });
+
+            searchInput.addEventListener('blur', () => {
+                setTimeout(() => {
+                    if (!isPointerInside) {
+                        hideSuggestions();
+                    }
+                }, 150);
+            });
+        }
+
+        if (suggestions) {
+            suggestions.addEventListener('mouseenter', () => {
+                isPointerInside = true;
+            });
+            suggestions.addEventListener('mouseleave', () => {
+                isPointerInside = false;
+            });
+        }
+
+        document.addEventListener('click', (event) => {
+            if (!suggestions || !searchInput) return;
+            const wrapper = suggestions.closest('.search-suggest-wrapper');
+            if (wrapper && !wrapper.contains(event.target)) {
+                hideSuggestions();
+            }
+        });
+    </script>
+@endpush

@@ -7,6 +7,7 @@ use App\Models\Produk;
 use App\Models\CatalogSettings;
 use App\Models\CatalogBanners;
 use App\Models\CatalogPartnerLogo;
+use App\Models\CatalogCustomerGallery;
 use App\Models\Kategori;
 use App\Models\Branch;
 
@@ -40,7 +41,8 @@ class PageController extends Controller
 
     public function about(){
         $cat_setting = CatalogSettings::first();
-        return view("AboutStore", compact('cat_setting'));
+        $gallery = CatalogCustomerGallery::all();
+        return view("AboutStore", compact('cat_setting', 'gallery'));
     }
 
     public function contact(){

@@ -1,21 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hubungi Kami - {{ $cat_setting->nama_website}}</title>
-    <link rel="shortcut icon" href="{{ $cat_setting?->logo_url ?? asset('mainIMG/logoDK.png') }}" type="image/png">
+@extends('layouts.customer')
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+@section('title', 'Hubungi Kami - ' . ($cat_setting->nama_website ?? 'Dinoyo Kamera'))
+
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/contactStore.css') }}">
-</head>
-<body>
-    <!-- Navigation -->
-    @include('partials.header')
+@endpush
+
+@section('content')
 
     <!-- Main Content -->
     <main class="py-5">
@@ -65,7 +56,16 @@
                             <div class="info-item">
                                 <i class="bi bi-telephone"></i>
                                 <div>
-                                    <a href="tel:{{ preg_replace('/[^0-9+]/','', $branch['telepon']) }}" class="text-decoration-none text-dark">{{ $branch['telepon'] }}</a>
+                                    @php
+                                        $rawPhone = preg_replace('/\D+/', '', $branch['telepon'] ?? '');
+                                        if ($rawPhone && str_starts_with($rawPhone, '0')) {
+                                            $rawPhone = '62' . substr($rawPhone, 1);
+                                        } elseif ($rawPhone && str_starts_with($rawPhone, '8')) {
+                                            $rawPhone = '62' . $rawPhone;
+                                        }
+                                        $waLink = $rawPhone ? "https://wa.me/{$rawPhone}" : '#';
+                                    @endphp
+                                    <a href="{{ $waLink }}" class="text-decoration-none text-dark" target="_blank" rel="noopener">{{ $branch['telepon'] }}</a>
                                 </div>
                             </div>
                             <div class="info-item">
@@ -127,14 +127,9 @@
         </div>
     </main>
 
-    <!-- Footer -->
-    @include('partials.footer')
+@endsection
 
-    <!-- WhatsApp Float Icon -->
-    @include('partials.floating-wa')
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+@push('scripts')
     <script>
         // Form validation
         (function () {
@@ -183,5 +178,4 @@ Saya *${encodeURIComponent(name)}*, ingin bertanya:%0A%0A
         form.classList.remove('was-validated');
     });
     </script>
-</body>
-</html>
+@endpush

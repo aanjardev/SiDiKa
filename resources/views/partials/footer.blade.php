@@ -80,7 +80,16 @@
                         </li>
                         <li>
                             <i class="fas fa-phone-alt"></i>
-                            <a href="tel:{{ preg_replace('/[^0-9+]/','', $branch->nomor_telepon) }}">{{ $branch->nomor_telepon }}</a>
+                            @php
+                                $rawPhone = preg_replace('/\D+/', '', $branch->nomor_telepon ?? '');
+                                if ($rawPhone && str_starts_with($rawPhone, '0')) {
+                                    $rawPhone = '62' . substr($rawPhone, 1);
+                                } elseif ($rawPhone && str_starts_with($rawPhone, '8')) {
+                                    $rawPhone = '62' . $rawPhone;
+                                }
+                                $waLink = $rawPhone ? "https://wa.me/{$rawPhone}" : '#';
+                            @endphp
+                            <a href="{{ $waLink }}" target="_blank" rel="noopener">{{ $branch->nomor_telepon }}</a>
                         </li>
                         <li>
                             <i class="fas fa-map-marker-alt"></i>

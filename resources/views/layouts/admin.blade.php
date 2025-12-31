@@ -1,5 +1,5 @@
 @php
-$setting = \App\Models\CatalogSettings::first();
+    $setting = \App\Models\CatalogSettings::first();
 @endphp
 <!doctype html>
 <html lang="en" dir="ltr">
