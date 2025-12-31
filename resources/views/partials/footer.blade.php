@@ -79,7 +79,7 @@
                             </div>
                         </li>
                         <li>
-                            <i class="fas fa-phone-alt"></i>
+                            <i class="fab fa-whatsapp"></i>
                             @php
                                 $rawPhone = preg_replace('/\D+/', '', $branch->nomor_telepon ?? '');
                                 if ($rawPhone && str_starts_with($rawPhone, '0')) {

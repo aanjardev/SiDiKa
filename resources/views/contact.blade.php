@@ -11,14 +11,43 @@
     <!-- Main Content -->
     <main class="py-5">
         <div class="container">
-            <!-- Header Section -->
-            <div class="text-center mb-5">
-                <h1 class="section-title">Hubungi Kami</h1>
-                <p class="section-subtitle">{{ $cat_setting->nama_website}} dengan senang hati menerima dukungan dan pertanyaan Anda. Kami akan berusaha untuk menjawab pertanyaan Anda segera setelah kami menerimanya.</p>
+
+            <!-- Social Media & Marketplace -->
+            <div class="platform-card mb-5" data-aos="fade-up">
+                <div class="text-center mb-4">
+                    <h2 class="platform-title">Temukan Kami di Berbagai Platform</h2>
+                    <p class="platform-subtitle">Ikuti dan belanja di kanal resmi {{ $cat_setting->nama_website }}.</p>
+                </div>
+                <div class="platform-grid">
+                    <a href="{{ $cat_setting->facebook_link }}" class="platform-item" target="_blank" rel="noopener">
+                        <i class="fab fa-facebook-f"></i>
+                        <span>Facebook</span>
+                    </a>
+                    <a href="{{ $cat_setting->instagram_link }}" class="platform-item" target="_blank" rel="noopener">
+                        <i class="fab fa-instagram"></i>
+                        <span>Instagram</span>
+                    </a>
+                    <a href="{{ $cat_setting->youtube_link }}" class="platform-item" target="_blank" rel="noopener">
+                        <i class="fab fa-youtube"></i>
+                        <span>YouTube</span>
+                    </a>
+                    <a href="{{ $cat_setting->tiktok_link }}" class="platform-item" target="_blank" rel="noopener">
+                        <i class="fab fa-tiktok"></i>
+                        <span>TikTok</span>
+                    </a>
+                    <a href="{{ $cat_setting->tokopedia_link }}" class="platform-item" target="_blank" rel="noopener">
+                        <img src="https://raw.githubusercontent.com/aanjardev/assets/main/icon/tokopedia-svgrepo-com.png" alt="Tokopedia">
+                        <span>Tokopedia</span>
+                    </a>
+                    <a href="{{ $cat_setting->shopee_link }}" class="platform-item" target="_blank" rel="noopener">
+                        <img src="https://img.icons8.com/?size=100&id=OO5wGWyvSK0L&format=png&color=000000" alt="Shopee">
+                        <span>Shopee</span>
+                    </a>
+                </div>
             </div>
 
             <!-- Store Locations -->
-            <div class="row g-4">
+            <div class="row g-4" data-aos="fade-up" data-aos-delay="100">
                 @foreach($branches as $branch)
                 <div class="col-lg-4 col-md-6">
                     <div class="location-card h-100 d-flex flex-column">
@@ -54,7 +83,7 @@
                                 </div>
                             </div>
                             <div class="info-item">
-                                <i class="bi bi-telephone"></i>
+                                <i class="fab fa-whatsapp"></i>
                                 <div>
                                     @php
                                         $rawPhone = preg_replace('/\D+/', '', $branch['telepon'] ?? '');
@@ -86,7 +115,7 @@
             </div>
 
             <!-- Contact Form -->
-            <div class="contact-form-card">
+            <div class="contact-form-card" data-aos="fade-up" data-aos-delay="200">
                 <div class="row">
                     <div class="col-lg-8 mx-auto">
                         <h2 class="text-center mb-4">Kirim Pesan</h2>
@@ -115,7 +144,7 @@
                                 </div>
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-submit w-100">
-                                        <i class="bi bi-send me-2"></i>
+                                        <i class="fab fa-whatsapp me-2"></i>
                                         Kirim Pesan
                                     </button>
                                 </div>
@@ -131,6 +160,15 @@
 
 @push('scripts')
     <script>
+        // Initialize AOS
+        if (typeof AOS !== 'undefined') {
+            AOS.init({
+                duration: 800,
+                once: true,
+                offset: 100
+            });
+        }
+
         // Form validation
         (function () {
             'use strict'

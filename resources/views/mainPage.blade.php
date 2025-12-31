@@ -226,14 +226,14 @@
         </section>
         <section id="Kategori-Display-Brand" class="py-4" data-aos="fade-up" data-aos-delay="300">
             <div class="container">
-                <div class="row row-cols-2 row-cols-md-4 row-cols-lg-8 g-3">
+                <div class="row row-cols-2 row-cols-md-4 row-cols-lg-4 g-3">
                 @foreach ($cat_partner as $index => $partner)
                     @php
                         $path = $partner->url;
                         $url = $path;
                         $alt = basename($path);
                     @endphp
-                    <div class="col">
+                    <div class="col p-0">
                         <img src="{{ $url }}" alt="{{ $alt }}" class="img-fluid">
                     </div>
                 @endforeach

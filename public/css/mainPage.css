@@ -301,27 +301,17 @@
         padding: 1rem;
     }
 
-    #Kategori-Display-Brand .col img:hover {
-        transform: scale(1.1);
-    }
 
     /* YouTube Section */
-    .youtube-section {
-        background-color: white;
-        padding: 4rem 0;
-        position: relative;
-    }
+.youtube-section {
+    background-color: var(--gray-100);
+    padding: 4rem 0;
+    position: relative;
+}
 
-    .youtube-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 100%;
-        background: linear-gradient(45deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-        opacity: 0.05;
-    }
+.youtube-section::before {
+    content: none;
+}
 
     .youtube-container {
         position: relative;
@@ -423,7 +413,7 @@
     }
 
     .btn-search-plain {
-        background: white;
+        background: rgba(230, 230, 230, 0.521);
         color: var(--gray-700);
         border: 0;
         border-left: 1px solid var(--gray-300);
@@ -628,24 +618,56 @@
     }
 
     /* Brands */
+#Kategori-Display-Brand .col {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #fff;
+    border-radius: 12px;
+    border: none;
+    box-shadow: var(--shadow-sm);
+    aspect-ratio: 3 / 1;
+}
+
+#Kategori-Display-Brand .row {
+    --bs-gutter-x: 0;
+    --bs-gutter-y: 0;
+    justify-content: center;
+}
+
+@media (max-width: 576px) {
     #Kategori-Display-Brand .col {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        aspect-ratio: 2.5 / 1;
     }
+}
 
-    #Kategori-Display-Brand img {
-        max-width: 80%;
-        height: auto;
-        border-radius: 10px;
-        border: 1px solid transparent;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
+#Kategori-Display-Brand img {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    object-fit: contain;
+    padding: 0;
+}
 
-    #Kategori-Display-Brand img:hover {
-        border-color: rgba(7, 13, 13, 0.3);
-        box-shadow: 0 4px 16px rgba(234, 78, 45, 0.08);
+@media (min-width: 992px) {
+    #Kategori-Display-Brand .row > .col {
+        flex: 0 0 calc(25% - 1rem);
+        max-width: calc(25% - 1rem);
     }
+}
+
+#Kategori-Display-Brand .row > .col {
+    margin: 0.5rem;
+}
+
+@media (max-width: 576px) {
+    #Kategori-Display-Brand .row > .col {
+        margin: 0.35rem;
+        flex: 0 0 calc(50% - 0.7rem);
+        max-width: calc(50% - 0.7rem);
+    }
+}
+
 
     /* Benefits */
     #Benefit {
@@ -660,9 +682,6 @@
         transition: var(--transition-base);
     }
 
-    #Benefit-Item .col:hover {
-        transform: scale(1.1);
-    }
 
     #Benefit-Item img {
         margin-bottom: 1rem;
@@ -751,10 +770,11 @@
         font-size: 0.9rem;
     }
 
-    #Kategori-Display .row {
-        --bs-gutter-x: 1.5rem;
-        --bs-gutter-y: 1.5rem;
-    }
+#Kategori-Display .row {
+    --bs-gutter-x: 1.5rem;
+    --bs-gutter-y: 1.5rem;
+    justify-content: center;
+}
 
     @media (max-width: 768px) {
         .category-link {
