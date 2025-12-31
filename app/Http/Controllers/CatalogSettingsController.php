@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CatalogSettings;
 use App\Models\CatalogBanners;
 use App\Models\CatalogPartnerLogo;
+use App\Models\CatalogCustomerGallery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -18,6 +19,7 @@ class CatalogSettingsController extends Controller
             'cat_setting' => CatalogSettings::first(),
             'cat_banners' => CatalogBanners::all(),
             'cat_partner' => CatalogPartnerLogo::all(),
+            'cat_gallery' => CatalogCustomerGallery::all(),
         ]);
     }
 
@@ -30,6 +32,8 @@ class CatalogSettingsController extends Controller
             'photo_logo'        => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'brand_logos'       => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'banner'            => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
+            'customer_gallery'  => 'nullable',
+            'customer_gallery.*' => 'image|mimes:jpg,jpeg,png,webp|max:4096',
             'social_facebook'   => 'nullable|url',
             'social_instagram'  => 'nullable|url',
             'social_tiktok'     => 'nullable|url',
@@ -65,6 +69,18 @@ class CatalogSettingsController extends Controller
             CatalogPartnerLogo::whereIn('id', $ids)->delete();
         }
 
+        if ($request->filled('deleted_galleries')) {
+            $ids = json_decode($request->deleted_galleries, true);
+
+            $galleries = CatalogCustomerGallery::whereIn('id', $ids)->get();
+
+            foreach ($galleries as $gallery) {
+                $this->deleteImageVariants($gallery->image_path);
+            }
+
+            CatalogCustomerGallery::whereIn('id', $ids)->delete();
+        }
+
         if ($request->filled('deleted_banners')) {
             $ids = json_decode($request->deleted_banners, true);
 
@@ -96,6 +112,16 @@ class CatalogSettingsController extends Controller
                 'logo_path' => $paths['path'],
                 'catalog_setting_id' => 1,
             ]);
+        }
+
+        if ($request->hasFile('customer_gallery')) {
+            foreach ($request->file('customer_gallery') as $file) {
+                $paths = ImageUpload::upload($file, 'catalog/gallery');
+                CatalogCustomerGallery::create([
+                    'image_path' => $paths['path'],
+                    'catalog_setting_id' => 1,
+                ]);
+            }
         }
 
         if ($request->hasFile('photo_logo')) {
@@ -165,6 +191,21 @@ class CatalogSettingsController extends Controller
 
         $this->deleteImageVariants($partner->logo_path);
         $partner->delete();
+
+        return redirect()
+            ->route('admin.catalog-settings.index')
+            ->with('success', 'Pengaturan katalog berhasil diperbarui.');
+    }
+
+    public function destroyGallery($id)
+    {
+        $gallery = CatalogCustomerGallery::find($id);
+        if (!$gallery) {
+            return response()->json(['success' => false, 'message' => 'Galeri tidak ditemukan'], 404);
+        }
+
+        $this->deleteImageVariants($gallery->image_path);
+        $gallery->delete();
 
         return redirect()
             ->route('admin.catalog-settings.index')

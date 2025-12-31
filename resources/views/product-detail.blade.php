@@ -1,53 +1,40 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @php
-        $setting = $cat_setting ?? \App\Models\CatalogSettings::first();
-    @endphp
-    <title>{{ $produk->nama_produk }} - Detail Produk - {{ $setting?->nama_website ?? 'Katalog' }}</title>
-    <link rel="shortcut icon" href="{{ $setting?->logo_url ?? asset('mainIMG/logoDK.png') }}" type="image/png">
+@extends('layouts.customer')
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+@php
+    $setting = $cat_setting ?? $setting ?? \App\Models\CatalogSettings::first();
+    $rawPhone = preg_replace('/\D+/', '', $setting?->nomor_telfon ?? '');
+    if ($rawPhone && str_starts_with($rawPhone, '0')) {
+        $rawPhone = '62' . substr($rawPhone, 1);
+    } elseif ($rawPhone && str_starts_with($rawPhone, '8')) {
+        $rawPhone = '62' . $rawPhone;
+    }
+
+    $storeName = $setting?->nama_website ?? 'Toko';
+    $pesan = "Halo {$storeName}, saya tertarik dengan produk *{$produk->nama_produk}* (SKU: {$produk->kode_sku}). Apakah produk ini masih tersedia dan bisakah saya mendapatkan informasi lebih lanjut?";
+    $linkWA = $rawPhone ? ("https://wa.me/{$rawPhone}?text=" . urlencode($pesan)) : null;
+
+    // Get main image and other images
+    $mainImage = $produk->gambar->firstWhere('is_main', true);
+    $otherImages = $produk->gambar->filter(function ($g) { return !$g->is_main; });
+
+    // If no main image is set, use the first image as main
+    if (!$mainImage && $produk->gambar->isNotEmpty()) {
+        $mainImage = $produk->gambar->first();
+        $otherImages = $produk->gambar->skip(1);
+    }
+
+    // Combine main image with other images for gallery
+    $galleryImages = $mainImage ? collect([$mainImage])->concat($otherImages) : collect();
+    $galleryImages = $galleryImages->values();
+    $galleryImageUrls = $galleryImages->map(fn($g) => $g->url);
+    $mainImageUrl = $galleryImageUrls->first();
+@endphp
+
+@section('title', $produk->nama_produk . ' - Detail Produk - ' . ($setting?->nama_website ?? 'Katalog'))
+
+@push('styles')
     <link rel="stylesheet" href="{{ asset('css/mainPage.css') }}">
     <link rel="stylesheet" href="{{ asset('css/detail-produk.css') }}">
-    <script type="module" src="{{ asset('js/loadingScreen.js') }}"></script>
-    <script type="module" src="{{ asset('js/productHover.js') }}"></script>
-    <script type="module" src="{{ asset('js/scrollNavigation.js') }}"></script>
-    @php
-        $rawPhone = preg_replace('/\D+/', '', $setting?->nomor_telfon ?? '');
-        if ($rawPhone && str_starts_with($rawPhone, '0')) {
-            $rawPhone = '62' . substr($rawPhone, 1);
-        } elseif ($rawPhone && str_starts_with($rawPhone, '8')) {
-            $rawPhone = '62' . $rawPhone;
-        }
-
-        $storeName = $setting?->nama_website ?? 'Toko';
-        $pesan = "Halo {$storeName}, saya tertarik dengan produk *{$produk->nama_produk}* (SKU: {$produk->kode_sku}). Apakah produk ini masih tersedia dan bisakah saya mendapatkan informasi lebih lanjut?";
-        $linkWA = $rawPhone ? ("https://wa.me/{$rawPhone}?text=" . urlencode($pesan)) : null;
-
-        // Get main image and other images
-        $mainImage = $produk->gambar->firstWhere('is_main', true);
-        $otherImages = $produk->gambar->filter(function($g) { return !$g->is_main; });
-
-        // If no main image is set, use the first image as main
-        if (!$mainImage && $produk->gambar->isNotEmpty()) {
-            $mainImage = $produk->gambar->first();
-            $otherImages = $produk->gambar->skip(1);
-        }
-
-        // Combine main image with other images for gallery
-        $galleryImages = $mainImage ? collect([$mainImage])->concat($otherImages) : collect();
-        $galleryImages = $galleryImages->values();
-        $galleryImageUrls = $galleryImages->map(fn($g) => $g->url);
-        $mainImageUrl = $galleryImageUrls->first();
-    @endphp
-
 <style>
     /* Product Detail Page Styles */
 :root {
@@ -517,9 +504,9 @@
 }
 
 </style>
-</head>
-<body>
-    @include('partials.header')
+@endpush
+
+@section('content')
 
     <section id="product-detail" style="padding-top: 50px; padding-bottom:50px" >
     <div class="container">
@@ -614,11 +601,12 @@
 </section>
 
 
-        <!-- Footer -->
-    @include('partials.footer')
-    @include('partials.floating-wa')
+@endsection
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+@push('scripts')
+    <script type="module" src="{{ asset('js/loadingScreen.js') }}"></script>
+    <script type="module" src="{{ asset('js/productHover.js') }}"></script>
+    <script type="module" src="{{ asset('js/scrollNavigation.js') }}"></script>
     <script>
         window.galleryImages = @json($galleryImageUrls->toArray());
     </script>
@@ -711,5 +699,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-</body>
-</html>
+@endpush

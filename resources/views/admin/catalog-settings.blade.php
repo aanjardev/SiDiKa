@@ -50,6 +50,102 @@
         padding-top: 5px;
         padding-bottom: 30px;
     }
+
+    .gallery-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .gallery-grid-scroll {
+        max-height: 520px;
+        overflow-y: auto;
+        padding-right: 6px;
+    }
+
+    @media (max-width: 575px) {
+        .gallery-grid-scroll {
+            max-height: 420px;
+        }
+    }
+
+    .table-scroll-fixed {
+        table-layout: fixed;
+    }
+
+    .table-scroll-fixed thead,
+    .table-scroll-fixed tbody {
+        display: block;
+        width: 100%;
+    }
+
+    .table-scroll-fixed thead tr,
+    .table-scroll-fixed tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .table-scroll-fixed tbody {
+        max-height: 420px;
+        overflow-y: auto;
+    }
+
+    @media (max-width: 575px) {
+        .table-scroll-fixed tbody {
+            max-height: 320px;
+        }
+    }
+
+    .upload-box {
+        width: 160px;
+        height: 160px;
+        border: 2px dashed #dee2e6;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: default;
+        transition: all 0.3s ease;
+        background: #fafafa;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .upload-box.has-image {
+        border: 2px solid #86b7fe;
+        background: #fff;
+    }
+
+    .upload-box .preview {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .upload-box .preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .upload-box .controls {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 6px;
+    }
+
+    .catalog-description-textarea {
+        min-height: 200px !important;
+        height: auto;
+    }
 </style>
 @endpush
 
@@ -59,7 +155,8 @@
       enctype="multipart/form-data"
       id="settingsForm"
       data-route-partner-destroy="{{ route('admin.catalog-settings.partner.destroy', ':id') }}"
-      data-route-banner-destroy="{{ route('admin.catalog-settings.banner.destroy', ':id') }}">
+      data-route-banner-destroy="{{ route('admin.catalog-settings.banner.destroy', ':id') }}"
+      data-route-gallery-destroy="{{ route('admin.catalog-settings.gallery.destroy', ':id') }}">
     @csrf
 
     <div class="row">
@@ -113,7 +210,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="fa-brands fa-whatsapp text-success"></i></span>
                                     <input type="text"
-                                           class="form-control border-start-0 ps-0 @error('contact_phone') is-invalid @enderror"
+                                           class="form-control border-start-0 ps-2 @error('contact_phone') is-invalid @enderror"
                                            id="contact_phone_display"
                                            value="{{ old('contact_phone', $cat_setting->nomor_telfon) }}"
                                            placeholder="08xx-xxxx-xxxx">
@@ -127,8 +224,8 @@
                             </div>
 
                             <div class="mb-0">
-                                <label class="form-label fw-medium small text-muted">Deskripsi Toko (Footer)</label>
-                                <textarea class="form-control" name="description_text" rows="4" placeholder="Tulis deskripsi singkat tentang toko...">{{ old('description_text', $cat_setting->description) }}</textarea>
+                                <label class="form-label fw-medium small text-muted">Deskripsi Toko</label>
+                                <textarea class="form-control catalog-description-textarea" name="description_text" rows="4" placeholder="Tulis deskripsi singkat tentang toko...">{{ old('description_text', $cat_setting->description) }}</textarea>
                                 @error('description_text') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                             </div>
                         </div>
@@ -201,6 +298,42 @@
                 </div>
             </div>
 
+            {{-- Card: Galeri Customer --}}
+            <div class="card card-uniform position-relative shadow-sm border-0 mt-4">
+                <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
+                <div class="card-header bg-white py-3">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-images me-2 text-primary"></i>Galeri Customer</h6>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-medium small text-muted">Upload Foto Galeri</label>
+                        <input type="file" class="form-control form-control-sm" name="customer_gallery[]" accept="image/png,image/jpeg,image/jpg,image/webp" multiple data-max-bytes="4194304" data-max-label="4MB">
+                        <div class="invalid-feedback">Ukuran file terlalu besar. Maksimal 4MB.</div>
+                        <div class="form-text text-muted" style="font-size: 0.75rem;">Format: JPG/PNG. Max: 4MB. Disarankan rasio 1:1.</div>
+                        @error('customer_gallery') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                        @error('customer_gallery.*') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="gallery-grid-scroll">
+                        <div class="gallery-grid">
+                            @foreach ($cat_gallery as $gallery)
+                            <div class="upload-box has-image" data-id="{{ $gallery->id }}" data-type="gallery">
+                                <div class="preview">
+                                    <img src="{{ $gallery->url }}" alt="Galeri customer">
+                                </div>
+                                <div class="controls">
+                                    <button type="button" class="btn-action btn-remove text-danger" title="Hapus Foto">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <input type="hidden" name="deleted_galleries" id="deletedGalleries">
+                </div>
+            </div>
+
         </div>
 
         {{-- KOLOM KANAN: Aset Visual (Logo, Banner, Partner) --}}
@@ -222,7 +355,7 @@
                     </div>
 
                     <div class="table-responsive border rounded-3">
-                        <table class="table table-modern table-sm mb-0">
+                        <table class="table table-modern table-sm mb-0 table-scroll-fixed">
                             <thead class="bg-light">
                                 <tr>
                                     <th style="width: 60%">Gambar</th>
@@ -264,8 +397,8 @@
                         @error('brand_logos') <div class="text-danger small mt-1">{{ $message }}</div> @enderror
                     </div>
 
-                    <div class="table-responsive border rounded-3" style="max-height: 300px; overflow-y: auto;">
-                        <table class="table table-modern table-sm mb-0">
+                    <div class="table-responsive border rounded-3">
+                        <table class="table table-modern table-sm mb-0 table-scroll-fixed">
                             <thead class="bg-light sticky-top" style="z-index: 1;">
                                 <tr>
                                     <th style="width: 60%">Logo</th>
