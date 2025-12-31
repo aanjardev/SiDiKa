@@ -58,6 +58,62 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0 auto 3rem;
 }
 
+/* Social & Marketplace */
+.platform-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: var(--shadow-md);
+}
+
+.platform-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.platform-subtitle {
+    color: var(--gray-600);
+    margin-bottom: 0;
+}
+
+.platform-grid {
+    margin-top: 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+}
+
+.platform-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 12px;
+    background: var(--gray-100);
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: var(--transition-base);
+}
+
+.platform-item i {
+    font-size: 1.2rem;
+}
+
+.platform-item img {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+}
+
+.platform-item:hover {
+    border-color: var(--secondary-color);
+    background: white;
+    transform: translateY(-2px);
+}
+
 /* Location Cards */
 .location-card {
     background: white;
@@ -207,6 +263,14 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 768px) {
     .section-title {
         font-size: 2rem;
+    }
+
+    .platform-card {
+        padding: 1.5rem;
+    }
+
+    .platform-title {
+        font-size: 1.5rem;
     }
     
     .location-card .map-container {

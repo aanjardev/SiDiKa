@@ -30,14 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.add('btn-primary', 'show-save');
     };
 
-    // Fokus awal pada nama website
-    const siteNameInput = form.querySelector('input[name="site_name"]');
-    if (siteNameInput) {
-        siteNameInput.focus();
-        const length = siteNameInput.value.length;
-        siteNameInput.setSelectionRange(length, length);
-    }
-
     // Tampilkan tombol simpan per card saat ada perubahan
     if (shouldHideButtons) {
         hideCardButtons();
