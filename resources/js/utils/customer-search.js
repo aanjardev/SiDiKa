@@ -1,7 +1,15 @@
 import debounce from "./debounce.js";
 
 export default class CustomerSearch {
-    constructor({ input, hiddenInput, suggestions, searchUrl, onSelect, onInput, minLength = 3 }) {
+    constructor({
+        input,
+        hiddenInput,
+        suggestions,
+        searchUrl,
+        onSelect,
+        onInput,
+        minLength = 3,
+    }) {
         this.input = input;
         this.hiddenInput = hiddenInput;
         this.suggestions = suggestions;
@@ -14,6 +22,16 @@ export default class CustomerSearch {
         this.bindEvents();
     }
 
+    // Local formatter for display-only phone formatting: XXXX-XXXX-rest
+    formatPhone(s) {
+        if (!s) return "";
+        const d = (s || "").toString().replace(/\D/g, "");
+        if (!d) return "";
+        if (d.length <= 4) return d;
+        if (d.length <= 8) return d.slice(0, 4) + "-" + d.slice(4);
+        return d.slice(0, 4) + "-" + d.slice(4, 8) + "-" + d.slice(8);
+    }
+
     bindEvents() {
         if (!this.input || !this.suggestions) return;
 
@@ -24,8 +42,10 @@ export default class CustomerSearch {
         });
 
         document.addEventListener("click", (e) => {
-            if (!e.target.closest("#customer_search") &&
-                !e.target.closest("#customer_suggestions")) {
+            if (
+                !e.target.closest("#customer_search") &&
+                !e.target.closest("#customer_suggestions")
+            ) {
                 this.hide();
             }
         });
@@ -37,7 +57,7 @@ export default class CustomerSearch {
             e.preventDefault();
             const data = {
                 id: el.dataset.id,
-                text: el.textContent.trim()
+                text: el.textContent.trim(),
             };
 
             this.input.value = data.text;
@@ -55,13 +75,16 @@ export default class CustomerSearch {
 
     normalizeItem(item) {
         if (!item) return null;
-        if (typeof item.text !== "undefined") return { id: item.id, text: item.text };
+        if (typeof item.text !== "undefined")
+            return { id: item.id, text: item.text };
 
         const name = item.nama || item.name || item.full_name || "";
         const phone = item.no_telp || item.phone || item.telepon || "";
-        let text = name || phone || "";
+        const formattedPhone = this.formatPhone(phone);
+        let text = name || formattedPhone || phone || "";
 
-        if (name && phone) text = `${name} (${phone})`;
+        if (name && (formattedPhone || phone))
+            text = `${name} (${formattedPhone || phone})`;
 
         return { id: item.id, text };
     }
@@ -71,7 +94,9 @@ export default class CustomerSearch {
         if (!query || query.length < this.minLength) return this.hide();
 
         try {
-            const res = await fetch(`${this.searchUrl}?q=${encodeURIComponent(query)}`);
+            const res = await fetch(
+                `${this.searchUrl}?q=${encodeURIComponent(query)}`
+            );
             if (!res.ok) throw new Error(`HTTP ${res.status}`);
             const json = await res.json();
 
@@ -91,7 +116,7 @@ export default class CustomerSearch {
         if (!items.length) return this.hide();
 
         this.suggestions.innerHTML = "";
-        items.forEach(it => {
+        items.forEach((it) => {
             const a = document.createElement("a");
             a.href = "#";
             a.className = "dropdown-item";

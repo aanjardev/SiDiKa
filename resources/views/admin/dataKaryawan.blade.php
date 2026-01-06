@@ -107,7 +107,7 @@
                         </td>
 
                         <td class="fw-medium text-secondary text-break">
-                            {{ $employee->nomor_telepon }}
+                            <span class="phone-display" data-raw="{{ $employee->nomor_telepon }}"></span>
                         </td>
 
                         <td class="text-dark">
