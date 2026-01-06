@@ -51,13 +51,13 @@
     </div>
 
     <script>
-        // Auto refresh setiap 30 detik
+
         let refreshCount = 0;
         const maxRefresh = 10; // Max 10 kali refresh (5 menit)
         
         function autoRefresh() {
             if (refreshCount >= maxRefresh) {
-                // Update estimasi waktu
+
                 document.getElementById('estimate-time').textContent = '15-20 menit';
                 return;
             }
@@ -79,14 +79,12 @@
                 }
             }, 1000);
 
-            // Cancel refresh jika user berinteraksi
             document.addEventListener('click', () => {
                 clearInterval(timer);
                 countdown.remove();
             });
         }
 
-        // Mulai auto refresh
         setTimeout(autoRefresh, 2000);
     </script>
 </body>

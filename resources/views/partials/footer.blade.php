@@ -124,7 +124,7 @@
 {{-- <link rel="stylesheet" href="{{ asset('css/footer.css') }}"> --}}
 
 <style>
-/* Footer Styles */
+
 :root {
     --footer-bg: #020405;
     --footer-text: #ffffff;
@@ -141,7 +141,7 @@
     position: relative;
 }
 
-/* Widget Styles */
+
 .footer-widget {
     margin-bottom: 2rem;
 }
@@ -171,7 +171,7 @@
     margin-bottom: 1.5rem;
 }
 
-/* Social Links */
+
 .social-links {
     display: flex;
     gap: 1rem;
@@ -196,7 +196,7 @@
     transform: translateY(-3px);
 }
 
-/* Contact Info */
+
 .contact-info {
     list-style: none;
     padding: 0;
@@ -244,7 +244,7 @@
     font-size: 0.9rem;
 }
 
-/* Responsive Design */
+
 @media (max-width: 991px) {
     .footer-area {
         padding: 4rem 0 2rem;

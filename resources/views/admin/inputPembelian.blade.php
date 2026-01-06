@@ -20,37 +20,37 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
 {{-- Custom CSS (Dari HEAD) --}}
 @push('styles')
 <style>
-    /* Modern Card Style */
+    
     .card-modern { border: 1px solid #f0f0f0; border-radius: 16px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04); transition: all 0.3s ease; }
     .card-header-modern { background-color: #fff; border-bottom: 1px solid #f0f0f0; padding: 20px 24px; border-radius: 16px 16px 0 0 !important; }
 
-    /* Input Group Styling */
+    
     .input-group-modern .input-group-text { background-color: #fff; border-right: none; color: #6c757d; border-color: #dee2e6; border-radius: 10px 0 0 10px; }
     .input-group-modern .form-control, .input-group-modern .form-select { border-left: none; border-color: #dee2e6; border-radius: 0 10px 10px 0; padding: 10px 15px; }
     .input-group-modern .form-control:focus, .input-group-modern .form-select:focus { box-shadow: none; border-color: #86b7fe; border-left: 1px solid #86b7fe; }
 
-    /* Labels */
+    
     .form-label-modern { font-size: 0.85rem; font-weight: 600; color: #344767; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    /* Action Buttons in Table */
+    
     .btn-action-icon { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s; border: 1px solid transparent; background: transparent; color: #dc3545; }
     .btn-action-icon:hover { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
 
-    /* Accordion Styling */
+    
     .accordion-modern .accordion-button { background-color: #f8f9fa; border-radius: 8px !important; color: #495057; font-weight: 600; box-shadow: none; }
     .accordion-modern .accordion-button:not(.collapsed) { background-color: #e7f1ff; color: #0d6efd; }
     .accordion-modern .accordion-item { border: 1px solid #eee; border-radius: 8px !important; margin-bottom: 10px; overflow: hidden; }
 
     .select2-container .select2-selection--single {
-        height: 44px !important; /* Tinggi Select2 agar sesuai dengan input-group-modern */
+        height: 44px !important; 
         border-radius: 0 10px 10px 0 !important;
         padding: 7px 15px !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 42px !important;
     }
-    /* Autocomplete suggestions dropdown for customer search */
-    #customer_suggestions {
+    
+
         position: absolute;
         top: calc(100% + 6px);
         left: 0;
@@ -568,37 +568,32 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
 <style>
 .accordion-button:not(.collapsed) {
     color: var(--bs-dark);
-    background-color: #fff; /* Background putih saat aktif */
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,.125); /* Border bawah halus */
+    background-color: #fff; 
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.125); 
 }
 .accordion-button::after {
-    /* Optional: Mengubah warna panah accordion jadi primary biar seragam */
+    
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230d6efd'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
 }
 
-#customer_search::placeholder {
     font-size: 0.9rem;
     color: #6c757d;
 }
 
-#modalTambahCustomer .required-field.is-invalid {
     border-color: #dc3545;
 }
 
-#modalTambahCustomer .required-field.is-invalid:focus {
     box-shadow: 0 0 0 0.15rem rgba(220, 53, 69, 0.25);
 }
 
-#modalTambahCustomer .invalid-feedback {
     display: none;
     font-size: 0.85rem;
     color: #dc3545;
     margin-top: 0.25rem;
 }
 
-#modalTambahCustomer .required-field.is-invalid + .invalid-feedback,
-#modalTambahCustomer .form-select.is-invalid + .invalid-feedback,
-#modalTambahCustomer .form-control.is-invalid + .invalid-feedback {
+
+
     display: block;
 }
 </style>

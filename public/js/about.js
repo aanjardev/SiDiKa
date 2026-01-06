@@ -1,10 +1,9 @@
-// Initialize AOS (Animate On Scroll)
+
 AOS.init({
     duration: 800,
     once: true
 });
 
-// Back to Top Functionality
 window.onscroll = function() {
     const backToTop = document.getElementById('backToTop');
     if (document.body.scrollTop > 200 || document.documentElement.scrollTop > 200) {
@@ -18,7 +17,6 @@ document.getElementById('backToTop').onclick = function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-// Quote Form Submission
 function submitQuote() {
     const form = document.getElementById('quoteForm');
     if (form.checkValidity()) {

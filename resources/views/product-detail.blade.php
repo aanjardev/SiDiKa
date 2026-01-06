@@ -13,17 +13,14 @@
     $pesan = "Halo {$storeName}, saya tertarik dengan produk *{$produk->nama_produk}* (SKU: {$produk->kode_sku}). Apakah produk ini masih tersedia dan bisakah saya mendapatkan informasi lebih lanjut?";
     $linkWA = $rawPhone ? ("https://wa.me/{$rawPhone}?text=" . urlencode($pesan)) : null;
 
-    // Get main image and other images
     $mainImage = $produk->gambar->firstWhere('is_main', true);
     $otherImages = $produk->gambar->filter(function ($g) { return !$g->is_main; });
 
-    // If no main image is set, use the first image as main
     if (!$mainImage && $produk->gambar->isNotEmpty()) {
         $mainImage = $produk->gambar->first();
         $otherImages = $produk->gambar->skip(1);
     }
 
-    // Combine main image with other images for gallery
     $galleryImages = $mainImage ? collect([$mainImage])->concat($otherImages) : collect();
     $galleryImages = $galleryImages->values();
     $galleryImageUrls = $galleryImages->map(fn($g) => $g->url);
@@ -36,7 +33,7 @@
     <link rel="stylesheet" href="{{ asset('css/mainPage.css') }}">
     <link rel="stylesheet" href="{{ asset('css/detail-produk.css') }}">
 <style>
-    /* Product Detail Page Styles */
+    
 :root {
     --primary-color: #2F353F;
     --secondary-color: #EA4E2D;
@@ -56,12 +53,11 @@
     --transition-base: all 0.3s ease;
 }
 
-#product-detail {
     background-color: var(--gray-100);
     padding: 2rem 0;
 }
 
-/* Back Button */
+
 .btn-back {
     color: var(--gray-700);
     font-weight: 500;
@@ -75,7 +71,7 @@
     color: var(--primary-color);
 }
 
-/* Search Bar */
+
 .input-group {
     border: 1px solid var(--gray-300);
     border-radius: 8px;
@@ -110,7 +106,7 @@
     height: 48px;
 }
 
-/* Product Images */
+
 .carousel,
 .carousel-inner,
 .carousel-item {
@@ -136,7 +132,7 @@
     aspect-ratio: 1/1;
     object-fit: contain;
     background-color: white;
-    /* padding: 1rem; */
+    
     max-width: 100%;
     max-height: 100%;
     margin: 0 auto;
@@ -154,7 +150,7 @@
     margin: 0 1rem;
 }
 
-/* Thumbnails */
+
 .thumbnails-container {
     background: white;
     padding: 0.75rem;
@@ -203,7 +199,7 @@
     border-color: var(--secondary-color);
 }
 
-/* Product Info */
+
 .product-info {
     background: white;
     padding: 2rem;
@@ -262,7 +258,7 @@
     color: #991b1b;
 }
 
-/* Description */
+
 .description {
     color: var(--gray-700);
     line-height: 1.8;
@@ -272,7 +268,7 @@
 }
 
 .description.collapsed {
-    max-height: var(--desc-collapsed-height, 324px); /* default fallback */
+    max-height: var(--desc-collapsed-height, 324px); 
 }
 
 .toggle-text {
@@ -288,7 +284,7 @@
     color: var(--primary-color);
 }
 
-/* Floating WhatsApp Button */
+
 .floating-wa {
     position: fixed;
     bottom: 2rem;
@@ -317,7 +313,7 @@
     font-size: 1.25rem;
 }
 
-/* Responsive Design */
+
 @media (max-width: 991px) {
     .product-info {
         margin-top: 1.5rem;
@@ -339,7 +335,7 @@
 }
 
 @media (max-width: 576px) {
-    #product-detail {
+
         padding: 1rem 0;
     }
 
@@ -368,35 +364,31 @@
     }
 }
 
-/* Custom WhatsApp Button for Product Detail */
+
 .btn-custom-whatsapp {
-    background-color: var(--secondary-color); /* Menggunakan warna dari variabel Anda */
-    color: white; /* Teks putih */
-    border-color: var(--secondary-color); /* Warna border sesuai background */
-    transition: all 0.3s ease; /* Transisi halus untuk efek hover */
+    background-color: var(--secondary-color); 
+    color: white; 
+    border-color: var(--secondary-color); 
+    transition: all 0.3s ease; 
 }
 
 .btn-custom-whatsapp:hover {
-    background-color: darken(var(--secondary-color), 10%); /* Menggelapkan warna sedikit saat hover */
-    border-color: darken(var(--secondary-color), 10%); /* Border juga ikut gelap */
-    transform: translateY(-2px); /* Sedikit naik saat di-hover */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Menambah bayangan */
+    background-color: darken(var(--secondary-color), 10%); 
+    border-color: darken(var(--secondary-color), 10%); 
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
 }
 
-/* Jika Anda menggunakan SCSS/SASS, fungsi darken() akan bekerja.
-   Jika Anda hanya menggunakan CSS biasa, Anda perlu menghitung nilai darken secara manual:
-   Warna asli: #EA4E2D
-   Warna yang lebih gelap (sekitar 10%): #C53E24 (gunakan color picker online untuk hasil presisi)
-*/
-/* Contoh jika hanya pakai CSS biasa: */
+
+
 .btn-custom-whatsapp:hover {
-    background-color: #C53E24; /* Nilai warna yang sudah sedikit gelap */
+    background-color: #C53E24; 
     border-color: #C53E24;
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* Fade animation for product image */
+
 .fade-image {
     transition: opacity 0.4s cubic-bezier(0.4,0,0.2,1);
     opacity: 1;
@@ -405,7 +397,7 @@
     opacity: 0;
 }
 
-/* Gallery navigation buttons - only show on hover */
+
 .product-image-preview:hover .gallery-nav-btn {
     opacity: 1;
     pointer-events: auto;
@@ -439,7 +431,7 @@
 .gallery-nav-btn.left { left: 10px; }
 .gallery-nav-btn.right { right: 10px; }
 
-/* Sliding animation + zoom + blur */
+
 .slide-image {
     position: absolute;
     left: 0; top: 0; right: 0; bottom: 0;
@@ -613,7 +605,7 @@
     <script src="{{ asset('js/productDetailGallery.js') }}"></script>
     <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Gallery function (existing code)
+
     let currentGalleryIndex = 0;
     const galleryImages = @json($galleryImageUrls->toArray());
     const mainImg = document.getElementById('mainProductImage');
@@ -655,7 +647,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     updateNavBtn();
 
-    // Toggle deskripsi hanya jika melebihi batas
     const desc = document.getElementById("descriptionText");
     const toggle = document.getElementById("toggleText");
 

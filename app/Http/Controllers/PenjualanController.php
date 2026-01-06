@@ -22,14 +22,13 @@ class PenjualanController extends Controller
 
     public function index(Request $request)
     {
-        // Ambil semua parameter filter
+
         $search = $request->query('search');
         $filterKategori = $request->query('kategori');
         $filterCabang = $request->query('cabang');
         $status = $request->query('status');
         $sort = $request->query('sort', 'terbaru'); // default = terbaru
 
-        // Query utama (gunakan eager load hanya sekali)
         $query = Penjualan::with([
             'customer',
             'perusahaan_cabang',
@@ -88,30 +87,26 @@ class PenjualanController extends Controller
     {
         $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
 
-        // // 4. Ambil semua data penjualan
-        // // (Kita bisa buat ini lebih kompleks nanti dengan relasi)
-        // $penjualan = Penjualan::latest()->get(); // 'latest()' -> urutkan dari yg terbaru
 
-        // 5. Kirim kedua data tersebut ke view
+
+
         return view('admin.Datapenjualan', [
             'kategori' => $kategori,
-            // 'data_penjualan' => $penjualan
+
         ]);
     }
 
     public function create(Request $request)
     {
-        // Ambil parameter filter dari request
+
         $search_term = $request->input('search');
         $selected_kategori = $request->input('kategori', 'all');
         $sort_by = $request->input('sort_by', 'terbaru');
 
-        // Query produk dengan filter
         $query = Produk::with(['gambarUtama', 'kategori'])
             ->where('is_archived', false)
             ->where('is_visible', true);
 
-        // Filter Search (nama produk atau SKU)
         if ($search_term) {
             $query->where(function($q) use ($search_term) {
                 $q->where('nama_produk', 'like', '%' . $search_term . '%')
@@ -119,12 +114,10 @@ class PenjualanController extends Controller
             });
         }
 
-        // Filter Kategori
         if ($selected_kategori && $selected_kategori != 'all') {
             $query->where('id_kategori', $selected_kategori);
         }
 
-        // Sorting
         switch ($sort_by) {
             case 'nama_asc':
                 $query->orderBy('nama_produk', 'asc');
@@ -138,13 +131,10 @@ class PenjualanController extends Controller
                 break;
         }
 
-        // Pagination dengan query string
         $products = $query->paginate(20)->withQueryString();
 
-        // Ambil semua kategori untuk dropdown
         $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
 
-        // Ambil data cart dari session
         $cartSelections = collect(session('cart_penjualan', []))
             ->map(function ($item) {
                 return [
@@ -252,9 +242,9 @@ class PenjualanController extends Controller
 
     public function store(Request $request)
     {
-        // Check if this is from checkout page
+
         if ($request->input('from_checkout') == '1') {
-            // Handle checkout flow - redirect to input form
+
             $validated = $request->validate([
                 'items' => 'required|string',
             ]);
@@ -262,7 +252,6 @@ class PenjualanController extends Controller
             return $this->checkout($request);
         }
 
-        // Normal store flow - validate all required fields
         $validated = $request->validate([
             'customer_id' => 'required|exists:customer,id',
             'perusahaan_cabang_id' => [

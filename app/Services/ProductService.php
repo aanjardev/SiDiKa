@@ -134,7 +134,6 @@ class ProductService
             throw new \InvalidArgumentException('Tidak ada gambar yang diunggah.');
         }
 
-        // Handle existing main image selection (before queue processing)
         if (!empty($mainImageInput) && str_starts_with($mainImageInput, 'existing_')) {
             $idToSet = intval(substr($mainImageInput, strlen('existing_')));
             GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);

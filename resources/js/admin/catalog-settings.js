@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('settingsForm');
     if (!form) return;
 
-    // Deteksi error hanya dari input yang benar-benar invalid / feedback yang ditampilkan
     const hasInlineErrors = !!form.querySelector('.is-invalid, .invalid-feedback.d-block');
     const shouldHideButtons = hasInlineErrors;
 
@@ -30,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.classList.add('btn-primary', 'show-save');
     };
 
-    // Tampilkan tombol simpan per card saat ada perubahan
     if (shouldHideButtons) {
         hideCardButtons();
     } else {
@@ -46,7 +44,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Logic penghapusan banner / partner / gallery
     const partnerRouteTemplate = form.dataset.routePartnerDestroy;
     const bannerRouteTemplate = form.dataset.routeBannerDestroy;
     const galleryRouteTemplate = form.dataset.routeGalleryDestroy;
@@ -112,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     form.requestSubmit();
                 }
 
-                // Optional: perform fetch delete
                 if (finalUrl) {
                     fetch(finalUrl, {
                         method: 'DELETE',
@@ -125,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     });
 
-    // Validasi ukuran file client-side
     const fileInputs = Array.from(form.querySelectorAll('input[type="file"][data-max-bytes]'));
 
     const setInvalid = (input, message) => {
@@ -178,7 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Hilangkan state invalid saat user memperbaiki input
     form.addEventListener('input', (e) => {
         if (e.target.classList.contains('is-invalid')) {
             e.target.classList.remove('is-invalid');
@@ -193,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!ok && !firstInvalid) firstInvalid = input;
         });
 
-        // Cek invalid lain yang mungkin sudah ditandai
         const otherInvalid = firstInvalid || form.querySelector('.is-invalid');
 
         if (otherInvalid) {

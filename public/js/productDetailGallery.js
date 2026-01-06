@@ -40,11 +40,9 @@ document.addEventListener("DOMContentLoaded", function () {
     const desc = document.getElementById("descriptionText");
     const toggle = document.getElementById("toggleText");
 
-    // Hitung tinggi maksimal untuk 20 baris
     const lineHeight = parseFloat(getComputedStyle(desc).lineHeight) || 18;
     const maxHeight = lineHeight * 18;
 
-    // Tampilkan toggle hanya jika teks melebihi 20 baris
     if (desc.scrollHeight > maxHeight) {
         desc.classList.add("collapsed");
         toggle.style.display = "inline";

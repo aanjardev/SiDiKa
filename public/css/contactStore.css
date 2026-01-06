@@ -1,4 +1,4 @@
-/* Variables */
+
 :root {
     --primary-color: #2F353F;
     --secondary-color: #333333;
@@ -18,7 +18,7 @@
     --transition-base: all 0.3s ease;
 }
 
-/* Base Styles */
+
 body {
     font-family: 'Montserrat', sans-serif;
     color: var(--text-color);
@@ -26,7 +26,7 @@ body {
     background-color: var(--gray-100);
 }
 
-/* Typography */
+
 h1, h2, h3, h4, h5, h6 {
     color: var(--primary-color);
     font-weight: 700;
@@ -58,7 +58,7 @@ h1, h2, h3, h4, h5, h6 {
     margin: 0 auto 3rem;
 }
 
-/* Social & Marketplace */
+
 .platform-card {
     background: white;
     border-radius: 15px;
@@ -114,7 +114,7 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateY(-2px);
 }
 
-/* Location Cards */
+
 .location-card {
     background: white;
     border-radius: 15px;
@@ -165,7 +165,7 @@ h1, h2, h3, h4, h5, h6 {
     margin-top: 0.25rem;
 }
 
-/* Contact Form */
+
 .contact-form-card {
     background: white;
     border-radius: 15px;
@@ -208,7 +208,7 @@ h1, h2, h3, h4, h5, h6 {
     transform: translateY(-2px);
 }
 
-/* Store Hours Badge */
+
 .store-hours {
     display: inline-block;
     padding: 0.35rem 0.75rem;
@@ -259,7 +259,7 @@ h1, h2, h3, h4, h5, h6 {
     transition-duration: 500ms;
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
     .section-title {
         font-size: 2rem;

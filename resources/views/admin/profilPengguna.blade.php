@@ -218,7 +218,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Toggle password visibility
+
     const toggleCurrentPassword = document.getElementById('toggleCurrentPassword');
     const toggleNewPassword = document.getElementById('toggleNewPassword');
     const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
@@ -273,35 +273,30 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Function to force clean up all modal remnants
+
     function forceCleanModal() {
-        // Remove all backdrops
+
         document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
             backdrop.remove();
         });
-        
-        // Remove modal-open class from body
+
         document.body.classList.remove('modal-open');
         document.body.style.overflow = '';
         document.body.style.paddingRight = '';
-        
-        // Remove inline styles from body
+
         document.body.removeAttribute('style');
     }
 
-    // Add event listener for modal close to ensure backdrop cleanup
     const changePasswordModal = document.getElementById('changePasswordModal');
     if (changePasswordModal) {
         changePasswordModal.addEventListener('hidden.bs.modal', function() {
-            // Force clean after modal is hidden
+
             setTimeout(() => {
                 forceCleanModal();
             }, 100);
         });
     }
 
-    // Real-time password confirmation validation
     const newPasswordInput = document.getElementById('new_password');
     const confirmPasswordInput = document.getElementById('new_password_confirmation');
     const submitButton = document.querySelector('#resetPasswordForm button[type="submit"]');
@@ -312,17 +307,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (confirmPassword.length > 0) {
             if (newPassword === confirmPassword) {
-                // Passwords match
+
                 confirmPasswordInput.classList.remove('is-invalid');
                 confirmPasswordInput.classList.add('is-valid');
-                
-                // Remove existing error message
+
                 const existingError = confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-error');
                 if (existingError) {
                     existingError.remove();
                 }
-                
-                // Add success feedback
+
                 if (!confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-success')) {
                     const successDiv = document.createElement('div');
                     successDiv.className = 'text-success small mt-1 password-match-success';
@@ -330,17 +323,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     confirmPasswordInput.parentNode.parentNode.appendChild(successDiv);
                 }
             } else {
-                // Passwords don't match
+
                 confirmPasswordInput.classList.remove('is-valid');
                 confirmPasswordInput.classList.add('is-invalid');
-                
-                // Remove existing success message
+
                 const existingSuccess = confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-success');
                 if (existingSuccess) {
                     existingSuccess.remove();
                 }
-                
-                // Add error feedback
+
                 if (!confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-error')) {
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'text-danger small mt-1 password-match-error';
@@ -349,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         } else {
-            // Clear validation states when empty
+
             confirmPasswordInput.classList.remove('is-valid', 'is-invalid');
             const existingError = confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-error');
             const existingSuccess = confirmPasswordInput.parentNode.parentNode.querySelector('.password-match-success');
@@ -382,8 +373,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
-    // Add event listeners for real-time validation
+
     if (newPasswordInput && confirmPasswordInput) {
         newPasswordInput.addEventListener('input', function() {
             validatePasswordMatch();
@@ -392,22 +382,19 @@ document.addEventListener('DOMContentLoaded', function() {
         confirmPasswordInput.addEventListener('input', function() {
             validatePasswordMatch();
         });
-        
-        // Also validate on blur for better UX
+
         confirmPasswordInput.addEventListener('blur', function() {
             validatePasswordMatch();
         });
     }
-    
-    // Validate current password as well
+
     const currentPasswordInput = document.getElementById('current_password');
     if (currentPasswordInput) {
         currentPasswordInput.addEventListener('input', function() {
             updateSubmitButton();
         });
     }
-    
-    // Prevent form submission if passwords don't match
+
     const resetPasswordForm = document.getElementById('resetPasswordForm');
     if (resetPasswordForm) {
         resetPasswordForm.addEventListener('submit', function(e) {
@@ -417,20 +404,18 @@ document.addEventListener('DOMContentLoaded', function() {
             const confirmPassword = confirmPasswordInput.value;
             
             if (newPassword !== confirmPassword) {
-                // Show error message in modal
+
                 showPasswordError('Password tidak cocok! Pastikan password baru dan konfirmasi password sama.');
                 confirmPasswordInput.focus();
                 confirmPasswordInput.classList.add('is-invalid');
                 return;
             }
-            
-            // Show loading state
+
             const submitBtn = this.querySelector('button[type="submit"]');
             const originalText = submitBtn.innerHTML;
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengubah Password...';
-            
-            // Hide any existing alerts
+
             hidePasswordAlerts();
             
             // Submit form via AJAX
@@ -448,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Show success notification using UiAlert component
+
                     if (typeof window.UiAlert !== 'undefined') {
                         window.UiAlert.push({
                             type: 'success',
@@ -457,8 +442,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             autoDismiss: true
                         });
                     }
-                    
-                    // Clear form
+
                     this.reset();
                     newPasswordInput.classList.remove('is-valid');
                     confirmPasswordInput.classList.remove('is-valid');
@@ -468,22 +452,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     submitBtn.disabled = true;
                     submitBtn.classList.remove('btn-primary');
                     submitBtn.classList.add('btn-secondary');
-                    
-                    // Close modal immediately
+
                     const modal = bootstrap.Modal.getInstance(document.getElementById('changePasswordModal'));
                     if (modal) {
                         modal.hide();
-                        
-                        // Force cleanup backdrop after modal is hidden
+
                         setTimeout(() => {
                             forceCleanModal();
                         }, 300);
                     }
                 } else {
-                    // Show error message in modal
+
                     showPasswordError(data.message || 'Terjadi kesalahan, silakan coba lagi.');
-                    
-                    // Focus on current password if it's wrong
+
                     if (data.message && data.message.toLowerCase().includes('password lama')) {
                         currentPasswordInput.focus();
                         currentPasswordInput.classList.add('is-invalid');
@@ -495,41 +476,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 showPasswordError('Terjadi kesalahan jaringan, silakan coba lagi.');
             })
             .finally(() => {
-                // Reset button state
+
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             });
         });
     }
-    
-    // Function to show error message
+
     function showPasswordError(message) {
         const errorAlert = document.getElementById('passwordErrorAlert');
         const errorMessage = document.getElementById('passwordErrorMessage');
-        
-        // Show error alert
+
         errorMessage.textContent = message;
         errorAlert.classList.remove('d-none');
-        
-        // Scroll to top of modal to show error
+
         const modalBody = document.querySelector('#changePasswordModal .modal-body');
         if (modalBody) {
             modalBody.scrollTop = 0;
         }
     }
-    
-    // Function to hide all alerts
+
     function hidePasswordAlerts() {
         const errorAlert = document.getElementById('passwordErrorAlert');
         errorAlert.classList.add('d-none');
     }
-    
-    // Clear validation states when user starts typing again
+
     [currentPasswordInput, newPasswordInput, confirmPasswordInput].forEach(input => {
         if (input) {
             input.addEventListener('input', function() {
                 this.classList.remove('is-invalid');
-                // Hide error alert when user starts typing
+
                 hidePasswordAlerts();
             });
         }

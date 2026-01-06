@@ -29,7 +29,6 @@ class AdminProductController extends Controller
             ->where('is_archived', false)
             ->orderBy('updated_at', 'desc');
 
-        // Search by nama produk or SKU
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
@@ -38,12 +37,10 @@ class AdminProductController extends Controller
             });
         }
 
-        // Filter by kategori
         if ($request->filled('kategori') && $request->input('kategori') !== 'all') {
             $query->where('id_kategori', $request->input('kategori'));
         }
 
-        // Sort by
         $sortBy = $request->input('sort_by', 'updated_at');
         $sortOrder = $request->input('sort_order', 'desc');
 
@@ -57,7 +54,6 @@ class AdminProductController extends Controller
 
         $products = $query->paginate(10)->withQueryString();
 
-        // Ambil data kategori untuk filter
         $kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
 
         return view('admin.dataProduk', [
@@ -110,7 +106,6 @@ class AdminProductController extends Controller
 
         $products = $query->orderBy('created_at', 'desc')->paginate(10);
 
-        // AJAX support: return partial HTML for tbody + pagination
         if ($request->ajax() || $request->wantsJson()) {
             $table_html = view('admin.partials.photo_product_rows', ['products' => $products])->render();
             $pagination_html = $products->hasPages() ? $products->appends($request->query())->links('pagination::bootstrap-5')->render() : '';
@@ -135,7 +130,7 @@ class AdminProductController extends Controller
      */
     public function photosUpload($id)
     {
-        // load the photos relation (alias added on the Produk model)
+
         $product = Produk::with('photos')->findOrFail($id);
         return view('admin.uploadProductPhotos', [
             'product' => $product,
@@ -156,7 +151,7 @@ class AdminProductController extends Controller
             );
 
             // Setelah submit dari halaman uploadProductPhotos,
-            // selalu redirect kembali ke daftar Foto Produk.
+
             return redirect()
                 ->route('admin.products.photos')
                 ->with('success', 'Foto berhasil diunggah.');
@@ -222,7 +217,7 @@ class AdminProductController extends Controller
 
         DB::beginTransaction();
         try {
-            // unset existing main
+
             GambarProduk::where('id_produk', $product->id)->update(['is_main' => false]);
             $gambar->is_main = true;
             $gambar->save();
@@ -437,17 +432,14 @@ class AdminProductController extends Controller
         $sqlState = (string)($e->errorInfo[0] ?? '');
         $driverErrorCode = (int)($e->errorInfo[1] ?? 0);
 
-        // MySQL/MariaDB: 1451 (Cannot delete or update a parent row)
         if ($driverErrorCode === 1451) {
             return true;
         }
 
-        // PostgreSQL: 23503 (foreign_key_violation)
         if ($sqlState === '23503') {
             return true;
         }
 
-        // Fallback for other drivers/messages
         return $sqlState === '23000' && str_contains(strtolower($e->getMessage()), 'foreign key');
     }
 }

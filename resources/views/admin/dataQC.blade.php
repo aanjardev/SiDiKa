@@ -21,7 +21,7 @@
         text-decoration: underline !important;
     }
 
-    /* QC table: keep desktop width tight without horizontal scroll; allow wrap */
+    
     .qc-table-responsive {
         overflow-x: auto;
     }
@@ -61,13 +61,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = form.querySelector('input[name="search"]');
     const kategoriFilter = form.querySelector('select[name="kategori"]');
     const sortFilter = form.querySelector('select[name="sort"]');
-    // Pastikan route ini tersedia di view
+
     const urlIndex = '{{ route('admin.quality-control.index') }}';
 
     let isFetching = false;
     let searchTimeout;
 
-    // Fetch function
     async function fetchQc(url) {
         if (!url) return;
         isFetching = true;
@@ -135,7 +134,6 @@ document.addEventListener('DOMContentLoaded', function() {
         fetchQc(href);
     }
 
-    // Event Listeners
     if (searchInput) {
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
@@ -236,7 +234,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                 <a href="{{ route('admin.purchases.show', $item->pembelian->id) }}"
                                    class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none clickable-code qc-code-chip"
                                    onclick="event.stopPropagation();">
-                                    #{{ $item->pembelian->kode_transaksi }}
+
                                 </a>
                             </td>
 

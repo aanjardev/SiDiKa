@@ -437,13 +437,13 @@
 
 @push('scripts')
 <script>
-    // Inisialisasi awal - beri class berdasarkan status awal
+
     document.addEventListener('DOMContentLoaded', function() {
         const statusSelect = document.querySelector('select[name="status_qc"]');
         const dynamicFields = document.querySelectorAll('.dynamic-required[data-lolos-qc-required="true"]');
 
         if (statusSelect && dynamicFields.length > 0) {
-            // Fungsi untuk update field mode
+
             function updateFieldMode(isLolosQc) {
                 dynamicFields.forEach(field => {
                     if (isLolosQc) {
@@ -456,10 +456,8 @@
                 });
             }
 
-            // Set initial state
             updateFieldMode(statusSelect.value === 'lolos_qc');
 
-            // Listen for changes
             statusSelect.addEventListener('change', function() {
                 updateFieldMode(this.value === 'lolos_qc');
             });

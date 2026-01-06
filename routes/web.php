@@ -38,13 +38,11 @@ Route::get("/about", [PageController::class,"about"]);
 Route::get("/contact", [PageController::class,"contact"]);
 Route::get("/admin", [PageController::class,"admin"]);
 
-// Timeout Testing Routes
 Route::get('/test-timeout', [TimeoutController::class, 'testTimeout'])->name('test.timeout');
 Route::get('/test-queue', [TimeoutController::class, 'handleHeavyTask'])->name('test.queue');
 Route::get('/check-job/{jobId}', [TimeoutController::class, 'checkJobStatus'])->name('check.job.status');
 Route::get('/simulate-timeout', [TimeoutController::class, 'simulateTimeout'])->name('simulate.timeout');
 
-// Error Testing Routes
 Route::get('/test-404', function() {
     abort(404, 'Halaman testing 404 tidak ditemukan');
 })->name('test.404');
@@ -54,12 +52,12 @@ Route::get('/test-403', function() {
 })->name('test.403');
 
 Route::get('/test-500', function() {
-    // Simulasi error 500 dengan cara yang aman
+
     return response()->view('errors.500', [], 500);
 })->name('test.500');
 
 Route::get('/test-real-500', function() {
-    // Test real 500 error (akan trigger exception handler)
+
     throw new \Exception('Simulasi error 500 untuk testing');
 })->name('test.real.500');
 
@@ -78,12 +76,11 @@ Route::get('/test-auth', function() {
 Route::get("/katalog", [ProductController::class, "index"])->name('product.index');
 Route::get("/katalog/suggest", [ProductController::class, "suggest"])->name('product.suggest');
 Route::get("/katalog/{id}", [ProductController::class, "show"])->name('product.show');
-// Route::resource('admin', AdminProductController::class);
+
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
-// Account Activation Routes
 Route::get('/activation', [AccountActivationController::class, 'showActivationForm'])->name('activation.form');
 Route::post('/activation/verify-email', [AccountActivationController::class, 'verifyEmail'])->name('activation.verify-email');
 Route::get('/activation/verify', [AccountActivationController::class, 'showVerificationForm'])->name('activation.verify-form');
@@ -92,7 +89,6 @@ Route::get('/activation/setup-password/{token}', [AccountActivationController::c
 Route::post('/activation/setup-password/{token}', [AccountActivationController::class, 'setupPassword'])->name('activation.setup-password.post');
 Route::post('/activation/resend-code', [AccountActivationController::class, 'resendCode'])->name('activation.resend-code');
 
-// Public Password Reset Routes (tanpa auth)
 Route::get('/forgot-password', [ProfileController::class, 'showPublicForgotPasswordForm'])->name('password.request');
 Route::post('/forgot-password', [ProfileController::class, 'publicForgotPassword'])->name('password.email');
 Route::get('/verify-reset-code', [ProfileController::class, 'showPublicVerifyResetCodeForm'])->name('public.verify-reset-code');
@@ -101,35 +97,31 @@ Route::get('/reset-password', [ProfileController::class, 'showPublicResetPasswor
 Route::post('/reset-password', [ProfileController::class, 'publicResetPassword'])->name('public.reset-password.post');
 Route::post('/resend-reset-code', [ProfileController::class, 'resendPublicResetCode'])->name('public.resend-reset-code');
 
-
-// Routenya admin
 Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    // Page for products that need photos (no images yet) - register BEFORE the resource so it isn't captured by /products/{id}
+
     Route::get('/products/photos', [AdminProductController::class, 'photos'])->name('products.photos');
-    // Archived products list & actions
+
     Route::get('/products/archived', [AdminProductController::class, 'archivedIndex'])->name('products.archived');
     Route::post('/products/{product}/archive', [AdminProductController::class, 'archive'])->name('products.archive');
     Route::post('/products/{id}/restore', [AdminProductController::class, 'restore'])->name('products.restore');
-    // Upload photos for a specific product (uploader role)
+
     Route::get('/products/{id}/photos-upload', [AdminProductController::class, 'photosUpload'])->name('products.photos.upload');
     Route::post('/products/{id}/photos-upload', [AdminProductController::class, 'photosUploadStore'])->name('products.photos.uploadStore');
-    // Single AJAX upload for one image (used by the upload UI)
+
     Route::post('/products/{id}/photo-upload', [AdminProductController::class, 'photosUploadSingle'])->name('products.photos.uploadSingle');
-    // Set a specific image as main
+
     Route::post('/products/{productId}/photos/{imageId}/set-main', [AdminProductController::class, 'setMainPhoto'])->name('products.photos.setMain');
-    // Delete a product image
+
     Route::post('/products/{productId}/photos/{imageId}/delete', [AdminProductController::class, 'deletePhoto'])->name('products.photos.delete');
     Route::resource('/products', AdminProductController::class)->names('products');
 
-    // pastikan jalur pencarian tidak tertelan oleh route resource (/customers/{id})
     Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
     Route::resource('/customers', CustomerController::class)->names('customers');
     Route::resource('/categories'   , CategoryController::class)->names('categories');
     Route::patch('/branches/{branch}/status', [BranchController::class, 'updateStatus'])->name('branches.update-status');
     Route::resource('/branches', BranchController::class)->names('branches');
 
-    // Transaksi
     Route::resource('/sales', PenjualanController::class)->names('sales');
     Route::resource('/purchases', PembelianController::class)->names('purchases');
     Route::get('/sales/export/pdf', [PenjualanController::class, 'exportMonthlyPdf'])->name('sales.export.pdf');
@@ -139,23 +131,21 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/purchases/store-item-draft', [PembelianController::class, 'ajaxStoreItemDraft'])->name('purchases.ajaxStoreItemDraft');
     Route::put('/purchases/update-item-draft/{item_id}', [PembelianController::class, 'ajaxUpdateItemDraft'])->name('purchases.ajaxUpdateItemDraft');
     Route::delete('/purchases/delete-item-draft/{item_id}', [PembelianController::class, 'ajaxDeleteItemDraft'])->name('purchases.ajaxDeleteItemDraft');
-    // Route untuk melihat arsip produk QC (tidak layak jual)
-    // IMPORTANT: register this explicit route BEFORE the resource routes so
-    // it doesn't get captured by the resource 'show' route (/quality-control/{id}).
+
+
+
     Route::get('/quality-control/archived', [QCController::class, 'archived'])->name('quality-control.archived');
-    // Route untuk mengembalikan item dari arsip (restore)
+
     Route::post('/quality-control/{id}/restore', [QCController::class, 'restore'])->name('quality-control.restore');
     Route::resource('/quality-control', QCController::class)->names('quality-control');
 
-    // Manajemen
     Route::get('/catalog-settings', [CatalogSettingsController::class, 'edit'])->name('catalog-settings.index');
     Route::post('/catalog-settings', [CatalogSettingsController::class, 'update'])->name('catalog-settings.update');
     Route::delete('/catalog-settings/banner/{id}', [CatalogSettingsController::class, 'destroyBanner'])->name('catalog-settings.banner.destroy');
     Route::delete('/catalog-settings/partner/{id}', [CatalogSettingsController::class, 'destroyPartner'])->name('catalog-settings.partner.destroy');
     Route::delete('/catalog-settings/gallery/{id}', [CatalogSettingsController::class, 'destroyGallery'])->name('catalog-settings.gallery.destroy');
     Route::get('/promotions', function () { return view('admin.promotions'); })->name('promotions');
-    
-    // Smart Stock Analysis
+
     Route::get('/smart-stock', [SmartStockController::class, 'index'])->name('smart-stock.index');
     Route::get('/smart-stock/product/{productId}/prediction', [SmartStockController::class, 'getProductPrediction'])->name('smart-stock.product.prediction');
     Route::get('/smart-stock/notifications', [SmartStockController::class, 'getNotifications'])->name('smart-stock.notifications');
@@ -178,8 +168,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('/profile/resetPassword', [ProfileController::class, 'resetPassword'])->name('profile.resetPassword.show');
     Route::post('/profile/resetPassword', [ProfileController::class, 'update'])->name('profile.resetPassword.post');
-    
-    // Forgot Password Routes
+
     Route::get('/profile/forgot-password', [ProfileController::class, 'showForgotPasswordForm'])->name('profile.forgot-password.show');
     Route::post('/profile/forgot-password', [ProfileController::class, 'forgotPassword'])->name('profile.forgot-password');
     Route::get('/profile/verify-reset-code', [ProfileController::class, 'showVerifyResetCodeForm'])->name('profile.verify-reset-code');
@@ -187,6 +176,5 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/profile/reset-forgotten-password', [ProfileController::class, 'showResetForgottenPasswordForm'])->name('profile.reset-forgotten-password');
     Route::post('/profile/reset-forgotten-password', [ProfileController::class, 'resetForgottenPassword'])->name('profile.reset-forgotten-password.post');
     Route::post('/profile/resend-reset-code', [ProfileController::class, 'resendResetCode'])->name('profile.resend-reset-code');
-    
-    // Route::get('purchases/{id}/print', [PembelianController::class, 'printNota'])->name('admin.purchases.print');
+
 });

@@ -1,5 +1,5 @@
-// Clickable Rows
-// Makes table rows with `data-detail-url` clickable while ignoring action buttons/links.
+
+
 (function () {
     function navigate(url, ev) {
         if (!url) return;
@@ -34,7 +34,6 @@
             navigate(url, e);
         });
 
-        // keyboard: Enter to activate focused row
         document.addEventListener("keydown", function (e) {
             if (e.key !== "Enter") return;
             const el = document.activeElement;
@@ -48,16 +47,14 @@
             navigate(url, e);
         });
 
-        // make rows focusable for accessibility
         document.querySelectorAll(selector).forEach((r) => {
             if (!r.hasAttribute("tabindex")) r.setAttribute("tabindex", "0");
-            // add pointer cursor via inline style if not already set
+
             const cur = window.getComputedStyle(r).cursor;
             if (!cur || cur === "auto") r.style.cursor = "pointer";
         });
     }
 
-    // Auto-init on DOM ready
     if (document.readyState === "loading") {
         document.addEventListener("DOMContentLoaded", function () {
             initClickableRows();
@@ -66,6 +63,5 @@
         initClickableRows();
     }
 
-    // Expose for manual init if needed
     window.ClickableRows = { init: initClickableRows };
 })();

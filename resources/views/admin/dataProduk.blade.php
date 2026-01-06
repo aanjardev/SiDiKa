@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 <script>
-    // Fungsi Delete menggunakan sistem alert (nama berbeda untuk menghindari konflik)
+
     function handleDeleteProduk(button) {
         if (typeof window.confirmDelete === 'function') {
             window.confirmDelete('Apakah Anda yakin ingin menghapus produk ini?', 'Konfirmasi Hapus')
@@ -246,7 +246,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    // Export ke window
     window.handleDeleteProduk = handleDeleteProduk;
 </script>
 @endpush

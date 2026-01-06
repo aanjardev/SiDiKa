@@ -16,17 +16,15 @@ class QCController extends Controller
      */
     public function index(Request $request)
     {
-        // 1. Ambil semua kategori untuk filter dropdown
+
         $semua_kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
 
-        // 2. Bangun query dasar: item menunggu QC dari pembelian yang 'deal'
         $query = ItemPembelian::with(['pembelian', 'kategori'])
             ->where('status_qc', 'menunggu_qc')
             ->whereHas('pembelian', function ($q) {
                 $q->where('status_pembelian', 'deal');
             });
 
-        // 3. Filter: search (nama item, serial, atau kode transaksi)
         if ($request->filled('search')) {
             $s = $request->input('search');
             $query->where(function ($q) use ($s) {
@@ -39,12 +37,10 @@ class QCController extends Controller
             });
         }
 
-        // 4. Filter kategori
         if ($request->filled('kategori')) {
             $query->where('kategori_id', $request->input('kategori'));
         }
 
-        // 5. Sort
         $sort = $request->input('sort', 'terbaru');
         if ($sort === 'terlama') {
             $query->oldest('created_at');
@@ -52,10 +48,8 @@ class QCController extends Controller
             $query->latest('created_at');
         }
 
-        // 6. Paginate
         $data_qc = $query->paginate(10);
 
-        // 7. Jika AJAX -> kembalikan JSON berisi HTML partial untuk tbody + pagination
         if ($request->ajax() || $request->wantsJson()) {
             $table_html = view('admin.partials.qc_table_rows', compact('data_qc'))->render();
             $pagination_html = $data_qc->hasPages() ? $data_qc->appends($request->query())->links('pagination::bootstrap-5')->render() : '';
@@ -65,7 +59,6 @@ class QCController extends Controller
             ]);
         }
 
-        // 8. Normal page render
         return view('admin.dataQC', [
             'data_qc' => $data_qc,
             'semua_kategori' => $semua_kategori,
@@ -94,11 +87,9 @@ class QCController extends Controller
     {
         $item = ItemPembelian::findOrFail($id);
 
-        // Get status_qc dari request
         $statusQc = $request->input('status_qc', $item->status_qc);
         $action = $request->input('action', 'save');
 
-        // Define base rules untuk semua status
         $baseRules = [
             'nama_item' => 'nullable|string|max:200',
             'kategori_id' => 'nullable|exists:kategori,id',
@@ -135,9 +126,8 @@ class QCController extends Controller
             'catatan_qc' => 'nullable|string',
         ];
 
-        // Rules khusus berdasarkan status QC
         if ($statusQc === 'lolos_qc' || $action === 'save') {
-            // Untuk lolos_qc, field tertentu harus required
+
             $rules = array_merge($baseRules, [
                 'nama_item' => 'required|string|max:200',
                 'kategori_id' => 'required|exists:kategori,id',
@@ -147,20 +137,18 @@ class QCController extends Controller
                 'qty' => 'required|integer|min:1',
             ]);
         } elseif ($statusQc === 'gagal_qc' || $statusQc === 'diarsipkan') {
-            // Untuk gagal/diarsipkan, semua optional
+
             $rules = $baseRules;
         } else {
-            // Untuk menunggu_qc (draft), minimal nama_item dan kategori
+
             $rules = array_merge($baseRules, [
                 'nama_item' => 'required|string|max:200',
                 'kategori_id' => 'required|exists:kategori,id',
             ]);
         }
 
-        // Validasi data
         $data = $request->validate($rules);
 
-        // Force status berdasarkan action
         if ($action === 'archive') {
             $data['status_qc'] = 'diarsipkan';
             $statusQc = 'diarsipkan';
@@ -169,19 +157,17 @@ class QCController extends Controller
             $statusQc = 'menunggu_qc';
         }
 
-        // Handle different QC outcomes
         if ($statusQc === 'lolos_qc') {
-            // Create or update product in `produk` table
+
             DB::beginTransaction();
             try {
-                // Ensure there's a SKU; generate one if missing
+
                 $kodeSku = $data['kode_sku'] ?? null;
                 if (empty($kodeSku)) {
                     $kodeSku = 'QC-' . time() . '-' . rand(100, 999);
                     $data['kode_sku'] = $kodeSku;
                 }
 
-                // Prepare product payload
                 $productPayload = [
                     'kode_sku' => $kodeSku,
                     'id_kategori' => $data['kategori_id'] ?? $item->kategori_id,
@@ -198,7 +184,6 @@ class QCController extends Controller
                     'kelengkapan' => $data['kelengkapan'] ?? $item->kelengkapan,
                 ];
 
-                // If a product with same SKU exists, update it (increase stock), otherwise create
                 $existing = Produk::where('kode_sku', $kodeSku)->first();
                 if ($existing) {
                     $existing->nama_produk = $productPayload['nama_produk'];
@@ -219,14 +204,12 @@ class QCController extends Controller
                     $createdProduct = Produk::create($productPayload);
                 }
 
-                // mark item as lolos_qc and save all fields
                 $item->fill($data);
                 $item->status_qc = 'lolos_qc';
                 $item->save();
 
                 DB::commit();
 
-                // Redirect back to QC list
                 return redirect()->route('admin.quality-control.index')
                     ->with('success', 'Item lolos QC dan dipindahkan ke tabel Produk. Kode Produk: ' . $kodeSku);
 
@@ -236,7 +219,6 @@ class QCController extends Controller
             }
         }
 
-        // Jika status gagal_qc atau diarsipkan
         if (in_array($statusQc, ['gagal_qc', 'diarsipkan'])) {
             $item->fill($data);
             $item->save();
@@ -245,7 +227,6 @@ class QCController extends Controller
                 ->with('success', 'Item telah dipindahkan ke arsip produk.');
         }
 
-        // Default: simpan perubahan sebagai draft / menunggu QC
         $item->fill($data);
         $item->save();
 
@@ -261,23 +242,20 @@ class QCController extends Controller
      */
     public function archived(Request $request)
     {
-        // Ambil parameter dari request
+
         $search_term = $request->input('search');
         $selected_kategori = $request->input('kategori', 'all');
         $sort_by = $request->input('sort_by', 'updated_at');
         $sort_order = $request->input('sort_order', 'desc');
 
-        // Ambil semua kategori untuk dropdown filter
         $semua_kategori = Kategori::orderBy('nama_kategori', 'asc')->get();
 
-        // Query dasar
         $query = ItemPembelian::with(['pembelian', 'kategori'])
             ->whereIn('status_qc', ['diarsipkan', 'gagal_qc'])
             ->whereHas('pembelian', function ($q) {
                 $q->where('status_pembelian', 'deal');
             });
 
-        // === SEARCH ===
         if ($search_term) {
             $query->where(function ($q) use ($search_term) {
                 $q->where('nama_item', 'like', "%{$search_term}%")
@@ -288,12 +266,10 @@ class QCController extends Controller
             });
         }
 
-        // === FILTER KATEGORI ===
         if ($selected_kategori !== 'all') {
             $query->where('kategori_id', $selected_kategori);
         }
 
-        // === SORTING ===
         switch ($sort_by) {
             case 'nama_item':
                 $query->orderBy('nama_item', 'asc');
@@ -310,7 +286,6 @@ class QCController extends Controller
                 break;
         }
 
-        // Pagination
         $data_qc = $query->paginate(15)->withQueryString();
 
         return view('admin.dataQC_archived', compact(
@@ -329,7 +304,7 @@ class QCController extends Controller
     public function restore(Request $request, $id)
     {
         $item = ItemPembelian::findOrFail($id);
-        // Kembalikan ke antrian QC (menunggu_qc), bukan langsung lolos
+
         $item->status_qc = 'menunggu_qc';
         $item->save();
         return redirect()->back()->with('success', 'Item dikembalikan ke antrian QC untuk diperiksa ulang.');

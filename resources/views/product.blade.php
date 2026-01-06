@@ -171,13 +171,12 @@
     <script type="module" src="{{ asset('js/productHover.js') }}"></script>
     <script type="module" src="{{ asset('js/scrollNavigation.js') }}"></script>
     <script>
-        // Initialize AOS
+
         AOS.init({
             duration: 800,
             once: true
         });
 
-        // Debounced search
         let timeout;
         const input = document.querySelector('input[name="search"]');
         input.addEventListener('keyup', () => {
@@ -194,7 +193,6 @@
             });
         });
 
-        // Initialize tooltips
         document.addEventListener('DOMContentLoaded', function () {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
             tooltipTriggerList.forEach(function (tooltipTriggerEl) {

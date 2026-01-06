@@ -1,13 +1,12 @@
-// Initialize AOS
+
 AOS.init({
     duration: 1000,
     once: true,
     offset: 100
 });
 
-// Custom animations for specific elements
 document.addEventListener('DOMContentLoaded', function() {
-    // Hero section typing effect
+
     if (document.querySelector('.hero-title')) {
         new TypeIt('.hero-title', {
             speed: 50,
@@ -15,7 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }).go();
     }
 
-    // Smooth scroll for navigation links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
@@ -29,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Counter animation for stats
     const animateCounter = (element, target) => {
         let current = 0;
         const increment = target / 50;
@@ -43,7 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 30);
     };
 
-    // Intersection Observer for counter animation
     const counterElements = document.querySelectorAll('.counter-number');
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -57,7 +53,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     counterElements.forEach(counter => observer.observe(counter));
 
-    // Parallax effect for hero section
     const heroSection = document.querySelector('.hero-section');
     if (heroSection) {
         window.addEventListener('scroll', () => {
@@ -66,7 +61,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Image hover effect
     document.querySelectorAll('.product-card').forEach(card => {
         card.addEventListener('mouseenter', function() {
             this.style.transform = 'translateY(-10px)';

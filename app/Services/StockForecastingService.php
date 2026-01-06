@@ -26,7 +26,6 @@ class StockForecastingService
             ->whereBetween('penjualan.created_at', [$startDate, $endDate])
             ->sum('detail_penjualan.qty');
 
-        // Calculate average daily usage
         $averageDailyUsage = $totalQty / $days;
 
         return max(0, round($averageDailyUsage, 2));
@@ -41,7 +40,7 @@ class StockForecastingService
      */
     public function predictStockDepletion(int $productId, ?int $currentStock = null): int
     {
-        // Get current stock if not provided
+
         if ($currentStock === null) {
             $product = Produk::find($productId);
             if (!$product) {
@@ -50,20 +49,16 @@ class StockForecastingService
             $currentStock = (int) $product->stok_produk;
         }
 
-        // If stock is already 0 or negative, return 0
         if ($currentStock <= 0) {
             return 0;
         }
 
-        // Calculate average daily usage
         $averageDailyUsage = $this->calculateDailyUsage($productId);
 
-        // If no sales in the last 30 days, return safe value
         if ($averageDailyUsage <= 0) {
             return 999;
         }
 
-        // Calculate days until depletion: current stock / average daily usage
         $daysUntilDepletion = (int) floor($currentStock / $averageDailyUsage);
 
         return max(0, $daysUntilDepletion);

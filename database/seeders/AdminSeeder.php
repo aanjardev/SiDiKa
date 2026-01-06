@@ -18,15 +18,15 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        // Cek apakah admin account sudah ada
+
         $existingAdmin = User::where('email', 'admin@dinoyokamera.com')->first();
         
         if (!$existingAdmin) {
-            // Cari karyawan manager untuk dijadikan admin account
+
             $manager = Employee::where('jabatan', 'Manager')->first();
             
             if ($manager) {
-                // Buat user admin account dengan role manager (highest role)
+
                 User::create([
                     'id' => $manager->id,
                     'name' => $manager->nama_lengkap,
@@ -35,7 +35,7 @@ class AdminSeeder extends Seeder
                     'role' => 'manager', // Role manager (highest level)
                     'status' => 'active', // Langsung aktif, tidak pending
                     'email_verified_at' => now(), // Langsung verified
-                    // activation_token dan token_expiry tidak perlu karena sudah aktif
+
                 ]);
 
                 $this->command->info('✅ Admin account created successfully!');

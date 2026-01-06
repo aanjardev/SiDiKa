@@ -26,8 +26,6 @@ return new class extends Migration
         $table->timestamps();
         });
 
-
-    // 2. catalog_banners
     Schema::create('catalog_banners', function (Blueprint $table) {
         $table->id();
         $table->foreignId('catalog_setting_id')->constrained()->onDelete('cascade'); // relasi ke catalog_settings
@@ -35,7 +33,6 @@ return new class extends Migration
         $table->timestamps();
         });
 
-    // 3. catalog_partner_logos
     Schema::create('catalog_partner_logos', function (Blueprint $table) {
         $table->id();
         $table->foreignId('catalog_setting_id')->constrained()->onDelete('cascade'); // relasi ke catalog_settings

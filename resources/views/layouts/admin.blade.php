@@ -57,7 +57,7 @@
     --sidebar-bg: #ffffff;
     --sidebar-hover: #f5f7fb;
     --primary-color: #4e6bff;
-    /* Brand blue used specifically for sidebar hover/active to avoid being overridden */
+    
     --brand-blue: #4e6bff;
     --text-dark: #2f353f;
     --text-muted: #6c757d;
@@ -69,7 +69,7 @@ body {
     overflow-x: hidden;
 }
 
-/* Sidebar */
+
 .sidebar {
     position: fixed;
     top: 0;
@@ -168,7 +168,7 @@ body {
     box-shadow: 0 10px 20px rgba(78, 107, 255, 0.15);
 }
 
-/* Active state for top-level menu links (e.g., Dashboard) */
+
 .menu-link.active {
     background: var(--brand-blue);
     color: #fff;
@@ -197,7 +197,7 @@ body {
     color: #fff;
 }
 
-/* Remove hover blue on sub header toggles only */
+
 .menu-toggle:hover {
     background: transparent;
     color: var(--text-dark);
@@ -209,7 +209,7 @@ body {
     color: var(--text-muted);
 }
 
-/* Active state for collapse toggles (when child submenu contains active link) */
+
 .menu-toggle.active {
     background: var(--brand-blue);
     color: #fff;
@@ -230,7 +230,7 @@ body {
     transform: rotate(90deg);
 }
 
-/* Submenu */
+
 .submenu {
     padding-left: 0;
     margin-top: 0.5rem;
@@ -287,7 +287,7 @@ body {
     color: #fff;
 }
 
-/* Footer */
+
 .sidebar-footer {
     position: relative;
     bottom: 0;
@@ -340,7 +340,7 @@ body {
     margin: 0;
 }
 
-/* Sidebar footer dropdown */
+
 .sidebar-footer {
     position: relative;
     bottom: 0;
@@ -389,7 +389,7 @@ body {
     width: auto;
     max-width: none;
 }
-/* Main content */
+
 .main-content {
     margin-left: var(--sidebar-width);
     min-height: 100vh;
@@ -410,7 +410,7 @@ body {
     margin: 0;
 }
 
-/* Mobile */
+
 @media (max-width: 1200px) {
     :root {
         --sidebar-width: 240px;
@@ -490,8 +490,8 @@ body {
     visibility: visible;
 }
 
-/* Loader */
-#loading {
+
+
     position: fixed;
     top: 0;
     left: 0;
@@ -520,7 +520,7 @@ body {
     }
 }
 
-/* Variables */
+
 :root {
     --primary-color: #2f353f;
     --secondary-color: #130303;
@@ -566,7 +566,7 @@ body {
     --transition-base: all 0.3s ease;
 }
 
-/* Base Styles */
+
 * {
     font-family: "Montserrat", sans-serif;
     box-sizing: border-box;
@@ -580,7 +580,7 @@ body {
     line-height: 1.6;
 }
 
-/* Typography */
+
 h1,
 h2,
 h3,
@@ -608,7 +608,7 @@ p {
     margin-bottom: 1rem;
 }
 
-/* Layout */
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -624,7 +624,7 @@ section {
     margin-bottom: 2rem;
 }
 
-/* Cards */
+
 .admin-card {
     background: white;
     border-radius: 10px;
@@ -656,7 +656,7 @@ section {
     padding: 1.5rem;
 }
 
-/* Forms */
+
 .form-label {
     font-weight: 600;
     color: var(--gray-700);
@@ -675,7 +675,7 @@ section {
     box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
 }
 
-/* Tables */
+
 .table {
     margin-bottom: 0;
 }
@@ -702,7 +702,7 @@ section {
     background-color: var(--gray-200);
 }
 
-/* Buttons */
+
 .btn {
     font-weight: 600;
     padding: 0.75rem 1.5rem;
@@ -746,7 +746,7 @@ section {
     font-size: 0.875rem;
 }
 
-/* Alerts */
+
 .alert {
     border-radius: 6px;
     padding: 1rem;
@@ -759,7 +759,7 @@ section {
     color: #0f5132;
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
     h1 {
         font-size: 2rem;
@@ -917,9 +917,9 @@ footer a:hover {
     transition-duration: 500ms;
 }
 
-/* Media Query untuk Responsivitas */
 
-/* iPad (tablet, lebar 768px - 1024px) */
+
+
 @media (max-width: 1024px) {
     .container {
         max-width: 100%;
@@ -952,7 +952,7 @@ footer a:hover {
     }
 }
 
-/* HP (mobile, lebar <= 576px) */
+
 @media (max-width: 576px) {
     h2 {
         font-size: 1.5rem;
@@ -1274,12 +1274,11 @@ footer a:hover {
     </div>
 
     <script>
-        // Hide loader when page is loaded
+
         window.addEventListener('load', function() {
             document.getElementById('loading').style.display = 'none';
         });
 
-        // Mobile sidebar toggle with overlay
         const sidebarToggle = document.getElementById('sidebarToggle');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebarOverlay');
@@ -1287,7 +1286,7 @@ footer a:hover {
         function toggleSidebar() {
             sidebar.classList.toggle('show');
             sidebarOverlay.classList.toggle('show');
-            // Toggle icon
+
             const icon = sidebarToggle.querySelector('i');
             if (sidebar.classList.contains('show')) {
                 icon.classList.remove('fa-bars');
@@ -1304,7 +1303,7 @@ footer a:hover {
             sidebar.classList.remove('show');
             sidebarOverlay.classList.remove('show');
             document.body.style.overflow = '';
-            // Reset icon
+
             const icon = sidebarToggle.querySelector('i');
             if (icon) {
                 icon.classList.remove('fa-times');
@@ -1319,14 +1318,12 @@ footer a:hover {
             });
         }
 
-        // Close sidebar when clicking overlay
         if (sidebarOverlay) {
             sidebarOverlay.addEventListener('click', function() {
                 closeSidebar();
             });
         }
 
-        // Close sidebar when clicking outside on mobile/tablet
         document.addEventListener('click', function(event) {
             if (window.innerWidth <= 991) {
                 if (sidebar.classList.contains('show') &&
@@ -1337,16 +1334,14 @@ footer a:hover {
             }
         });
 
-        // Close sidebar on window resize if switching to desktop
         window.addEventListener('resize', function() {
             if (window.innerWidth > 991) {
                 closeSidebar();
             }
         });
 
-        // Set active menu based on current URL
         document.addEventListener('DOMContentLoaded', function() {
-            // Close sidebar when clicking on menu links (mobile)
+
             if (window.innerWidth <= 991) {
                 const menuLinks = document.querySelectorAll('.submenu-link, .menu-link[href]');
                 menuLinks.forEach(link => {
@@ -1368,39 +1363,38 @@ footer a:hover {
 
                 let linkPath;
                 try {
-                    // Get the pathname from href (handle both relative and absolute URLs)
+
                     const linkUrl = new URL(href, window.location.origin);
                     linkPath = linkUrl.pathname;
                 } catch (e) {
-                    // Fallback: if URL parsing fails, use href as-is (shouldn't happen with Laravel routes)
+
                     linkPath = href.split(/[?#]/)[0];
                 }
 
                 const isProductPhotoUpload = /^\/admin\/products\/\d+\/photos-upload(\/)?$/i.test(currentPath);
-                // If we're on a product photo upload page, force the "Foto Produk" submenu active
+
                 if (isProductPhotoUpload && linkPath === '{{ route('admin.products.photos') }}'.replace(window.location.origin, '')) {
                     link.classList.add('active');
                     activateParentMenu(link);
                     return;
                 }
 
-                // Check for exact match
                 if (linkPath === currentPath) {
                     link.classList.add('active');
                     activateParentMenu(link);
                 }
-                // Check if current path is a child route of this menu link
-                // e.g., /admin/purchases/create is a child of /admin/purchases
-                // Exception: /admin/products/photos should NOT be considered a child of /admin/products
+
+
+
                 else if (currentPath.startsWith(linkPath + '/') && linkPath !== currentPath && linkPath !== '/') {
-                    // Exclude /admin/products/photos and its child routes from being treated as child of /admin/products
-                    // This ensures "Foto Produk" menu stays separate from "Produk" menu
+
+
                     if (
                         linkPath === '/admin/products' &&
                         (currentPath.startsWith('/admin/products/photos') ||
                             /\/admin\/products\/\d+\/photos-upload/.test(currentPath))
                     ) {
-                        // Skip - Foto Produk is a separate menu under Operasional, not under Produk
+
                         return;
                     }
                     link.classList.add('active');
@@ -1408,14 +1402,13 @@ footer a:hover {
                 }
             });
 
-            // Helper function to activate parent menu and expand collapse
             function activateParentMenu(link) {
                 const parentCollapse = link.closest('.collapse');
                 if (parentCollapse) {
                     parentCollapse.classList.add('show');
                     const parentToggle = parentCollapse.previousElementSibling;
                     if (parentToggle && parentToggle.classList.contains('menu-toggle')) {
-                        // Keep parent toggle expanded but DO NOT mark it as 'active'.
+
                         parentToggle.classList.remove('collapsed');
                         parentToggle.setAttribute('aria-expanded', 'true');
                     }
@@ -1430,12 +1423,12 @@ footer a:hover {
                 }
 
                 collapse.addEventListener('shown.bs.collapse', function() {
-                    // When expanded, only remove the 'collapsed' state; do not add 'active'
+
                     toggle.classList.remove('collapsed');
                 });
 
                 collapse.addEventListener('hidden.bs.collapse', function() {
-                    // When collapsed, restore collapsed state. Parent toggle stays without 'active'.
+
                     toggle.classList.add('collapsed');
                 });
             });

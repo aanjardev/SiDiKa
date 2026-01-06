@@ -3,11 +3,11 @@
 <head>
     <title>Nota Penjualan #{{ $penjualan->kode_transaksi }}</title>
     <style>
-        /* CSS sederhana agar kompatibel dengan Dompdf */
+        
         body { font-family: sans-serif; font-size: 10px; margin: 0; padding: 0; }
         .container { width: 90%; margin: 0 auto; }
 
-        /* HEADER mirip notaPembelian */
+        
         .header {
             text-align: left;
             padding: 10px 0;
@@ -33,13 +33,13 @@
             margin: 0 0 3px 0 !important;
         }
 
-        /* Footer */
+        
         .footer { border-top: 1px solid #ccc; border-bottom: none; position: fixed; bottom: 0; width: 90%; }
 
         .content { margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 5px; }
 
-        /* Tabel Item */
+        
         .item-table th, .item-table td {
             border: 1px solid #ccc;
             padding: 6px 8px;
@@ -47,7 +47,7 @@
         }
         .item-table th { background-color: #f0f0f0; }
 
-        /* Tabel Ringkasan Harga */
+        
         .price-table { border: none; }
         .price-table td { border: none; padding: 4px 8px; }
 
@@ -63,7 +63,7 @@
             font-weight: bold;
         }
 
-        /* Tanda Tangan */
+        
         .signature-box { width: 100%; margin-top: 30px; }
         .signature-col { width: 50%; text-align: center; float: left; }
     </style>
@@ -147,17 +147,16 @@
         <div style="clear: both;"></div>
         <div class="section-title" style="margin-top: 30px;">RINGKASAN HARGA</div>
         @php
-            // Menggunakan variabel dari objek penjualan
+
             $subtotal = (int) ($subtotal ?? ($penjualan->subtotal ?? 0));
             $diskon = (int) ($penjualan->diskon ?? 0);
-            // Fallback hitung biaya tambahan jika kolomnya kosong tapi harga_total tersedia
+
             $biayaTambahan = (int) ($penjualan->biaya_tambahan ?? 0);
             if ($biayaTambahan === 0 && isset($penjualan->harga_total)) {
                 $biayaTambahan = max(0, (int) $penjualan->harga_total - $subtotal + $diskon);
             }
             $totalBayar = $penjualan->harga_total ?? max(0, $subtotal - $diskon + $biayaTambahan);
 
-            // Harga Depresiasi Transaksi (Asumsi field ini ada di objek $penjualan)
             $hargaBeliKembaliMaksimal = $penjualan->harga_depresiasi_final ?? 0;
         @endphp
         <table class="price-table" style="width: 50%; float: right; border: 1px solid #000;">

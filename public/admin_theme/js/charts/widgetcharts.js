@@ -1,7 +1,6 @@
 (function (jQuery) {
   "use strict";
 
-//chart-1
 if(document.querySelectorAll('#chart-1').length){
   const options = {
     chart: {
@@ -69,7 +68,6 @@ if(document.querySelectorAll('#chart-1').length){
     })
 }
 
-//chart-2
 if(document.querySelectorAll('#chart-2').length){
   const options = {
     chart: {
@@ -120,7 +118,7 @@ if(document.querySelectorAll('#chart-2').length){
   chart.render();
 }
 
-/*--------------Widget Chart 3----------------*/
+
 if(document.querySelectorAll('#chart-3').length){
   const options = {
     chart: {
@@ -170,7 +168,7 @@ if(document.querySelectorAll('#chart-3').length){
   chart.render();
 }
 
-/*--------------Widget Chart 4----------------*/
+
 if(document.querySelectorAll('#chart-4').length){
   const options = {
     chart: {
@@ -220,7 +218,7 @@ if(document.querySelectorAll('#chart-4').length){
   chart.render();
 }
 
-/*--------------Widget Box----------------*/
+
 
 if(document.querySelectorAll('#iq-chart-box1').length){
   var options = {
@@ -252,7 +250,7 @@ if(document.querySelectorAll('#iq-chart-box1').length){
   const chart = new ApexCharts(document.querySelector("#iq-chart-box1"), options);
   chart.render();
 }
-//box-chart-2
+
 if(jQuery('#iq-chart-box2').length){
   var options = {
     series: [{
@@ -295,7 +293,7 @@ document.addEventListener('ChangeColorMode', function (e) {
   apexChartUpdate(chart, e.detail)
 })
 }
-//box-chart-3
+
 if(document.querySelectorAll('#iq-chart-box3').length){
   var options = {
     series: [{
@@ -328,7 +326,7 @@ if(document.querySelectorAll('#iq-chart-box3').length){
   const chart = new ApexCharts(document.querySelector("#iq-chart-box3"), options);
   chart.render();
 }
-//box-chart-4
+
 if(document.querySelectorAll('#iq-chart-box4').length){
   var options = {
     series: [{
@@ -363,8 +361,6 @@ if(document.querySelectorAll('#iq-chart-box4').length){
  
 }
 
-
-//extra-widget
 
 if($('#chart').length) {
   const options = {
@@ -435,7 +431,7 @@ if($('#chart').length) {
   const chart = new ApexCharts(document.querySelector("#chart"), options);
   chart.render();
 }
-//chart 2
+
 if($('#extrachart').length) {
   const options = {
     series: [{
@@ -494,7 +490,7 @@ if($('#extrachart').length) {
   const chart = new ApexCharts(document.querySelector("#extrachart"), options);
   chart.render();
 }
-/*-------------- Service Chart ----------------*/
+
 if (document.querySelectorAll("#service-chart-01").length) {
   const options = {
     series: [{
@@ -681,7 +677,7 @@ document.addEventListener('ChangeColorMode', function (e) {
 })
 }
 
-/*-------------- Ethernet Chart ----------------*/
+
 if (document.querySelectorAll("#ethernet-chart-01").length) { 
   const options = {
     series: [{
@@ -898,7 +894,7 @@ if (document.querySelectorAll("#ethernet-chart-04").length) {
     chart.updateOptions(newOpt)
     })
 }
-/*-------------- Ethernet Chart End ----------------*/
+
 if (document.querySelectorAll("#chart-9").length) {
   const options = {
     series: [{

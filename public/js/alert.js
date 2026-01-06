@@ -3,7 +3,6 @@
  * Menggunakan SweetAlert2 untuk konfirmasi dan notifikasi
  */
 
-// Fungsi helper untuk konfirmasi delete / aksi dengan warna merah
 function confirmDelete(message = 'Data ini akan dihapus secara permanen!', title = 'Yakin ingin menghapus?', confirmText = 'Lanjutkan', cancelText = 'Batal') {
     return Swal.fire({
         title: title,
@@ -17,7 +16,6 @@ function confirmDelete(message = 'Data ini akan dihapus secara permanen!', title
     });
 }
 
-// Fungsi helper untuk konfirmasi umum
 function confirmAction(message, title = 'Konfirmasi', confirmText = 'Ya', cancelText = 'Batal') {
     return Swal.fire({
         title: title,
@@ -31,7 +29,6 @@ function confirmAction(message, title = 'Konfirmasi', confirmText = 'Ya', cancel
     });
 }
 
-// Fungsi helper untuk konfirmasi regenerate token
 function confirmRegenerateToken(message = 'Generate ulang token aktivasi? Token lama akan tidak berlaku.') {
     return Swal.fire({
         title: 'Konfirmasi Generate Token',
@@ -56,7 +53,6 @@ function confirmRegenerateToken(message = 'Generate ulang token aktivasi? Token 
     });
 }
 
-// Fungsi helper untuk alert success
 function showSuccess(message, title = 'Berhasil!') {
     return Swal.fire({
         icon: 'success',
@@ -69,7 +65,6 @@ function showSuccess(message, title = 'Berhasil!') {
     });
 }
 
-// Fungsi helper untuk alert error
 function showError(message, title = 'Terjadi Kesalahan') {
     return Swal.fire({
         icon: 'error',
@@ -79,7 +74,6 @@ function showError(message, title = 'Terjadi Kesalahan') {
     });
 }
 
-// Fungsi helper untuk alert warning
 function showWarning(message, title = 'Perhatian') {
     return Swal.fire({
         icon: 'warning',
@@ -89,7 +83,6 @@ function showWarning(message, title = 'Perhatian') {
     });
 }
 
-// Fungsi helper untuk alert info
 function showInfo(message, title = 'Informasi') {
     return Swal.fire({
         icon: 'info',
@@ -102,9 +95,8 @@ function showInfo(message, title = 'Informasi') {
     });
 }
 
-// Auto-handle delete buttons dengan class .btn-delete
 document.addEventListener('DOMContentLoaded', () => {
-    // Handle delete buttons dengan class .btn-delete
+
     const deleteButtons = document.querySelectorAll('.btn-delete');
     deleteButtons.forEach(button => {
         button.addEventListener('click', function (e) {
@@ -153,14 +145,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Handle flash success dari session
     const flashSuccess = document.querySelector('meta[name="flash-success"]');
     if (flashSuccess && flashSuccess.content) {
         showSuccess(flashSuccess.content);
     }
 });
 
-// Export functions untuk penggunaan global
 window.confirmDelete = confirmDelete;
 window.confirmAction = confirmAction;
 window.confirmRegenerateToken = confirmRegenerateToken;

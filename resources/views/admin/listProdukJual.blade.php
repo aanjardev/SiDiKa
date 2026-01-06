@@ -305,7 +305,7 @@
 
 @push('scripts')
 <script>
-// Fungsi Auto Search (Debounce)
+
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('input[name="search"]');
     const searchForm = document.getElementById('searchForm');
@@ -364,7 +364,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const current = selections[productId]?.qty || 0;
         let next = current + delta;
 
-        // Ambil batas stok dari card produk (jika ada)
         const card = document.querySelector(`.product-card[data-product-id="${productId}"]`);
         let stock = Infinity;
         if (card) {
@@ -381,7 +380,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (next <= 0) {
             delete selections[productId];
 
-            // Sinkronkan UI card produk jika ada
             if (card) {
                 const qtyControl = card.querySelector('.qty-control');
                 const btnAdd = card.querySelector('.btn-add-product');
@@ -398,7 +396,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const price = selections[productId]?.price ?? meta.price ?? 0;
             selections[productId] = { qty: next, price };
 
-            // Sinkronkan UI card produk jika ada
             if (card) {
                 const qtyControl = card.querySelector('.qty-control');
                 const btnAdd = card.querySelector('.btn-add-product');
@@ -492,7 +489,6 @@ document.addEventListener('DOMContentLoaded', () => {
             summaryEl.classList.remove('d-none');
             summaryEl.classList.add('d-flex');
 
-            // Jika panel detail sedang terbuka, perbarui isinya
             if (cartDetailEl && !cartDetailEl.classList.contains('d-none')) {
                 buildCartDetail();
             }
@@ -540,7 +536,6 @@ document.addEventListener('DOMContentLoaded', () => {
             qtyControl.classList.add('d-flex');
         }
 
-        // Tambah ke keranjang
         btnAdd.addEventListener('click', () => {
             selections[productId] = { qty: 1, price };
             qtyValue.textContent = 1;
@@ -550,7 +545,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updateSummary();
         });
 
-        // Tambah Qty
         btnInc.addEventListener('click', () => {
             const current = selections[productId]?.qty || 0;
             if (current >= stock) {
@@ -564,7 +558,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updateSummary();
         });
 
-        // Kurang Qty
         btnDec.addEventListener('click', () => {
             const current = selections[productId]?.qty || 0;
             const next = Math.max(current - 1, 0);
@@ -585,7 +578,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     updateSummary();
 
-    // Toggle panel ringkasan keranjang
     const toggleCartDetail = () => {
         if (!cartDetailEl) return;
 
@@ -620,7 +612,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Klik overlay juga menutup ringkasan
     cartOverlayEl?.addEventListener('click', () => {
         if (cartDetailEl && !cartDetailEl.classList.contains('d-none')) {
             cartDetailEl.classList.add('d-none');
@@ -628,7 +619,6 @@ document.addEventListener('DOMContentLoaded', () => {
         cartOverlayEl.classList.add('d-none');
     });
 
-    // Jadikan seluruh area cartSummary (kecuali tombol Checkout) bisa membuka ringkasan
     summaryEl?.addEventListener('click', (e) => {
         const isCheckout = e.target.closest('.btn-checkout');
         if (isCheckout) {
@@ -638,14 +628,12 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleCartDetail();
     });
 
-    // Checkout Action
     const handleCheckout = (e) => {
         e.preventDefault();
 
         const totalItems = Object.values(selections).reduce((sum, item) => sum + item.qty, 0);
         if (totalItems === 0) return;
 
-        // Validasi stok
         for (const [productId, data] of Object.entries(selections)) {
             const stock = typeof productMeta[productId]?.stock === 'number' ? productMeta[productId].stock : Infinity;
             if (stock !== Infinity && data.qty > stock) {
@@ -671,7 +659,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         submitButton.click();
 
-        // Clean up
         setTimeout(() => {
             if (submitButton.parentNode) {
                 submitButton.parentNode.removeChild(submitButton);

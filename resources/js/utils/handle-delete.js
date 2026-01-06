@@ -10,13 +10,11 @@
         const confirmText = btn.dataset.confirmText || 'Lanjutkan';
         const cancelText = btn.dataset.cancelText || 'Batal';
 
-        // Jika tombol tidak berada dalam form → error
         if (!btn.form) {
             console.error("Error: Tombol delete tidak berada di dalam form.");
             return;
         }
 
-        // Jika SweetAlert tersedia
         if (typeof window.confirmDelete === 'function') {
             window.confirmDelete(message, title, confirmText, cancelText)
                 .then(result => {
@@ -28,7 +26,6 @@
             return;
         }
 
-        // Fallback confirm biasa
         if (confirm(message)) {
             btn.form.submit();
         }

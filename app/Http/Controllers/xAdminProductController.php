@@ -15,7 +15,7 @@ class AdminProductController extends Controller
      */
     public function index(Request $request)
     {
-        //
+
         $products = Produk::with(['kategori', 'gambarUtama'])->get();
         $kategori = Kategori::all();
         $product = $request->has('edit') ? Produk::with('gambar')->findOrFail($request->edit) : null;
@@ -30,7 +30,7 @@ class AdminProductController extends Controller
      */
     public function create()
     {
-        //
+
         $kategori = Kategori::all();
         return view('index', compact('kategori'));
     }
@@ -40,7 +40,7 @@ class AdminProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+
         $request->validate([
             'kode_sku' => 'string|max:100|unique:produk,kode_sku',
             'nama_produk' => 'required|string|max:225',
@@ -54,7 +54,6 @@ class AdminProductController extends Controller
             'main_image_new' => 'required_with:gambar_produk|integer|min:0',
         ]);
 
-        //simpan produk
         $produk = Produk::create([
             'kode_sku' => $request->kode_sku,
             'id_kategori' => $request->id_kategori,
@@ -90,7 +89,7 @@ class AdminProductController extends Controller
      */
     public function edit(string $id)
     {
-        //
+
         return redirect()->route('index', ['edit'=> $id]);
     }
 
@@ -99,7 +98,7 @@ class AdminProductController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+
 
         $produk = Produk::findOrFail($id);
         $request->validate([
@@ -138,7 +137,7 @@ class AdminProductController extends Controller
         if ($request->filled('main_image_existing')) {
             GambarProduk::where('id_produk', $produk->id)->update(['is_main' => false]);
             GambarProduk::where('id', $request->main_image_existing)->update(['is_main' => true]);
-            // Pastikan hanya satu gambar utama
+
             $mainImages = GambarProduk::where('id_produk', $produk->id)->where('is_main', true)->get();
             if ($mainImages->count() > 1) {
                 $mainImages->skip(1)->each(function($img) { $img->update(['is_main' => false]); });
@@ -154,7 +153,7 @@ class AdminProductController extends Controller
                     'is_main' => $request->main_image_new == $index,
                 ]);
             }
-            // Pastikan hanya satu gambar utama
+
             $mainImages = GambarProduk::where('id_produk', $produk->id)->where('is_main', true)->get();
             if ($mainImages->count() > 1) {
                 $mainImages->skip(1)->each(function($img) { $img->update(['is_main' => false]); });
@@ -168,7 +167,6 @@ class AdminProductController extends Controller
     {
         $gambar = GambarProduk::findOrFail($id);
 
-        // Hapus file dari storage
         if (Storage::disk('public')->exists($gambar->path_gambar)) {
             Storage::disk('public')->delete($gambar->path_gambar);
         }
@@ -184,7 +182,7 @@ class AdminProductController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+
         $product = Produk::findOrFail($id);
         $gambar = GambarProduk::where('id_produk', $id)->get();
         foreach ($gambar as $g) {

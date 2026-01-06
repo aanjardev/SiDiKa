@@ -11,7 +11,7 @@
 
 @push('styles')
 <style>
-    /* Inline filter styling inside card header */
+    
     .smart-inline-filters {
         display: flex;
         flex-wrap: wrap;
@@ -328,7 +328,6 @@ function clampThreshold(inputEl) {
     inputEl.value = Math.max(1, Math.min(30, value));
 }
 
-// Load notifications
 function loadNotifications() {
     fetch('{{ route("admin.smart-stock.notifications") }}', {
         method: 'GET',
@@ -409,7 +408,6 @@ function markAsRead(notificationId) {
     });
 }
 
-// Load notifications on page load
 document.addEventListener('DOMContentLoaded', function() {
     loadNotifications();
 
@@ -424,7 +422,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Auto-refresh notifications every 30 seconds
     setInterval(loadNotifications, 30000);
 });
 </script>

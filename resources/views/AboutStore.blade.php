@@ -61,7 +61,7 @@
             border-radius: 10px;
             background: #f8f9fa;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            overflow: hidden; /* Pastikan ini ada */
+            overflow: hidden; 
 
             transform: translateZ(0);
             backface-visibility: hidden;
@@ -82,7 +82,7 @@
             height: 100%;
             border-radius: 10px;
             overflow: hidden;
-            /* Tambahkan ini untuk memaksa clipping */
+            
             isolation: isolate;
             -webkit-mask-image: -webkit-radial-gradient(white, black);
 

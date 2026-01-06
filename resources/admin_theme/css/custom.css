@@ -300,7 +300,7 @@ hr {
   margin-top: -2rem;
 }
 
-/* Table of contents */
+
 .bd-aside a {
   padding: 0.25rem 0.5rem;
   margin-top: 0.125rem;
@@ -362,7 +362,7 @@ hr {
   margin-top: 0.5rem;
 }
 
-/* Layout */
+
 @media (min-width: 1200px) {
   .body-class-1 {
     display: grid;
@@ -448,7 +448,7 @@ hr {
   .body-class-1.container {
     max-width: unset;
   }
-  #content .iq-side-content .card {
+
     margin-top: 1.25rem;
   }
   .mobile-offcanvas {
@@ -532,10 +532,9 @@ body.uikit .btn-download {
   visibility: visible;
 }
 
-#back-to-top {
   display: inline !important;
 }
-#back-to-top .top {
+
   bottom: 1.563rem;
   right: 1.563rem;
   z-index: 999;

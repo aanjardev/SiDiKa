@@ -1,4 +1,4 @@
-/* Footer Admin Styles */
+
 :root {
     --footer-admin-bg: #181b1f;
     --footer-admin-text: #fff;
@@ -7,20 +7,19 @@
     --footer-admin-border: #23272b;
 }
 
-#main-footer.footer-area {
     background: var(--footer-admin-bg);
     color: var(--footer-admin-text);
     border-top: 1px solid var(--footer-admin-border);
     font-family: 'Montserrat', Arial, sans-serif;
     padding: 2.5rem 0 1.5rem;
 }
-#main-footer .fw-semibold {
+
     color: var(--footer-admin-link);
     font-size: 1.5rem;
     letter-spacing: 1px;
     font-weight: 900;
 }
-#main-footer small {
+
     color: var(--footer-admin-muted);
     font-size: 1.20rem;
 } 

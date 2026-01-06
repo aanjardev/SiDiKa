@@ -34,7 +34,6 @@ class PermissionsController extends Controller
                 'karyawan.status as karyawan_status'
             );
 
-        // Search by name or email
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
@@ -43,19 +42,16 @@ class PermissionsController extends Controller
             });
         }
 
-        // Filter by role (jabatan)
         if ($request->filled('role') && $request->role !== 'all') {
             $query->where('users.role', $request->role);
         }
 
-        // Filter by status
         if ($request->filled('status_filter') && $request->status_filter !== 'all') {
             $query->where('users.status', $request->status_filter);
         }
 
         $user_data = $query->paginate(10)->withQueryString();
 
-        // Get unique roles for filter dropdown
         $roles = DB::table('users')->distinct()->pluck('role');
 
         return view('admin.permissions', compact('user_data', 'roles'))
@@ -82,7 +78,6 @@ class PermissionsController extends Controller
 
         $karyawan = Employee::findOrFail($request->karyawan_name);
 
-        // Generate activation token
         $activationToken = bin2hex(random_bytes(32));
 
         $user = User::create([
@@ -96,14 +91,13 @@ class PermissionsController extends Controller
             'token_expiry' => now()->addHours(72), // Token berlaku 3 hari
         ]);
 
-        // Kirim email activation
         $emailSent = $this->emailService->sendActivationEmail($user, $activationToken);
 
         if ($emailSent) {
             return redirect()->route('admin.permissions')
                 ->with('success', 'User berhasil dibuat! Email aktivasi telah dikirim ke ' . $user->email);
         } else {
-            // Jika email gagal dikirim, masih lanjutkan tapi beri warning
+
             return redirect()->route('admin.permissions')
                 ->with('success', 'User berhasil dibuat! Namun email aktivasi gagal dikirim. Silakan generate ulang token.')
                 ->with('warning', 'Email activation failed. Please check email configuration.');
@@ -140,7 +134,7 @@ class PermissionsController extends Controller
         }
 
         if ($emailChanged) {
-            // Reset verifikasi email & siapkan token aktivasi baru
+
             $user->email_verified_at = null;
             $user->status = 'pending';
             $user->activation_token = bin2hex(random_bytes(32));
@@ -150,20 +144,19 @@ class PermissionsController extends Controller
         $user->save();
 
         if ($emailChanged) {
-            // Kirim email aktivasi ke email baru
+
             $this->emailService->sendActivationEmail($user, $user->activation_token);
 
-            // Coba akhiri sesi user yang bersangkutan (bukan editor)
             try {
                 if (config('session.driver') === 'database') {
                     $table = config('session.table', 'sessions');
                     DB::table($table)->where('user_id', $user->id)->delete();
                 }
-                // Invalidasi remember_me
+
                 $user->remember_token = Str::random(60);
                 $user->save();
             } catch (\Throwable $e) {
-                // Abaikan jika tidak bisa menghapus sesi (misal driver file)
+
             }
 
             return redirect()->route('admin.permissions')
@@ -175,7 +168,7 @@ class PermissionsController extends Controller
 
     public function destroy($id)
     {
-        // Prevent users from deactivating themselves
+
         if (Auth::id() && (int) $id === (int) Auth::id()) {
             return redirect()->route('admin.permissions')
                 ->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
@@ -183,7 +176,7 @@ class PermissionsController extends Controller
 
         $user = User::findOrFail($id);
         $user->update(['status' => 'inactive']);
-        // Sinkronkan status karyawan
+
         Karyawan::where('id', $id)->update(['status' => 'non-aktif']);
 
         return redirect()->route('admin.permissions')->with('success', 'User dinonaktifkan. Anda dapat mengaktifkannya kembali jika diperlukan.');
@@ -198,14 +191,12 @@ class PermissionsController extends Controller
                 ->with('error', 'Token hanya bisa di-generate untuk user dengan status pending.');
         }
 
-        // Generate new token dan extend expiry
         $activationToken = bin2hex(random_bytes(32));
         $user->update([
             'activation_token' => $activationToken,
             'token_expiry' => now()->addHours(72), // Extend 3 hari lagi
         ]);
 
-        // Kirim email activation baru
         $emailSent = $this->emailService->sendActivationEmail($user, $activationToken);
 
         if ($emailSent) {
@@ -224,7 +215,6 @@ class PermissionsController extends Controller
             'status' => 'required|in:active,inactive',
         ]);
 
-        // Prevent users from deactivating themselves
         if ($validated['status'] === 'inactive' && Auth::id() && (int) $id === (int) Auth::id()) {
             return redirect()->route('admin.permissions')
                 ->with('error', 'Anda tidak dapat menonaktifkan akun Anda sendiri.');
@@ -233,7 +223,6 @@ class PermissionsController extends Controller
         $user = User::findOrFail($id);
         $user->update(['status' => $validated['status']]);
 
-        // Sinkronkan status karyawan
         $karyawanStatus = $validated['status'] === 'active' ? 'aktif' : 'non-aktif';
         Karyawan::where('id', $id)->update(['status' => $karyawanStatus]);
 

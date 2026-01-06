@@ -19,7 +19,6 @@ export default class CustomerModal {
     init() {
         if (!this.btn || !this.form) return;
 
-        // Autofocus pada input pertama saat modal ditampilkan
         if (this.modalEl) {
             this.modalEl.addEventListener("shown.bs.modal", () => {
                 const firstInput = document.getElementById(this.requiredIds[0]);
@@ -53,7 +52,6 @@ export default class CustomerModal {
     async save() {
         if (!this.form || !this.btn) return;
 
-        // Validate using FormValidator if available, otherwise use simple validation
         const invalid = [];
         this.requiredIds.forEach((id) => {
             const el = document.getElementById(id);

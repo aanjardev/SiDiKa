@@ -31,7 +31,6 @@ class SmartStockController extends Controller
         $sortBy = $request->input('sort', 'days_left'); // 'days_left', 'stock', 'name'
         $filter = $request->input('filter', 'all'); // 'all', 'critical', 'warning', 'safe'
 
-        // Refresh cache/tabel forecast jika sudah kedaluwarsa
         $this->cacheService->refreshAllIfStale();
 
         $query = ProductStockForecast::query()
@@ -42,7 +41,6 @@ class SmartStockController extends Controller
                 'product.kategori:id,nama_kategori',
             ]);
 
-        // Filter berdasarkan status
         if ($filter === 'critical') {
             $query->where('predicted_days_left', '<=', 1)->where('predicted_days_left', '<', 999);
         } elseif ($filter === 'warning') {
@@ -53,7 +51,6 @@ class SmartStockController extends Controller
             $query->where('predicted_days_left', '>=', 999);
         }
 
-        // Sorting
         switch ($sortBy) {
             case 'stock':
                 $query->orderByDesc('product_stock_forecasts.current_stock');
@@ -118,7 +115,7 @@ class SmartStockController extends Controller
         try {
             $forecast = ProductStockForecast::where('product_id', $productId)->first();
             if (!$forecast) {
-                // Refresh satu produk bila belum ada cache
+
                 $this->cacheService->refreshOne($productId);
                 $forecast = ProductStockForecast::where('product_id', $productId)->firstOrFail();
             }

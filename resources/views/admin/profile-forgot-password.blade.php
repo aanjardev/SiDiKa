@@ -159,36 +159,31 @@
 @push('scripts')
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Initialize form validation
+
     const forgotForm = document.getElementById('forgotForm');
     if (forgotForm && window.FormValidator) {
         FormValidator.initForm(forgotForm);
     }
 
-    // Add loading state and handle AJAX submission
     const submitBtn = forgotForm.querySelector('button[type="submit"]');
     const originalText = submitBtn.innerHTML;
     
     forgotForm.addEventListener('submit', function(e) {
         // Don't prevent default submission for now, let it submit normally
-        // But add loading state
+
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengirim...';
-        
-        // Store original state for potential reset
+
         const form = this;
-        
-        // Function to reset button state
+
         function resetButton() {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
         }
-        
-        // Reset button after 5 seconds (fallback)
+
         setTimeout(resetButton, 5000);
-        
-        // If the form submission fails (network error, etc), reset button
-        // This will be caught by browser's error handling
+
+
         window.addEventListener('unload', resetButton);
     });
 });

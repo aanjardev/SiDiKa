@@ -19,7 +19,7 @@ function parseJSONFromScript(id) {
 
 class PurchaseDraftController {
     constructor({ data, elements, routes }) {
-        // Gunakan ID dari JSON, fallback ke hidden input jika ada
+
         this.currentPembelianId =
             data.currentPembelianId ||
             elements.hiddenPembelianIdInput?.value ||
@@ -32,7 +32,6 @@ class PurchaseDraftController {
         this.editingItemId = null;
         this.isDirty = false;
 
-        // setup helper modules
         this.itemForm = new ItemForm({
             nama_item: "item_nama_item",
             kategori_id: "item_kategori_id",
@@ -216,22 +215,19 @@ class PurchaseDraftController {
         }
     }
 
-    // ----------------------
-    // Simpan Item
-    // ----------------------
+
+
 
     async handleSaveItem() {
         const formValues = this.itemForm.collect();
         const namaItem = (formValues.nama_item || "").trim();
         const kategoriId = formValues.kategori_id;
 
-        // Clear previous validation errors
         const namaInput = document.getElementById("item_nama_item");
         const kategoriSelect = document.getElementById("item_kategori_id");
 
         let hasError = false;
 
-        // Validate nama item
         if (!namaItem) {
             if (window.FormValidator) {
                 FormValidator.setInvalid(namaInput, "Nama item wajib diisi");
@@ -247,7 +243,6 @@ class PurchaseDraftController {
             }
         }
 
-        // Validate kategori
         if (!kategoriId) {
             if (window.FormValidator) {
                 FormValidator.setInvalid(
@@ -267,7 +262,7 @@ class PurchaseDraftController {
         }
 
         if (hasError) {
-            // Scroll to first error
+
             const firstError = document.querySelector(
                 "#modalTambahItem .is-invalid"
             );
@@ -341,9 +336,8 @@ class PurchaseDraftController {
     }
 }
 
-// ------------------------------
-// BOOTSTRAP: MAIN ENTRY
-// ------------------------------
+
+
 document.addEventListener("DOMContentLoaded", () => {
     const mainForm = document.getElementById("formPembelian");
     if (!mainForm) return;
@@ -361,14 +355,12 @@ document.addEventListener("DOMContentLoaded", () => {
         csrf,
     };
 
-    // Autofocus kalau pembelian baru
     if (!data.currentPembelianId) {
         setTimeout(() => {
             document.getElementById("customer_search")?.focus();
         }, 120);
     }
 
-    // Customer search (autocomplete)
     const customerSearchInput = document.getElementById("customer_search");
     const customerIdInput = document.getElementById("customer_id");
     const customerSuggestions = document.getElementById("customer_suggestions");
@@ -403,7 +395,6 @@ document.addEventListener("DOMContentLoaded", () => {
         },
     });
 
-    // PurchaseDraftController
     controller = new PurchaseDraftController({
         data,
         routes,
@@ -431,9 +422,8 @@ document.addEventListener("DOMContentLoaded", () => {
         },
     });
 
-    // Rupiah-formatting (display_xxx → hidden xxx)
     document.querySelectorAll(".rupiah-mask").forEach((input) => {
-        // inisialisasi
+
         const clean = maskRupiah(input);
         const hiddenId = input.id.replace("display_", "");
         const hidden = document.getElementById(hiddenId);
@@ -453,7 +443,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Modal Customer baru (reuse)
     new CustomerModal({
         storeUrl: routes.customerStore || "/admin/customers",
         onSuccess: (customer) => {

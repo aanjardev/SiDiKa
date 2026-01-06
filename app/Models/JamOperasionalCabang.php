@@ -60,7 +60,6 @@ class JamOperasionalCabang extends Model
         $waktu = $waktu ?: now();
         $hariSekarang = $this->getHariSekarang($waktu);
 
-        // Cari jam operasional untuk hari ini
         $jamHariIni = $this->where('hari', $hariSekarang)
             ->where('perusahaan_cabang_id', $this->perusahaan_cabang_id)
             ->first();
@@ -69,7 +68,6 @@ class JamOperasionalCabang extends Model
             return false;
         }
 
-        // Cek apakah waktu sekarang dalam range jam buka
         if ($jamHariIni->jam_buka && $jamHariIni->jam_tutup) {
             return $waktu->between($jamHariIni->jam_buka, $jamHariIni->jam_tutup);
         }

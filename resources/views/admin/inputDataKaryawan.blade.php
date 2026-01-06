@@ -272,14 +272,14 @@
 
 @push('styles')
 <style>
-    /* Styling khusus untuk ReadOnly agar terlihat jelas */
+    
     .form-control[readonly],
     .form-select[disabled] {
-        background-color: #f9fafb; /* Abu-abu sangat muda */
+        background-color: #f9fafb; 
         color: #6c757d;
         cursor: not-allowed;
     }
-    /* Fix untuk input group border saat focus */
+    
     .input-group:focus-within .input-group-text {
         border-color: #86b7fe;
     }

@@ -1167,22 +1167,22 @@ body {
 
 
 .form-container {
-    background-color: #ffffff; /* warna berbeda dari dunia luar */
-    padding: 2rem;             /* jarak isi form dari border */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4); /* efek floating ringan */
-    max-width: 1000px;           /* biar nggak terlalu lebar */
-    margin: 1rem auto;          /* center horizontal + jarak atas bawah */
+    background-color: #ffffff; 
+    padding: 2rem;             
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4); 
+    max-width: 1000px;           
+    margin: 1rem auto;          
 }
 .form-container-lg {
-    background-color: #ffffff; /* warna berbeda dari dunia luar */
-    padding: 2rem;             /* jarak isi form dari border */
-    box-shadow: 0 1px 3px rgba(0,0,0,0.4); /* efek floating ringan */
-    max-width: 1400px;           /* biar nggak terlalu lebar */
-    margin: 1rem auto;          /* center horizontal + jarak atas bawah */
+    background-color: #ffffff; 
+    padding: 2rem;             
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4); 
+    max-width: 1400px;           
+    margin: 1rem auto;          
 }
 
 input.form-control::placeholder {
-    color: rgba(0, 0, 0, 0.2); /* hitam dengan opacity 0.4 */
+    color: rgba(0, 0, 0, 0.2); 
 }
 
 .form-control {
@@ -1214,17 +1214,16 @@ input.form-control::placeholder {
   border-color: var(--bs-primary) !important;
 }
 
-#top-tab-list li a {
   color: var(--bs-primary);
   background: var(--bs-primary-tint-90);
 }
-#top-tab-list li a .iq-icon {
+
   background: var(--bs-primary);
 }
-#top-tab-list li.active a {
+
   background: var(--bs-primary);
 }
-#top-tab-list li.active a .iq-icon {
+
   color: var(--bs-primary);
 }
 

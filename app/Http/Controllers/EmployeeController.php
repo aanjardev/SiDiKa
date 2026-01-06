@@ -14,23 +14,19 @@ class EmployeeController extends Controller
     {
         $query = Employee::with('user');
 
-        // Search by nama
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where('nama_lengkap', 'like', "%{$search}%");
         }
 
-        // Filter by jabatan
         if ($request->filled('jabatan') && $request->input('jabatan') !== 'all') {
             $query->where('jabatan', $request->input('jabatan'));
         }
 
-        // Filter by status
         if ($request->filled('status') && $request->input('status') !== 'all') {
             $query->where('status', $request->input('status'));
         }
 
-        // Sort by
         $sortBy = $request->input('sort_by', 'updated_at');
         $sortOrder = $request->input('sort_order', 'desc');
 
@@ -97,10 +93,8 @@ class EmployeeController extends Controller
             'nomor_telepon.regex' => 'Nomor telepon harus berupa angka dan diawali dengan 0, 62, atau +62.',
         ]);
 
-        // Jika tanggal keluar diisi, paksa status menjadi non-aktif
         $status = !empty($validated['tanggal_keluar']) ? 'non-aktif' : $validated['status'];
 
-        // Simpan data karyawan
         Employee::create([
             'nama_lengkap' => $validated['nama_lengkap'],
             'nik' => $validated['nik'],
@@ -171,10 +165,8 @@ class EmployeeController extends Controller
             'tanggal_keluar'=>'Tanggal keluar harus berupa tanggal setelah atau sama dengan tanggal masuk.',
         ]);
 
-        // Jika tanggal keluar diisi, paksa status menjadi non-aktif
         $newStatus = !empty($validated['tanggal_keluar']) ? 'non-aktif' : $validated['status'];
 
-        // Update karyawan
         $employee->update([
             'nama_lengkap' => $validated['nama_lengkap'],
             'nik' => $validated['nik'],
@@ -187,22 +179,20 @@ class EmployeeController extends Controller
             'tanggal_keluar' => $validated['tanggal_keluar'] ?? null,
         ]);
 
-        // Auto-deactivate user jika karyawan status berubah menjadi non-aktif
         if ($oldStatus !== 'non-aktif' && $newStatus === 'non-aktif') {
             if ($employee->user) {
                 $employee->user->update(['status' => 'inactive']);
-                
-                // Force logout user yang sedang login jika user ini sedang aktif
-                // Ini akan logout user dari semua session
+
+
                 \Illuminate\Support\Facades\DB::table('sessions')
                     ->where('user_id', $employee->user->id)
                     ->delete();
             }
         }
-        // Auto-reactivate user jika karyawan status berubah menjadi aktif
+
         elseif ($oldStatus !== 'aktif' && $newStatus === 'aktif') {
             if ($employee->user) {
-                // Hanya re-activate jika user sebelumnya inactive, bukan pending
+
                 if ($employee->user->status === 'inactive') {
                     $employee->user->update(['status' => 'active']);
                 }
@@ -215,8 +205,7 @@ class EmployeeController extends Controller
     };
 
         $message = 'Karyawan berhasil diperbarui.';
-        
-        // Tambahkan pesan khusus jika ada perubahan status user
+
         if ($oldStatus !== 'non-aktif' && $newStatus === 'non-aktif' && $employee->user) {
             $message .= ' Hak akses user telah dinonaktifkan.';
         } elseif ($oldStatus !== 'aktif' && $newStatus === 'aktif' && $employee->user && $employee->user->status === 'active') {
@@ -229,8 +218,7 @@ class EmployeeController extends Controller
     public function destroy($id)
     {
         $employee = Employee::findOrFail($id);
-        
-        // Hapus user terkait (akan terhapus otomatis karena cascade)
+
         if ($employee->user) {
             $employee->user->delete();
         }

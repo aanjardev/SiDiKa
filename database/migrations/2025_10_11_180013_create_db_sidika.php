@@ -12,26 +12,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // =================================================================
-        // 1. DATA MASTER & AKSES (users, kategori, perusahaan)
-        // =================================================================
 
-        // 1.1 Tabel users (MODIFIKASI) - Tetap tambahkan 'role' untuk admin
+
+
+
         Schema::table('users', function (Blueprint $table) {
             if (!Schema::hasColumn('users', 'role')) {
                 $table->enum('role', ['manager', 'operasional'])->default('operasional')->after('password');
             }
         });
 
-        // 1.2 Tabel Kategori (DIKEMBALIKAN KE STRUKTUR LAMA)
-        // Menggunakan struktur sederhana dari migrasi lama agar customer tidak error.
+
         Schema::create('kategori', function (Blueprint $table) {
             $table->id();
             $table->string('nama_kategori', 50);
             $table->timestamps();
         });
 
-        // 1.3 Tabel Perusahaan/Cabang (BARU - DARI ADMIN)
         Schema::create('perusahaan_cabang', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 50);
@@ -42,7 +39,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 1.4 Tabel Customer (BARU - DARI ADMIN)
         Schema::create('customer', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 50);
@@ -55,16 +51,11 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        
-
-        // =================================================================
-        // 2. PRODUK, INVENTARIS & QC
-        // =================================================================
 
 
-        // 2.2 Tabel Produk (DIKEMBALIKAN KE STRUKTUR LAMA + Tambahan dari Admin)
-        // Ini adalah penggabungan: Kolom stok, deskripsi, status, grade dikembalikan
-        // agar sisi customer tidak error.
+
+
+
         Schema::create('produk', function (Blueprint $table) {
             $table->id();
             $table->string('kode_sku', 20)->unique();
@@ -79,7 +70,6 @@ return new class extends Migration
             $table->enum('status', ['Second', 'Baru']); // INI YANG PENTING
             $table->enum('grade', ['Unggulan', 'Standar', 'Minus'])->default('Standar'); // INI YANG PENTING
 
-            // --- Kolom Tambahan dari migrasi BARU (untuk Admin) ---
             $table->integer('harga_beli')->nullable();
             $table->integer('harga_servis')->nullable();
 
@@ -99,16 +89,14 @@ return new class extends Migration
         });
 
 
-        // =================================================================
-        // 3. TRANSAKSI (BARU - DARI ADMIN)
-        // =================================================================
+
 
         Schema::create('pembelian', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customer')->onDelete('restrict');
             $table->foreignId('perusahaan_cabang_id')->constrained('perusahaan_cabang')->onDelete('restrict');
             $table->foreignId('user_id')->constrained('users')->onDelete('restrict');
-            // $table->enum('kas', ['transfer', 'cash']);
+
 
             $table->string('keterangan', 200)->nullable();
             $table->integer('harga_tawaran_customer')->nullable();
@@ -158,13 +146,11 @@ return new class extends Migration
             $table->enum('status', ['Second', 'Baru'])->default('Second');
             $table->text('deskripsi_produk')->nullable();
 
-            // --- Status Alur QC (Quality Control) ---
             $table->enum('status_qc', ['menunggu_qc', 'lolos_qc', 'gagal_qc', 'diarsipkan'])->default('menunggu_qc');
             $table->text('catatan_qc')->nullable(); // Catatan dari tim QC
             $table->timestamps();
         });
 
-        // 3.3 Tabel Penjualan
         Schema::create('penjualan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained('customer')->onDelete('restrict');
@@ -178,12 +164,11 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // 3.4 Tabel Detail Penjualan
         Schema::create('detail_penjualan', function (Blueprint $table) {
             $table->id();
             $table->foreignId('penjualan_id')->constrained('penjualan')->onDelete('cascade');
             $table->foreignId('produk_id')->constrained('produk')->onDelete('restrict');
-            // $table->string('serial_number', 30)->nullable(); 
+
             $table->integer('qty');
             $table->integer('harga_jual_satuan');
             $table->double('harga_depresiasi')->nullable();
@@ -207,7 +192,6 @@ return new class extends Migration
         Schema::dropIfExists('perusahaan_cabang');
         Schema::dropIfExists('kategori');
 
-        // Hapus kolom 'role' dari tabel users
         Schema::table('users', function (Blueprint $table) {
             if (Schema::hasColumn('users', 'role')) {
                 $table->dropColumn('role');

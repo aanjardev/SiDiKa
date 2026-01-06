@@ -20,7 +20,7 @@ class JobCompleted extends Notification
         public string $message,
         public string $type = 'success' // 'success', 'error', 'info', 'warning'
     ) {
-        //
+
     }
 
     /**
@@ -30,7 +30,7 @@ class JobCompleted extends Notification
      */
     public function via(object $notifiable): array
     {
-        // Use database notification for in-app notifications
+
         return ['database'];
     }
 

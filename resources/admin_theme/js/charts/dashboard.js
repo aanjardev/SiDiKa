@@ -241,7 +241,6 @@ if ($('.d-slider1').length > 0) {
             prevEl: '.swiper-button-prev'
         },  
 
-        // And if we need scrollbar
         scrollbar: {
             el: '.swiper-scrollbar'  
         }

@@ -103,7 +103,7 @@ class SliderTab {
     })
   }
   updateRTL () {
-    // mutation observer for rtl
+
     const observer = new MutationObserver(mutations => {
       mutations.forEach(mutation => {
         if (mutation.type === 'attributes') {

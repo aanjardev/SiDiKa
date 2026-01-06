@@ -5,7 +5,7 @@
         {{-- ID Pembelian --}}
         <td>
             <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small qc-code-chip">
-                #{{ $item->pembelian->kode_transaksi ?? '' }}
+
             </span>
         </td>
 

@@ -111,20 +111,17 @@
                 }
             });
 
-            // Initialize form validation
             const loginForm = document.getElementById('loginForm');
             if (loginForm && window.FormValidator) {
                 FormValidator.initForm(loginForm);
             }
 
-            // Add subtle animations
             const authCard = document.querySelector('.auth-card');
             if (authCard) {
                 authCard.style.animation = 'slideInUp 0.6s ease-out';
             }
         });
 
-        // Add slideInUp animation
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideInUp {

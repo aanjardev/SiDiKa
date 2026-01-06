@@ -83,7 +83,6 @@
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
 
-                                {{-- Hanya tampilkan tombol hapus jika kategori belum digunakan oleh produk --}}
                                 @if($category->produk_count == 0)
                                 <form action="{{ route('admin.categories.destroy', $category->id) }}" method="POST" class="d-inline">
                                     @csrf

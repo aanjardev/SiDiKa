@@ -5575,7 +5575,7 @@ textarea.form-control-lg {
   float: left;
   padding-right: var(--bs-breadcrumb-item-padding-x);
   color: var(--bs-breadcrumb-divider-color);
-  content: var(--bs-breadcrumb-divider, "/") /* rtl: var(--bs-breadcrumb-divider, "/") */;
+  content: var(--bs-breadcrumb-divider, "/") ;
 }
 .breadcrumb-item.active {
   color: var(--bs-breadcrumb-item-active-color);
@@ -6925,7 +6925,7 @@ textarea.form-control-lg {
   border-top-color: var(--bs-tooltip-bg);
 }
 
-/* rtl:begin:ignore */
+
 .bs-tooltip-end .tooltip-arrow, .bs-tooltip-auto[data-popper-placement^=right] .tooltip-arrow {
   left: 0;
   width: var(--bs-tooltip-arrow-height);
@@ -6938,7 +6938,7 @@ textarea.form-control-lg {
   border-right-color: var(--bs-tooltip-bg);
 }
 
-/* rtl:end:ignore */
+
 .bs-tooltip-bottom .tooltip-arrow, .bs-tooltip-auto[data-popper-placement^=bottom] .tooltip-arrow {
   top: 0;
 }
@@ -6949,7 +6949,7 @@ textarea.form-control-lg {
   border-bottom-color: var(--bs-tooltip-bg);
 }
 
-/* rtl:begin:ignore */
+
 .bs-tooltip-start .tooltip-arrow, .bs-tooltip-auto[data-popper-placement^=left] .tooltip-arrow {
   right: 0;
   width: var(--bs-tooltip-arrow-height);
@@ -6962,7 +6962,7 @@ textarea.form-control-lg {
   border-left-color: var(--bs-tooltip-bg);
 }
 
-/* rtl:end:ignore */
+
 .tooltip-inner {
   max-width: var(--bs-tooltip-max-width);
   padding: var(--bs-tooltip-padding-y) var(--bs-tooltip-padding-x);
@@ -7054,7 +7054,7 @@ textarea.form-control-lg {
   border-top-color: var(--bs-popover-bg);
 }
 
-/* rtl:begin:ignore */
+
 .bs-popover-end > .popover-arrow, .bs-popover-auto[data-popper-placement^=right] > .popover-arrow {
   left: -webkit-calc(-1 * (var(--bs-popover-arrow-height)) - var(--bs-popover-border-width));
   left: calc(-1 * (var(--bs-popover-arrow-height)) - var(--bs-popover-border-width));
@@ -7074,7 +7074,7 @@ textarea.form-control-lg {
   border-right-color: var(--bs-popover-bg);
 }
 
-/* rtl:end:ignore */
+
 .bs-popover-bottom > .popover-arrow, .bs-popover-auto[data-popper-placement^=bottom] > .popover-arrow {
   top: -webkit-calc(-1 * (var(--bs-popover-arrow-height)) - var(--bs-popover-border-width));
   top: calc(-1 * (var(--bs-popover-arrow-height)) - var(--bs-popover-border-width));
@@ -7103,7 +7103,7 @@ textarea.form-control-lg {
   border-bottom: var(--bs-popover-border-width) solid var(--bs-popover-header-bg);
 }
 
-/* rtl:begin:ignore */
+
 .bs-popover-start > .popover-arrow, .bs-popover-auto[data-popper-placement^=left] > .popover-arrow {
   right: -webkit-calc(-1 * (var(--bs-popover-arrow-height)) - var(--bs-popover-border-width));
   right: calc(-1 * (var(--bs-popover-arrow-height)) - var(--bs-popover-border-width));
@@ -7123,7 +7123,7 @@ textarea.form-control-lg {
   border-left-color: var(--bs-popover-bg);
 }
 
-/* rtl:end:ignore */
+
 .popover-header {
   padding: var(--bs-popover-header-padding-y) var(--bs-popover-header-padding-x);
   margin-bottom: 0;
@@ -7413,15 +7413,15 @@ textarea.form-control-lg {
 
 @-webkit-keyframes spinner-border {
   to {
-    -webkit-transform: rotate(360deg) /* rtl:ignore */;
-            transform: rotate(360deg) /* rtl:ignore */;
+    -webkit-transform: rotate(360deg) ;
+            transform: rotate(360deg) ;
   }
 }
 
 @keyframes spinner-border {
   to {
-    -webkit-transform: rotate(360deg) /* rtl:ignore */;
-            transform: rotate(360deg) /* rtl:ignore */;
+    -webkit-transform: rotate(360deg) ;
+            transform: rotate(360deg) ;
   }
 }
 .spinner-border {
@@ -9974,13 +9974,13 @@ textarea.form-control-lg {
   white-space: nowrap !important;
 }
 
-/* rtl:begin:remove */
+
 .text-break {
   word-wrap: break-word !important;
   word-break: break-word !important;
 }
 
-/* rtl:end:remove */
+
 .text-primary {
   --bs-text-opacity: 1;
   color: rgba(var(--bs-primary-rgb), var(--bs-text-opacity)) !important;
@@ -15450,10 +15450,9 @@ textarea.form-control-lg {
           box-shadow: none;
 }
 
-#top-tab-list {
   margin-bottom: 60px;
 }
-#top-tab-list li a {
+
   color: #3a57e8;
   background: rgba(58, 87, 232, 0.2);
   display: block;
@@ -15463,7 +15462,7 @@ textarea.form-control-lg {
   -webkit-border-radius: 0.5rem;
           border-radius: 0.5rem;
 }
-#top-tab-list li a .iq-icon {
+
   display: inline-block;
   text-align: center;
   height: 3.125rem;
@@ -15475,28 +15474,27 @@ textarea.form-control-lg {
   background: #3a57e8;
   color: #ffffff;
 }
-#top-tab-list li.active a {
+
   background: #3a57e8;
   color: #ffffff;
 }
-#top-tab-list li.active a .iq-icon {
+
   background: #ffffff;
   color: #3a57e8;
 }
-#top-tab-list li.active.done a {
+
   background: #1aa053;
 }
-#top-tab-list li.active.done a i {
-  color: #1aa053;
-}
-#top-tab-list li#confirm.active a {
-  background: #1aa053;
-}
-#top-tab-list li#confirm.active a i {
+
   color: #1aa053;
 }
 
-#form-wizard1 fieldset:not(:first-of-type) {
+  background: #1aa053;
+}
+
+  color: #1aa053;
+}
+
   display: none;
 }
 
@@ -19541,7 +19539,7 @@ thead, tbody, tfoot, tr, td, th {
 @media (max-width: 991.98px) {
   .dual-compact .offcanvas-collapse {
     position: fixed;
-    top: 48px; /* Height of navbar */
+    top: 48px; 
     bottom: 0;
     left: 100%;
     width: 100%;
@@ -19655,7 +19653,7 @@ body.offcanvas-active {
   visibility: visible;
 }
 
-/* ============ mobile view ============ */
+
 @media (max-width: 1199.98px) {
   .iq-navbar .navbar-brand {
     margin-left: 2rem;
@@ -20983,9 +20981,7 @@ body {
           border-radius: 50rem;
 }
 
-/*
- * Background color 
- */
+
 .bg-soft-primary {
   color: #344ed1;
   background-color: rgba(58, 87, 232, 0.2) !important;
@@ -21368,7 +21364,7 @@ button.bg-soft-gray-dark:focus {
     opacity: 0;
   }
 }
-/* Attention seekers  */
+
 @-webkit-keyframes bounce {
   from, 20%, 53%, to {
     -webkit-animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -21459,7 +21455,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: flash;
 }
 
-/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */
+
 @-webkit-keyframes pulse {
   from {
     -webkit-transform: scale3d(1, 1, 1);
@@ -21786,7 +21782,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: tada;
 }
 
-/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */
+
 @-webkit-keyframes wobble {
   from {
     -webkit-transform: translate3d(0, 0, 0);
@@ -21983,7 +21979,7 @@ button.bg-soft-gray-dark:focus {
   animation-timing-function: ease-in-out;
 }
 
-/* Back entrances */
+
 @-webkit-keyframes backInDown {
   0% {
     -webkit-transform: translateY(-1200px) scale(0.7);
@@ -22140,7 +22136,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: backInUp;
 }
 
-/* Back exits */
+
 @-webkit-keyframes backOutDown {
   0% {
     -webkit-transform: scale(1);
@@ -22297,7 +22293,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: backOutUp;
 }
 
-/* Bouncing entrances  */
+
 @-webkit-keyframes bounceIn {
   from, 20%, 40%, 60%, 80%, to {
     -webkit-animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
@@ -22617,7 +22613,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: bounceInUp;
 }
 
-/* Bouncing exits  */
+
 @-webkit-keyframes bounceOut {
   20% {
     -webkit-transform: scale3d(0.9, 0.9, 0.9);
@@ -22791,7 +22787,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: bounceOutUp;
 }
 
-/* Fading entrances  */
+
 @-webkit-keyframes fadeIn {
   from {
     opacity: 0;
@@ -23161,7 +23157,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: fadeInBottomRight;
 }
 
-/* Fading exits */
+
 @-webkit-keyframes fadeOut {
   from {
     opacity: 1;
@@ -23499,7 +23495,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: fadeOutBottomLeft;
 }
 
-/* Flippers */
+
 @-webkit-keyframes flip {
   from {
     -webkit-transform: perspective(400px) scale3d(1, 1, 1) translate3d(0, 0, 0) rotate3d(0, 1, 0, -360deg);
@@ -23783,7 +23779,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: flipOutY;
 }
 
-/* Lightspeed */
+
 @-webkit-keyframes lightSpeedInRight {
   from {
     -webkit-transform: translate3d(100%, 0, 0) skewX(-30deg);
@@ -23932,7 +23928,7 @@ button.bg-soft-gray-dark:focus {
   animation-timing-function: ease-in;
 }
 
-/* Rotating entrances */
+
 @-webkit-keyframes rotateIn {
   from {
     -webkit-transform: rotate3d(0, 0, 1, -200deg);
@@ -24093,7 +24089,7 @@ button.bg-soft-gray-dark:focus {
       transform-origin: right bottom;
 }
 
-/* Rotating exits */
+
 @-webkit-keyframes rotateOut {
   from {
     opacity: 1;
@@ -24234,7 +24230,7 @@ button.bg-soft-gray-dark:focus {
       transform-origin: right bottom;
 }
 
-/* Specials */
+
 @-webkit-keyframes hinge {
   0% {
     -webkit-animation-timing-function: ease-in-out;
@@ -24344,7 +24340,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: jackInTheBox;
 }
 
-/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */
+
 @-webkit-keyframes rollIn {
   from {
     opacity: 0;
@@ -24374,7 +24370,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: rollIn;
 }
 
-/* originally authored by Nick Pettit - https://github.com/nickpettit/glide */
+
 @-webkit-keyframes rollOut {
   from {
     opacity: 1;
@@ -24400,7 +24396,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: rollOut;
 }
 
-/* Zooming entrances */
+
 @-webkit-keyframes zoomIn {
   from {
     opacity: 0;
@@ -24574,7 +24570,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: zoomInUp;
 }
 
-/* Zooming exits */
+
 @-webkit-keyframes zoomOut {
   from {
     opacity: 1;
@@ -24750,7 +24746,7 @@ button.bg-soft-gray-dark:focus {
       transform-origin: center bottom;
 }
 
-/* Sliding entrances */
+
 @-webkit-keyframes slideInDown {
   from {
     -webkit-transform: translate3d(0, -100%, 0);
@@ -24859,7 +24855,7 @@ button.bg-soft-gray-dark:focus {
   animation-name: slideInUp;
 }
 
-/* Sliding exits */
+
 @-webkit-keyframes slideOutDown {
   from {
     -webkit-transform: translate3d(0, 0, 0);
@@ -24988,8 +24984,7 @@ button.bg-soft-gray-dark:focus {
   background: rgba(58, 87, 232, 0.04) !important;
 }
 
-/* PrismJS 1.23.0
-https://prismjs.com/download.html#themes=prism-okaidia&languages=markup+css+clike+javascript */
+
 /**
  * okaidia theme for JavaScript, CSS and HTML
  * Loosely based on Monokai textmate theme by http://www.monokai.nl/
@@ -25017,7 +25012,7 @@ pre[class*=language-] {
   hyphens: none;
 }
 
-/* Code blocks */
+
 pre[class*=language-] {
   padding: 1em;
   margin: 0.5em 0;
@@ -25031,7 +25026,7 @@ pre[class*=language-] {
   background: #272822;
 }
 
-/* Inline code */
+
 :not(pre) > code[class*=language-] {
   padding: 0.1em;
   -webkit-border-radius: 0.3em;

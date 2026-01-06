@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // 1.5 Tabel Karyawan (BARU - DARI ADMIN)
+
         Schema::create('karyawan', function (Blueprint $table) {
             $table->id();
             $table->string('nama_lengkap', 50);

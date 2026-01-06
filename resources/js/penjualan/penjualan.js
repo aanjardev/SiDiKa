@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
             biaya: document.querySelector("input[name='biaya_tambahan']"),
 
             diskonRow: document.getElementById("lineDiskonRow"),
-            // depresiasiRow tidak digunakan karena depresiasi hanya info, tidak mengurangi total
+
             biayaRow: document.getElementById("lineBiayaRow")
         }
     });
@@ -199,7 +199,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }, 300);
     };
 
-    // Tambah item dari modal
     document
         .getElementById("formTambahItem")
         ?.addEventListener("submit", (e) => {
@@ -225,7 +224,6 @@ document.addEventListener("DOMContentLoaded", () => {
             if (qtyInput) qtyInput.value = "1";
         });
 
-    // Qty buttons
     document.getElementById("tableItemsBody").addEventListener("click", (e) => {
         const inc = e.target.closest(".btn-qty-inc");
         const dec = e.target.closest(".btn-qty-dec");
@@ -236,7 +234,6 @@ document.addEventListener("DOMContentLoaded", () => {
         totals.recalc();
     });
 
-    // Rupiah inputs
     document.querySelectorAll(".rupiah-mask").forEach((input) => {
         maskRupiah(input);
         input.addEventListener("input", () => {

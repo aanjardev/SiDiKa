@@ -122,7 +122,7 @@
 @push('scripts')
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Toggle password visibility
+
             const toggleNewPassword = document.getElementById('toggleNewPassword');
             const newPasswordInput = document.getElementById('new_password');
             const newIcon = toggleNewPassword.querySelector('i');
@@ -157,7 +157,6 @@
                 }
             });
 
-            // Password strength checker
             function checkPasswordStrength(password) {
                 let strength = 0;
                 
@@ -169,8 +168,7 @@
                 
                 const strengthBar = document.getElementById('strengthBar');
                 const strengthText = document.getElementById('strengthText');
-                
-                // Remove all color classes
+
                 strengthBar.className = 'progress-bar';
                 
                 switch(strength) {
@@ -212,7 +210,6 @@
                 checkPasswordStrength(this.value);
             });
 
-            // Password confirmation validation
             confirmPasswordInput.addEventListener('input', function() {
                 const newPassword = newPasswordInput.value;
                 const confirmPassword = this.value;
@@ -228,20 +225,17 @@
                 }
             });
 
-            // Initialize form validation
             const resetForm = document.querySelector('form');
             if (resetForm && window.FormValidator) {
                 FormValidator.initForm(resetForm);
             }
 
-            // Add subtle animations
             const authCard = document.querySelector('.auth-card');
             if (authCard) {
                 authCard.style.animation = 'slideInUp 0.6s ease-out';
             }
         });
 
-        // Add slideInUp animation
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideInUp {

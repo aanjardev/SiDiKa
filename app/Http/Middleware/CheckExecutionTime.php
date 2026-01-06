@@ -15,13 +15,11 @@ class CheckExecutionTime
     {
         // Set time limit yang lebih aman (30 detik kurang dari default 60 detik)
         $safeTimeLimit = 30;
-        
-        // Check current execution time
+
         $currentTime = microtime(true);
         $startTime = defined('LARAVEL_START') ? LARAVEL_START : $currentTime;
         $elapsed = $currentTime - $startTime;
-        
-        // If already running too long, show timeout page
+
         if ($elapsed > $safeTimeLimit) {
             return response()->view('errors.timeout', [], 503);
         }

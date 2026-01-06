@@ -3,11 +3,11 @@
 <head>
     <title>{{ $title }}</title>
     <style>
-        /* CSS ini harus sangat sederhana dan inline agar kompatibel dengan Dompdf */
+        
         body { font-family: sans-serif; font-size: 10px; margin: 0; padding: 0; }
         .container { width: 90%; margin: 0 auto; }
 
-        /* MODIFIKASI HEADER BARU */
+        
         .header {
             text-align: left;
             padding: 10px 0;
@@ -25,23 +25,23 @@
             overflow: hidden;
         }
         .text-details h3 {
-            font-size: 20px; /* Font size Nama Perusahaan diperbesar */
+            font-size: 20px; 
             margin: 0 0 5px 0 !important;
         }
         .text-details p {
-            font-size: 12px; /* Font size Alamat/Kontak diperbesar */
+            font-size: 12px; 
             margin: 0 0 3px 0 !important;
         }
-        /* END MODIFIKASI HEADER */
+        
 
 
-        /* Footer */
+        
         .footer { border-top: 1px solid #ccc; border-bottom: none; position: fixed; bottom: 0; width: 90%; }
 
         .content { margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 5px; }
 
-        /* Style untuk Item Table */
+        
         .item-table th, .item-table td {
             border: 1px solid #ccc;
             padding: 6px 8px;
@@ -49,7 +49,7 @@
         }
         .item-table th { background-color: #f0f0f0; }
 
-        /* Style untuk Price Table */
+        
         .price-table { border: none; }
         .price-table td { border: none; padding: 4px 8px; }
 
@@ -65,7 +65,7 @@
             font-weight: bold;
         }
 
-        /* Tanda Tangan */
+        
         .signature-box { width: 100%; margin-top: 30px; }
         .signature-col { width: 50%; text-align: center; float: left; }
     </style>
