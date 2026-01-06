@@ -101,7 +101,7 @@
                             <div class="small">
                                 <div class="d-flex align-items-center gap-1 mb-1">
                                     <i class="fa-solid fa-phone text-muted"></i>
-                                    <span class="text-nowrap">{{ $cabang->nomor_telepon }}</span>
+                                    <span class="text-nowrap phone-display" data-raw="{{ $cabang->nomor_telepon }}"></span>
                                 </div>
                                 @if($cabang->email)
                                 <div class="d-flex align-items-center gap-1">

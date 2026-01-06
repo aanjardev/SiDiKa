@@ -210,26 +210,45 @@ class CustomerController extends Controller
         // Pencarian berdasarkan nama, nomor telepon, atau NIK
         $customers = Customer::where('nama', 'LIKE', '%' . $query . '%')
                             ->orWhere('no_telp', 'LIKE', '%' . $query . '%')
-                            ->orWhere('identitas', 'LIKE', '%' . $query . '%') // ← Tambahan pencarian NIK
+                            // ->orWhere('identitas', 'LIKE', '%' . $query . '%') // ← Tambahan pencarian NIK
                             ->limit(10) // Batasi hasil
                             ->get(['id', 'nama', 'no_telp', 'identitas']);
 
         // MENGUBAH FORMAT DATA KE FORMAT Select2: {id, text}
         $formattedCustomers = $customers->map(function ($customer) {
-            $text = $customer->nama . ' (Telp: ' . $customer->no_telp . ')';
-            
-            // Tambahkan NIK ke dalam text jika ada
-            if (!empty($customer->identitas)) {
-                $text .= ' - NIK: ' . $customer->identitas;
+            // format phone to display-only: XXXX-XXXX-rest
+            $raw = preg_replace('/\D+/', '', $customer->no_telp ?? '');
+            $phone = '';
+            if ($raw !== '') {
+                if (strlen($raw) <= 4) {
+                    $phone = $raw;
+                } elseif (strlen($raw) <= 8) {
+                    $phone = substr($raw, 0, 4) . '-' . substr($raw, 4);
+                } else {
+                    $phone = substr($raw, 0, 4) . '-' . substr($raw, 4, 4) . '-' . substr($raw, 8);
+                }
             }
-            
+
+            $text = $customer->nama;
+            if ($phone) {
+                $text .= ' (' . $phone . ')';
+            } elseif (!empty($customer->no_telp)) {
+                $text .= ' (' . $customer->no_telp . ')';
+            }
+
+            // // Tambahkan NIK ke dalam text jika ada
+            // if (!empty($customer->identitas)) {
+            //     $text .= ' - Id: ' . $customer->identitas;
+            // }
+
             return [
                 'id' => $customer->id,
-                'text' => $text
+                'text' => $text,
+                'no_telp' => $customer->no_telp,
             ];
         });
 
-        
+
         return response()->json($formattedCustomers);
     }
 }

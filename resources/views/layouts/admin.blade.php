@@ -12,6 +12,7 @@
     @vite([
         'resources/css/app.css',
         'resources/js/app.js',
+        'resources/js/utils/phone-format-display.js',
     ])
 
     <!-- @vite([

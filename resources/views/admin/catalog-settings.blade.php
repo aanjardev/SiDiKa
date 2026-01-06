@@ -209,11 +209,13 @@
                                 <label class="form-label fw-medium small text-muted">Nomor Telepon / WhatsApp</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light border-end-0"><i class="fa-brands fa-whatsapp text-success"></i></span>
-                                    <input type="text"
-                                           class="form-control border-start-0 ps-2 @error('contact_phone') is-invalid @enderror"
-                                           id="contact_phone_display"
-                                           value="{{ old('contact_phone', $cat_setting->nomor_telfon) }}"
-                                           placeholder="08xx-xxxx-xxxx">
+                                     <input type="text"
+                                         class="form-control border-start-0 ps-2 @error('contact_phone') is-invalid @enderror"
+                                         id="contact_phone_display"
+                                         data-format="phone"
+                                         data-target="#contact_phone"
+                                         value="{{ old('contact_phone', $cat_setting->nomor_telfon) }}"
+                                         placeholder="08xx-xxxx-xxxx">
                                     <input type="hidden"
                                            name="contact_phone"
                                            id="contact_phone"

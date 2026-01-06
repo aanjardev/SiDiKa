@@ -91,8 +91,7 @@
                         </td>
 
                         <td>
-                            <span class="fw-medium text-secondary">
-                                {{ $pelanggan->no_telp }}
+                            <span class="fw-medium text-secondary phone-display" data-raw="{{ $pelanggan->no_telp }}">
                             </span>
                         </td>
 
