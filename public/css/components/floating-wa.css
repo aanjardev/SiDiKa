@@ -1,4 +1,4 @@
-/* Floating WhatsApp Button Styles */
+
 :root {
     --wa-color: #25D366;
     --wa-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -35,7 +35,7 @@
     font-size: 1.25rem;
 }
 
-/* Responsive Design */
+
 @media (max-width: 576px) {
     .floating-wa {
         bottom: 1rem;

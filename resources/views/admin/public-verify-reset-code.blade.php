@@ -74,32 +74,27 @@
             const verifyForm = document.getElementById('verifyForm');
             const resendBtn = document.getElementById('resendBtn');
             const timerElement = document.getElementById('countdown');
-            
-            // Auto-focus next input
+
             codeInputs.forEach((input, index) => {
                 input.addEventListener('input', function(e) {
                     const value = e.target.value;
-                    
-                    // Only allow numbers
+
                     if (!/^\d$/.test(value)) {
                         e.target.value = '';
                         return;
                     }
-                    
-                    // Add filled class
+
                     e.target.classList.add('filled');
-                    
-                    // Move to next input
+
                     if (value && index < codeInputs.length - 1) {
                         codeInputs[index + 1].focus();
                     }
-                    
-                    // Update hidden input
+
                     updateHiddenInput();
                 });
                 
                 input.addEventListener('keydown', function(e) {
-                    // Handle backspace
+
                     if (e.key === 'Backspace' && !e.target.value && index > 0) {
                         codeInputs[index - 1].focus();
                         codeInputs[index - 1].value = '';
@@ -107,8 +102,7 @@
                         updateHiddenInput();
                     }
                 });
-                
-                // Handle paste
+
                 input.addEventListener('paste', function(e) {
                     e.preventDefault();
                     const pastedData = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
@@ -119,8 +113,7 @@
                             codeInputs[index + i].classList.add('filled');
                         }
                     }
-                    
-                    // Focus next empty input or last
+
                     const nextEmpty = Array.from(codeInputs).find(inp => !inp.value);
                     if (nextEmpty) {
                         nextEmpty.focus();
@@ -136,8 +129,7 @@
                 const code = Array.from(codeInputs).map(input => input.value).join('');
                 hiddenInput.value = code;
             }
-            
-            // Timer countdown
+
             let timeLeft = 30 * 60; // 30 minutes in seconds
             
             function updateTimer() {
@@ -161,27 +153,23 @@
             }
             
             updateTimer();
-            
-            // Resend button
+
             resendBtn.addEventListener('click', function() {
                 if (!this.disabled) {
                     window.location.href = "{{ route('public.resend-reset-code') }}";
                 }
             });
-            
-            // Form validation
+
             if (verifyForm && window.FormValidator) {
                 FormValidator.initForm(verifyForm);
             }
-            
-            // Add subtle animations
+
             const authCard = document.querySelector('.auth-card');
             if (authCard) {
                 authCard.style.animation = 'slideInUp 0.6s ease-out';
             }
         });
 
-        // Add slideInUp animation
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideInUp {

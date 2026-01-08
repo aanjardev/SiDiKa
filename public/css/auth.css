@@ -12,7 +12,7 @@ body.auth-body {
     min-height: 100vh;
 }
 
-/* Left column */
+
 .auth-wrapper {
     min-height: 100vh;
     display: flex;
@@ -36,7 +36,7 @@ body.auth-body {
     padding: 2.5rem;
 }
 
-/* Inputs */
+
 .form-control {
     background-color: #f8f9fa;
     border: 1px solid #e9ecef;
@@ -69,7 +69,7 @@ body.auth-body {
     border-color: var(--bs-primary);
 }
 
-/* Toggle password button */
+
 .btn-toggle-password {
     border: 1px solid #e9ecef;
     background-color: #f8f9fa;
@@ -83,7 +83,7 @@ body.auth-body {
     border-color: var(--bs-primary);
 }
 
-/* Buttons */
+
 .btn-primary {
     background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-secondary) 100%);
     border: none;
@@ -98,7 +98,7 @@ body.auth-body {
     box-shadow: 0 8px 25px rgba(59, 138, 255, 0.3);
 }
 
-/* Right column */
+
 .login-bg-side {
     min-height: 100vh;
     background: linear-gradient(135deg, #3b8aff 0%, #0048b3 100%);
@@ -203,7 +203,7 @@ body.auth-body {
     font-weight: 300;
 }
 
-/* Auth logo */
+
 .auth-logo {
     width: 60px;
     height: 60px;
@@ -218,7 +218,7 @@ body.auth-body {
     font-weight: 700;
 }
 
-/* Helpers */
+
 .form-label {
     font-weight: 500;
     color: #495057;
@@ -235,7 +235,7 @@ body.auth-body {
     text-decoration: underline;
 }
 
-/* Verification + reset helpers */
+
 .verification-code-input {
     font-size: 1.5rem;
     letter-spacing: 0.5rem;

@@ -34,20 +34,17 @@ window.FormValidator = (function () {
         field.classList.add("is-invalid");
         field.classList.remove("is-valid");
 
-        // Add class to input-group parent if exists
         const inputGroup = field.closest(".input-group");
         if (inputGroup) {
             inputGroup.classList.add("has-validation-error");
         }
 
-        // Find or create feedback element
         let feedback = findFeedbackElement(field);
         if (feedback) {
             feedback.textContent = message || getDefaultMessage(field);
             feedback.classList.add("d-block");
         }
 
-        // Add shake animation
         field.classList.add("shake-error");
         setTimeout(() => field.classList.remove("shake-error"), 500);
     }
@@ -57,16 +54,14 @@ window.FormValidator = (function () {
      */
     function setValid(field) {
         field.classList.remove("is-invalid");
-        // Tidak menambahkan is-valid untuk menghindari icon centang di semua form
-        // field.classList.add("is-valid");
 
-        // Remove class from input-group parent if exists
+
+
         const inputGroup = field.closest(".input-group");
         if (inputGroup) {
             inputGroup.classList.remove("has-validation-error");
         }
 
-        // Hide feedback
         let feedback = findFeedbackElement(field);
         if (feedback) {
             feedback.classList.remove("d-block");
@@ -94,13 +89,12 @@ window.FormValidator = (function () {
      * Find the feedback element for a field
      */
     function findFeedbackElement(field) {
-        // Try to find sibling invalid-feedback
+
         let feedback = field.nextElementSibling;
         while (feedback && !feedback.classList.contains("invalid-feedback")) {
             feedback = feedback.nextElementSibling;
         }
 
-        // If not found, check after input-group
         if (!feedback) {
             const inputGroup = field.closest(".input-group");
             if (inputGroup) {
@@ -114,12 +108,10 @@ window.FormValidator = (function () {
             }
         }
 
-        // Try by ID
         if (!feedback && field.id) {
             feedback = document.getElementById(field.id + "_error");
         }
 
-        // Try by name
         if (!feedback && field.name) {
             feedback = document.getElementById(field.name + "_error");
         }
@@ -131,7 +123,7 @@ window.FormValidator = (function () {
      * Get default error message for a field
      */
     function getDefaultMessage(field) {
-        // Check for custom message
+
         if (field.dataset.errorMessage) {
             return field.dataset.errorMessage;
         }
@@ -140,7 +132,7 @@ window.FormValidator = (function () {
 
         if (validateType && defaultMessages[validateType]) {
             let msg = defaultMessages[validateType];
-            // Replace placeholders
+
             if (field.min) msg = msg.replace("{min}", field.min);
             if (field.max) msg = msg.replace("{max}", field.max);
             if (field.minLength)
@@ -164,7 +156,6 @@ window.FormValidator = (function () {
         const value = field.value.trim();
         const validateType = field.dataset.validate;
 
-        // Skip if not required and empty
         if (
             !field.classList.contains("required-field") &&
             !field.hasAttribute("required") &&
@@ -174,7 +165,6 @@ window.FormValidator = (function () {
             return true;
         }
 
-        // Required check
         if (
             (field.classList.contains("required-field") ||
                 field.hasAttribute("required")) &&
@@ -184,7 +174,6 @@ window.FormValidator = (function () {
             return false;
         }
 
-        // Select check
         if (
             field.tagName === "SELECT" &&
             (field.classList.contains("required-field") ||
@@ -200,7 +189,6 @@ window.FormValidator = (function () {
             }
         }
 
-        // Type-specific validation
         if (validateType && value) {
             switch (validateType) {
                 case "email":
@@ -233,7 +221,6 @@ window.FormValidator = (function () {
             }
         }
 
-        // Min/Max validation
         if (field.min && parseFloat(value) < parseFloat(field.min)) {
             setInvalid(field, defaultMessages.min.replace("{min}", field.min));
             return false;
@@ -244,7 +231,6 @@ window.FormValidator = (function () {
             return false;
         }
 
-        // Length validation
         if (
             field.minLength &&
             field.minLength > 0 &&
@@ -288,7 +274,7 @@ window.FormValidator = (function () {
         let firstInvalid = null;
 
         fields.forEach((field) => {
-            // Skip hidden or disabled fields
+
             if (
                 field.type === "hidden" ||
                 field.disabled ||
@@ -305,7 +291,6 @@ window.FormValidator = (function () {
             }
         });
 
-        // Scroll to first error
         if (!isValid && firstInvalid && options.scrollToError !== false) {
             scrollToElement(firstInvalid);
         }
@@ -335,7 +320,6 @@ window.FormValidator = (function () {
             element.scrollIntoView({ behavior: "smooth", block: "center" });
         }
 
-        // Focus the element
         setTimeout(() => element.focus(), 300);
     }
 
@@ -352,7 +336,7 @@ window.FormValidator = (function () {
      */
     function isValidPhone(phone) {
         const cleaned = phone.replace(/[\s\-\(\)]/g, "");
-        // Accept formats: 08xx, +628xx, 628xx
+
         const re = /^(\+?62|0)8[1-9][0-9]{7,11}$/;
         return re.test(cleaned);
     }
@@ -363,27 +347,22 @@ window.FormValidator = (function () {
     function initForm(form, options = {}) {
         if (!form) return;
 
-        // Prevent default HTML5 validation
         form.setAttribute("novalidate", "true");
 
-        // Get all required fields
         const fields = form.querySelectorAll(".required-field, [required]");
 
-        // Flag untuk skip validasi saat navigasi
         let isNavigating = false;
         let navigationTimeout = null;
 
-        // Helper function untuk set flag navigasi
         const setNavigating = () => {
             isNavigating = true;
-            // Reset flag setelah 300ms (cukup untuk blur event)
+
             if (navigationTimeout) clearTimeout(navigationTimeout);
             navigationTimeout = setTimeout(() => {
                 isNavigating = false;
             }, 300);
         };
 
-        // Deteksi klik pada tombol batal/kembali atau link navigasi di dalam form
         const cancelButtons = form.querySelectorAll(
             'button[type="button"], a[href]'
         );
@@ -392,16 +371,14 @@ window.FormValidator = (function () {
             btn.addEventListener("click", setNavigating);
         });
 
-        // Deteksi klik pada tombol kembali di header (id="btnKembali" atau class mengandung "kembali"/"batal")
         document
             .querySelectorAll(
                 '#btnKembali, a[href].btn, button.btn:not([type="submit"])'
             )
             .forEach((el) => {
-                // Skip jika di dalam form yang sedang di-validate
+
                 if (form.contains(el)) return;
 
-                // Hanya untuk elemen yang jelas merupakan tombol navigasi
                 const isNavigationButton =
                     el.id === "btnKembali" ||
                     el.textContent.toLowerCase().includes("kembali") ||
@@ -414,17 +391,16 @@ window.FormValidator = (function () {
                 }
             });
 
-        // Add blur validation
         fields.forEach((field) => {
-            // Skip hidden inputs
+
             if (field.type === "hidden") return;
 
             field.addEventListener("blur", function (e) {
-                // Skip validasi jika sedang navigasi
+
                 if (isNavigating) {
                     return;
                 }
-                // Skip validasi jika relatedTarget adalah tombol batal/kembali atau link navigasi
+
                 const relatedTarget = e.relatedTarget;
                 if (relatedTarget) {
                     const isCancelButton =
@@ -445,14 +421,12 @@ window.FormValidator = (function () {
                 validateField(this);
             });
 
-            // Clear error on input
             field.addEventListener("input", function () {
                 if (this.classList.contains("is-invalid")) {
                     clearValidation(this);
                 }
             });
 
-            // For select elements
             if (field.tagName === "SELECT") {
                 field.addEventListener("change", function () {
                     validateField(this);
@@ -462,7 +436,7 @@ window.FormValidator = (function () {
 
         // Form submit validation
         form.addEventListener("submit", function (e) {
-            // Check if validation should be skipped (e.g., for draft saves)
+
             const submitBtn = e.submitter;
             if (submitBtn && submitBtn.dataset.skipValidation === "true") {
                 return true;
@@ -495,7 +469,6 @@ window.FormValidator = (function () {
         fields.forEach((field) => clearValidation(field));
     }
 
-    // Public API
     return {
         init: init,
         initForm: initForm,
@@ -510,7 +483,6 @@ window.FormValidator = (function () {
     };
 })();
 
-// Auto-init on DOMContentLoaded
 document.addEventListener("DOMContentLoaded", function () {
     FormValidator.init();
 });

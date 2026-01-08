@@ -43,7 +43,7 @@ class ProcessProductImage implements ShouldQueue
         public ?int $mainImageIndex = null,
         public ?int $userId = null
     ) {
-        //
+
     }
 
     /**
@@ -58,18 +58,17 @@ class ProcessProductImage implements ShouldQueue
             $createdIds = [];
 
             foreach ($this->temporaryFilePaths as $index => $tempPath) {
-                // Check if temporary file exists
+
                 if (!Storage::disk('local')->exists($tempPath)) {
                     Log::warning("Temporary file not found: {$tempPath}");
                     continue;
                 }
 
-                // Get file from temporary storage
                 $tempFilePath = Storage::disk('local')->path($tempPath);
                 
                 try {
-                    // Use ImageUpload helper to process and optimize image
-                    // This will handle resizing, compression, WebP conversion, and memory management
+
+
                     // ImageUpload will automatically increase memory limit and use Imagick if available
                     $prefix = 'product/' . $product->id;
                     $paths = \App\Helpers\ImageUpload::upload(
@@ -78,10 +77,8 @@ class ProcessProductImage implements ShouldQueue
                     );
                     $permanentPath = $paths['path'];
 
-                    // Delete temporary file
                     Storage::disk('local')->delete($tempPath);
 
-                    // Create database record
                     $gambar = GambarProduk::create([
                         'id_produk' => $product->id,
                         'path_gambar' => $permanentPath,
@@ -97,8 +94,7 @@ class ProcessProductImage implements ShouldQueue
                         'error' => $e->getMessage(),
                         'trace' => $e->getTraceAsString()
                     ]);
-                    
-                    // Delete temporary file even if processing failed
+
                     try {
                         if (Storage::disk('local')->exists($tempPath)) {
                             Storage::disk('local')->delete($tempPath);
@@ -108,14 +104,12 @@ class ProcessProductImage implements ShouldQueue
                             'error' => $deleteError->getMessage()
                         ]);
                     }
-                    
-                    // Continue with next image instead of failing entire job
-                    // But log the error so user knows which images failed
+
+
                     continue;
                 }
             }
 
-            // Handle main image selection
             if ($this->mainImageIndex !== null) {
                 $mainRecord = null;
                 foreach ($createdIds as $created) {
@@ -130,13 +124,12 @@ class ProcessProductImage implements ShouldQueue
                     GambarProduk::where('id', $mainRecord['id'])->update(['is_main' => true]);
                 }
             } elseif (!$hasMain && !empty($createdIds)) {
-                // Set first image as main if no main exists
+
                 GambarProduk::where('id', $createdIds[0]['id'])->update(['is_main' => true]);
             }
 
             DB::commit();
 
-            // Send notification to user if userId is provided
             if ($this->userId) {
                 $user = User::find($this->userId);
                 if ($user) {
@@ -152,8 +145,7 @@ class ProcessProductImage implements ShouldQueue
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            
-            // Clean up any remaining temporary files
+
             $this->cleanupTemporaryFiles();
             
             Log::error("Failed to process product images: " . $th->getMessage(), [
@@ -170,10 +162,9 @@ class ProcessProductImage implements ShouldQueue
      */
     public function failed(\Throwable $exception): void
     {
-        // Clean up temporary files
+
         $this->cleanupTemporaryFiles();
 
-        // Send failure notification to user
         if ($this->userId) {
             try {
                 $user = User::find($this->userId);
@@ -228,10 +219,10 @@ class ProcessProductImage implements ShouldQueue
         switch ($last) {
             case 'g':
                 $value *= 1024;
-                // no break
+
             case 'm':
                 $value *= 1024;
-                // no break
+
             case 'k':
                 $value *= 1024;
         }

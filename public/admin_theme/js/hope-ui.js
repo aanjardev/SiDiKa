@@ -43,9 +43,7 @@ Index Of Script
 Index Of Script
 ----------------------------------------------*/
 "use strict";
-/*---------------------------------------------------------------------
-              Sticky-Nav
------------------------------------------------------------------------*/
+
 window.addEventListener('scroll', function () {
   let yOffset = document.documentElement.scrollTop;
   let navbar = document.querySelector(".navs-sticky")
@@ -57,18 +55,14 @@ window.addEventListener('scroll', function () {
     }
   }
 });
-/*---------------------------------------------------------------------
-              Popover
------------------------------------------------------------------------*/
+
 var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
 if (typeof bootstrap !== typeof undefined) {
   var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
     return new bootstrap.Popover(popoverTriggerEl)
   })
 }
-/*---------------------------------------------------------------------
-                Tooltip
------------------------------------------------------------------------*/
+
 if (typeof bootstrap !== typeof undefined) {
   var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
   var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -80,9 +74,7 @@ if (typeof bootstrap !== typeof undefined) {
     return new bootstrap.Tooltip(tooltipTriggerEl)
   })
 }
-/*---------------------------------------------------------------------
-              Circle Progress
------------------------------------------------------------------------*/
+
 const progressBar = document.getElementsByClassName('circle-progress')
 if (typeof progressBar !== typeof undefined) {
   Array.from(progressBar, (elem) => {
@@ -100,9 +92,7 @@ if (typeof progressBar !== typeof undefined) {
     }
   })
 }
-/*---------------------------------------------------------------------
-              Progress Bar
------------------------------------------------------------------------*/
+
 const progressBarInit = (elem) => {
   const currentValue = elem.getAttribute('aria-valuenow')
   elem.style.width = '0%'
@@ -123,9 +113,7 @@ const customProgressBar = document.querySelectorAll('[data-toggle="progress-bar"
 Array.from(customProgressBar, (elem) => {
   progressBarInit(elem)
 })
-/*---------------------------------------------------------------------
-                 noUiSlider
------------------------------------------------------------------------*/
+
 const rangeSlider = document.querySelectorAll('.range-slider');
 Array.from(rangeSlider, (elem) => {
   if (typeof noUiSlider !== typeof undefined) {
@@ -153,9 +141,7 @@ Array.from(slider, (elem) => {
     })
   }
 })
-/*---------------------------------------------------------------------
-              Copy To Clipboard
------------------------------------------------------------------------*/
+
 const copy = document.querySelectorAll('[data-toggle="copy"]')
 if (typeof copy !== typeof undefined) {
   Array.from(copy, (elem) => {
@@ -182,9 +168,7 @@ if (typeof copy !== typeof undefined) {
   });
 }
 
-/*---------------------------------------------------------------------
-              CounterUp 2
------------------------------------------------------------------------*/
+
 if (window.counterUp !== undefined) {
   const counterUp = window.counterUp["default"];
   const counterUp2 = document.querySelectorAll('.counter')
@@ -204,9 +188,7 @@ if (window.counterUp !== undefined) {
     }
   })
 }
-/*---------------------------------------------------------------------
-              SliderTab
------------------------------------------------------------------------*/
+
 Array.from(document.querySelectorAll('[data-toggle="slider-tab"]'), (elem) => {
   if (typeof SliderTab !== typeof undefined) {
     new SliderTab(elem)
@@ -223,9 +205,7 @@ if (typeof Scrollbar !== typeof null) {
   }
 }
 
-/*---------------------------------------------------------------------
-  Data tables
------------------------------------------------------------------------*/
+
 if ($.fn.DataTable) {
   if ($('[data-toggle="data-table"]').length) {
     const table = $('[data-toggle="data-table"]').DataTable({
@@ -233,9 +213,7 @@ if ($.fn.DataTable) {
     });
   }
 }
-/*---------------------------------------------------------------------
-  Active Class for Pricing Table
------------------------------------------------------------------------*/
+
 const tableTh = document.querySelectorAll('#my-table tr th')
 const tableTd = document.querySelectorAll('#my-table td')
 if (tableTh !== null) {
@@ -255,9 +233,7 @@ if (tableTh !== null) {
     })
   })
 }
-/*---------------------------------------------------------------------
-              AOS Animation Plugin
------------------------------------------------------------------------*/
+
 if (typeof AOS !== typeof undefined) {
   AOS.init({
     startEvent: 'DOMContentLoaded',
@@ -271,11 +247,9 @@ if (typeof AOS !== typeof undefined) {
     offset: 10
   });
 }
-/*---------------------------------------------------------------------
-              Resize Plugins
------------------------------------------------------------------------*/
+
 const resizePlugins = () => {
-  // sidebar-mini
+
   const tabs = document.querySelectorAll('.nav')
   const sidebarResponsive = document.querySelector('.sidebar-default')
   if (window.innerWidth < 1025) {
@@ -302,9 +276,7 @@ const resizePlugins = () => {
     }
   }
 }
-/*---------------------------------------------------------------------
-              LoaderInit
------------------------------------------------------------------------*/
+
 const loaderInit = () => {
   const loader = document.querySelector('.loader')
   setTimeout(() => {
@@ -314,9 +286,7 @@ const loaderInit = () => {
     }, 500)
   }, 500)
 }
-/*---------------------------------------------------------------------
-              Sidebar Toggle
------------------------------------------------------------------------*/
+
 const sidebarToggle = (elem) => {
   elem.addEventListener('click', (e) => {
     const sidebar = document.querySelector('.sidebar')
@@ -345,9 +315,7 @@ if (sidebar !== null) {
 Array.from(sidebarToggleBtn, (sidebarBtn) => {
   sidebarToggle(sidebarBtn)
 })
-/*---------------------------------------------------------------------------
-                            Back To Top
-----------------------------------------------------------------------------*/
+
 const backToTop = document.getElementById("back-to-top")
 if (backToTop !== null && backToTop !== undefined) {
   document.getElementById("back-to-top").classList.add("animate__animated", "animate__fadeOut")
@@ -360,28 +328,22 @@ if (backToTop !== null && backToTop !== undefined) {
       document.getElementById("back-to-top").classList.add("animate__fadeOut")
     }
   })
-  // scroll body to 0px on click
+
   document.querySelector('#top').addEventListener('click', (e) => {
     e.preventDefault()
     window.scrollTo({ top: 0, behavior: 'smooth' });
   })
 }
-/*---------------------------------------------------------------------
-              DOMContentLoaded
------------------------------------------------------------------------*/
+
 document.addEventListener('DOMContentLoaded', (event) => {
   resizePlugins()
   loaderInit()
 });
-/*---------------------------------------------------------------------
-              Window Resize
------------------------------------------------------------------------*/
+
 window.addEventListener('resize', function (event) {
   resizePlugins()
 });
-/*---------------------------------------------------------------------
-| | | | | DropDown
------------------------------------------------------------------------*/
+
 function darken_screen(yesno) {
   if (yesno == true) {
     if (document.querySelector('.screen-darken') !== null) {
@@ -434,14 +396,12 @@ if (document.querySelector('#navbarSideCollapse')) {
     document.querySelector('.offcanvas-collapse').classList.toggle('open')
   })
 }
-/*---------------------------------------------------------------------
-                                   Form Validation
------------------------------------------------------------------------*/
-// Example starter JavaScript for disabling form submissions if there are invalid fields
+
+
 window.addEventListener('load', function () {
-  // Fetch all the forms we want to apply custom Bootstrap validation styles to
+
   var forms = document.getElementsByClassName('needs-validation');
-  // Loop over them and prevent submission
+
   var validation = Array.prototype.filter.call(forms, function (form) {
     form.addEventListener('submit', function (event) {
       if (form.checkValidity() === false) {
@@ -454,9 +414,7 @@ window.addEventListener('load', function () {
 }, false);
 
 (function () {
-  /*----------------------------------------------------------
-                             Flatpickr
-  -------------------------------------------------------------*/
+  
   const date_flatpickr = document.querySelectorAll('.date_flatpicker')
   Array.from(date_flatpickr, (elem) => {
     if (typeof flatpickr !== typeof undefined) {
@@ -466,7 +424,7 @@ window.addEventListener('load', function () {
       })
     }
   })
-  /*----------Range Flatpickr--------------*/
+  
   const range_flatpicker = document.querySelectorAll('.range_flatpicker')
   Array.from(range_flatpicker, (elem) => {
     if (typeof flatpickr !== typeof undefined) {
@@ -477,7 +435,7 @@ window.addEventListener('load', function () {
       })
     }
   })
-  /*------------Wrap Flatpickr---------------*/
+  
   const wrap_flatpicker = document.querySelectorAll('.wrap_flatpicker')
   Array.from(wrap_flatpicker, (elem) => {
     if (typeof flatpickr !== typeof undefined) {
@@ -488,7 +446,7 @@ window.addEventListener('load', function () {
       })
     }
   })
-  /*-------------Time Flatpickr---------------*/
+  
   const time_flatpickr = document.querySelectorAll('.time_flatpicker')
   Array.from(time_flatpickr, (elem) => {
     if (typeof flatpickr !== typeof undefined) {
@@ -499,7 +457,7 @@ window.addEventListener('load', function () {
       })
     }
   })
-  /*-------------Inline Flatpickr-----------------*/
+  
   const inline_flatpickr = document.querySelectorAll('.inline_flatpickr')
   Array.from(inline_flatpickr, (elem) => {
     if (typeof flatpickr !== typeof undefined) {

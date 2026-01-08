@@ -365,7 +365,7 @@ $setting = \App\Models\CatalogSettings::first();
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Form validation
+
         (function() {
             'use strict'
             var forms = document.querySelectorAll('.needs-validation')
@@ -380,7 +380,6 @@ $setting = \App\Models\CatalogSettings::first();
             })
         })()
 
-        // Preview + pilih gambar utama
         function previewGambar(event) {
             const previewContainer = document.getElementById('preview-container');
             const files = Array.from(event.target.files);
@@ -410,13 +409,12 @@ $setting = \App\Models\CatalogSettings::first();
                 reader.readAsDataURL(file);
             });
 
-            // Tambahkan event listener untuk hapus gambar baru
             setTimeout(() => {
                 document.querySelectorAll('.remove-image-new').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const idx = parseInt(this.getAttribute('data-index'));
                         files.splice(idx, 1);
-                        // Update input file agar sesuai dengan files yang tersisa
+
                         const dataTransfer = new DataTransfer();
                         files.forEach(f => dataTransfer.items.add(f));
                         event.target.files = dataTransfer.files;
@@ -427,7 +425,7 @@ $setting = \App\Models\CatalogSettings::first();
         }
 
         document.getElementById('preview-container').addEventListener('click', function(event) {
-            // Cek apakah yang diklik adalah tombol dengan kelas 'remove-image'
+
             if (event.target.classList.contains('remove-image')) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -456,10 +454,10 @@ $setting = \App\Models\CatalogSettings::first();
 
                                 if (data.success) {
                                     container.remove();
-                                    // Opsional: Cek apakah gambar utama dihapus dan sesuaikan radio button
+
                                     const mainImageRadio = document.querySelector('input[name="main_image_existing"]:checked');
                                     if (!mainImageRadio && document.querySelectorAll('.image-container').length > 0) {
-                                        // Jika tidak ada gambar utama yang terpilih, pilih yang pertama jika ada
+
                                         document.querySelector('.image-container input[type="radio"]').checked = true;
                                     }
                                     window.showSuccess('Gambar berhasil dihapus');
@@ -474,9 +472,9 @@ $setting = \App\Models\CatalogSettings::first();
                             });
                     });
             }
-            // Logic for main_image_index for existing images (radio button click)
+
             if (event.target.name === 'main_image_existing') {
-                // Hapus checked dari radio button gambar baru jika ada
+
                 const newImageRadio = document.querySelector('input[name="main_image_new"]:checked');
                 if (newImageRadio) {
                     newImageRadio.checked = false;
@@ -484,7 +482,6 @@ $setting = \App\Models\CatalogSettings::first();
             }
         });
 
-        // Search functionality
         document.getElementById('searchProduct').addEventListener('keyup', function() {
             let searchQuery = this.value.toLowerCase();
             let tableRows = document.querySelectorAll('tbody tr');
@@ -495,7 +492,6 @@ $setting = \App\Models\CatalogSettings::first();
             });
         });
 
-        // Fungsi helper untuk delete produk
         function confirmDeleteProduct(button) {
             window.confirmDelete('Apakah Anda yakin ingin menghapus produk ini?', 'Konfirmasi Hapus')
                 .then((result) => {

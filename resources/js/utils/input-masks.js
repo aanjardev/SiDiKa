@@ -1,13 +1,12 @@
 import { maskRupiah } from './rupiah';
 
-// Terapkan format rupiah ke semua input dengan class .rupiah-mask
-// Tampilan: terformat rupiah
+
 // Nilai yang dikirim ke backend: digit murni (tanpa Rp/titik), diset sebelum submit form
 export function initRupiahMasks() {
     const inputs = document.querySelectorAll('input.rupiah-mask');
 
     inputs.forEach((input) => {
-        // Inisialisasi jika sudah ada nilai awal (misal dari edit form)
+
         if (input.value) {
             const digits = input.value.replace(/\D/g, '');
             input.dataset.raw = digits;
@@ -16,13 +15,11 @@ export function initRupiahMasks() {
         }
 
         input.addEventListener('input', () => {
-            // Hanya izinkan digit terlebih dahulu
+
             let digits = input.value.replace(/\D/g, '');
 
-            // Simpan versi murni ke data attribute
             input.dataset.raw = digits;
 
-            // Tampilkan terformat rupiah
             input.value = digits;
             maskRupiah(input);
         });
@@ -42,7 +39,6 @@ export function initRupiahMasks() {
     });
 }
 
-// Batasi panjang input berdasarkan data-maxlength
 export function initLengthLimit() {
     document.addEventListener('input', (e) => {
         const el = e.target;
@@ -57,13 +53,11 @@ export function initLengthLimit() {
     });
 }
 
-// Hanya angka untuk input dengan class .numeric-only (yang BUKAN rupiah-mask)
 export function initNumericOnly() {
     document.addEventListener('input', (e) => {
         const el = e.target;
         if (!el.classList || !el.classList.contains('numeric-only')) return;
 
-        // Jika juga punya rupiah-mask, sudah ditangani di initRupiahMasks
         if (el.classList.contains('rupiah-mask')) return;
 
         let digits = el.value.replace(/\D/g, '');

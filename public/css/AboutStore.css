@@ -1,4 +1,4 @@
-/* General Styles */
+
 :root {
     --primary-color: #2F353F;
     --secondary-color: #EA4E2D;
@@ -12,7 +12,7 @@ body {
     color: var(--text-color);
 }
 
-/* Hero Section */
+
 .hero-section {
     background-color: var(--primary-color);
     color: white;
@@ -35,7 +35,7 @@ body {
     line-height: 1.8;
 }
 
-/* Values Section */
+
 .section-subtitle {
     color: var(--secondary-color);
     font-weight: 600;
@@ -80,7 +80,7 @@ body {
     margin-bottom: 1rem;
 }
 
-/* Features Section */
+
 .feature-section {
     background-color: var(--light-gray);
     padding: 5rem 0;
@@ -116,7 +116,7 @@ body {
     color: white;
 }
 
-/* Testimonials */
+
 .testimonial-card {
     background: white;
     padding: 2rem;
@@ -139,7 +139,7 @@ body {
     border: 3px solid var(--secondary-color);
 }
 
-/* CTA Banner */
+
 .about-banner {
     background: linear-gradient(rgba(47, 53, 63, 0.9), rgba(47, 53, 63, 0.9)), url('https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?q=80&w=2076&auto=format&fit=crop') center/cover;
     padding: 5rem 0;
@@ -152,8 +152,8 @@ body {
     z-index: 1;
 }
 
-/* Back to Top Button */
-#backToTop {
+
+
     position: fixed;
     bottom: 2rem;
     left: 2rem;
@@ -171,16 +171,14 @@ body {
     z-index: 999;
 }
 
-#backToTop.visible {
     opacity: 1;
     visibility: visible;
 }
 
-#backToTop:hover {
     transform: translateY(-3px);
 }
 
-/* Mobile Responsive Styles */
+
 @media (max-width: 991px) {
     .hero-section {
         padding: 4rem 0;

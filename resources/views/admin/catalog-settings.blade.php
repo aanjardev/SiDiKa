@@ -25,7 +25,7 @@
         display: inline-flex;
     }
 
-    /* Logo card save button: pinned bottom-center inside the card body */
+    
     .card-save-btn-logo {
         display: none;
         position: static;

@@ -14,7 +14,6 @@ class BranchController extends Controller
     {
         $query = Branch::query();
 
-        // Search by nama or alamat
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
@@ -23,7 +22,6 @@ class BranchController extends Controller
             });
         }
 
-        // Sort by
         $sortBy = $request->input('sort_by', 'updated_at');
         $sortOrder = $request->input('sort_order', 'desc');
 
@@ -93,7 +91,7 @@ class BranchController extends Controller
             ],
             'jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
             'jam_tutup' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
-            // Validasi jam operasional per hari
+
             'jam_operasional' => ['required', 'array', 'size:7'],
             'jam_operasional.*.is_buka' => ['required', 'boolean'],
             'jam_operasional.*.jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
@@ -112,10 +110,9 @@ class BranchController extends Controller
 
         DB::beginTransaction();
         try {
-            // Create branch
+
             $branch = Branch::create($validated);
 
-            // Create jam operasional
             foreach ($validated['jam_operasional'] as $hari => $jamData) {
                 JamOperasionalCabang::create([
                     'perusahaan_cabang_id' => $branch->id,
@@ -230,7 +227,7 @@ class BranchController extends Controller
             ],
             'jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
             'jam_tutup' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
-            // Validasi jam operasional per hari
+
             'jam_operasional' => ['required', 'array', 'size:7'],
             'jam_operasional.*.is_buka' => ['required', 'boolean'],
             'jam_operasional.*.jam_buka' => ['nullable', 'regex:/^([01]\d|2[0-3]):([0-5]\d)(:[0-5]\d)?$/'],
@@ -248,13 +245,11 @@ class BranchController extends Controller
 
         DB::beginTransaction();
         try {
-            // Update branch
+
             $branch->update($validated);
 
-            // Delete existing jam operasional
             $branch->jamOperasional()->delete();
 
-            // Create new jam operasional
             foreach ($validated['jam_operasional'] as $hari => $jamData) {
                 JamOperasionalCabang::create([
                     'perusahaan_cabang_id' => $branch->id,

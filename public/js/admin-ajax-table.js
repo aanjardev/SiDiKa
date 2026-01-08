@@ -124,7 +124,7 @@
             })
                 .then((res) => res.json())
                 .then((data) => {
-                    // Sanitize incoming HTML: extract only <tr> elements to avoid malformed table structure
+
                     const incomingHtml = data.table_html || "";
                     let rowsHtml = "";
                     try {
@@ -136,7 +136,7 @@
                                 .map((t) => t.outerHTML)
                                 .join("");
                         } else {
-                            // Fallback: if no <tr> found, use raw incoming HTML
+
                             rowsHtml = incomingHtml;
                         }
                     } catch (e) {

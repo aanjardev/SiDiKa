@@ -57,7 +57,7 @@
     </div>
 
     <script>
-        // Auto refresh setelah 15 detik
+
         setTimeout(() => {
             const countdown = document.createElement('div');
             countdown.className = 'fixed bottom-4 right-4 bg-white rounded-lg shadow-lg p-3 text-sm';
@@ -74,7 +74,6 @@
                 }
             }, 1000);
 
-            // Cancel refresh jika user berinteraksi
             document.addEventListener('click', () => {
                 clearInterval(timer);
                 countdown.remove();

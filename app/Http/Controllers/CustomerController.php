@@ -18,7 +18,6 @@ class CustomerController extends Controller
                 'pembelian as total_pembelian',
             ]);
 
-        // Search by nama, nomor telepon, atau NIK
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function($q) use ($search) {
@@ -28,7 +27,6 @@ class CustomerController extends Controller
             });
         }
 
-        // Sort by
         $sortBy = $request->input('sort_by', 'updated_at');
         $sortOrder = $request->input('sort_order', 'desc');
 
@@ -53,12 +51,11 @@ class CustomerController extends Controller
     public function create()
     {
 
-        // return view('admin.inputDataPelanggan');
     }
 
     public function store(Request $request)
     {
-        // 1. Validasi data yang masuk dari AJAX
+
         $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:50',
             'no_telp' => ['required', 'string', 'max:20', 'regex:/^\d+$/'],
@@ -72,17 +69,14 @@ class CustomerController extends Controller
             'identitas.regex' => 'NIK hanya boleh berisi angka.',
         ]);
 
-        // 2. Jika validasi gagal, kirim error kembali sebagai JSON
         if ($validator->fails()) {
-            // Kirim 422 (Unprocessable Entity) agar 'catch' di JS bisa menangkapnya
+
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        // 3. Buat customer baru
-        // Ini aman karena Model Customer Anda sudah punya $fillable
+
         $customer = Customer::create($request->all());
 
-        // 4. Kirim respons JSON yang sukses
         return response()->json([
             'success' => true,
             'message' => 'Customer berhasil ditambahkan!',
@@ -207,16 +201,14 @@ class CustomerController extends Controller
             return response()->json([]);
         }
 
-        // Pencarian berdasarkan nama, nomor telepon, atau NIK
         $customers = Customer::where('nama', 'LIKE', '%' . $query . '%')
                             ->orWhere('no_telp', 'LIKE', '%' . $query . '%')
-                            // ->orWhere('identitas', 'LIKE', '%' . $query . '%') // ← Tambahan pencarian NIK
+
                             ->limit(10) // Batasi hasil
                             ->get(['id', 'nama', 'no_telp', 'identitas']);
 
-        // MENGUBAH FORMAT DATA KE FORMAT Select2: {id, text}
         $formattedCustomers = $customers->map(function ($customer) {
-            // format phone to display-only: XXXX-XXXX-rest
+
             $raw = preg_replace('/\D+/', '', $customer->no_telp ?? '');
             $phone = '';
             if ($raw !== '') {
@@ -236,10 +228,9 @@ class CustomerController extends Controller
                 $text .= ' (' . $customer->no_telp . ')';
             }
 
-            // // Tambahkan NIK ke dalam text jika ada
-            // if (!empty($customer->identitas)) {
-            //     $text .= ' - Id: ' . $customer->identitas;
-            // }
+
+
+
 
             return [
                 'id' => $customer->id,

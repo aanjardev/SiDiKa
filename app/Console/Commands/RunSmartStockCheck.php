@@ -49,7 +49,6 @@ class RunSmartStockCheck extends Command
         $this->info('Starting Smart Stock Check...');
         $this->newLine();
 
-        // Get all products with stock > 0
         $products = Produk::where('stok_produk', '>', 0)->get();
 
         if ($products->isEmpty()) {
@@ -60,8 +59,7 @@ class RunSmartStockCheck extends Command
         $this->info("Found {$products->count()} products to check.");
         $this->newLine();
 
-        // Get admin user (role 'admin' or id 1)
-        // Priority: First try to find user with role 'admin', then fallback to id 1
+
         $admin = User::where('role', 'admin')->first();
         
         if (!$admin) {
@@ -76,12 +74,10 @@ class RunSmartStockCheck extends Command
         $this->info("Notifications will be sent to: {$admin->name} (ID: {$admin->id})");
         $this->newLine();
 
-        // Threshold for low stock alert (days)
         $threshold = 3;
         $alertsSent = 0;
         $errors = 0;
 
-        // Create progress bar
         $bar = $this->output->createProgressBar($products->count());
         $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% -- %message%');
         $bar->setMessage('Processing products...');
@@ -91,18 +87,15 @@ class RunSmartStockCheck extends Command
             try {
                 $bar->setMessage("Checking: {$product->nama_produk}");
 
-                // Get current stock
                 $currentStock = (int) $product->stok_produk;
 
-                // Predict days until depletion
                 $predictedDaysLeft = $this->forecastingService->predictStockDepletion(
                     $product->id,
                     $currentStock
                 );
 
-                // Check if stock will last less than threshold days
                 if ($predictedDaysLeft <= $threshold && $predictedDaysLeft < 999) {
-                    // Send notification to admin
+
                     $admin->notify(new SmartLowStockAlert(
                         $product->id,
                         $product->nama_produk,
@@ -135,7 +128,6 @@ class RunSmartStockCheck extends Command
         $bar->finish();
         $this->newLine(2);
 
-        // Summary
         $this->info('========================================');
         $this->info('  SMART STOCK CHECK SUMMARY');
         $this->info('========================================');

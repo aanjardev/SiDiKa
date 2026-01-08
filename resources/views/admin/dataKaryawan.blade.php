@@ -212,68 +212,68 @@
     }
 
     .employee-table {
-        table-layout: fixed; /* Mengatur layout tabel */
+        table-layout: fixed;
         width: 100%;
     }
 
-    /* Atur lebar kolom secara spesifik */
+
     .employee-table th:nth-child(1),
-    .employee-table td:nth-child(1) { /* No */
+    .employee-table td:nth-child(1) {
         width: 60px;
         min-width: 60px;
         max-width: 60px;
     }
 
     .employee-table th:nth-child(2),
-    .employee-table td:nth-child(2) { /* Nama Karyawan */
+    .employee-table td:nth-child(2) {
         width: 220px;
         min-width: 220px;
         max-width: 220px;
     }
 
     .employee-table th:nth-child(3),
-    .employee-table td:nth-child(3) { /* Nomor Telepon */
+    .employee-table td:nth-child(3) {
         width: 140px;
         min-width: 140px;
         max-width: 140px;
     }
 
     .employee-table th:nth-child(4),
-    .employee-table td:nth-child(4) { /* Jabatan */
+    .employee-table td:nth-child(4) {
         width: 180px;
         min-width: 180px;
         max-width: 180px;
     }
 
     .employee-table th:nth-child(5),
-    .employee-table td:nth-child(5) { /* Lama Bekerja */
+    .employee-table td:nth-child(5) {
         width: 120px;
         min-width: 120px;
         max-width: 120px;
     }
 
     .employee-table th:nth-child(6),
-    .employee-table td:nth-child(6) { /* Status */
+    .employee-table td:nth-child(6) {
         width: 100px;
         min-width: 100px;
         max-width: 100px;
     }
 
     .employee-table th:nth-child(7),
-    .employee-table td:nth-child(7) { /* Aksi */
+    .employee-table td:nth-child(7) {
         width: 80px;
         min-width: 80px;
         max-width: 80px;
     }
 
-    /* Pastikan konten tidak melebihi kolom */
+
     .employee-table td {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    /* Khusus untuk kolom Nama Karyawan biar bisa multiline */
+
     .employee-table td:nth-child(2) {
         white-space: normal;
         overflow: visible;
@@ -288,7 +288,7 @@
         background-color: var(--bs-light);
     }
 
-    /* Hapus max-width jika ada */
+
     .table-responsive {
         max-width: none;
     }
@@ -300,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (input) {
         input.focus();
         const length = input.value.length;
-        input.setSelectionRange(length, length); // kursor ke akhir
+        input.setSelectionRange(length, length); 
     }
 });
 </script>

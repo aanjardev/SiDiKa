@@ -184,7 +184,6 @@ $formatCurrency = fn ($value) => 'Rp' . number_format($value ?? 0, 0, ',', '.');
         box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.25);
     }
 
-    #product-main-image {
         object-fit: cover;
     }
 </style>

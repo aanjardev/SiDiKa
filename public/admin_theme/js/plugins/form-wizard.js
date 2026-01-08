@@ -1,8 +1,6 @@
 (function () {
     "use strict";
-    /*---------------------------------------------------------------------
-        Fieldset
-    -----------------------------------------------------------------------*/
+    
     
     let currentTab =0;
     const ActiveTab=(n)=>{
@@ -60,7 +58,6 @@
     })
 });
 
-// previousbutton
 
 const prebtn= document.querySelectorAll('.previous')
     Array.from(prebtn, (pbtn) => {

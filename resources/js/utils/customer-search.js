@@ -22,7 +22,6 @@ export default class CustomerSearch {
         this.bindEvents();
     }
 
-    // Local formatter for display-only phone formatting: XXXX-XXXX-rest
     formatPhone(s) {
         if (!s) return "";
         const d = (s || "").toString().replace(/\D/g, "");

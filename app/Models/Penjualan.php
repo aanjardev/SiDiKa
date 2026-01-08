@@ -48,7 +48,7 @@ class Penjualan extends Model
         parent::boot();
 
         static::creating(function ($penjualan) {
-            // Prefix: PJ (Penjualan)
+
             $prefix = 'PJ' . date('Ym'); // Contoh: PJ202511
 
             $latestCode = static::where('kode_transaksi', 'like', $prefix . '%')
@@ -63,7 +63,6 @@ class Penjualan extends Model
                 $number++;
             }
 
-            // Format kode transaksi: PJ[YYYYMM][000X]
             $penjualan->kode_transaksi = $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
         });
     }

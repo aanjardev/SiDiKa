@@ -57,7 +57,7 @@
     </div>
 
     <script>
-        // Countdown untuk enable tombol reload
+
         let seconds = 30;
         const reloadBtn = document.getElementById('reloadBtn');
         const countdownSpan = document.getElementById('countdown');

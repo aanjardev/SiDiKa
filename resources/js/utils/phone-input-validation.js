@@ -10,9 +10,7 @@
 
     const MAX_DIGITS = 13;
 
-    /* -------------------------------
-     * Helper: Format 4-4-sisa
-     * ------------------------------- */
+    
     function formatPhone(digits) {
         if (!digits) return '';
         const p1 = digits.slice(0, 4);
@@ -33,9 +31,7 @@
         return digits.slice(0, max);
     }
 
-    /* ---------------------------------------------------------
-     * MODE 1 — INPUT BIASA (General Phone Sanitization)
-     * --------------------------------------------------------- */
+    
     function initBasicSanitizer() {
         const selectors =
             'input[data-phone-validation], input[name*="telepon"], input[name*="telp"], input[name="no_telp"], input[name="identitas"]';
@@ -68,9 +64,7 @@
         });
     }
 
-    /* ---------------------------------------------------------
-     * MODE 2 — DISPLAY + HIDDEN (Cabang & Karyawan)
-     * --------------------------------------------------------- */
+    
     function initFormattedPhonePair(displayId, hiddenId, options = {}) {
         const { required = true } = options;
         const displayInput = document.getElementById(displayId);
@@ -78,14 +72,12 @@
 
         if (!displayInput || !hiddenInput) return;
 
-        // Initialize
         (function () {
             const raw = cleanDigits(hiddenInput.value, MAX_DIGITS);
             hiddenInput.value = raw;
             displayInput.value = formatPhone(raw);
         })();
 
-        // Input realtime
         displayInput.addEventListener('input', function () {
             const digits = cleanDigits(this.value, MAX_DIGITS);
             hiddenInput.value = digits;
@@ -106,7 +98,6 @@
             }
         });
 
-        // Validasi saat blur
         displayInput.addEventListener('blur', function () {
             const digits = hiddenInput.value;
             const formControl = displayInput;
@@ -137,22 +128,16 @@
         });
     }
 
-    /* -------------------------------
-     * Auto Initialize Universal System
-     * ------------------------------- */
+    
     document.addEventListener('DOMContentLoaded', function () {
 
-        // Mode 1 (sanitizer global)
         initBasicSanitizer();
 
-        // Mode 2 (formatted display + hidden)
-        // Untuk Karyawan
+
         initFormattedPhonePair('nomor_telepon_display', 'nomor_telepon');
 
-        // Untuk Cabang
         initFormattedPhonePair('branch_nomor_telepon_display', 'branch_nomor_telepon');
 
-        // Untuk Catalog Settings (opsional)
         initFormattedPhonePair('contact_phone_display', 'contact_phone', { required: false });
     });
 })();

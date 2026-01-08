@@ -15,8 +15,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         $selectedYear = (int) $request->input('year', now()->year);
-        
-        // PERBAIKAN: Jangan set default bulan, biarkan null untuk "Semua Bulan"
+
         $selectedMonth = $request->input('month');
         $selectedMonth = $selectedMonth ? (int) $selectedMonth : null;
 

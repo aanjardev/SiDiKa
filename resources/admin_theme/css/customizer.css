@@ -1192,17 +1192,16 @@ body {
   border-color: var(--bs-primary) !important;
 }
 
-#top-tab-list li a {
   color: var(--bs-primary);
   background: var(--bs-primary-tint-90);
 }
-#top-tab-list li a .iq-icon {
+
   background: var(--bs-primary);
 }
-#top-tab-list li.active a {
+
   background: var(--bs-primary);
 }
-#top-tab-list li.active a .iq-icon {
+
   color: var(--bs-primary);
 }
 

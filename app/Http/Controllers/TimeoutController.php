@@ -20,10 +20,10 @@ class TimeoutController extends Controller
      */
     public function simulateTimeout()
     {
-        // Force timeout dengan infinite loop
+
         set_time_limit(2); // 2 detik untuk testing
         while (true) {
-            // Infinite loop untuk trigger timeout
+
         }
     }
 
@@ -33,7 +33,7 @@ class TimeoutController extends Controller
     public function handleHeavyTask(Request $request)
     {
         try {
-            // Test sederhana dulu tanpa queue
+
             return response()->json([
                 'status' => 'processing',
                 'message' => 'Tugas sedang diproses di background. Silakan cek status secara berkala.',
@@ -42,7 +42,7 @@ class TimeoutController extends Controller
             ]);
             
         } catch (\Exception $e) {
-            // Fallback ke timeout page jika error
+
             if (str_contains($e->getMessage(), 'Maximum execution time')) {
                 return response()->view('errors.timeout', [], 503);
             }
@@ -58,7 +58,7 @@ class TimeoutController extends Controller
      */
     public function checkJobStatus($jobId)
     {
-        // Implementasi pengecekan status job
+
         return response()->json([
             'status' => 'completed',
             'message' => 'Tugas selesai diproses',

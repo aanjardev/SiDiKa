@@ -1,4 +1,4 @@
-    /* Variables */
+    
     :root {
         --primary-color: #2F353F;
         --secondary-color: #EA4E2D;
@@ -18,7 +18,7 @@
         --transition-base: all 0.3s ease;
     }
 
-    /* Base Styles */
+    
     body {
         font-family: 'Montserrat', sans-serif;
         color: var(--text-color);
@@ -26,7 +26,7 @@
         background-color: var(--gray-100);
     }
 
-    /* Typography */
+    
     .section-title {
         color: var(--primary-color);
         font-size: 2rem;
@@ -45,14 +45,13 @@
         height: 3px;
     }
 
-    /* Carousel Styles - FIXED */
-    #promotion {
+    
+
         position: relative;
         overflow: hidden;
         z-index: 1;
     }
 
-    #promotion .carousel {
         border-radius: 12px;
         overflow: hidden;
         box-shadow: var(--shadow-lg);
@@ -113,7 +112,7 @@
         display: block;
     }
 
-    /* Carousel Controls */
+    
     .carousel-control-prev,
     .carousel-control-next {
         width: 50px;
@@ -147,7 +146,7 @@
         height: 25px;
     }
 
-    /* Carousel Indicators */
+    
     .carousel-indicators {
         margin-bottom: 15px;
     }
@@ -165,7 +164,7 @@
         background-color: var(--secondary-color);
     }
 
-    /* Responsive Adjustments for Carousel */
+    
     @media (max-width: 991px) and (min-width: 768px) {
         .carousel-inner {
             max-height: 60vh;
@@ -221,7 +220,6 @@
             min-height: 200px;
         }
 
-        #promotion .carousel {
             border-radius: 8px;
         }
 
@@ -239,7 +237,7 @@
         }
     }
 
-    /* Categories */
+    
     a{
         color: #070D0D;
         font-weight: 700;
@@ -249,16 +247,14 @@
         color: #EA4E2D;
     }
 
-    #Kategori-Display .col img {
         border-radius: 10px;
         transition: var(--transition-base);
     }
 
-    #Kategori-Display .col img:hover {
         transform: translateY(-5px);
     }
 
-    /* Product Cards */
+    
     .produk-baru-item {
         transition: var(--transition-base);
         border-radius: 12px;
@@ -295,14 +291,14 @@
         overflow: hidden;
     }
 
-    /* Brands Section */
-    #Kategori-Display-Brand .col img {
+    
+
         transition: var(--transition-base);
         padding: 1rem;
     }
 
 
-    /* YouTube Section */
+    
 .youtube-section {
     background-color: var(--gray-100);
     padding: 4rem 0;
@@ -316,7 +312,7 @@
     .youtube-container {
         position: relative;
         width: 100%;
-        padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+        padding-bottom: 56.25%; 
         border-radius: 15px;
         overflow: hidden;
         box-shadow: var(--shadow-lg);
@@ -358,7 +354,7 @@
         padding: 0;
     }
 
-    /* Navigation */
+    
     .navbar {
         padding:1rem 0;
     }
@@ -373,7 +369,7 @@
         transition: border-bottom 0.3s ease;
     }
 
-    /* Search suggestions - naikkan z-index */
+    
     .home-search-section {
         position: relative;
         z-index: 1200;
@@ -382,7 +378,7 @@
 
     .search-suggest-wrapper {
         position: relative;
-        z-index: 1050; /* Naikkan dari 50 ke 1050 */
+        z-index: 1050; 
     }
 
     .search-suggestions {
@@ -394,19 +390,19 @@
         border: 1px solid var(--gray-300);
         border-top: none;
         box-shadow: var(--shadow-md);
-        z-index: 1060; /* Naikkan dari 60 ke 1060 */
+        z-index: 1060; 
         display: none;
-        /* min-height: 260px; */
+        
         overflow: visible;
     }
 
-    /* Search input container */
+    
     .search-input-container {
         position: relative;
-        z-index: 1040; /* Pastikan lebih tinggi dari carousel */
+        z-index: 1040; 
     }
 
-    /* Atau jika menggunakan form langsung */
+    
     form.d-flex {
         position: relative;
         z-index: 1040;
@@ -499,7 +495,7 @@
         }
     }
 
-    /* Section Titles */
+    
     .section-title {
         font-size: 1.25rem;
         font-weight: 800;
@@ -513,14 +509,13 @@
         }
     }
 
-    /* Categories */
-    #Kategori-Display img {
+    
+
         width: 100%;
         height: auto;
         transition: transform 0.3s ease;
     }
 
-    #Kategori-Display img:hover {
         transform: none;
     }
 
@@ -555,12 +550,12 @@
     }
 
     @media (max-width: 576px) {
-        #Kategori-Display .row {
+
             row-gap: 1rem;
         }
     }
 
-    /* Products */
+    
     .produk-baru-item {
         border: 1px solid rgba(7, 13, 13, 0.1);
         border-radius: 10px;
@@ -603,7 +598,7 @@
         }
     }
 
-    /* Horizontal Product List on Mobile */
+    
     @media (max-width: 576px) {
         .product-list {
             display: flex;
@@ -617,8 +612,8 @@
         }
     }
 
-    /* Brands */
-#Kategori-Display-Brand .col {
+    
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -629,19 +624,17 @@
     aspect-ratio: 3 / 1;
 }
 
-#Kategori-Display-Brand .row {
     --bs-gutter-x: 0;
     --bs-gutter-y: 0;
     justify-content: center;
 }
 
 @media (max-width: 576px) {
-    #Kategori-Display-Brand .col {
+
         aspect-ratio: 2.5 / 1;
     }
 }
 
-#Kategori-Display-Brand img {
     width: 100%;
     height: 100%;
     border-radius: 8px;
@@ -650,18 +643,17 @@
 }
 
 @media (min-width: 992px) {
-    #Kategori-Display-Brand .row > .col {
+
         flex: 0 0 calc(25% - 1rem);
         max-width: calc(25% - 1rem);
     }
 }
 
-#Kategori-Display-Brand .row > .col {
     margin: 0.5rem;
 }
 
 @media (max-width: 576px) {
-    #Kategori-Display-Brand .row > .col {
+
         margin: 0.35rem;
         flex: 0 0 calc(50% - 0.7rem);
         max-width: calc(50% - 0.7rem);
@@ -669,21 +661,17 @@
 }
 
 
-    /* Benefits */
-    #Benefit {
+    
+
         margin-bottom: 2rem;
     }
 
-    #Benefit-Item {
         margin-bottom: 4rem;
     }
 
-    #Benefit-Item .col {
         transition: var(--transition-base);
     }
 
-
-    #Benefit-Item img {
         margin-bottom: 1rem;
     }
 
@@ -698,7 +686,7 @@
         }
     }
 
-    /* Footer */
+    
     .footer-title {
         font-size: 0.9375rem;
         font-weight: 700;
@@ -719,7 +707,6 @@
         max-width: 60px;
     }
 
-    #Logo-Medsos img {
         max-width: 30px;
     }
 
@@ -733,7 +720,7 @@
         .logo-medplace img {
             max-width: 50px;
         }
-        #Logo-Medsos img {
+
             max-width: 25px;
         }
     }
@@ -770,7 +757,6 @@
         font-size: 0.9rem;
     }
 
-#Kategori-Display .row {
     --bs-gutter-x: 1.5rem;
     --bs-gutter-y: 1.5rem;
     justify-content: center;
@@ -791,7 +777,6 @@
             padding: 10px;
         }
 
-        #Kategori-Display .row {
             --bs-gutter-x: 1rem;
             --bs-gutter-y: 1rem;
         }
@@ -843,7 +828,7 @@
     }
 
     @media (min-width: 771px) and (max-width: 998px) {
-        #Kategori-Display .row {
+
             justify-content: center !important;
         }
     }

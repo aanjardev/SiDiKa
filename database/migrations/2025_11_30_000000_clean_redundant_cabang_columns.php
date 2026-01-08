@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('perusahaan_cabang', function (Blueprint $table) {
-            // Hapus kolom jam operasional lama yang redundan
+
             $redundantColumns = [
                 'jam_buka', // Jam buka lama (single)
                 'jam_tutup', // Jam tutup lama (single)
@@ -41,11 +41,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('perusahaan_cabang', function (Blueprint $table) {
-            // Restore kolom-kolom lama (jika perlu rollback)
+
             $table->time('jam_buka')->nullable();
             $table->time('jam_tutup')->nullable();
-            
-            // Boolean untuk hari buka
+
             $table->boolean('buka_senin')->default(true);
             $table->boolean('buka_selasa')->default(true);
             $table->boolean('buka_rabu')->default(true);
@@ -53,8 +52,7 @@ return new class extends Migration
             $table->boolean('buka_jumat')->default(true);
             $table->boolean('buka_sabtu')->default(true);
             $table->boolean('buka_minggu')->default(false);
-            
-            // Jam per hari
+
             $table->time('jam_buka_senin')->nullable();
             $table->time('jam_tutup_senin')->nullable();
             $table->time('jam_buka_selasa')->nullable();
@@ -69,8 +67,7 @@ return new class extends Migration
             $table->time('jam_tutup_sabtu')->nullable();
             $table->time('jam_buka_minggu')->nullable();
             $table->time('jam_tutup_minggu')->nullable();
-            
-            // Status dan catatan operasional
+
             $table->string('status_operasional')->default('buka');
             $table->text('catatan_operasional')->nullable();
         });

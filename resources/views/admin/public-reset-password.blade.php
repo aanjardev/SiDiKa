@@ -92,7 +92,7 @@
 @push('scripts')
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // Toggle password visibility
+
             const togglePassword = document.querySelector("#togglePassword");
             const passwordInput = document.querySelector("#password");
             const icon = togglePassword.querySelector("i");
@@ -110,7 +110,6 @@
                 }
             });
 
-            // Toggle confirm password visibility
             const togglePasswordConfirm = document.querySelector("#togglePasswordConfirm");
             const passwordConfirmInput = document.querySelector("#password_confirmation");
             const iconConfirm = togglePasswordConfirm.querySelector("i");
@@ -128,7 +127,6 @@
                 }
             });
 
-            // Password strength checker
             const passwordStrength = document.getElementById('passwordStrength');
             const passwordStrengthText = document.getElementById('passwordStrengthText');
 
@@ -160,20 +158,17 @@
                 passwordStrengthText.className = 'password-strength-text small text-' + (strengthClass === 'weak' ? 'danger' : strengthClass === 'medium' ? 'warning' : 'success');
             });
 
-            // Form validation
             const resetForm = document.getElementById('resetForm');
             if (resetForm && window.FormValidator) {
                 FormValidator.initForm(resetForm);
             }
 
-            // Add subtle animations
             const authCard = document.querySelector('.auth-card');
             if (authCard) {
                 authCard.style.animation = 'slideInUp 0.6s ease-out';
             }
         });
 
-        // Add slideInUp animation
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideInUp {

@@ -34,7 +34,7 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         if (!Hash::check($request->current_password, $user->password)) {
-            // Check if request is AJAX
+
             if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -45,7 +45,7 @@ class ProfileController extends Controller
         }
 
         if (Hash::check($request->new_password, $user->password)) {
-            // Check if request is AJAX
+
             if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
@@ -59,7 +59,6 @@ class ProfileController extends Controller
             'password' => Hash::make($request->new_password)
         ]);
 
-        // Check if request is AJAX
         if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->wantsJson()) {
             return response()->json([
                 'success' => true,
@@ -70,7 +69,6 @@ class ProfileController extends Controller
         return back()->with('success', 'Password berhasil diperbarui!');
     }
 
-    // ========== PUBLIC FORGOT PASSWORD (FROM LOGIN PAGE) ==========
     
     public function showPublicForgotPasswordForm()
     {
@@ -79,7 +77,7 @@ class ProfileController extends Controller
 
     public function publicForgotPassword(Request $request)
     {
-        // Validasi email
+
         $request->validate([
             'email' => 'required|email|exists:users,email'
         ], [
@@ -94,30 +92,25 @@ class ProfileController extends Controller
             return back()->with('error', 'Email tidak terdaftar dalam sistem.');
         }
 
-        // Generate verification code (6 digit)
         $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        
-        // Store verification code in session
+
         session([
             'password_reset_email' => $user->email,
             'password_reset_code' => $verificationCode,
             'password_reset_expiry' => now()->addMinutes(30), // 30 minutes expiry
             'password_reset_type' => 'public' // Mark as public flow
         ]);
-        
-        // Ensure session is saved
+
         session()->save();
 
-        // Send verification code via email
         try {
             $emailService = new EmailService();
             $emailSent = $emailService->sendPasswordResetCode($user, $verificationCode);
             
             if ($emailSent) {
-                // Log success for debugging
+
                 \Log::info('Public password reset code sent successfully to: ' . $user->email);
-                
-                // Check if request is AJAX
+
                 if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->wantsJson()) {
                     return response()->json([
                         'success' => true,
@@ -170,7 +163,6 @@ class ProfileController extends Controller
             'verification_code.digits' => 'Kode verifikasi harus 6 digit'
         ]);
 
-        // Check session
         $storedEmail = session('password_reset_email');
         $storedCode = session('password_reset_code');
         $expiry = session('password_reset_expiry');
@@ -179,19 +171,16 @@ class ProfileController extends Controller
             return back()->with('error', 'Sesi verifikasi telah kadaluarsa. Silakan mulai ulang.');
         }
 
-        // Check expiry
         if (now()->gt($expiry)) {
-            // Clear session
+
             session()->forget(['password_reset_email', 'password_reset_code', 'password_reset_expiry', 'password_reset_type']);
             return back()->with('error', 'Kode verifikasi telah kadaluarsa. Silakan minta kode baru.');
         }
 
-        // Verify code
         if ($request->verification_code !== $storedCode) {
             return back()->with('error', 'Kode verifikasi tidak valid. Silakan periksa kembali.');
         }
 
-        // Code is valid, redirect to reset password form
         return redirect()->route('public.reset-password')
             ->with('success', 'Kode verifikasi valid. Silakan buat password baru.');
     }
@@ -226,12 +215,10 @@ class ProfileController extends Controller
             return back()->with('error', 'User tidak ditemukan. Silakan hubungi administrator.');
         }
 
-        // Update password
         $user->update([
             'password' => Hash::make($request->password)
         ]);
 
-        // Clear session
         session()->forget(['password_reset_email', 'password_reset_code', 'password_reset_expiry', 'password_reset_type']);
 
         return redirect()->route('login')
@@ -246,22 +233,18 @@ class ProfileController extends Controller
             return redirect()->route('password.request');
         }
 
-        // Get user
         $user = User::where('email', $email)->first();
         if (!$user) {
             return back()->with('error', 'Email tidak ditemukan.');
         }
 
-        // Generate new code
         $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        
-        // Update session
+
         session([
             'password_reset_code' => $verificationCode,
             'password_reset_expiry' => now()->addMinutes(30)
         ]);
 
-        // Send email
         try {
             $emailService = new EmailService();
             $emailSent = $emailService->sendPasswordResetCode($user, $verificationCode);
@@ -276,7 +259,6 @@ class ProfileController extends Controller
         }
     }
 
-    // ========== PROTECTED FORGOT PASSWORD (FROM PROFILE PAGE) ==========
 
     public function showForgotPasswordForm()
     {
@@ -285,7 +267,7 @@ class ProfileController extends Controller
 
     public function forgotPassword(Request $request)
     {
-        // Validasi email
+
         $request->validate([
             'email' => 'required|email|exists:users,email'
         ], [
@@ -300,30 +282,25 @@ class ProfileController extends Controller
             return back()->with('error', 'Email tidak terdaftar dalam sistem.');
         }
 
-        // Generate verification code (6 digit)
         $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        
-        // Store verification code in session
+
         session([
             'password_reset_email' => $user->email,
             'password_reset_code' => $verificationCode,
             'password_reset_expiry' => now()->addMinutes(30), // 30 minutes expiry
             'password_reset_type' => 'protected' // Mark as protected flow
         ]);
-        
-        // Ensure session is saved
+
         session()->save();
 
-        // Send verification code via email
         try {
             $emailService = new EmailService();
             $emailSent = $emailService->sendPasswordResetCode($user, $verificationCode);
             
             if ($emailSent) {
-                // Log success for debugging
+
                 \Log::info('Password reset code sent successfully to: ' . $user->email);
-                
-                // Check if request is AJAX
+
                 if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->wantsJson()) {
                     return response()->json([
                         'success' => true,
@@ -388,7 +365,6 @@ class ProfileController extends Controller
                 ->with('error', 'Kode verifikasi sudah kadaluarsar. Silakan coba lagi.');
         }
 
-        // Clear verification session and redirect to reset form
         session()->forget(['password_reset_code', 'password_reset_expiry']);
         
         return redirect()->route('admin.profile.reset-forgotten-password');
@@ -422,7 +398,6 @@ class ProfileController extends Controller
             'password' => Hash::make($request->new_password)
         ]);
 
-        // Clear reset session
         session()->forget('password_reset_email');
 
         return redirect()->route('admin.profile')
@@ -452,7 +427,6 @@ class ProfileController extends Controller
             return redirect()->route('admin.profile');
         }
 
-        // Generate new verification code
         $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         
         session([
@@ -460,7 +434,6 @@ class ProfileController extends Controller
             'password_reset_expiry' => now()->addMinutes(30)
         ]);
 
-        // Send new verification code via email
         try {
             $emailService = new EmailService();
             $emailSent = $emailService->sendPasswordResetCode($user, $verificationCode);

@@ -24,14 +24,13 @@
 
 @section('content')
 @php
-    // Nilai disiapkan dari controller; fallback ke perhitungan di view jika belum ada
+
     $subtotal = isset($subtotal) ? (int) $subtotal : $penjualan->detail_penjualan->sum(function ($d) {
         return (int) ($d->qty ?? 0) * (int) ($d->harga_jual_satuan ?? 0);
     });
     $diskon = isset($diskon) ? (int) $diskon : (int) ($penjualan->diskon ?? 0);
     $biayaTambahan = isset($biaya_tambahan) ? (int) $biaya_tambahan : (int) ($penjualan->biaya_tambahan ?? 0);
 
-    // Jika kolom biaya_tambahan kosong tapi harga_total tersedia, hitung selisihnya
     if ($biayaTambahan === 0 && isset($penjualan->harga_total)) {
         $biayaTambahan = max(0, (int) $penjualan->harga_total - $subtotal + $diskon);
     }
@@ -204,17 +203,17 @@
         box-shadow: 0 0 0 0.25rem rgba(78, 107, 255, 0.25);
     }
     .btn-outline-dark-gold {
-        /* Warna teks dan border saat normal (Dark Gold) */
-        color: #CC9900 !important; /* Warna Emas Pekat */
+        
+        color: #CC9900 !important; 
         border-color: #CC9900 !important;
     }
 
-    /* Warna saat di-hover/focus */
+    
     .btn-outline-dark-gold:hover,
     .btn-outline-dark-gold:focus,
     .btn-outline-dark-gold:active {
-        color: #000 !important; /* Warna teks diubah menjadi hitam agar kontras */
-        background-color: #D4A017 !important; /* Warna latar belakang saat hover (Sedikit lebih gelap dari normal) */
+        color: #000 !important; 
+        background-color: #D4A017 !important; 
         border-color: #D4A017 !important;
     }
     .info-transaksi-list dt {

@@ -27,7 +27,6 @@ class Pembelian extends Model
         'status_pembelian',
     ];
 
-    // Izinkan 'created_at' diformat sebagai objek Carbon (Tanggal)
     protected $casts = [
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
@@ -71,10 +70,9 @@ class Pembelian extends Model
         parent::boot();
 
         static::creating(function ($pembelian) {
-            // Prefix: PB (Pembelian)
+
             $prefix = 'PB' . date('Ym'); // Contoh: PB202511
 
-            // Mencari kode terakhir berdasarkan prefix hari/bulan/tahun
             $latestCode = static::where('kode_transaksi', 'like', $prefix . '%')
                                 ->latest('kode_transaksi')
                                 ->pluck('kode_transaksi')
@@ -83,12 +81,11 @@ class Pembelian extends Model
             $number = 1;
 
             if ($latestCode) {
-                // Ambil angka dari kode terakhir
+
                 $number = (int) substr($latestCode, -4);
                 $number++;
             }
 
-            // Format kode transaksi: PB[YYYYMM][000X]
             $pembelian->kode_transaksi = $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
         });
     }

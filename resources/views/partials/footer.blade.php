@@ -18,13 +18,9 @@
                         <a href="{{$setting->instagram_link}}" class="social-link"><i class="fab fa-instagram"></i></a>
                         <a href="{{$setting->youtube_link}}" class="social-link"><i class="fab fa-youtube"></i></a>
                         <a href="{{$setting->tiktok_link}}" class="social-link"><i class="fab fa-tiktok"></i></a>
-                    {{-- </div> --}}
-                    {{-- <div class="d-flex justify-content-start gap-3 mt-3"> --}}
-                        <!-- Tokopedia -->
                         <a href="{{$setting->tokopedia_link}}" target="_blank" rel="noopener" class="social-link" title="Tokopedia">
                             <img src="https://i0.wp.com/x-mos.com/wp-content/uploads/2020/11/logo-tokopedia-icon-mascot-400x400-copy.png?fit=400%2C400&ssl=1&w=640" alt="Tokopedia" style="width:25px;height:25px;object-fit:contain;">
                         </a>
-                        <!-- Shopee -->
                         <a href="{{$setting->shopee_link}}" target="_blank" rel="noopener" class="social-link" title="Shopee">
                             <img src="https://img.icons8.com/?size=100&id=OO5wGWyvSK0L&format=png&color=FFFFFF" alt="Shopee" style="width:20px;height:20px;object-fit:contain;">
                         </a>
@@ -124,7 +120,7 @@
 {{-- <link rel="stylesheet" href="{{ asset('css/footer.css') }}"> --}}
 
 <style>
-/* Footer Styles */
+
 :root {
     --footer-bg: #020405;
     --footer-text: #ffffff;
@@ -141,7 +137,7 @@
     position: relative;
 }
 
-/* Widget Styles */
+
 .footer-widget {
     margin-bottom: 2rem;
 }
@@ -171,7 +167,7 @@
     margin-bottom: 1.5rem;
 }
 
-/* Social Links */
+
 .social-links {
     display: flex;
     gap: 1rem;
@@ -196,7 +192,7 @@
     transform: translateY(-3px);
 }
 
-/* Contact Info */
+
 .contact-info {
     list-style: none;
     padding: 0;
@@ -244,7 +240,7 @@
     font-size: 0.9rem;
 }
 
-/* Responsive Design */
+
 @media (max-width: 991px) {
     .footer-area {
         padding: 4rem 0 2rem;

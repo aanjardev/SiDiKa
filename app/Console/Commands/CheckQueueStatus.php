@@ -32,19 +32,14 @@ class CheckQueueStatus extends Command
         $this->info('========================================');
         $this->newLine();
 
-        // 1. Check Queue Configuration
         $this->checkQueueConfiguration();
 
-        // 2. Check Database Tables
         $this->checkDatabaseTables();
 
-        // 3. Check Queue Jobs
         $this->checkQueueJobs();
 
-        // 4. Check Failed Jobs
         $this->checkFailedJobs();
 
-        // 5. Recommendations
         $this->showRecommendations();
 
         return Command::SUCCESS;
@@ -76,7 +71,7 @@ class CheckQueueStatus extends Command
         $this->line(str_repeat('-', 40));
 
         try {
-            // Check jobs table
+
             $jobsExists = DB::getSchemaBuilder()->hasTable('jobs');
             if ($jobsExists) {
                 $this->info('   ✅ Tabel "jobs": Ada');
@@ -86,7 +81,6 @@ class CheckQueueStatus extends Command
                 $this->warn('   → Kemudian: php artisan migrate');
             }
 
-            // Check failed_jobs table
             $failedExists = DB::getSchemaBuilder()->hasTable('failed_jobs');
             if ($failedExists) {
                 $this->info('   ✅ Tabel "failed_jobs": Ada');

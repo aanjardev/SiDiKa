@@ -31,23 +31,18 @@ class AccountActivationController extends Controller
             ]);
         }
 
-        // Cek token expiry
         if ($user->token_expiry && now()->isAfter($user->token_expiry)) {
             return back()->withErrors([
                 'email' => 'Token aktivasi sudah kadaluarsa. Silakan minta admin untuk mengirim ulang token aktivasi.'
             ]);
         }
 
-        // Generate verification code (6 digit)
         $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-        
-        // Store verification code in session
+
         session(['activation_email' => $request->email, 'verification_code' => $verificationCode]);
 
-        // Calculate expiry time for display
         $expiryHours = $user->token_expiry ? now()->diffInHours($user->token_expiry) : 72;
 
-        // Send verification code via email
         try {
             $emailService = new EmailService();
             $emailSent = $emailService->sendVerificationCode($user, $verificationCode);
@@ -62,7 +57,7 @@ class AccountActivationController extends Controller
                     ->with('email', $request->email);
             }
         } catch (\Exception $e) {
-            // Log error untuk debugging
+
             \Log::error('Email sending failed: ' . $e->getMessage());
             
             return redirect()->route('activation.form')
@@ -95,7 +90,6 @@ class AccountActivationController extends Controller
             ]);
         }
 
-        // Get user and update status
         $user = User::where('email', $email)->first();
         
         if (!$user) {
@@ -108,7 +102,6 @@ class AccountActivationController extends Controller
                 ->withErrors(['email' => 'Token aktivasi tidak valid. Silakan hubungi admin.']);
         }
 
-        // Cek token expiry
         if ($user->token_expiry && now()->isAfter($user->token_expiry)) {
             return redirect()->route('activation.form')
                 ->withErrors(['email' => 'Token aktivasi sudah kadaluarsa. Silakan minta admin untuk mengirim ulang token aktivasi.']);
@@ -124,7 +117,6 @@ class AccountActivationController extends Controller
                         ->where('status', 'pending')
                         ->firstOrFail();
 
-            // Cek token expiry
             if ($user->token_expiry && now()->isAfter($user->token_expiry)) {
                 return redirect()->route('activation.form')
                     ->withErrors(['email' => 'Token aktivasi sudah kadaluarsa. Silakan minta admin untuk mengirim ulang token aktivasi.']);
@@ -148,7 +140,6 @@ class AccountActivationController extends Controller
                         ->where('status', 'pending')
                         ->firstOrFail();
 
-            // Cek token expiry
             if ($user->token_expiry && now()->isAfter($user->token_expiry)) {
                 return redirect()->route('activation.form')
                     ->withErrors(['email' => 'Token aktivasi sudah kadaluarsa. Silakan minta admin untuk mengirim ulang token aktivasi.']);
@@ -162,10 +153,8 @@ class AccountActivationController extends Controller
                 'email_verified_at' => now()
             ]);
 
-            // Clear activation session
             session()->forget(['activation_email', 'verification_code']);
 
-            // Auto login the user
             auth()->login($user);
 
             return redirect()->route('admin.dashboard')
@@ -192,12 +181,10 @@ class AccountActivationController extends Controller
                 ->with('info', 'Akun Anda sudah aktif. Silakan login.');
         }
 
-        // Generate new verification code
         $verificationCode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         
         session(['verification_code' => $verificationCode]);
 
-        // Send new verification code via email
         try {
             $emailService = new EmailService();
             $emailSent = $emailService->sendVerificationCode($user, $verificationCode);

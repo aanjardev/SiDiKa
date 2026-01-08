@@ -74,22 +74,18 @@ class ItemPembelian extends Model
         $totalFields = 3;
         $completedFields = 0;
 
-        // Cek kode_sku
         if (!empty($this->kode_sku)) {
             $completedFields++;
         }
 
-        // Cek harga_jual
         if (!empty($this->harga_jual) && $this->harga_jual > 0) {
             $completedFields++;
         }
 
-        // Cek deskripsi_produk
         if (!empty($this->deskripsi_produk) && trim($this->deskripsi_produk) !== '') {
             $completedFields++;
         }
 
-        // Hitung persentase (0-100)
         return ($completedFields / $totalFields) * 100;
     }
 }

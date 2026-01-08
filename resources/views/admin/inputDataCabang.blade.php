@@ -367,11 +367,11 @@
 @push('scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Jam operasional toggle functionality
+
         const toggles = document.querySelectorAll('.jam-operasional-toggle');
         
         toggles.forEach(toggle => {
-            // Handler untuk toggle change
+
             toggle.addEventListener('change', function() {
                 const hari = this.dataset.hari;
                 const jamBukaInput = document.querySelector(`.jam-buka-input[data-hari="${hari}"]`);
@@ -383,7 +383,6 @@
                     jamBukaInput.classList.remove('bg-light');
                     jamTutupInput.classList.remove('bg-light');
 
-                    // Jika kosong, set ke default value
                     if (!jamBukaInput.value) {
                         jamBukaInput.value = jamBukaInput.dataset.defaultBuka;
                     }
@@ -404,7 +403,6 @@
             toggle.dispatchEvent(new Event('change'));
         });
 
-        // Clickable time input - buka dropdown saat klik area field
         const timeInputs = document.querySelectorAll('.clickable-time-input');
         timeInputs.forEach(input => {
             input.addEventListener('click', function() {
@@ -414,7 +412,6 @@
             });
         });
 
-        // Initialize catatan collapse states
         @foreach($hariList as $hari)
             @php
                 $catatanValue = old("jam_operasional.{$hari}.catatan", $jamOperasionalData[$hari]->catatan ?? '');
@@ -429,7 +426,7 @@
         // Form validation sebelum submit
         const form = document.getElementById('branchForm');
         form.addEventListener('submit', function(e) {
-            // Validasi jam operasional
+
             let hasError = false;
             let errorMessages = [];
 
@@ -438,15 +435,14 @@
                     const hari = toggle.dataset.hari;
                     const jamBukaInput = document.querySelector(`.jam-buka-input[data-hari="${hari}"]`);
                     const jamTutupInput = document.querySelector(`.jam-tutup-input[data-hari="${hari}"]`);
-                    
-                    // Cek apakah jam buka dan tutup sudah diisi
+
                     if (!jamBukaInput.value || !jamTutupInput.value) {
                         hasError = true;
                         errorMessages.push(`Jam operasional untuk hari ${hari} belum lengkap`);
                         jamBukaInput.classList.add('is-invalid');
                         jamTutupInput.classList.add('is-invalid');
                     } else {
-                        // Validasi jam tutup harus lebih besar dari jam buka
+
                         if (jamTutupInput.value <= jamBukaInput.value) {
                             hasError = true;
                             errorMessages.push(`Jam tutup harus lebih besar dari jam buka untuk hari ${hari}`);
@@ -461,16 +457,14 @@
 
             if (hasError) {
                 e.preventDefault();
-                
-                // Tampilkan alert dengan semua error
+
                 let alertMessage = 'Terdapat kesalahan pada form:\n\n';
                 errorMessages.forEach((msg, index) => {
                     alertMessage += `${index + 1}. ${msg}\n`;
                 });
                 
                 alert(alertMessage);
-                
-                // Scroll ke jam operasional section
+
                 document.querySelector('.card-header h6 i.fa-clock').scrollIntoView({ 
                     behavior: 'smooth', 
                     block: 'center' 
@@ -479,7 +473,6 @@
         });
     });
 
-    // Fungsi untuk membuka semua hari
     function bukaSemuaHari() {
         const toggles = document.querySelectorAll('.jam-operasional-toggle');
         toggles.forEach(toggle => {
@@ -488,7 +481,6 @@
         });
     }
 
-    // Fungsi untuk menutup semua hari
     function tutupSemuaHari() {
         const toggles = document.querySelectorAll('.jam-operasional-toggle');
         toggles.forEach(toggle => {
@@ -497,7 +489,6 @@
         });
     }
 
-    // Fungsi untuk menyamakan jam semua hari
     function samakanSemuaJam() {
         const jamBuka = document.getElementById('global_jam_buka').value;
         const jamTutup = document.getElementById('global_jam_tutup').value;
@@ -507,7 +498,6 @@
             return;
         }
 
-        // Validasi jam tutup harus lebih besar dari jam buka
         if (jamTutup <= jamBuka) {
             alert('Jam tutup harus lebih besar dari jam buka');
             return;
@@ -530,11 +520,9 @@
             }
         });
 
-        // Auto buka semua hari jika belum dibuka
         bukaSemuaHari();
     }
 
-    // Fungsi toggle catatan
     function toggleCatatan(hari) {
         const collapse = document.getElementById(`catatan-collapse-${hari}`);
         const text = document.getElementById(`catatan-text-${hari}`);
@@ -547,7 +535,6 @@
             collapse.classList.add('show');
             text.innerHTML = '<i class="fa-solid fa-minus-circle me-1" style="color: #6c757d !important;"></i>Sembunyikan catatan';
 
-            // Focus ke input catatan
             setTimeout(() => {
                 const input = collapse.querySelector('input');
                 if (input) {

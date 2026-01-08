@@ -10,7 +10,7 @@
 
 @section('content')
 
-{{-- Search & Filter (Resolved: Visual HEAD + Logic Main) --}}
+{{-- Search & Filter  --}}
 <form method="GET" action="{{ route('admin.customers.index') }}" id="searchForm">
     <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
         <div class="card-body p-2 d-flex align-items-center flex-wrap">
@@ -39,7 +39,6 @@
                     <option value="nama_desc" {{ ($sort_by ?? 'updated_at') == 'nama_desc' ? 'selected' : '' }}>Nama (Z-A)</option>
                 </select>
 
-                {{-- Hidden input untuk menjaga sort order jika diperlukan logika lanjutan --}}
                 <input type="hidden" name="sort_order" value="{{ $sort_order ?? 'desc' }}">
             </div>
         </div>

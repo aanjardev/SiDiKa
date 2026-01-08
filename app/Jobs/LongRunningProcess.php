@@ -32,10 +32,9 @@ class LongRunningProcess implements ShouldQueue
         set_time_limit(300); // 5 menit
         
         try {
-            // Lakukan proses yang berat di sini
+
             Log::info('Starting long running process', $this->data);
-            
-            // Simulasi proses berat
+
             sleep(10);
             
             Log::info('Long running process completed');

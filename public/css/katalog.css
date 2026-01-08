@@ -1,4 +1,4 @@
-/* Variables */
+
 :root {
     --primary-color: #2F353F;
     --secondary-color: #EA4E2D;
@@ -36,7 +36,7 @@ body {
     white-space: nowrap;
 }
 
-/* Tooltip Hover */
+
 .card-title:hover::after {
     content: attr(data-fullname);
     position: absolute;
@@ -51,34 +51,30 @@ body {
     font-size: 0.9rem;
 }
 
-/* Produk Item Grid */
-#product-grid .produk-item {
+
+
     border: 1px solid rgba(7, 13, 13, 0.1);
     border-radius: 15px;
     box-shadow: 2px 4px 4px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease-in-out;
 }
 
-#product-grid .produk-item:hover {
     box-shadow: 4px 8px 8px rgba(0, 0, 0, 0.1);
     transform: translateY(-3px);
 }
 
-#product-grid .produk-item .card-title {
     font-size: 0.9rem;
     font-weight: 600;
 }
 
-#product-grid .produk-item .card-text {
     font-size: 0.85rem;
     font-weight: 700;
 }
 
-#product-grid .produk-item small {
     font-size: 0.75rem;
 }
 
-/* Filter Section */
+
 .filter-section {
     background: white;
     padding: 1.5rem 0;
@@ -129,7 +125,7 @@ body {
     box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
 }
 
-/* Product Cards */
+
 .product-section {
     background-color: var(--gray-100);
 }
@@ -150,7 +146,7 @@ body {
 
 .product-image-wrapper {
     position: relative;
-    padding-top: 100%; /* 1:1 Aspect Ratio */
+    padding-top: 100%; 
     overflow: hidden;
     background-color: white;
     transition: filter 0.3s ease;
@@ -207,18 +203,18 @@ body {
     font-size: 1.1rem;
 }
 
-/* Efek grayscale dan brightness pada gambar dan badge unggulan saat stok 0 */
+
 .product-card.sold-out .product-image,
 .product-card.sold-out .featured-badge {
-    filter: grayscale(50%) brightness(60%); /* Membuat abu-abu dan lebih gelap */
+    filter: grayscale(50%) brightness(60%); 
 }
 
-/* Gaya untuk Badge "SOLD OUT" yang Kecil di Kiri Atas */
+
 .sold-out-badge {
     position: absolute;
-    top: 25px; /* Jarak dari atas */
-    left: -55px; /* Jarak dari kiri */
-    background-color: #dc3545; /* Warna merah */
+    top: 25px; 
+    left: -55px; 
+    background-color: #dc3545; 
     width: 200px;
     text-align: center;
     color: white;
@@ -226,23 +222,23 @@ body {
     border-radius: 5px;
     font-size: 0.85em;
     font-weight: bold;
-    z-index: 10; /* Pastikan badge di atas gambar */
-    transform: rotate(-40deg); /* Memberi sedikit efek miring */
+    z-index: 10; 
+    transform: rotate(-40deg); 
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* Pastikan efek hover pada gambar tetap ada jika card tidak sold out */
+
 .product-card:not(.sold-out):hover .product-image {
     transform: scale(1.05);
 }
 
-/* Pastikan efek hover pada seluruh card tetap ada */
+
 .product-card.sold-out:hover {
-    transform: translateY(-5px); /* Efek hover tetap ada */
-    box-shadow: var(--shadow-lg); /* Efek shadow tetap ada */
+    transform: translateY(-5px); 
+    box-shadow: var(--shadow-lg); 
 }
 
-/* Pagination */
+
 .pagination {
     margin-top: 3rem;
 }
@@ -271,7 +267,7 @@ body {
     color: var(--gray-500);
 }
 
-/* Category Pills */
+
 .category-pills-container {
     position: sticky;
     top: 0;
@@ -314,21 +310,21 @@ body {
     transform: translateY(-1px);
 }
 
-/* Category Buttons */
-#category-buttons {
+
+
     flex-direction: row;
 }
-#category-buttons .category-btn {
+
     white-space: nowrap;
     transition: transform 0.3s ease-in-out, background-color 0.3s ease-in-out;
 }
-#category-buttons .category-btn:hover {
+
     transform: translateY(-2px);
     background-color: #343a40;
     color: white;
 }
 
-/* WhatsApp Button */
+
 .whatsapp-float {
     position: fixed;
     bottom: 20px;
@@ -359,7 +355,7 @@ body {
     transition-duration: 500ms;
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
     .filter-section {
         padding: 1rem 0;
@@ -399,7 +395,7 @@ body {
 
     .product-image-wrapper {
         width: 40%;
-        padding-top: 40%; /* Keep 1:1 aspect ratio for the image section */
+        padding-top: 40%; 
         flex-shrink: 0;
     }
 
@@ -436,7 +432,7 @@ body {
         right: 0.5rem;
     }
 
-    /* Disable hover effects on mobile */
+    
     .product-card:hover {
         transform: none;
         box-shadow: var(--shadow-sm);
@@ -446,7 +442,7 @@ body {
         transform: none;
     }
 
-    /* Grid adjustments */
+    
     .row-cols-1 {
         --bs-gutter-x: 1rem;
         --bs-gutter-y: 1rem;
@@ -461,15 +457,14 @@ body {
         font-size: 0.9rem;
     }
 
-    #category-buttons {
         flex-direction: column;
     }
-    #category-buttons .category-btn {
+
         width: 100%;
         margin-bottom: 0.5rem;
     }
 
-    /* Card Horizontal Layout */
+    
     .produk-baru-item {
         display: flex !important;
         flex-direction: row;
@@ -517,19 +512,19 @@ body {
         outline: none;
     }
 
-    /* Menonaktifkan hover effect pada card */
-    #product-grid .produk-item:hover {
-        transform: none; /* Menonaktifkan transformasi */
-        box-shadow: none; /* Menonaktifkan shadow */
+    
+
+        transform: none; 
+        box-shadow: none; 
     }
 
-    /* Nonaktifkan hover tooltip di HP */
+    
     .card-title:hover::after {
         display: none;
     }
 
-    /* Grid override for mobile */
-    #product-grid .row-cols-2 {
+    
+
         --bs-grid-columns: 2;
     }
 
@@ -541,13 +536,13 @@ body {
 }
 
 @media (min-width: 768px) {
-    #product-grid .row-cols-md-3 {
+
         --bs-grid-columns: 3;
     }
 }
 
 @media (min-width: 992px) {
-    #product-grid .row-cols-lg-4 {
+
         --bs-grid-columns: 4;
     }
 }

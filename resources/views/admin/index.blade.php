@@ -446,7 +446,7 @@
 @push('scripts')
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Format Rupiah Helper
+
         function formatRupiah(value) {
             return new Intl.NumberFormat('id-ID', {
                 style: 'currency',
@@ -456,7 +456,6 @@
             }).format(value);
         }
 
-        // 1. GRAFIK PENDAPATAN BULANAN
         var optionsPendapatan = {
             chart: {
                 type: 'area',
@@ -597,7 +596,6 @@
         var chartPendapatan = new ApexCharts(document.querySelector("#chartPendapatanBulanan"), optionsPendapatan);
         chartPendapatan.render();
 
-        // 2. GRAFIK TOTAL TRANSAKSI
         var optionsTransaksi = {
             chart: {
                 type: 'donut',
@@ -667,18 +665,18 @@
 
 @push('styles')
 <style>
-    /* Semua card menggunakan rounded-xl yang konsisten dengan overflow-hidden */
+    
     .card {
         border-radius: 16px !important;
     }
 
-    /* Container untuk tabel modern */
+    
     .table-modern-container {
         overflow: hidden;
         border-radius: 0 0 16px 16px;
     }
 
-    /* Tabel dengan styling modern */
+    
     .table-modern {
         --bs-table-bg: transparent;
         --bs-table-striped-bg: rgba(0, 0, 0, 0.02);
@@ -704,7 +702,7 @@
         border-bottom: 1px solid rgba(0,0,0,0.05);
     }
 
-    /* Hapus border radius pada header karena sudah dihandle oleh card */
+    
     .table-modern thead th:first-child,
     .table-modern thead th:last-child {
         border-radius: 0;
@@ -721,13 +719,13 @@
         border-bottom: none;
     }
 
-    /* Hapus border radius pada baris terakhir karena sudah dihandle oleh container */
+    
     .table-modern tbody tr:last-child td:first-child,
     .table-modern tbody tr:last-child td:last-child {
         border-radius: 0;
     }
 
-    /* Transaksi legend styling */
+    
     .transaksi-legend {
         display: grid;
         gap: 12px;
@@ -765,14 +763,14 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
-    /* Badge dengan rounded-pill */
+    
     .badge {
         border-radius: 50px !important;
         font-weight: 500;
         transition: all 0.2s ease;
     }
 
-    /* Form select rounded */
+    
     .form-select {
         border-radius: 7px !important;
         border: 1px solid #dee2e6;
@@ -803,7 +801,7 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Badge percentage */
+
 .position-relative .badge {
     transform: translate(-50%, -50%);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -815,12 +813,12 @@
     justify-content: center;
 }
 
-/* Chart container */
-#chartTotalTransaksi {
+
+
     position: relative;
 }
 
-    /* Responsif untuk mobile */
+    
     @media (max-width: 768px) {
         .card-header, .card-body {
             padding: 1.25rem !important;
@@ -840,7 +838,7 @@
         }
     }
 
-    /* Animasi untuk hover effects */
+    
     .table-row-hover,
     .badge,
     .btn {

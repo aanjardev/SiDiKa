@@ -13,11 +13,11 @@
 {{-- Custom CSS for modern form styling --}}
 @push('styles')
 <style>
-    /* Modern Card Style */
+    
     .card-modern { border: 1px solid #f0f0f0; border-radius: 16px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04); transition: all 0.3s ease; }
     .card-header-modern { background-color: #fff; border-bottom: 1px solid #f0f0f0; padding: 20px 24px; border-radius: 16px 16px 0 0 !important; }
     
-    /* Upload Box Styling */
+    
     .upload-box { width: 160px; height: 160px; border: 2px dashed #dee2e6; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; background: #fafafa; position: relative; }
     .upload-box:hover { border-color: #86b7fe; background: #f8f9ff; }
     .upload-box.has-image { border: 2px solid #86b7fe; background: #fff; }
@@ -27,7 +27,7 @@
     .upload-box .controls { position: absolute; top: 8px; right: 8px; }
     .upload-box .main-choice { position: absolute; bottom: 8px; left: 8px; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; }
     
-    /* Status styling */
+    
     .upload-status { padding: 10px 15px; border-radius: 8px; margin-top: 15px; font-weight: 500; }
     .upload-status.success { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
     .upload-status.error { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }

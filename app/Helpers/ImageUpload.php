@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class ImageUpload
 {
-    // ==== CONFIG ====
+
     private static int $MAX_DIMENSION = 5000;
     private static int $WEBP_QUALITY = 92;
 
@@ -24,7 +24,7 @@ class ImageUpload
      */
     public static function upload($file, string $prefix = 'uploads'): array
     {
-        // =============== VALIDASI DASAR TANPA LOAD BESAR-BESAR ===============
+
         $info = @getimagesize($file);
         if (!$info) {
             throw new \Exception("File bukan gambar valid.");
@@ -37,17 +37,14 @@ class ImageUpload
             throw new \Exception("Resolusi terlalu besar ({$w}x{$h}). Maksimal 5000px.");
         }
 
-        // =============== LOAD GAMBAR (AMAN) ===============
         $img = Image::make($file)->orientate();
 
-        // Keep original resolution (max 5000px) with gentler compression
         $encoded = Image::make($img)->encode("webp", self::$WEBP_QUALITY);
         $hash = sha1($encoded);
 
         $baseName = $hash . '.webp';
         $path = "$prefix/$baseName";
 
-        // ====== If image already exists, return existing path ======
         if (Storage::disk('r2')->exists($path)) {
             return [
                 'path'          => $path,
@@ -55,7 +52,6 @@ class ImageUpload
             ];
         }
 
-        // =============== UPLOAD ===============
         self::uploadToR2($encoded, $path);
 
         return [

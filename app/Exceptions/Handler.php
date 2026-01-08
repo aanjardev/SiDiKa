@@ -18,7 +18,7 @@ class Handler extends ExceptionHandler
      * @var array<class-string<\Throwable>, \Psr\Log\LogLevel::*>
      */
     protected $levels = [
-        //
+
     ];
 
     /**
@@ -27,7 +27,7 @@ class Handler extends ExceptionHandler
      * @var array<int, class-string<\Throwable>>
      */
     protected $dontReport = [
-        //
+
     ];
 
     /**
@@ -47,10 +47,9 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->reportable(function (Throwable $e) {
-            //
+
         });
 
-        // Handle FatalError (including max execution time)
         $this->renderable(function (FatalError $e, Request $request) {
             if (str_contains($e->getMessage(), 'Maximum execution time')) {
                 try {
@@ -61,7 +60,6 @@ class Handler extends ExceptionHandler
             }
         });
 
-        // Handle AuthenticationException (403)
         $this->renderable(function (AuthenticationException $e, Request $request) {
             try {
                 return response()->view('errors.403', [], 403);
@@ -70,7 +68,6 @@ class Handler extends ExceptionHandler
             }
         });
 
-        // Handle ValidationException
         $this->renderable(function (ValidationException $e, Request $request) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -78,14 +75,12 @@ class Handler extends ExceptionHandler
                     'errors' => $e->errors()
                 ], 422);
             }
-            
-            // For web requests, redirect back with errors
+
             return redirect()->back()
                 ->withErrors($e->errors())
                 ->withInput();
         });
 
-        // Handle HttpException (404, 500, 503, 429, etc)
         $this->renderable(function (HttpException $e, Request $request) {
             $statusCode = $e->getStatusCode();
             $viewMap = [
@@ -104,7 +99,7 @@ class Handler extends ExceptionHandler
                     'statusCode' => $statusCode
                 ], $statusCode);
             } catch (\Exception $viewException) {
-                // Fallback jika view error
+
                 return response()->make("Error {$statusCode} - Something went wrong", $statusCode);
             }
         });

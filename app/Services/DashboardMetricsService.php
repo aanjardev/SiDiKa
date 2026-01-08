@@ -56,7 +56,7 @@ class DashboardMetricsService
         }
 
         $totalPendapatan = (int) (clone $penjualanBase)->sum('harga_total');
-        // HPP = harga_beli + harga_servis per item * qty terjual
+
         $totalHPP = (int) (clone $detailBase)
             ->selectRaw('SUM(detail_penjualan.qty * (COALESCE(produk.harga_beli, 0) + COALESCE(produk.harga_servis, 0))) as total')
             ->value('total') ?? 0;
@@ -70,15 +70,14 @@ class DashboardMetricsService
         if ($branchId) {
             $pembelianBase->where('perusahaan_cabang_id', $branchId);
         }
-        // Hanya hitung pembelian yang deal
+
         $pembelianBase->where('status_pembelian', 'deal');
         $totalPembelian = (clone $pembelianBase)->count();
         $totalTransaksi = $totalPenjualan + $totalPembelian;
 
         $growthPercentage = $this->calculateGrowth($year, $month, $branchId);
 
-        // Area chart pendapatan & HPP tetap annual (per tahun) agar overview,
-        // sedangkan donut chart transaksi mengikuti filter bulan bila dipilih.
+
         [$dataPendapatanChart, $dataHppChart] = $this->buildAreaChartData($year, $branchId);
         $dataTransaksiChart = $this->buildDonutChartData($year, $month, $branchId);
 
@@ -221,7 +220,6 @@ class DashboardMetricsService
             $countPembelian->where('perusahaan_cabang_id', $branchId);
         }
 
-        // Hanya hitung pembelian dengan status deal
         $countPembelian->where('status_pembelian', 'deal');
 
         return [
@@ -330,7 +328,7 @@ class DashboardMetricsService
      */
     private function branchPerformance(int $year, ?int $month, ?int $branchId): array
     {
-        // Jika filter cabang spesifik dipilih, jangan tampilkan card cabang terbaik
+
         $showBestBranch = $branchId === null;
 
         $branchesQuery = Branch::query();
@@ -381,10 +379,8 @@ class DashboardMetricsService
             ];
         })->values();
 
-        // Urutkan berdasarkan laba bersih tertinggi (PERUBAHAN UTAMA)
         $cabangTerbaik = $dataCabang->sortByDesc('labaBersihCabang')->first();
 
-        // Jika semua cabang memiliki laba 0, tampilkan "-"
         $labaTertinggi = $cabangTerbaik ? $cabangTerbaik['labaBersihCabang'] : 0;
         $namaCabangTerbaik = ($cabangTerbaik && $labaTertinggi > 0) ? $cabangTerbaik['namaCabang'] : '-';
         $labaCabangTerbaik = $labaTertinggi;

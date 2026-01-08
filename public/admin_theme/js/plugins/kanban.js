@@ -31,7 +31,7 @@ const sortable1 = Sortable.create(group1, {
     const item = evt.item,
       ctrl = evt.target;
     if (Sortable.utils.is(ctrl, ".remove")) {
-      // Click on remove button
+
       $(item).slideUp('400', function() {
          $(item).remove();
       });

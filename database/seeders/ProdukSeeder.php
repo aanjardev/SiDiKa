@@ -19,24 +19,20 @@ class ProdukSeeder extends Seeder
      */
     public function run(): void
     {
-        // Nonaktifkan foreign key checks
+
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
-        // Truncate tabel yang berelasi (gambar dulu, baru produk)
         GambarProduk::truncate();
         Produk::truncate();
 
-        // Aktifkan kembali foreign key checks
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
-        // Lokasi sumber gambar seeder; sesuaikan dengan folder yang kamu pakai.
-        // Saat ini folder berada di public/productIMG (case-sensitive).
+
         $localDir = base_path('public/productIMG');
         if (!is_dir($localDir)) {
             throw new \RuntimeException("Seeder image directory not found: {$localDir}");
         }
 
-        // produk 1
         $produk = Produk::create([
             'kode_sku' => '1274OBOOPL',
             'id_kategori' => 4,
@@ -82,7 +78,6 @@ KELENGKAPAN:
             ]);
         }
 
-        // produk 2
         $produk = Produk::create([
             'kode_sku' => '1267OHOOVT',
             'id_kategori' => 1,
@@ -146,8 +141,6 @@ Untuk memaksimalkan pengiriman :
             ]);
         }
 
-
-        // produk 3
         $produk = Produk::create([
             'kode_sku' => '1271AEOOWS',
             'id_kategori' => 2,
@@ -213,68 +206,50 @@ Untuk memaksimalkan pengiriman :
         }
 
 
-        // produk 4
-//         $produk = Produk::create([
-//             'kode_sku' => '1258OOOOJT',
-//             'id_kategori' => 7,
-//             'nama_produk' => 'Lensa Nikon 28 300mm VR Kondisi Baik',
-//             'harga_jual' => 5200000,
-//             'stok_produk' => 1,
-//             'status' => 'Second',
-//             'grade' => 'Unggulan',
-//             'deskripsi_produk' => 'TYPE : Lensa Nikon 28 300mm VR
-
-// HARGA : 5.200.000
 
 
 
-// KONDISI :
-// ● Second Baik
-// ● Tombol Baik
-// ● Body Fisik Paint Lost
-// ● AF/MF baik
-// ● Akurasi Baik
-// ● Fungsional Normal Baik
-// ● Jamur Tipis / Debu Micro (Tidak Berpengaruh Pada Hasil)
 
 
 
-// KELENGKAPAN :
-// ● Lensa
-// ● Tutup Depan
-// ● Tutup Belakang
-// ● Nota Pembelian Dinoyo Kamera
-
-// Kode Barang : #1258_DK
-
-// Jual beli kamera malang raya
-// Kalian juga bisa jual kamera anda di toko kami, langsung aja ke Dinoyo Kamera
-
-// Barang siap pakai, silahkan di order
-
-// Untuk memaksimalkan pengiriman :
-// ● Luar pulau jawa Wajib pakai JNE
-// ● Dalam pulau Jawa wajib pakai JNT'
-
-//         ]);
-
-        // $gambarList = [
-        //     ['path_gambar' => 'gambar_produk/41.png', 'is_main' => true],
-        //     ['path_gambar' => 'gambar_produk/42.jpg', 'is_main' => false],
-        //     ['path_gambar' => 'gambar_produk/43.jpg', 'is_main' => false],
-        //     ['path_gambar' => 'gambar_produk/44.png', 'is_main' => false],
-        // ];
-
-        // foreach ($gambarList as $gambar) {
-        //     GambarProduk::create([
-        //         'id_produk' => $produk->id,
-        //         'path_gambar' => $gambar['path_gambar'],
-        //         'is_main' => $gambar['is_main'],
-        //     ]);
-        // }
 
 
-        // produk 5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         $produk = Produk::create([
             'kode_sku' => '1065',
             'id_kategori' => 5,
@@ -331,7 +306,6 @@ Untuk memaksimalkan pengiriman :
             ]);
         }
 
-        // produk 6
         $produk = Produk::create([
             'kode_sku' => '1225OEOOPL',
             'id_kategori' => 3,
@@ -393,7 +367,6 @@ Untuk memaksimalkan pengiriman :
             ]);
         }
 
-        // produk 7
         $produk = Produk::create([
             'kode_sku' => '1052COOOPL',
             'id_kategori' => 6,
@@ -470,7 +443,6 @@ Untuk memaksimalkan pengiriman :
             ]);
         }
 
-        // produk 8
         $produk = Produk::create([
             'kode_sku' => 'ACC01',
             'id_kategori' => 8,
@@ -497,7 +469,6 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
             ]);
         }
 
-        // produk 9
         $produk = Produk::create([
             'kode_sku' => 'ACC02',
             'id_kategori' => 9,
@@ -522,7 +493,6 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
             ]);
         }
 
-        // produk 10
         $produk = Produk::create([
             'kode_sku' => 'ACC03',
             'id_kategori' => 10,
@@ -547,7 +517,6 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
             ]);
         }
 
-        // produk 11
         $produk = Produk::create([
             'kode_sku' => 'ACC04',
             'id_kategori' => 10,
@@ -572,7 +541,6 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
             ]);
         }
 
-        // produk 12
         $produk = Produk::create([
             'kode_sku' => 'ACC05',
             'id_kategori' => 9,
@@ -597,7 +565,6 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
             ]);
         }
 
-        // produk 13
         $produk = Produk::create([
             'kode_sku' => 'ACC06',
             'id_kategori' => 9,
@@ -622,7 +589,6 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
             ]);
         }
 
-        // produk 14
         $produk = Produk::create([
             'kode_sku' => 'ACC07',
             'id_kategori' => 8,
@@ -649,7 +615,6 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
             ]);
         }
 
-        // produk 15
         $produk = Produk::create([
             'kode_sku' => 'ACC08',
             'id_kategori' => 8,
@@ -676,7 +641,6 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
             ]);
         }
 
-        // produk 16
         $produk = Produk::create([
             'kode_sku' => '-',
             'id_kategori' => 8,
@@ -703,7 +667,6 @@ Kompatibel dengan Kamera Canon R / 6D / 6DII / 7D II / 7D / 70D / 80D'
             ]);
         }
 
-        // produk 17
         $produk = Produk::create([
             'kode_sku' => '1309OCOOJT',
             'id_kategori' => 7,
@@ -749,7 +712,6 @@ Kode Barang : #1309_DK'
             ]);
         }
 
-        // produk 19
         $produk = Produk::create([
             'kode_sku' => '1308AFEOPL',
             'id_kategori' => 1,
@@ -797,7 +759,6 @@ KELENGKAPAN:
             ]);
         }
 
-        // produk 17
         $produk = Produk::create([
             'kode_sku' => '1298COOOJT',
             'id_kategori' => 2,
@@ -871,7 +832,6 @@ Kode Barang : #1298_DK'
             throw new \RuntimeException("Seeder image not found: {$source}");
         }
 
-        // Reuse runtime pipeline: WebP + hash + cache headers
         $paths = ImageUpload::upload($source, "product/{$productId}");
         return $paths['path'];
     }

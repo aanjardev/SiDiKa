@@ -7,7 +7,7 @@
     --sidebar-bg: #ffffff;
     --sidebar-hover: #f5f7fb;
     --primary-color: #4e6bff;
-    /* Brand blue used specifically for sidebar hover/active to avoid being overridden */
+    
     --brand-blue: #4e6bff;
     --text-dark: #2f353f;
     --text-muted: #6c757d;
@@ -19,7 +19,7 @@ body {
     overflow-x: hidden;
 }
 
-/* Sidebar */
+
 .sidebar {
     position: fixed;
     top: 0;
@@ -118,7 +118,7 @@ body {
     box-shadow: 0 10px 20px rgba(78, 107, 255, 0.15);
 }
 
-/* Active state for top-level menu links (e.g., Dashboard) */
+
 .menu-link.active {
     background: var(--brand-blue);
     color: #fff;
@@ -147,7 +147,7 @@ body {
     color: #fff;
 }
 
-/* Remove hover blue on sub header toggles only */
+
 .menu-toggle:hover {
     background: transparent;
     color: var(--text-dark);
@@ -159,7 +159,7 @@ body {
     color: var(--text-muted);
 }
 
-/* Active state for collapse toggles (when child submenu contains active link) */
+
 .menu-toggle.active {
     background: var(--brand-blue);
     color: #fff;
@@ -180,7 +180,7 @@ body {
     transform: rotate(90deg);
 }
 
-/* Submenu */
+
 .submenu {
     padding-left: 0;
     margin-top: 0.5rem;
@@ -237,7 +237,7 @@ body {
     color: #fff;
 }
 
-/* Footer */
+
 .sidebar-footer {
     position: relative;
     bottom: 0;
@@ -290,7 +290,7 @@ body {
     margin: 0;
 }
 
-/* Sidebar footer dropdown */
+
 .sidebar-footer {
     position: relative;
     bottom: 0;
@@ -339,7 +339,7 @@ body {
     width: auto;
     max-width: none;
 }
-/* Main content */
+
 .main-content {
     margin-left: var(--sidebar-width);
     min-height: 100vh;
@@ -360,7 +360,7 @@ body {
     margin: 0;
 }
 
-/* Mobile */
+
 @media (max-width: 1200px) {
     :root {
         --sidebar-width: 240px;
@@ -370,21 +370,22 @@ body {
 @media (max-width: 991px) {
     .sidebar {
         width: min(92vw, 360px);
+        z-index: 1040;
         max-height: 88vh;
         height: auto;
         top: 16px;
         bottom: auto;
         border-radius: 18px;
-        left: 50%;
-        right: auto;
-        transform: translate(-50%, -120%);
+        right: 16px;
+        left: auto;
+        transform: translateY(-120%);
         box-shadow: 0 24px 55px rgba(15, 23, 42, 0.28);
         overflow: hidden;
         display: flex;
         flex-direction: column;
     }
     .sidebar.show {
-        transform: translate(-50%, 0);
+        transform: translateY(0);
     }
     .main-content {
         margin-left: 0;
@@ -392,6 +393,10 @@ body {
     }
     .sidebar-toggle-mobile {
         display: flex;
+        top: calc(16px + env(safe-area-inset-top, 0px));
+        right: calc(16px + env(safe-area-inset-right, 0px));
+        bottom: auto;
+        left: auto;
     }
 }
 
@@ -411,6 +416,7 @@ body {
     box-shadow: 0 18px 40px rgba(78, 107, 255, 0.28);
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    touch-action: manipulation;
     z-index: 1100;
 }
 .sidebar-toggle-mobile:hover {
@@ -432,16 +438,18 @@ body {
     background: rgba(15, 23, 42, 0.35);
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
     transition: opacity 0.3s ease, visibility 0.3s ease;
     z-index: 1030;
 }
 .sidebar-overlay.show {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
 }
 
-/* Loader */
-#loading {
+
+
     position: fixed;
     top: 0;
     left: 0;
@@ -470,7 +478,7 @@ body {
     }
 }
 
-/* Variables */
+
 :root {
     --primary-color: #2f353f;
     --secondary-color: #130303;
@@ -516,7 +524,7 @@ body {
     --transition-base: all 0.3s ease;
 }
 
-/* Base Styles */
+
 * {
     font-family: "Montserrat", sans-serif;
     box-sizing: border-box;
@@ -530,7 +538,7 @@ body {
     line-height: 1.6;
 }
 
-/* Typography */
+
 h1,
 h2,
 h3,
@@ -558,7 +566,7 @@ p {
     margin-bottom: 1rem;
 }
 
-/* Layout */
+
 .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -574,7 +582,7 @@ section {
     margin-bottom: 2rem;
 }
 
-/* Cards */
+
 .admin-card {
     background: white;
     border-radius: 10px;
@@ -606,7 +614,7 @@ section {
     padding: 1.5rem;
 }
 
-/* Forms */
+
 .form-label {
     font-weight: 600;
     color: var(--gray-700);
@@ -625,7 +633,7 @@ section {
     box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
 }
 
-/* Tables */
+
 .table {
     margin-bottom: 0;
 }
@@ -652,7 +660,7 @@ section {
     background-color: var(--gray-200);
 }
 
-/* Buttons */
+
 .btn {
     font-weight: 600;
     padding: 0.75rem 1.5rem;
@@ -696,7 +704,7 @@ section {
     font-size: 0.875rem;
 }
 
-/* Alerts */
+
 .alert {
     border-radius: 6px;
     padding: 1rem;
@@ -709,7 +717,7 @@ section {
     color: #0f5132;
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
     h1 {
         font-size: 2rem;
@@ -867,9 +875,9 @@ footer a:hover {
     transition-duration: 500ms;
 }
 
-/* Media Query untuk Responsivitas */
 
-/* iPad (tablet, lebar 768px - 1024px) */
+
+
 @media (max-width: 1024px) {
     .container {
         max-width: 100%;
@@ -902,7 +910,7 @@ footer a:hover {
     }
 }
 
-/* HP (mobile, lebar <= 576px) */
+
 @media (max-width: 576px) {
     h2 {
         font-size: 1.5rem;
@@ -947,4 +955,29 @@ footer a:hover {
     footer .logo-medplace {
         justify-content: center;
     }
+    .admin-page-header {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.75rem;
+    }
+    .admin-page-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .admin-page-actions > * {
+        max-width: 100%;
+    }
 }
+
+@media (max-width: 991px) {
+    .sidebar-toggle-mobile {
+        display: flex !important;
+        top: calc(16px + env(safe-area-inset-top, 0px));
+        right: calc(16px + env(safe-area-inset-right, 0px));
+        bottom: auto;
+        left: auto;
+    }
+}
+
+

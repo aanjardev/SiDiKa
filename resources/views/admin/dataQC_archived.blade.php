@@ -169,7 +169,7 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // ===== AUTO SEARCH (DEBOUNCE) =====
+
     const searchInput = document.querySelector('input[name="search"]');
     const searchForm = document.getElementById('searchForm');
     let searchTimeout;
@@ -191,10 +191,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ===== RESTORE CONFIRMATION =====
     let formToRestore = null;
 
-    // Modal Konfirmasi (Bootstrap 5)
     const modalHtml = `
     <div class="modal fade" id="confirmRestoreModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -218,7 +216,6 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>`;
 
-    // Inject modal ke body
     document.body.insertAdjacentHTML('beforeend', modalHtml);
 
     const confirmModalEl = document.getElementById('confirmRestoreModal');
@@ -231,12 +228,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (bsModal) bsModal.show();
     }
 
-    // Attach event ke semua form restore
     document.querySelectorAll('.restore-form').forEach(f => {
         f.addEventListener('submit', handleRestoreSubmit);
     });
 
-    // Handle klik tombol konfirmasi di modal
     if (confirmRestoreBtn) {
         confirmRestoreBtn.addEventListener('click', function() {
             if (!formToRestore) return;

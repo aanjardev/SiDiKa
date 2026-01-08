@@ -246,17 +246,17 @@
         box-shadow: 0 0 0 0.25rem rgba(78, 107, 255, 0.25);
     }
     .btn-outline-dark-gold {
-        /* Warna teks dan border saat normal (Dark Gold) */
-        color: #CC9900 !important; /* Warna Emas Pekat */
+        
+        color: #CC9900 !important; 
         border-color: #CC9900 !important;
     }
 
-    /* Warna saat di-hover/focus */
+    
     .btn-outline-dark-gold:hover,
     .btn-outline-dark-gold:focus,
     .btn-outline-dark-gold:active {
-        color: #000 !important; /* Warna teks diubah menjadi hitam agar kontras */
-        background-color: #D4A017 !important; /* Warna latar belakang saat hover (Sedikit lebih gelap dari normal) */
+        color: #000 !important; 
+        background-color: #D4A017 !important; 
         border-color: #D4A017 !important;
     }
 </style>

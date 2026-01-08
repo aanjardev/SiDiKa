@@ -23,7 +23,6 @@ class BranchSeeder extends Seeder
 
         Schema::enableForeignKeyConstraints();
 
-        // Cabang 1 - Dinoyo Kamera 1
         $branch1 = Branch::create([
             'nama' => 'Dinoyo Kamera 1',
             'alamat' => 'Jl. MT Haryono No. 123, Dinoyo, Malang',
@@ -34,7 +33,6 @@ class BranchSeeder extends Seeder
             'deskripsi' => 'Cabang utama dengan koleksi kamera terlengkap'
         ]);
 
-        // Jam operasional cabang 1
         $this->createJamOperasional($branch1->id, [
             'Senin' => ['buka' => true, 'jam_buka' => '08:30', 'jam_tutup' => '17:00'],
             'Selasa' => ['buka' => true, 'jam_buka' => '08:30', 'jam_tutup' => '17:00'],
@@ -45,7 +43,6 @@ class BranchSeeder extends Seeder
             'Minggu' => ['buka' => false, 'jam_buka' => null, 'jam_tutup' => null, 'catatan' => 'Tutup hari Minggu']
         ]);
 
-        // Cabang 2 - Dinoyo Kamera 2
         $branch2 = Branch::create([
             'nama' => 'Dinoyo Kamera 2',
             'alamat' => 'Jl. Gajayana No. 45, Dinoyo, Malang',
@@ -56,7 +53,6 @@ class BranchSeeder extends Seeder
             'deskripsi' => 'Cabang dengan fokus kamera second berkualitas'
         ]);
 
-        // Jam operasional cabang 2
         $this->createJamOperasional($branch2->id, [
             'Senin' => ['buka' => true, 'jam_buka' => '08:00', 'jam_tutup' => '17:00'],
             'Selasa' => ['buka' => true, 'jam_buka' => '08:00', 'jam_tutup' => '17:00'],
@@ -67,7 +63,6 @@ class BranchSeeder extends Seeder
             'Minggu' => ['buka' => false, 'jam_buka' => null, 'jam_tutup' => null, 'catatan' => 'Tutup hari Minggu']
         ]);
 
-        // Cabang 3 - Dinoyo Kamera 3
         $branch3 = Branch::create([
             'nama' => 'Dinoyo Kamera 3',
             'alamat' => 'Jl. Raya Tlogomas No. 67, Malang',
@@ -78,7 +73,6 @@ class BranchSeeder extends Seeder
             'deskripsi' => 'Cabang dengan layanan servis kamera'
         ]);
 
-        // Jam operasional cabang 3
         $this->createJamOperasional($branch3->id, [
             'Senin' => ['buka' => true, 'jam_buka' => '08:30', 'jam_tutup' => '17:30'],
             'Selasa' => ['buka' => true, 'jam_buka' => '08:30', 'jam_tutup' => '17:30'],

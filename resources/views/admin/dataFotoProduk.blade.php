@@ -4,15 +4,15 @@
 
 @push('styles')
 <style>
-    /* Force vertical centering for table rows */
-    #photo-products-tbody tr {
-        vertical-align: middle !important;
-    }
-    #photo-products-tbody td {
+    
+
         vertical-align: middle !important;
     }
 
-    /* Chip style for SKU (selaras kode pembelian) */
+        vertical-align: middle !important;
+    }
+
+    
     .sku-chip {
         display: inline-block;
         font-family: "JetBrains Mono", "SFMono-Regular", Menlo, Consolas, monospace;
@@ -25,7 +25,7 @@
         line-height: 1.2;
         letter-spacing: -0.01em;
     }
-    /* Keep table compact on desktop, allow wrap on smaller screens */
+    
     .photo-table {
         table-layout: fixed;
         width: 100%;
@@ -110,7 +110,7 @@
 
 @push('styles')
     <style>
-        /* Seragam dengan halaman data lain, biarkan .table-modern dari CSS global yang bekerja */
+        
 
         .table-product tbody tr.tr-empty td .empty-message {
             min-height: 250px;
@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 attachPaginationLinks();
             }).catch(err => {
                 console.error('Failed to fetch photo products', err);
-                // Render empty message dengan style yang sama
+
                 tbody.innerHTML = `
                     <tr class="tr-empty">
                         <td colspan="5" class="p-0">
@@ -214,7 +214,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         attachPaginationLinks();
                     }).catch(err => {
                         console.error(err);
-                        // Render empty message dengan style yang sama
+
                         tbody.innerHTML = `
                             <tr class="tr-empty">
                                 <td colspan="5" class="p-0">
@@ -231,7 +231,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // initial attach
     attachPaginationLinks();
 });
 </script>

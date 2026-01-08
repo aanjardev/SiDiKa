@@ -245,7 +245,7 @@
 
 @push('scripts')
 <script>
-    // Initialize Bootstrap tooltips
+
     document.addEventListener('DOMContentLoaded', function() {
         const input = document.querySelector('input[name="search"]');
         if (input) {
@@ -293,7 +293,6 @@
         }
     }
 
-    // Export ke window
     window.handleDeletePermission = handleDeletePermission;
     window.handleRegenerateToken = handleRegenerateToken;
 </script>

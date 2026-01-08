@@ -160,7 +160,7 @@
 
 @push('scripts')
     <script>
-        // Initialize AOS
+
         if (typeof AOS !== 'undefined') {
             AOS.init({
                 duration: 800,
@@ -169,7 +169,6 @@
             });
         }
 
-        // Form validation
         (function () {
             'use strict'
             var forms = document.querySelectorAll('.needs-validation')
@@ -200,7 +199,6 @@
 
         const phoneNumber = '62895411200308'; // Ganti dengan nomor WhatsApp Anda!
 
-        // Buat teks pesan
         const whatsappMessage = `
 Halo Dinoyo Kamera!%0A
 Saya *${encodeURIComponent(name)}*, ingin bertanya:%0A%0A

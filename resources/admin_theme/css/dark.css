@@ -19,9 +19,7 @@ hr {
 }
 
 .dark {
-  /*
-   * Background color 
-   */
+  
 }
 .dark .bg-soft-primary {
   background-color: rgba(104, 126, 237, 0.1) !important;

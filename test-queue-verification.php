@@ -18,7 +18,6 @@ echo "========================================\n";
 echo "  VERIFIKASI LARAVEL QUEUE SYSTEM\n";
 echo "========================================\n\n";
 
-// 1. Check Queue Configuration
 echo "1. KONFIGURASI QUEUE\n";
 echo "   " . str_repeat("-", 40) . "\n";
 $connection = config('queue.default');
@@ -33,7 +32,6 @@ if ($connection === 'sync') {
     echo "   ✅ Queue connection: {$connection}\n";
 }
 
-// 2. Check Database Tables
 echo "\n2. CEK TABEL DATABASE\n";
 echo "   " . str_repeat("-", 40) . "\n";
 try {
@@ -47,7 +45,6 @@ try {
     exit(1);
 }
 
-// 3. Check Job Class
 echo "\n3. CEK JOB CLASS\n";
 echo "   " . str_repeat("-", 40) . "\n";
 if (class_exists('App\Jobs\ProcessProductImage')) {
@@ -66,7 +63,6 @@ if (class_exists('App\Jobs\ProcessProductImage')) {
     exit(1);
 }
 
-// 4. Test Dispatch Job
 echo "\n4. TEST DISPATCH JOB\n";
 echo "   " . str_repeat("-", 40) . "\n";
 try {
@@ -77,8 +73,7 @@ try {
         echo "   → Buat produk dulu untuk test\n";
     } else {
         echo "   Menggunakan Product ID: {$product->id} ({$product->nama_produk})\n";
-        
-        // Dispatch test job
+
         ProcessProductImage::dispatch(
             $product->id,
             ['test/path/image.jpg'],
@@ -87,15 +82,13 @@ try {
         );
         
         echo "   ✅ Job berhasil di-dispatch!\n";
-        
-        // Check if job is in queue
+
         $newJobsCount = DB::table('jobs')->count();
         echo "   Jobs di queue setelah dispatch: {$newJobsCount}\n";
         
         if ($newJobsCount > $jobsCount) {
             echo "   ✅ SUCCESS: Job masuk ke queue!\n";
-            
-            // Show job details
+
             $latestJob = DB::table('jobs')->latest('id')->first();
             if ($latestJob) {
                 echo "\n   Detail Job:\n";
@@ -119,7 +112,6 @@ try {
     exit(1);
 }
 
-// 5. Check Controller Integration
 echo "\n5. CEK INTEGRASI CONTROLLER\n";
 echo "   " . str_repeat("-", 40) . "\n";
 $controllerFile = 'app/Http/Controllers/AdminProductController.php';
@@ -134,7 +126,6 @@ if (file_exists($controllerFile)) {
     echo "   ⚠️  Controller file tidak ditemukan\n";
 }
 
-// 6. Summary
 echo "\n" . str_repeat("=", 40) . "\n";
 echo "  RINGKASAN\n";
 echo str_repeat("=", 40) . "\n";

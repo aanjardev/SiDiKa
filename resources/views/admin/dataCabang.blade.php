@@ -116,7 +116,7 @@
 
                         <td>
                             @php
-                                // Get jam operasional untuk hari ini
+
                                 $hariIni = ['Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'][date('l')] ?? 'Senin';
                                 $jamHariIni = $cabang->jamOperasional->where('hari', $hariIni)->first();
                             @endphp

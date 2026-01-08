@@ -30,7 +30,7 @@ class Customer extends Model
         parent::boot();
 
         static::creating(function ($customer) {
-            // Prefix: CU (Customer)
+
             $prefix = 'CU';
 
             $latestCode = static::where('kode_customer', 'like', $prefix . '%')
@@ -41,12 +41,11 @@ class Customer extends Model
             $number = 1;
 
             if ($latestCode) {
-                // Ambil angka dari kode terakhir
+
                 $number = (int) substr($latestCode, -4);
                 $number++;
             }
 
-            // Format kode customer: CU[000X]
             $customer->kode_customer = $prefix . str_pad($number, 4, '0', STR_PAD_LEFT);
         });
     }

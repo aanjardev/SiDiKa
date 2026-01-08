@@ -19,7 +19,7 @@ class SmartLowStockAlert extends Notification
         public int $currentStock,
         public int $predictedDaysLeft
     ) {
-        //
+
     }
 
     /**
