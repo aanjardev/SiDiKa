@@ -8,7 +8,19 @@ document.addEventListener("DOMContentLoaded", function () {
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
 
+    function setSidebarAria(isOpen) {
+        if (sidebarToggle) {
+            sidebarToggle.setAttribute('aria-expanded', String(isOpen));
+        }
+        if (sidebar) {
+            sidebar.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+        }
+    }
+
     function toggleSidebar() {
+        if (!sidebar || !sidebarOverlay || !sidebarToggle) {
+            return;
+        }
         sidebar.classList.toggle('show');
         sidebarOverlay.classList.toggle('show');
 
@@ -22,19 +34,28 @@ document.addEventListener("DOMContentLoaded", function () {
             icon.classList.add('fa-bars');
             document.body.style.overflow = '';
         }
+
+        setSidebarAria(sidebar.classList.contains('show'));
     }
 
     function closeSidebar() {
+        if (!sidebar || !sidebarOverlay || !sidebarToggle) {
+            return;
+        }
         sidebar.classList.remove('show');
         sidebarOverlay.classList.remove('show');
         document.body.style.overflow = '';
 
         const icon = sidebarToggle.querySelector('i');
+        setSidebarAria(false);
+
         if (icon) {
             icon.classList.remove('fa-times');
             icon.classList.add('fa-bars');
         }
     }
+
+    setSidebarAria(false);
 
     if (sidebarToggle) {
         sidebarToggle.addEventListener('click', function(e) {

@@ -238,9 +238,9 @@
 
     <!-- Main Content -->
     <main class="main-content pt-5 mb-0 mt-0 d-flex flex-column pb-0">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-4 admin-page-header">
             <h1 class="page-title mb-0">@yield('title', 'Dashboard')</h1>
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3 admin-page-actions">
                 @stack('page-actions')
             </div>
         </div>
@@ -321,7 +321,7 @@
                     if (parentToggle && parentToggle.classList.contains('menu-toggle')) {
                         parentToggle.classList.remove('collapsed');
                         parentToggle.setAttribute('aria-expanded', 'true');
-                        parentToggle.classList.add('active'); 
+                        parentToggle.classList.add('active');
                     }
                 }
             }
@@ -331,4 +331,3 @@
 </body>
 
 </html>
-
