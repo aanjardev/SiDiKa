@@ -74,7 +74,7 @@
     @endphp
 
     {{-- Card 1: Total Pendapatan --}}
-    <div class="{{ $colClass }} mb-1">
+    <div class="{{ $colClass }} mb-1 carddashboard">
         <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #4E6BFF;">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -107,7 +107,7 @@
     </div>
 
     {{-- Card 2: Gross Profit --}}
-    <div class="{{ $colClass }} mb-1">
+    <div class="{{ $colClass }} mb-1 carddashboard">
         <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #198754;">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -139,7 +139,7 @@
     </div>
 
     {{-- Card 3: Total Transaksi --}}
-    <div class="{{ $colClass }} mb-1">
+    <div class="{{ $colClass }} mb-1 carddashboard">
         <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #0dcaf0;">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -151,8 +151,8 @@
                         <i class="fas fa-shopping-cart text-info fa-lg"></i>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-primary bg-opacity-10 text-primary me-2 rounded-pill px-2 py-1">
+                <div class="d-flex align-items-center flex-wrap  gap-2">
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1">
                         Penjualan: {{ $dataTransaksiChart[0] ?? 0 }}
                     </span>
                     <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1">
@@ -165,7 +165,7 @@
 
     {{-- Card 4: Cabang Terbaik -- Hanya tampil jika filter "Semua Cabang" --}}
     @if($showBestBranch)
-        <div class="{{ $colClass }} mb-1">
+        <div class="{{ $colClass }} mb-1 carddashboard">
             <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #ffc107;">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-start mb-3">
@@ -211,16 +211,18 @@
 
    {{-- Donut Chart: Total Transaksi --}}
     <div class="col-xl-5 col-lg-12 mb-1">
-        <div class="card shadow-sm border-0 h-100 overflow-hidden rounded-xl">
+        <div class="card shadow-sm border-0 h-100 overflow-hidden rounded-xl transaksi-card">
             <div class="card-header bg-white border-0 p-4 pb-3">
                 <h5 class="card-title fw-bold mb-0 text-dark">Transaksi</h5>
             </div>
-            <div class="card-body pt-0" style="padding:  0px 50px !important;">
-                <div class="row align-items-center h-100">
-                    <div class="col-7 d-flex align-items-center justify-content-center">
-                        <div id="chartTotalTransaksi" style="min-height: 250px; width: 100%;"></div>
+            <div class="card-body p-4 pt-0">
+                <div class="d-flex flex-row flex-nowrap align-items-center transaksi-wrapper h-100">
+
+                    <div class="flex-grow-1 flex-shrink-1 transaksi-chart-wrapper d-flex align-items-center justify-content-center">
+                        <div id="chartTotalTransaksi" class="w-100 h-100"></div>
                     </div>
-                    <div class="col-5">
+
+                    <div class="flex-shrink-0 transaksi-legend-wrapper">
                         @php
                             $totalTransaksi = array_sum($dataTransaksiChart ?? []);
                             $penjualan = $dataTransaksiChart[0] ?? 0;
@@ -229,14 +231,13 @@
                             $pembelianPct = $totalTransaksi > 0 ? round(($pembelian / $totalTransaksi) * 100, 1) : 0;
                         @endphp
                         <div class="transaksi-legend">
-                            <div class="transaksi-pill">
+                            <div class="transaksi-pill mb-3">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="transaksi-dot bg-primary bg-opacity-10">
-                                        <span class="transaksi-dot-inner"></span>
                                         <i class="fas fa-bag-shopping text-primary transaksi-dot-icon"></i>
                                     </div>
                                     <div class="d-flex flex-column">
-                                        <span class="text-muted small d-block">Penjualan</span>
+                                        <span class="text-muted small">Penjualan</span>
                                         <div class="d-flex align-items-center gap-2">
                                             <h4 class="fw-bold mb-0 text-primary">{{ number_format($penjualan) }}</h4>
                                             <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold">{{ $penjualanPct }}%</span>
@@ -244,14 +245,14 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="transaksi-pill">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="transaksi-dot bg-success bg-opacity-10">
-                                        <span class="transaksi-dot-inner"></span>
                                         <i class="fas fa-cart-arrow-down text-success transaksi-dot-icon"></i>
                                     </div>
                                     <div class="d-flex flex-column">
-                                        <span class="text-muted small d-block">Pembelian</span>
+                                        <span class="text-muted small">Pembelian</span>
                                         <div class="d-flex align-items-center gap-2">
                                             <h4 class="fw-bold mb-0 text-success">{{ number_format($pembelian) }}</h4>
                                             <span class="badge bg-success bg-opacity-10 text-success fw-semibold">{{ $pembelianPct }}%</span>
@@ -599,34 +600,46 @@
         var optionsTransaksi = {
             chart: {
                 type: 'donut',
-                height: 300
+                height: 320,  // base height untuk desktop
+                offsetY: 0
             },
             series: @json($dataTransaksiChart),
             labels: ['Penjualan', 'Pembelian'],
             colors: ['#4E6BFF', '#198754'],
             plotOptions: {
                 pie: {
-                donut: {
-                    size: '75%',
-                    labels: {
-                        show: true,
-                        value: {
+                    donut: {
+                        size: '75%',
+                        labels: {
                             show: true,
-                            fontSize: '1.25rem',
-                            fontWeight: 'bold',
-                            color: '#1f2937'
-                        },
-                        total: {
-                            show: true,
-                            label: 'Total',
-                            color: '#1f2937',
-                            fontSize: '0.95rem',
-                            fontWeight: 700
+                            name: {
+                                show: true,
+                                fontSize: '1rem',
+                                color: '#6b7280',
+                                offsetY: -10
+                            },
+                            value: {
+                                show: true,
+                                fontSize: '1.6rem',
+                                fontWeight: 'bold',
+                                color: '#1f2937',
+                                offsetY: 10
+                            },
+                            total: {
+                                show: true,
+                                showAlways: true,
+                                label: 'Total',
+                                color: '#4b5563',
+                                fontSize: '1.1rem',
+                                fontWeight: 700,
+                                formatter: function (w) {
+                                    return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                }
+                            }
                         }
                     }
                 }
-            }
-        },
+            },
             legend: { show: false },
             dataLabels: { enabled: false },
             tooltip: {
@@ -635,7 +648,85 @@
                         return value + " Transaksi";
                     }
                 }
-            }
+            },
+            responsive: [
+                {
+                    breakpoint: 1200,
+                    options: {
+                        chart: {
+                            height: 300
+                        }
+                    }
+                },
+                {
+                    breakpoint: 992,
+                    options: {
+                        chart: {
+                            height: 280
+                        },
+                        plotOptions: {
+                            pie: {
+                                donut: {
+                                    size: '70%'
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    breakpoint: 768,
+                    options: {
+                        chart: {
+                            height: 260
+                        }
+                    }
+                },
+                {
+                    breakpoint: 576,
+                    options: {
+                        chart: {
+                            height: 240
+                        },
+                        plotOptions: {
+                            pie: {
+                                donut: {
+                                    labels: {
+                                        value: { fontSize: '1.2rem' },
+                                        total: { fontSize: '0.9rem' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            height: 220
+                        }
+                    }
+                },
+                {
+                    breakpoint: 400,
+                    options: {
+                        chart: {
+                            height: 200
+                        },
+                        plotOptions: {
+                            pie: {
+                                donut: {
+                                    size: '65%',
+                                    labels: {
+                                        value: { fontSize: '1.1rem' },
+                                        total: { fontSize: '0.85rem' }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
         };
 
         var chartTransaksi = new ApexCharts(document.querySelector("#chartTotalTransaksi"), optionsTransaksi);
@@ -665,18 +756,20 @@
 
 @push('styles')
 <style>
-    
+    /* ======================================================= */
+    /* GENERAL CARD & TABLE STYLES */
+    /* ======================================================= */
     .card {
         border-radius: 16px !important;
     }
 
-    
     .table-modern-container {
-        overflow: hidden;
+        overflow-x: auto;
+        overflow-y: hidden;
         border-radius: 0 0 16px 16px;
+        -webkit-overflow-scrolling: touch;
     }
 
-    
     .table-modern {
         --bs-table-bg: transparent;
         --bs-table-striped-bg: rgba(0, 0, 0, 0.02);
@@ -684,6 +777,7 @@
         border-collapse: separate;
         border-spacing: 0;
         width: 100%;
+        min-width: 920px;
     }
 
     .table-modern thead tr {
@@ -698,14 +792,8 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: #6c757d;
-        background: transparent;
         border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-
-    
-    .table-modern thead th:first-child,
-    .table-modern thead th:last-child {
-        border-radius: 0;
+        white-space: nowrap;
     }
 
     .table-modern tbody td {
@@ -713,48 +801,11 @@
         padding: 1rem 0.75rem;
         border-bottom: 1px solid rgba(0,0,0,0.05);
         transition: all 0.2s ease;
+        white-space: nowrap;
     }
 
     .table-modern tbody tr:last-child td {
         border-bottom: none;
-    }
-
-    
-    .table-modern tbody tr:last-child td:first-child,
-    .table-modern tbody tr:last-child td:last-child {
-        border-radius: 0;
-    }
-
-    
-    .transaksi-legend {
-        display: grid;
-        gap: 12px;
-    }
-    .transaksi-pill {
-        padding: 12px 14px;
-        border: 1px solid #e8eef6;
-        background: linear-gradient(135deg, #f8fafc 0%, #f4f7fb 100%);
-        border-radius: 14px;
-        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-    }
-    .transaksi-dot {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
-    .transaksi-dot-inner {
-        display: block;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-    }
-    .transaksi-dot-icon {
-        position: absolute;
-        font-size: 0.85rem;
     }
 
     .table-row-hover:hover {
@@ -763,14 +814,12 @@
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
-    
     .badge {
         border-radius: 50px !important;
         font-weight: 500;
         transition: all 0.2s ease;
     }
 
-    
     .form-select {
         border-radius: 7px !important;
         border: 1px solid #dee2e6;
@@ -782,72 +831,228 @@
         box-shadow: 0 0 0 0.25rem rgba(79, 107, 255, 0.25);
     }
 
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* ======================================================= */
+    /* TRANSAKSI CARD - CHART AMAN TIDAK KEPOTONG */
+    /* ======================================================= */
+    .transaksi-wrapper {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        min-height: 340px;
+        padding: 20px 15px;
+        gap: 24px;
+        overflow: hidden;
+    }
+
+    .transaksi-chart-wrapper {
+        flex: 1 1 240px;
+        min-width: 240px;
+        max-width: 65%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #chartTotalTransaksi {
+        width: 100% !important;
+        max-height: 100% !important;
+    }
+
+    .transaksi-legend-wrapper {
+        flex: 0 0 180px;
+        min-width: 180px;
+        padding-left: 10px;
+    }
+
+    .transaksi-legend {
+        display: grid;
+        gap: 16px;
+    }
+
+    .transaksi-pill {
+        padding: 16px 18px;
+        border: 1px solid #e8eef6;
+        background: linear-gradient(135deg, #f8fafc 0%, #f4f7fb 100%);
+        border-radius: 14px;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+    }
+
+    .transaksi-dot {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        flex-shrink: 0;
+    }
+
+    .transaksi-dot-icon {
+        font-size: 1rem;
+        position: absolute;
+    }
+
+    /* ======================================================= */
+    /* RESPONSIVE ADJUSTMENTS */
+    /* ======================================================= */
+    @media (max-width: 1400px) {
+        .transaksi-wrapper {
+            min-height: 320px;
+            padding: 18px 12px;
+            gap: 20px;
+        }
+
+    }
+
+    @media (max-width: 1200px) {
+
+        .carddashboard {
+            margin-bottom: 10px !important;
+        }
+        .transaksi-wrapper {
+            min-height: 300px;
+            gap: 18px;
+        }
+        .transaksi-legend-wrapper {
+            flex-basis: 170px;
+        }
+    }
+
+    @media (max-width: 992px) {
+        .transaksi-wrapper {
+            min-height: 280px;
+            padding: 15px 10px;
+            gap: 16px;
+        }
+        .transaksi-chart-wrapper {
+            min-width: 200px;
+        }
+        .transaksi-legend-wrapper {
+            flex-basis: 160px;
+        }
+        .transaksi-pill {
+            padding: 14px 16px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .transaksi-wrapper {
+            min-height: 260px;
+            gap: 14px;
+        }
+        .transaksi-chart-wrapper {
+            min-width: 180px;
+        }
+        .transaksi-legend-wrapper {
+            flex-basis: 150px;
+        }
+        .transaksi-pill h4 {
+            font-size: 1.1rem;
+        }
+        .transaksi-dot {
+            width: 36px;
+            height: 36px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .transaksi-wrapper {
+            min-height: 240px;
+            padding: 12px 8px;
+            gap: 12px;
+        }
+        .transaksi-chart-wrapper {
+            min-width: 160px;
+        }
+        .transaksi-legend-wrapper {
+            flex-basis: 140px;
+            padding-left: 6px;
+        }
+        .transaksi-pill {
+            padding: 12px 14px;
+        }
+        .transaksi-pill h4 {
+            font-size: 1rem;
+        }
+        .transaksi-dot {
+            width: 34px;
+            height: 34px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .transaksi-wrapper {
+            min-height: 230px;
+            gap: 10px;
+        }
+        .transaksi-legend-wrapper {
+            flex-basis: 130px;
+        }
+        .transaksi-pill h4 {
+            font-size: 0.95rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .transaksi-wrapper {
+            min-height: 220px;
+            padding: 10px 6px;
+            gap: 8px;
+        }
+        .transaksi-chart-wrapper {
+            min-width: 140px;
+        }
+        .transaksi-legend-wrapper {
+            flex-basis: 125px;
+            padding-left: 4px;
+        }
+        .transaksi-pill {
+            padding: 10px 12px;
+        }
+        .transaksi-pill h4 {
+            font-size: 0.9rem;
+        }
+        .transaksi-dot {
+            width: 32px;
+            height: 32px;
+        }
+        .transaksi-dot-icon {
+            font-size: 0.85rem;
+        }
+    }
+
+    /* ======================================================= */
+    /* APEXCHARTS TWEAKS */
+    /* ======================================================= */
     .apexcharts-donut-series path {
-    stroke-width: 0;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-}
+        stroke-width: 0;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
 
-.apexcharts-donut-series polygon {
-    stroke-width: 2;
-    stroke: #fff;
-}
+    .apexcharts-donut .apexcharts-datalabel-value {
+        font-weight: 700 !important;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
 
-.apexcharts-donut .apexcharts-datalabels-group {
-    transform: translateY(5px);
-}
-
-.apexcharts-donut .apexcharts-datalabel-value {
-    font-weight: 700 !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-
-.position-relative .badge {
-    transform: translate(-50%, -50%);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-weight: 600;
-    min-width: 30px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
-
-    position: relative;
-}
-
-    
+    /* Responsif umum untuk mobile */
     @media (max-width: 768px) {
         .card-header, .card-body {
             padding: 1.25rem !important;
         }
-
         .table-modern {
             font-size: 0.85rem;
         }
-
         .table-modern thead th,
         .table-modern tbody td {
             padding: 0.75rem 0.5rem;
         }
-
-        .row.align-items-center > .col-6 {
-            padding: 0.5rem !important;
-        }
-    }
-
-    
-    .table-row-hover,
-    .badge,
-    .btn {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 </style>
 @endpush
