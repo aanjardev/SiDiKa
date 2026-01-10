@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Detail Pembelian #' . $pembelian->kode_transaksi)
+@section('title', 'Detail Pembelian')
 
 @push('page-actions')
     {{-- Tombol Kembali ke Daftar --}}
@@ -246,17 +246,17 @@
         box-shadow: 0 0 0 0.25rem rgba(78, 107, 255, 0.25);
     }
     .btn-outline-dark-gold {
-        
-        color: #CC9900 !important; 
+
+        color: #CC9900 !important;
         border-color: #CC9900 !important;
     }
 
-    
+
     .btn-outline-dark-gold:hover,
     .btn-outline-dark-gold:focus,
     .btn-outline-dark-gold:active {
-        color: #000 !important; 
-        background-color: #D4A017 !important; 
+        color: #000 !important;
+        background-color: #D4A017 !important;
         border-color: #D4A017 !important;
     }
 </style>

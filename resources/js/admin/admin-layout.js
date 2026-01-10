@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const sidebarClose = document.querySelector('.sidebar-close');
 
     function setSidebarAria(isOpen) {
         if (sidebarToggle) {
@@ -66,6 +67,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (sidebarOverlay) {
         sidebarOverlay.addEventListener('click', closeSidebar);
+    }
+
+    if (sidebarClose) {
+        sidebarClose.addEventListener('click', function (e) {
+            e.stopPropagation();
+            closeSidebar();
+        });
     }
 
     document.addEventListener('click', function(event) {

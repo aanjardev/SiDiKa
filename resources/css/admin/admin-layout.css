@@ -115,6 +115,25 @@ p {
     align-items: center;
     gap: 0.75rem;
     flex-shrink: 0;
+    position: relative;
+}
+.sidebar-close {
+    margin-left: auto;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: #fff;
+    color: var(--text-muted);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.sidebar-close:hover {
+    color: var(--text-dark);
+    background: var(--sidebar-hover);
+    border-color: var(--bs-gray-tint-80);
 }
 
 .sidebar-logo { width: 50px; height: 50px; object-fit: contain; }
@@ -281,8 +300,46 @@ p {
 .main-content {
     margin-left: var(--sidebar-width);
     min-height: 100vh;
-    padding: 2.25rem 2.5rem;
+    padding: 1.75rem 2.5rem 2.25rem;
     transition: margin-left 0.3s ease, padding 0.3s ease;
+}
+.main-content.pt-5 {
+    padding-top: 1.25rem !important;
+}
+.admin-page-header {
+    flex-wrap: nowrap;
+}
+.admin-page-actions {
+    margin-left: auto;
+}
+.admin-sidebar-toggle {
+    display: none;
+}
+.admin-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 900;
+    background: #ffffff;
+    box-shadow: 0 6px 16px -10px rgba(15, 23, 42, 0.35);
+    margin-left: var(--sidebar-width);
+    padding: 0.75rem 2.5rem;
+}
+.admin-page-header {
+    align-items: center;
+    min-height: 56px;
+    flex-wrap: nowrap;
+    min-width: 0;
+}
+.admin-page-actions {
+    gap: 0.2rem;
+}
+.admin-page-actions .btn.gap-2 {
+    gap: 0 !important;
+}
+.admin-page-header-sticky {
+    margin: 0;
+    background: transparent;
+    box-shadow: none;
 }
 
 .page-title {
@@ -290,6 +347,12 @@ p {
     font-weight: 700;
     color: var(--text-dark);
     margin: 0;
+    padding-bottom: 0;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: clamp(1rem, 2.2vw, 1.75rem);
 }
 
 /* Loader */
@@ -393,11 +456,23 @@ p {
     .sidebar.show { transform: translateY(0); }
     .main-content { margin-left: 0; padding: 4.5rem 1.5rem 2rem; }
     .sidebar-toggle-mobile {
-        display: flex;
+        display: none !important;
         top: calc(16px + env(safe-area-inset-top, 0px));
         right: calc(16px + env(safe-area-inset-right, 0px));
         bottom: auto;
         left: auto;
+    }
+    .admin-sidebar-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 8px;
+    }
+    .sidebar-close {
+        display: inline-flex;
     }
 }
 
@@ -406,6 +481,27 @@ p {
     .card-header h2 { font-size: 1.25rem; }
     .table { font-size: 0.875rem; }
     .btn { padding: 0.5rem 1rem; }
+    .admin-page-actions .btn {
+        font-size: 0;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+    .admin-page-actions .btn span {
+        display: none;
+    }
+    .admin-page-actions .btn i {
+        font-size: 1rem;
+        margin-right: 0 !important;
+    }
+    .admin-page-actions {
+        gap: 0.1rem;
+    }
 }
 
 @media (max-width: 576px) {
@@ -414,27 +510,30 @@ p {
     .card-body { padding: 1rem; }
     .table-responsive { margin: 0 -1rem; }
     .admin-page-header {
-        flex-direction: column;
-        align-items: flex-start !important;
-        gap: 0.75rem;
-    }
-    .admin-page-actions {
-        width: 100%;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
         gap: 0.5rem;
     }
-    .admin-page-actions > * {
-        max-width: 100%;
+    .admin-page-header .page-title {
+        font-size: 1.1rem;
+        line-height: 1.2;
+    }
+    .admin-page-actions {
+        flex-wrap: nowrap;
+        gap: 0.35rem;
     }
 }
 
 @media (max-width: 991px) {
     .sidebar-toggle-mobile {
-        display: flex !important;
+        display: none !important;
         top: calc(16px + env(safe-area-inset-top, 0px));
         right: calc(16px + env(safe-area-inset-right, 0px));
         bottom: auto;
         left: auto;
+    }
+    .admin-topbar {
+        margin-left: 0;
+        padding: 0.75rem 1.5rem;
     }
 }
 

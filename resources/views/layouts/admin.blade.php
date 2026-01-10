@@ -67,6 +67,9 @@
                 <h4 class="sidebar-brand-text">{{ $setting->nama_website}}</h4>
                 <span class="sidebar-brand-subtitle">Admin Panel</span>
             </div>
+            <button class="sidebar-close" type="button" aria-label="Close Sidebar">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
 
         <!-- Sidebar Menu -->
@@ -231,20 +234,21 @@
         </div>
     </aside>
 
-    <!-- Mobile Toggle Button -->
-    <button class="sidebar-toggle-mobile" id="sidebarToggle" aria-label="Toggle Sidebar">
-        <i class="fas fa-bars"></i>
-    </button>
+    <!-- Page Header -->
+    <div class="admin-topbar">
+        <div class="d-flex justify-content-between align-items-center admin-page-header admin-page-header-sticky">
+            <h1 class="page-title mb-0">@yield('title', 'Dashboard')</h1>
+            <div class="d-flex align-items-center gap-2 admin-page-actions">
+                @stack('page-actions')
+                <button class="btn btn-outline-secondary btn-sm admin-sidebar-toggle" id="sidebarToggle" aria-label="Toggle Sidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <main class="main-content pt-5 mb-0 mt-0 d-flex flex-column pb-0">
-        <div class="d-flex justify-content-between align-items-center mb-4 admin-page-header">
-            <h1 class="page-title mb-0">@yield('title', 'Dashboard')</h1>
-            <div class="d-flex align-items-center gap-3 admin-page-actions">
-                @stack('page-actions')
-            </div>
-        </div>
-
         <div class="content-wrapper pt-0 pb-3">
             @yield('content')
         </div>
