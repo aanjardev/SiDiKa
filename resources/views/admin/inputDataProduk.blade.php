@@ -426,6 +426,23 @@ $backRoute = route('admin.products.index');
 
 @push('styles')
 <link rel="stylesheet" href="{{ asset('css/upload-photo.css') }}">
+<style>
+    @media (max-width: 768px) {
+        #product-form .form-control,
+        #product-form .form-select,
+        #product-form .form-control:focus,
+        #product-form .form-select:focus {
+            color: #1a1a1a !important;
+            background-color: #ffffff !important;
+        }
+        #product-form .form-control::placeholder {
+            color: #6c757d !important;
+        }
+        #product-form .form-control {
+            caret-color: #1a1a1a;
+        }
+    }
+</style>
 @endpush
 
 @php
