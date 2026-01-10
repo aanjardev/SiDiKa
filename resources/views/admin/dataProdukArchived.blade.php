@@ -11,10 +11,10 @@
 
 @section('content')
 <form method="GET" action="{{ route('admin.products.archived') }}" id="searchForm">
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-        <div class="card-body p-2 d-flex align-items-center flex-wrap">
-            <div class="d-flex align-items-center flex-grow-1 ps-2">
-                <span class="text-muted ms-2 me-3">
+    <div class="card shadow-sm border-0 mb-4 product-filter-card" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap product-filter-body">
+            <div class="d-flex align-items-center flex-grow-1 ps-2 product-filter-input">
+                <span class="text-muted ms-2 me-3 product-filter-icon">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
                 <input type="text"
@@ -26,7 +26,7 @@
                        autofocus>
             </div>
 
-            <div class="d-flex align-items-center gap-2 pe-2">
+            <div class="d-flex align-items-center gap-2 pe-2 product-filter-controls">
                 <select name="kategori"
                         class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
@@ -54,9 +54,9 @@
     </div>
 </form>
 
-<div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
+<div class="card shadow-sm border-0 product-table-card" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
     <div class="card-body p-0">
-        <div class="table-responsive">
+        <div class="table-responsive product-table-responsive">
             <table class="table table-modern mb-0">
                 <thead>
                     <tr>
@@ -197,6 +197,78 @@
     .clickable-code:hover {
         text-decoration: underline !important;
         opacity: 0.8;
+    }
+    .product-table-responsive {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding: 0 0.75rem;
+    }
+    .product-table-responsive .table {
+        min-width: 860px;
+        width: max-content;
+    }
+    .product-filter-input .form-control {
+        min-width: 220px;
+    }
+    @media (max-width: 1200px) {
+        .product-filter-body {
+            gap: 0.5rem;
+        }
+        .product-filter-input {
+            width: 100%;
+            padding-left: 0.5rem !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 10px;
+            background-color: #fff !important;
+            padding: 0.3rem 0.75rem;
+        }
+        .product-filter-card .product-filter-input .form-control {
+            border: 0 !important;
+            background-color: transparent !important;
+            padding: 0.45rem 0;
+            font-size: 0.85rem;
+        }
+        .product-filter-icon {
+            margin-left: 0 !important;
+        }
+        .product-filter-controls {
+            width: 100%;
+            padding-right: 0 !important;
+            justify-content: space-between;
+        }
+        .product-filter-controls .form-select {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+        .product-filter-card .product-filter-controls .form-select {
+            border: 1px solid #dee2e6 !important;
+            border-radius: 10px;
+            background-color: #fff !important;
+            padding: 0.55rem 0.75rem;
+            font-size: 0.85rem;
+        }
+    }
+    @media (max-width: 576px) {
+        .product-filter-body {
+            padding: 0.75rem !important;
+        }
+        .product-filter-input .form-control {
+            font-size: 0.85rem;
+        }
+        .product-filter-controls {
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        .product-filter-controls .form-select {
+            width: 100%;
+        }
+        .product-table-card {
+            border-radius: 12px;
+        }
+        .product-table-responsive {
+            padding: 0 0.5rem;
+        }
     }
 </style>
 @endpush

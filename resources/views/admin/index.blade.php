@@ -20,6 +20,10 @@
     @endif
 @endpush
 
+@push('styles')
+    @vite('resources/css/admin/pages/dashboard.css')
+@endpush
+
 @section('content')
 
 {{-- ======================================================= --}}
@@ -74,7 +78,7 @@
     @endphp
 
     {{-- Card 1: Total Pendapatan --}}
-    <div class="{{ $colClass }} mb-1">
+    <div class="{{ $colClass }} mb-1 carddashboard">
         <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #4E6BFF;">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -107,7 +111,7 @@
     </div>
 
     {{-- Card 2: Gross Profit --}}
-    <div class="{{ $colClass }} mb-1">
+    <div class="{{ $colClass }} mb-1 carddashboard">
         <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #198754;">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -139,7 +143,7 @@
     </div>
 
     {{-- Card 3: Total Transaksi --}}
-    <div class="{{ $colClass }} mb-1">
+    <div class="{{ $colClass }} mb-1 carddashboard">
         <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #0dcaf0;">
             <div class="card-body p-4">
                 <div class="d-flex justify-content-between align-items-start mb-3">
@@ -151,8 +155,8 @@
                         <i class="fas fa-shopping-cart text-info fa-lg"></i>
                     </div>
                 </div>
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-primary bg-opacity-10 text-primary me-2 rounded-pill px-2 py-1">
+                <div class="d-flex align-items-center flex-wrap  gap-2">
+                    <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1">
                         Penjualan: {{ $dataTransaksiChart[0] ?? 0 }}
                     </span>
                     <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-2 py-1">
@@ -163,9 +167,9 @@
         </div>
     </div>
 
-    {{-- Card 4: Cabang Terbaik -- Hanya tampil jika filter "Semua Cabang" --}}
+    {{-- Card 4: Cabang Terbaik --}}
     @if($showBestBranch)
-        <div class="{{ $colClass }} mb-1">
+        <div class="{{ $colClass }} mb-1 carddashboard">
             <div class="card shadow-sm border-0 h-100 rounded-xl" style="border-left: 4px solid #ffc107;">
                 <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-start mb-3">
@@ -196,11 +200,11 @@
 {{-- ======================================================= --}}
 {{-- CHARTS SECTION --}}
 {{-- ======================================================= --}}
-<div class="row mb-3">
+<div class="row annualcard mb-3">
     {{-- Main Chart: Annual --}}
-    <div class="col-xl-7 col-lg-12 mb-1">
+    <div class="col-xl-7 col-lg-12 mb-1 carddashboard">
         <div class="card shadow-sm border-0 h-100 overflow-hidden rounded-xl">
-            <div class="card-header bg-white border-0 p-4 pb-3">
+            <div class="card-header bg-white border-0 p-4">
                 <h5 class="card-title fw-bold mb-0 text-dark">Grafik Annual ({{ $selectedYear }})</h5>
             </div>
             <div class="card-body p-4 pt-0">
@@ -211,16 +215,18 @@
 
    {{-- Donut Chart: Total Transaksi --}}
     <div class="col-xl-5 col-lg-12 mb-1">
-        <div class="card shadow-sm border-0 h-100 overflow-hidden rounded-xl">
-            <div class="card-header bg-white border-0 p-4 pb-3">
+        <div class="card shadow-sm border-0 h-100 overflow-hidden rounded-xl transaksi-card">
+            <div class="card-header bg-white border-0 p-4">
                 <h5 class="card-title fw-bold mb-0 text-dark">Transaksi</h5>
             </div>
-            <div class="card-body pt-0" style="padding:  0px 50px !important;">
-                <div class="row align-items-center h-100">
-                    <div class="col-7 d-flex align-items-center justify-content-center">
-                        <div id="chartTotalTransaksi" style="min-height: 250px; width: 100%;"></div>
+            <div class="card-body p-4 cardtransaksi-body">
+                <div class="d-flex flex-row flex-nowrap align-items-center transaksi-wrapper h-100">
+
+                    <div class="flex-grow-1 flex-shrink-1 transaksi-chart-wrapper d-flex align-items-center justify-content-center">
+                        <div id="chartTotalTransaksi" class="w-100 h-100"></div>
                     </div>
-                    <div class="col-5">
+
+                    <div class="flex-shrink-0 transaksi-legend-wrapper">
                         @php
                             $totalTransaksi = array_sum($dataTransaksiChart ?? []);
                             $penjualan = $dataTransaksiChart[0] ?? 0;
@@ -229,14 +235,13 @@
                             $pembelianPct = $totalTransaksi > 0 ? round(($pembelian / $totalTransaksi) * 100, 1) : 0;
                         @endphp
                         <div class="transaksi-legend">
-                            <div class="transaksi-pill">
+                            <div class="transaksi-pill mb-3">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="transaksi-dot bg-primary bg-opacity-10">
-                                        <span class="transaksi-dot-inner"></span>
                                         <i class="fas fa-bag-shopping text-primary transaksi-dot-icon"></i>
                                     </div>
                                     <div class="d-flex flex-column">
-                                        <span class="text-muted small d-block">Penjualan</span>
+                                        <span class="text-muted small">Penjualan</span>
                                         <div class="d-flex align-items-center gap-2">
                                             <h4 class="fw-bold mb-0 text-primary">{{ number_format($penjualan) }}</h4>
                                             <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold">{{ $penjualanPct }}%</span>
@@ -244,14 +249,14 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="transaksi-pill">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="transaksi-dot bg-success bg-opacity-10">
-                                        <span class="transaksi-dot-inner"></span>
                                         <i class="fas fa-cart-arrow-down text-success transaksi-dot-icon"></i>
                                     </div>
                                     <div class="d-flex flex-column">
-                                        <span class="text-muted small d-block">Pembelian</span>
+                                        <span class="text-muted small">Pembelian</span>
                                         <div class="d-flex align-items-center gap-2">
                                             <h4 class="fw-bold mb-0 text-success">{{ number_format($pembelian) }}</h4>
                                             <span class="badge bg-success bg-opacity-10 text-success fw-semibold">{{ $pembelianPct }}%</span>
@@ -438,416 +443,20 @@
     </div>
 </div>
 
+
+
 @endsection
 
-{{-- ======================================================= --}}
-{{-- SCRIPTS: ApexCharts dengan format Rupiah --}}
-{{-- ======================================================= --}}
+
 @push('scripts')
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-
-        function formatRupiah(value) {
-            return new Intl.NumberFormat('id-ID', {
-                style: 'currency',
-                currency: 'IDR',
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-            }).format(value);
-        }
-
-        var optionsPendapatan = {
-            chart: {
-                type: 'area',
-                height: 300,
-                toolbar: {
-                    show: false
-                },
-                zoom: {
-                    enabled: false
-                },
-                animations: {
-                    enabled: true,
-                    easing: 'easeinout',
-                    speed: 800
-                }
-            },
-            series: [
-                {
-                    name: 'Pendapatan',
-                    data: @json($dataPendapatanChart)
-                },
-                {
-                    name: 'HPP',
-                    data: @json($dataHppChart)
-                }
-            ],
-            colors: ['#4E6BFF', '#0dcaf0'],
-            stroke: {
-                curve: 'smooth',
-                width: 3,
-                lineCap: 'round'
-            },
-            fill: {
-                type: 'gradient',
-                gradient: {
-                    shade: 'light',
-                    type: "vertical",
-                    shadeIntensity: 0.5,
-                    gradientToColors: ['#4E6BFF', '#0dcaf0'],
-                    opacityFrom: 0.6,
-                    opacityTo: 0.1,
-                    stops: [0, 90, 100]
-                }
-            },
-            xaxis: {
-                categories: @json($labelBulan),
-                labels: {
-                    style: {
-                        colors: '#6c757d',
-                        fontSize: '12px',
-                        fontFamily: 'Inter, sans-serif'
-                    }
-                },
-                axisBorder: {
-                    show: true,
-                    color: '#e9ecef',
-                    height: 1
-                },
-                axisTicks: {
-                    show: true,
-                    color: '#e9ecef'
-                }
-            },
-            yaxis: {
-                labels: {
-                    formatter: function (value) {
-                        if (value >= 1000000) {
-                            return (value / 1000000).toFixed(1) + " jt";
-                        } else if (value >= 1000) {
-                            return (value / 1000).toFixed(0) + " rb";
-                        }
-                        return value;
-                    },
-                    style: {
-                        colors: '#6c757d',
-                        fontSize: '12px',
-                        fontFamily: 'Inter, sans-serif'
-                    }
-                },
-                axisBorder: {
-                    show: true,
-                    color: '#e9ecef'
-                }
-            },
-            grid: {
-                show: true,
-                strokeDashArray: 3,
-                borderColor: '#e9ecef',
-                padding: {
-                    top: 0,
-                    right: 10,
-                    bottom: 0,
-                    left: 10
-                }
-            },
-            legend: {
-                show: true,
-                position: 'top',
-                horizontalAlign: 'right',
-                fontSize: '12px',
-                fontFamily: 'Inter, sans-serif',
-                markers: {
-                    width: 8,
-                    height: 8,
-                    radius: 4
-                }
-            },
-            tooltip: {
-                shared: true,
-                intersect: false,
-                theme: 'light',
-                x: {
-                    show: true,
-                    formatter: function(value, { series, seriesIndex, dataPointIndex, w }) {
-                        return w.globals.categoryLabels[dataPointIndex];
-                    }
-                },
-                y: {
-                    formatter: function (value) {
-                        return formatRupiah(value);
-                    }
-                }
-            },
-            dataLabels: {
-                enabled: false
-            },
-            markers: {
-                size: 4,
-                colors: ['#fff'],
-                strokeColors: ['#4E6BFF', '#0dcaf0'],
-                strokeWidth: 2,
-                hover: {
-                    size: 6
-                }
-            }
+    <script>
+        window.dashboardData = {
+            seriesPendapatan: @json([$dataPendapatanChart, $dataHppChart]),
+            seriesTransaksi: @json($dataTransaksiChart),
+            labelBulan: @json($labelBulan)
         };
-
-        var chartPendapatan = new ApexCharts(document.querySelector("#chartPendapatanBulanan"), optionsPendapatan);
-        chartPendapatan.render();
-
-        var optionsTransaksi = {
-            chart: {
-                type: 'donut',
-                height: 300
-            },
-            series: @json($dataTransaksiChart),
-            labels: ['Penjualan', 'Pembelian'],
-            colors: ['#4E6BFF', '#198754'],
-            plotOptions: {
-                pie: {
-                donut: {
-                    size: '75%',
-                    labels: {
-                        show: true,
-                        value: {
-                            show: true,
-                            fontSize: '1.25rem',
-                            fontWeight: 'bold',
-                            color: '#1f2937'
-                        },
-                        total: {
-                            show: true,
-                            label: 'Total',
-                            color: '#1f2937',
-                            fontSize: '0.95rem',
-                            fontWeight: 700
-                        }
-                    }
-                }
-            }
-        },
-            legend: { show: false },
-            dataLabels: { enabled: false },
-            tooltip: {
-                y: {
-                    formatter: function (value) {
-                        return value + " Transaksi";
-                    }
-                }
-            }
-        };
-
-        var chartTransaksi = new ApexCharts(document.querySelector("#chartTotalTransaksi"), optionsTransaksi);
-        chartTransaksi.render();
-
-        // Auto-submit form on change
-        const filterForm = document.getElementById('filterForm');
-        if (filterForm) {
-            document.getElementById('year').addEventListener('change', function() {
-                filterForm.submit();
-            });
-
-            document.getElementById('month').addEventListener('change', function() {
-                filterForm.submit();
-            });
-
-            const branchSelect = document.getElementById('branch_id');
-            if (branchSelect) {
-                branchSelect.addEventListener('change', function() {
-                    filterForm.submit();
-                });
-            }
-        }
-    });
-</script>
+    </script>
+    @vite('resources/js/admin/pages/dashboard.js')
 @endpush
 
-@push('styles')
-<style>
-    
-    .card {
-        border-radius: 16px !important;
-    }
 
-    
-    .table-modern-container {
-        overflow: hidden;
-        border-radius: 0 0 16px 16px;
-    }
-
-    
-    .table-modern {
-        --bs-table-bg: transparent;
-        --bs-table-striped-bg: rgba(0, 0, 0, 0.02);
-        --bs-table-hover-bg: rgba(79, 107, 255, 0.04);
-        border-collapse: separate;
-        border-spacing: 0;
-        width: 100%;
-    }
-
-    .table-modern thead tr {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    }
-
-    .table-modern thead th {
-        border: none;
-        padding: 1rem 0.75rem;
-        font-weight: 600;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #6c757d;
-        background: transparent;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-    }
-
-    
-    .table-modern thead th:first-child,
-    .table-modern thead th:last-child {
-        border-radius: 0;
-    }
-
-    .table-modern tbody td {
-        border: none;
-        padding: 1rem 0.75rem;
-        border-bottom: 1px solid rgba(0,0,0,0.05);
-        transition: all 0.2s ease;
-    }
-
-    .table-modern tbody tr:last-child td {
-        border-bottom: none;
-    }
-
-    
-    .table-modern tbody tr:last-child td:first-child,
-    .table-modern tbody tr:last-child td:last-child {
-        border-radius: 0;
-    }
-
-    
-    .transaksi-legend {
-        display: grid;
-        gap: 12px;
-    }
-    .transaksi-pill {
-        padding: 12px 14px;
-        border: 1px solid #e8eef6;
-        background: linear-gradient(135deg, #f8fafc 0%, #f4f7fb 100%);
-        border-radius: 14px;
-        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
-    }
-    .transaksi-dot {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-    }
-    .transaksi-dot-inner {
-        display: block;
-        width: 16px;
-        height: 16px;
-        border-radius: 50%;
-    }
-    .transaksi-dot-icon {
-        position: absolute;
-        font-size: 0.85rem;
-    }
-
-    .table-row-hover:hover {
-        background-color: var(--bs-table-hover-bg) !important;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-
-    
-    .badge {
-        border-radius: 50px !important;
-        font-weight: 500;
-        transition: all 0.2s ease;
-    }
-
-    
-    .form-select {
-        border-radius: 7px !important;
-        border: 1px solid #dee2e6;
-        transition: all 0.2s ease;
-    }
-
-    .form-select:focus {
-        border-color: #4E6BFF;
-        box-shadow: 0 0 0 0.25rem rgba(79, 107, 255, 0.25);
-    }
-
-    .apexcharts-donut-series path {
-    stroke-width: 0;
-    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-}
-
-.apexcharts-donut-series polygon {
-    stroke-width: 2;
-    stroke: #fff;
-}
-
-.apexcharts-donut .apexcharts-datalabels-group {
-    transform: translateY(5px);
-}
-
-.apexcharts-donut .apexcharts-datalabel-value {
-    font-weight: 700 !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-
-.position-relative .badge {
-    transform: translate(-50%, -50%);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-weight: 600;
-    min-width: 30px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
-
-    position: relative;
-}
-
-    
-    @media (max-width: 768px) {
-        .card-header, .card-body {
-            padding: 1.25rem !important;
-        }
-
-        .table-modern {
-            font-size: 0.85rem;
-        }
-
-        .table-modern thead th,
-        .table-modern tbody td {
-            padding: 0.75rem 0.5rem;
-        }
-
-        .row.align-items-center > .col-6 {
-            padding: 0.5rem !important;
-        }
-    }
-
-    
-    .table-row-hover,
-    .badge,
-    .btn {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-</style>
-@endpush
