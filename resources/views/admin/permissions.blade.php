@@ -9,17 +9,128 @@
 </a>
 @endpush
 
+@push('styles')
+<style>
+.permission-table-responsive {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+}
+@media (min-width: 992px) {
+    .permission-table-responsive {
+        overflow-x: visible;
+    }
+}
+.permission-table-fixed {
+    width: 100%;
+    min-width: 100%;
+    table-layout: fixed;
+}
+.permission-table-fixed th,
+.permission-table-fixed td {
+    white-space: nowrap;
+}
+
+.permission-filter-input .form-control {
+    min-width: 220px;
+}
+.permission-filter-card .permission-filter-controls .form-select {
+    background-image: var(--bs-form-select-bg-img);
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    padding-right: 2.5rem;
+}
+@media (max-width: 1200px) {
+    .permission-filter-body {
+        gap: 0.5rem;
+    }
+    .permission-filter-input {
+        width: 100%;
+        padding-left: 0.5rem !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 10px;
+        background: #fff !important;
+        padding: 0.3rem 0.75rem;
+    }
+    .permission-filter-card .permission-filter-input .form-control {
+        border: 0 !important;
+        background: transparent !important;
+        padding: 0.45rem 0;
+        font-size: 0.9rem;
+    }
+    .permission-filter-icon {
+        margin-left: 0 !important;
+    }
+    .permission-filter-controls {
+        width: 100%;
+        padding-right: 0 !important;
+        justify-content: space-between;
+    }
+    .permission-filter-controls .form-select {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+    .permission-filter-card .permission-filter-controls .form-select {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 10px;
+        background: #fff !important;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.9rem;
+        background-image: var(--bs-form-select-bg-img) !important;
+        background-repeat: no-repeat !important;
+        background-position: right 0.75rem center !important;
+        background-size: 16px 12px !important;
+        padding-right: 2.5rem !important;
+    }
+}
+@media (max-width: 576px) {
+    .permission-filter-body {
+        padding: 0.75rem !important;
+    }
+    .permission-filter-input .form-control {
+        font-size: 0.9rem;
+    }
+    .permission-filter-controls {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+    .permission-table-responsive {
+        padding: 0 0.75rem;
+    }
+    .permission-table-fixed {
+        min-width: 1000px;
+        table-layout: auto;
+    }
+    .permission-table-fixed th,
+    .permission-table-fixed td {
+        white-space: nowrap;
+    }
+    .info-token-card {
+        font-size: 0.9rem;
+    }
+    .info-token-title {
+        font-size: 0.95rem;
+    }
+    .info-token-list {
+        font-size: 0.8rem !important;
+    }
+}
+</style>
+@endpush
+
 @section('content')
 
 {{-- Edukasi Token Expiry --}}
-<div class="alert alert-info mb-4" style="border-radius: 10px;">
+<div class="alert alert-info mb-4 info-token-card" style="border-radius: 10px;">
     <div class="d-flex align-items-start">
         <i class="fa-solid fa-info-circle me-3 mt-1"></i>
         <div>
-            <strong>Informasi Token Aktivasi</strong><br>
+            <strong class="info-token-title">Informasi Token Aktivasi</strong><br>
             <div class="row mt-2">
                 <div class="col-md-12">
-                    <ul class="mb-0 ps-3" style="font-size: 0.85rem;">
+                    <ul class="mb-0 ps-3 info-token-list" style="font-size: 0.85rem;">
                         <li>Token aktivasi berlaku <strong>3 hari (72 jam)</strong></li>
                         <li>User dengan status <span class="badge bg-warning">Pending</span> perlu segera aktivasi</li>
                         <li>Jika token kadaluarsa, gunakan tombol 🔄 untuk generate ulang</li>
@@ -32,11 +143,11 @@
 
 {{-- Filter dan Pencarian --}}
 <form method="GET" action="{{ route('admin.permissions') }}" id="searchForm">
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+    <div class="card shadow-sm border-0 mb-4 permission-filter-card" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap permission-filter-body">
             {{-- Bagian Kiri: Input Search --}}
-            <div class="d-flex align-items-center flex-grow-1 ps-2">
-                <span class="text-muted ms-2 me-3">
+            <div class="d-flex align-items-center flex-grow-1 ps-2 permission-filter-input">
+                <span class="text-muted ms-2 me-3 permission-filter-icon">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
                 <input type="text"
@@ -48,7 +159,7 @@
             </div>
 
             {{-- Bagian Kanan: Dropdown --}}
-            <div class="d-flex align-items-center gap-2 pe-2">
+            <div class="d-flex align-items-center gap-2 pe-2 permission-filter-controls">
                 <select name="role"
                         class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
@@ -78,8 +189,8 @@
 {{-- Table Card --}}
 <div class="card shadow-sm border-0" style="border-radius: 10px; overflow: hidden; min-height: 700px;">
     <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-modern mb-0">
+        <div class="table-responsive permission-table-responsive">
+            <table class="table table-modern mb-0 permission-table-fixed">
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 5%;">No</th>
