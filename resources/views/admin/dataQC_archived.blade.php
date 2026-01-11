@@ -25,20 +25,25 @@
     .qc-archived-table td {
         white-space: nowrap;
     }
-    .qc-archived-filter .card-body {
+    .qc-archived-filter-body {
         gap: 0.5rem;
     }
-    .qc-archived-filter .form-control {
+    .qc-archived-filter-input {
         border: 1px solid #dee2e6 !important;
         border-radius: 10px;
         background: #fff !important;
-        padding: 0.45rem 0.75rem;
+        padding: 0.35rem 0.75rem;
+    }
+    .qc-archived-filter .form-control {
+        border: 0 !important;
+        background: transparent !important;
+        padding: 0.45rem 0;
         font-size: 0.85rem;
     }
-    .qc-archived-filter .text-muted.ms-2.me-3 {
+    .qc-archived-filter-icon {
         margin-left: 0 !important;
     }
-    .qc-archived-filter .d-flex.align-items-center.gap-2.pe-2 {
+    .qc-archived-filter-controls {
         width: 100%;
         padding-right: 0 !important;
         justify-content: space-between;
@@ -53,10 +58,10 @@
         font-size: 0.85rem;
     }
     @media (max-width: 576px) {
-        .qc-archived-filter .card-body {
+        .qc-archived-filter-body {
             padding: 0.75rem !important;
         }
-        .qc-archived-filter .d-flex.align-items-center.gap-2.pe-2 {
+        .qc-archived-filter-controls {
             flex-direction: column;
             align-items: stretch !important;
         }
@@ -64,7 +69,8 @@
             padding: 0 0.75rem;
         }
         .qc-archived-table {
-            min-width: 900px;
+            min-width: 1100px;
+            table-layout: auto;
         }
         .qc-archived-table th,
         .qc-archived-table td {
@@ -78,11 +84,11 @@
 {{-- Search & Filter --}}
 <form method="GET" action="{{ route('admin.quality-control.archived') }}" id="searchForm">
     <div class="card shadow-sm border-0 mb-4 qc-archived-filter" style="border-radius: 10px;">
-        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap qc-archived-filter-body">
 
             {{-- Bagian Kiri: Input Search --}}
-            <div class="d-flex align-items-center flex-grow-1 ps-2">
-                <span class="text-muted ms-2 me-3">
+            <div class="d-flex align-items-center flex-grow-1 ps-2 qc-archived-filter-input">
+                <span class="text-muted ms-2 me-3 qc-archived-filter-icon">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
                 <input type="text"
@@ -95,7 +101,7 @@
             </div>
 
             {{-- Bagian Kanan: Dropdown Filter --}}
-            <div class="d-flex align-items-center gap-2 pe-2">
+            <div class="d-flex align-items-center gap-2 pe-2 qc-archived-filter-controls">
 
                 {{-- Dropdown Kategori --}}
                 <select name="kategori"
