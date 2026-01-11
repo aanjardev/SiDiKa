@@ -75,7 +75,7 @@
 
                         {{-- Table --}}
                         <div class="table-responsive rounded border">
-                            <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                            <table class="table table-hover align-middle mb-0 customer-history-table" style="font-size: 0.9rem;">
                                 <thead class="bg-light text-secondary">
                                     <tr>
                                         <th class="ps-3 py-3">No</th>
@@ -176,7 +176,7 @@
 
                         {{-- Table --}}
                         <div class="table-responsive rounded border">
-                            <table class="table table-hover align-middle mb-0" style="font-size: 0.9rem;">
+                            <table class="table table-hover align-middle mb-0 customer-history-table" style="font-size: 0.9rem;">
                                 <thead class="bg-light text-secondary">
                                     <tr>
                                         <th class="ps-3 py-3">No</th>
@@ -267,3 +267,21 @@
 @endif
 
 @endsection
+
+@push('styles')
+<style>
+    .customer-history-table {
+        width: 100%;
+        min-width: 100%;
+    }
+    @media (max-width: 576px) {
+        .customer-history-table {
+            min-width: 900px;
+        }
+        .customer-history-table th,
+        .customer-history-table td {
+            white-space: nowrap;
+        }
+    }
+</style>
+@endpush

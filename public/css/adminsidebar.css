@@ -821,7 +821,7 @@ section {
 
     .form-control {
         padding: 0.5rem;
-        background-color: #47747a;
+        background-color: #ffffff !important;
     }
 }
 
