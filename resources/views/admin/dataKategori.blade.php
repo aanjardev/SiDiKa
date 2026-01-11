@@ -9,15 +9,103 @@
 </a>
 @endpush
 
+@push('styles')
+<style>
+    .category-table-responsive {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding: 0;
+    }
+    .category-table {
+        width: 100%;
+        min-width: 100%;
+    }
+    .category-table th,
+    .category-table td {
+        white-space: nowrap;
+    }
+    .category-filter-input .form-control {
+        min-width: 220px;
+    }
+    @media (max-width: 1200px) {
+        .category-filter-body {
+            gap: 0.5rem;
+        }
+        .category-filter-input {
+            width: 100%;
+            padding-left: 0.5rem !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 10px;
+            background-color: #fff !important;
+            padding: 0.3rem 0.75rem;
+        }
+        .category-filter-card .category-filter-input .form-control {
+            border: 0 !important;
+            background-color: transparent !important;
+            padding: 0.45rem 0;
+            font-size: 0.85rem;
+        }
+        .category-filter-icon {
+            margin-left: 0 !important;
+        }
+        .category-filter-controls {
+            width: 100%;
+            padding-right: 0 !important;
+            justify-content: space-between;
+        }
+        .category-filter-controls .form-select {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+        .category-filter-card .category-filter-controls .form-select {
+            border: 1px solid #dee2e6 !important;
+            border-radius: 10px;
+            background-color: #fff !important;
+            padding: 0.55rem 0.75rem;
+            font-size: 0.85rem;
+        }
+    }
+    @media (max-width: 576px) {
+        .category-filter-body {
+            padding: 0.75rem !important;
+        }
+        .category-filter-input .form-control {
+            font-size: 0.85rem;
+        }
+        .category-filter-controls {
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        .category-filter-controls .form-select {
+            width: 100%;
+        }
+        .category-table-card {
+            border-radius: 12px;
+        }
+        .category-table-responsive {
+            padding: 0 0.75rem;
+        }
+        .category-table {
+            min-width: 900px;
+        }
+        .category-table th,
+        .category-table td {
+            white-space: normal;
+        }
+    }
+</style>
+@endpush
+
 @section('content')
 
 {{-- Filter dan Pencarian --}}
 <form method="GET" action="{{ route('admin.categories.index') }}" id="searchForm">
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+    <div class="card shadow-sm border-0 mb-4 category-filter-card" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap category-filter-body">
             {{-- Bagian Kiri: Input Search --}}
-            <div class="d-flex align-items-center flex-grow-1 ps-2">
-                <span class="text-muted ms-2 me-3">
+            <div class="d-flex align-items-center flex-grow-1 ps-2 category-filter-input">
+                <span class="text-muted ms-2 me-3 category-filter-icon">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
                 <input type="text"
@@ -29,7 +117,7 @@
             </div>
 
             {{-- Bagian Kanan: Dropdown --}}
-            <div class="d-flex align-items-center gap-2 pe-2">
+            <div class="d-flex align-items-center gap-2 pe-2 category-filter-controls">
                 <select name="sort_by"
                         class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
@@ -44,10 +132,10 @@
 </form>
 
 {{-- Table Card --}}
-<div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
+<div class="card shadow-sm border-0 category-table-card" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
     <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-modern mb-0">
+        <div class="table-responsive category-table-responsive">
+            <table class="table table-modern mb-0 category-table">
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 5%;">No</th>
@@ -128,4 +216,14 @@
 @endsection
 
 @push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.querySelector('input[name="search"]');
+    if (input) {
+        input.focus();
+        const length = input.value.length;
+        input.setSelectionRange(length, length);
+    }
+});
+</script>
 @endpush
