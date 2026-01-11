@@ -94,7 +94,7 @@
         }
         .sales-table th,
         .sales-table td {
-            white-space: normal;
+            white-space: nowrap;
         }
     }
 </style>

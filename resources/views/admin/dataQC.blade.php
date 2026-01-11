@@ -45,9 +45,78 @@
         white-space: normal;
         word-break: break-word;
     }
-    .qc-nowrap {
+.qc-nowrap {
+    white-space: nowrap;
+}
+/* Responsive enhancements */
+.qc-table-responsive {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+}
+.qc-table-fixed {
+    width: 100%;
+    min-width: 100%;
+}
+.qc-table-fixed th,
+.qc-table-fixed td {
+    white-space: nowrap;
+}
+#filterFormQc .form-control {
+    min-width: 220px;
+}
+@media (max-width: 1200px) {
+    #filterFormQc .card-body {
+        gap: 0.5rem;
+    }
+    #filterFormQc .form-control {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 10px;
+        background: #fff !important;
+        padding: 0.45rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    #filterFormQc .text-muted.ms-2.me-3 {
+        margin-left: 0 !important;
+    }
+    #filterFormQc .d-flex.align-items-center.gap-2.pe-2 {
+        width: 100%;
+        padding-right: 0 !important;
+        justify-content: space-between;
+    }
+    #filterFormQc .form-select {
+        flex: 1 1 0;
+        min-width: 0;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 10px;
+        background: #fff !important;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.85rem;
+    }
+}
+@media (max-width: 576px) {
+    #filterFormQc .card-body {
+        padding: 0.75rem !important;
+    }
+    #filterFormQc .form-control {
+        font-size: 0.85rem;
+    }
+    #filterFormQc .d-flex.align-items-center.gap-2.pe-2 {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+    .qc-table-responsive {
+        padding: 0 0.75rem;
+    }
+    .qc-table-fixed {
+        min-width: 900px;
+    }
+    .qc-table-fixed th,
+    .qc-table-fixed td {
         white-space: nowrap;
     }
+}
 </style>
 @endpush
 

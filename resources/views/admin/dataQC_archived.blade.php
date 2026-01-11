@@ -9,11 +9,75 @@
     </a>
 @endpush
 
+@push('styles')
+<style>
+    .qc-archived-table-responsive {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding: 0;
+    }
+    .qc-archived-table {
+        width: 100%;
+        min-width: 100%;
+    }
+    .qc-archived-table th,
+    .qc-archived-table td {
+        white-space: nowrap;
+    }
+    .qc-archived-filter .card-body {
+        gap: 0.5rem;
+    }
+    .qc-archived-filter .form-control {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 10px;
+        background: #fff !important;
+        padding: 0.45rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    .qc-archived-filter .text-muted.ms-2.me-3 {
+        margin-left: 0 !important;
+    }
+    .qc-archived-filter .d-flex.align-items-center.gap-2.pe-2 {
+        width: 100%;
+        padding-right: 0 !important;
+        justify-content: space-between;
+    }
+    .qc-archived-filter .form-select {
+        flex: 1 1 0;
+        min-width: 0;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 10px;
+        background: #fff !important;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.85rem;
+    }
+    @media (max-width: 576px) {
+        .qc-archived-filter .card-body {
+            padding: 0.75rem !important;
+        }
+        .qc-archived-filter .d-flex.align-items-center.gap-2.pe-2 {
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        .qc-archived-table-responsive {
+            padding: 0 0.75rem;
+        }
+        .qc-archived-table {
+            min-width: 900px;
+        }
+        .qc-archived-table th,
+        .qc-archived-table td {
+            white-space: nowrap;
+        }
+    }
+</style>
+@endpush
 @section('content')
 
 {{-- Search & Filter --}}
 <form method="GET" action="{{ route('admin.quality-control.archived') }}" id="searchForm">
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
+    <div class="card shadow-sm border-0 mb-4 qc-archived-filter" style="border-radius: 10px;">
         <div class="card-body p-2 d-flex align-items-center flex-wrap">
 
             {{-- Bagian Kiri: Input Search --}}
@@ -67,8 +131,8 @@
 {{-- Table Card --}}
 <div class="card shadow-sm border-0" style="border-radius: 10px; overflow: hidden; min-height: 700px;">
     <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-modern mb-0">
+        <div class="table-responsive qc-archived-table-responsive">
+            <table class="table table-modern mb-0 qc-archived-table">
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 5%;">No</th>
