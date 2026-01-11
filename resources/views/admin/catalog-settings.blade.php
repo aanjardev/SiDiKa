@@ -25,7 +25,6 @@
         display: inline-flex;
     }
 
-    
     .card-save-btn-logo {
         display: none;
         position: static;
@@ -33,6 +32,45 @@
     }
     .card-save-btn-logo.show-save {
         display: inline-flex;
+    }
+
+    /* Default: show text on larger screens */
+    .card-save-btn .save-label {
+        display: inline;
+    }
+    .card-save-btn .save-icon {
+        display: none;
+    }
+    .card-save-btn-logo .save-label {
+        display: inline;
+    }
+    .card-save-btn-logo .save-icon {
+        display: none;
+    }
+
+    /* Icon-only under 1400px */
+    @media (max-width: 1400px) {
+        .card-save-btn,
+        .card-save-btn-logo {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+        .card-save-btn .save-label,
+        .card-save-btn-logo .save-label {
+            display: none;
+        }
+        .card-save-btn .save-icon,
+        .card-save-btn-logo .save-icon {
+            display: inline;
+        }
+    }
+
+    /* Hide global save on small screens if present */
+    @media (max-width: 768px) {
+        .page-actions .btn-simpan-semua,
+        .mobile-save-all {
+            display: none !important;
+        }
     }
 
 
@@ -185,7 +223,10 @@
                     </div>
                     @error('photo_logo') <div class="invalid-feedback d-block small">{{ $message }}</div> @enderror
                     <div class="text-center">
-                        <button type="submit" class="btn btn-primary btn-sm card-save-btn-logo">Simpan Perubahan</button>
+                        <button type="submit" class="btn btn-primary btn-sm card-save-btn-logo">
+                            <span class="save-icon"><i class="fas fa-save"></i></span>
+                            <span class="save-label">Simpan Perubahan</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -194,7 +235,10 @@
                 <div class="col-lg-8">
                     {{-- Card: Identitas & Kontak --}}
                     <div class="card card-uniform position-relative shadow-sm border-0 h-100">
-                        <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
+                        <button type="submit" class="btn btn-primary btn-sm card-save-btn">
+                            <span class="save-icon"><i class="fas fa-save"></i></span>
+                            <span class="save-label">Simpan Perubahan</span>
+                        </button>
                         <div class="card-header bg-white py-3">
                             <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-circle-info me-2 text-primary"></i>Identitas & Kontak</h6>
                         </div>
@@ -237,7 +281,10 @@
 
             {{-- Card: Media Sosial --}}
             <div class="card card-uniform position-relative shadow-sm border-0">
-                        <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
+                        <button type="submit" class="btn btn-primary btn-sm card-save-btn">
+                            <span class="save-icon"><i class="fas fa-save"></i></span>
+                            <span class="save-label">Simpan Perubahan</span>
+                        </button>
                 <div class="card-header bg-white py-3">
                     <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-share-nodes me-2 text-primary"></i>Link Media Sosial</h6>
                 </div>
@@ -302,7 +349,10 @@
 
             {{-- Card: Galeri Customer --}}
             <div class="card card-uniform position-relative shadow-sm border-0 mt-4">
-                <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
+                <button type="submit" class="btn btn-primary btn-sm card-save-btn">
+                    <span class="save-icon"><i class="fas fa-save"></i></span>
+                    <span class="save-label">Simpan Perubahan</span>
+                </button>
                 <div class="card-header bg-white py-3">
                     <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-images me-2 text-primary"></i>Galeri Customer</h6>
                 </div>
@@ -343,7 +393,10 @@
 
             {{-- Card: Banner Homepage --}}
             <div class="card card-uniform position-relative shadow-sm border-0 mb-4">
-                <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
+                <button type="submit" class="btn btn-primary btn-sm card-save-btn">
+                    <span class="save-icon"><i class="fas fa-save"></i></span>
+                    <span class="save-label">Simpan Perubahan</span>
+                </button>
                 <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
                     <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-panorama me-2 text-primary"></i>Banner Slider</h6>
                 </div>
@@ -386,7 +439,10 @@
 
             {{-- Card: Logo Partner --}}
             <div class="card card-uniform position-relative shadow-sm border-0">
-                <button type="submit" class="btn btn-primary btn-sm card-save-btn">Simpan Perubahan</button>
+                <button type="submit" class="btn btn-primary btn-sm card-save-btn">
+                    <span class="save-icon"><i class="fas fa-save"></i></span>
+                    <span class="save-label">Simpan Perubahan</span>
+                </button>
                 <div class="card-header bg-white py-3">
                     <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-handshake me-2 text-primary"></i>Logo Brand/Partner</h6>
                 </div>
@@ -435,7 +491,7 @@
     </div>
 
     {{-- Tombol Simpan Mobile / Bottom --}}
-    <div class="d-block d-md-none fixed-bottom bg-white border-top p-3 shadow-lg">
+    <div class="d-block d-md-none fixed-bottom bg-white border-top p-3 shadow-lg mobile-save-all">
         <button type="submit" class="btn btn-primary w-100">Simpan Semua Pengaturan</button>
     </div>
 </form>
