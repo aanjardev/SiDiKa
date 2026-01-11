@@ -13,12 +13,12 @@
 
 {{-- Filter dan Pencarian (Resolved: Visual Design-Wafa + Logic Main) --}}
 <form method="GET" action="{{ route('admin.employees.index') }}" id="searchForm">
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+    <div class="card shadow-sm border-0 mb-4 employee-filter-card" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap employee-filter-body">
 
             {{-- Bagian Kiri: Input Search --}}
-            <div class="d-flex align-items-center flex-grow-1 ps-2">
-                <span class="text-muted ms-2 me-3">
+            <div class="d-flex align-items-center flex-grow-1 ps-2 employee-filter-input">
+                <span class="text-muted ms-2 me-3 employee-filter-icon">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
                 <input type="text"
@@ -30,7 +30,7 @@
             </div>
 
             {{-- Bagian Kanan: Dropdown Filter --}}
-            <div class="d-flex align-items-center gap-2 pe-2">
+            <div class="d-flex align-items-center gap-2 pe-2 employee-filter-controls">
 
                 {{-- Dropdown Jabatan --}}
                 {{-- <select name="jabatan"
@@ -68,9 +68,9 @@
 </form>
 
 {{-- Table Card --}}
-<div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
+<div class="card shadow-sm border-0 employee-table-card" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
     <div class="card-body p-0">
-        <div class="table-responsive">
+        <div class="table-responsive employee-table-responsive">
             <table class="table table-modern mb-0 employee-table">
                 <thead>
                     <tr>
@@ -206,94 +206,96 @@
 </div>
 @endsection
 
+@push('styles')
 <style>
-    .table-responsive {
-        overflow-x: hidden !important;
+    .employee-table-responsive {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding: 0;
     }
-
     .employee-table {
-        table-layout: fixed;
         width: 100%;
+        min-width: 100%;
     }
-
-
-    .employee-table th:nth-child(1),
-    .employee-table td:nth-child(1) {
-        width: 60px;
-        min-width: 60px;
-        max-width: 60px;
-    }
-
-    .employee-table th:nth-child(2),
-    .employee-table td:nth-child(2) {
-        width: 220px;
-        min-width: 220px;
-        max-width: 220px;
-    }
-
-    .employee-table th:nth-child(3),
-    .employee-table td:nth-child(3) {
-        width: 140px;
-        min-width: 140px;
-        max-width: 140px;
-    }
-
-    .employee-table th:nth-child(4),
-    .employee-table td:nth-child(4) {
-        width: 180px;
-        min-width: 180px;
-        max-width: 180px;
-    }
-
-    .employee-table th:nth-child(5),
-    .employee-table td:nth-child(5) {
-        width: 120px;
-        min-width: 120px;
-        max-width: 120px;
-    }
-
-    .employee-table th:nth-child(6),
-    .employee-table td:nth-child(6) {
-        width: 100px;
-        min-width: 100px;
-        max-width: 100px;
-    }
-
-    .employee-table th:nth-child(7),
-    .employee-table td:nth-child(7) {
-        width: 80px;
-        min-width: 80px;
-        max-width: 80px;
-    }
-
-
-    .employee-table td {
-        overflow: hidden;
-        text-overflow: ellipsis;
+    .employee-table td,
+    .employee-table th {
         white-space: nowrap;
     }
-
-
-    .employee-table td:nth-child(2) {
-        white-space: normal;
-        overflow: visible;
-        text-overflow: clip;
+    /* Search / Filter responsive */
+    .employee-filter-input .form-control {
+        min-width: 220px;
     }
-
-    .table-modern tbody tr {
-        transition: background-color 0.2s ease;
+    @media (max-width: 1200px) {
+        .employee-filter-body {
+            gap: 0.5rem;
+        }
+        .employee-filter-input {
+            width: 100%;
+            padding-left: 0.5rem !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 10px;
+            background-color: #fff !important;
+            padding: 0.3rem 0.75rem;
+        }
+        .employee-filter-card .employee-filter-input .form-control {
+            border: 0 !important;
+            background-color: transparent !important;
+            padding: 0.45rem 0;
+            font-size: 0.85rem;
+        }
+        .employee-filter-icon {
+            margin-left: 0 !important;
+        }
+        .employee-filter-controls {
+            width: 100%;
+            padding-right: 0 !important;
+            justify-content: space-between;
+        }
+        .employee-filter-controls .form-select {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+        .employee-filter-card .employee-filter-controls .form-select {
+            border: 1px solid #dee2e6 !important;
+            border-radius: 10px;
+            background-color: #fff !important;
+            padding: 0.55rem 0.75rem;
+            font-size: 0.85rem;
+        }
     }
-
-    .table-modern tbody tr.clickable-row:hover {
-        background-color: var(--bs-light);
-    }
-
-
-    .table-responsive {
-        max-width: none;
+    @media (max-width: 576px) {
+        .employee-filter-body {
+            padding: 0.75rem !important;
+        }
+        .employee-filter-input .form-control {
+            font-size: 0.85rem;
+        }
+        .employee-filter-controls {
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        .employee-filter-controls .form-select {
+            width: 100%;
+        }
+        .employee-table-card {
+            border-radius: 12px;
+        }
+        .employee-table-responsive {
+            padding: 0 0.75rem;
+        }
+        .employee-table {
+            min-width: 900px;
+        }
+        .employee-table td,
+        .employee-table th {
+            white-space: normal;
+        }
     }
 </style>
+@endpush
 
+@push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const input = document.querySelector('input[name="search"]');
@@ -304,3 +306,4 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+@endpush
