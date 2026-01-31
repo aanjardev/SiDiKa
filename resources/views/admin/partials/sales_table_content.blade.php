@@ -26,10 +26,9 @@
         <span class="opacity-75">{{ $penjualan->created_at->format('H:i') }} WIB</span>
     </td>
 
-    <td>
-        <span class="text-secondary small d-block"
-            title="{{ $penjualan->detail_penjualan->pluck('produk.nama_produk')->implode(', ') }}"
-            style="line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+    <td class="col-text-wrap" style="max-width: 300px; min-width: 250px;">
+        <span class="text-secondary small d-block text-wrap"
+            title="{{ $penjualan->detail_penjualan->pluck('produk.nama_produk')->implode(', ') }}">
             @php
             $itemNames = $penjualan->detail_penjualan->pluck('produk.nama_produk')->implode(', ');
             echo $itemNames ?: '-';
