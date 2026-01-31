@@ -168,7 +168,7 @@
                             <th>Kode</th>
                             <th>Customer</th>
                             <th>Tanggal</th>
-                            <th style="width: 25%;">Item Terjual</th>
+                            <th style="width: 25%; max-width:300px; min-width: 250px;">Item Terjual</th>
                             <th>Cabang</th>
                             <th>Total</th>
                             <th class="text-center" style="width: 120px;">Aksi</th>

@@ -203,7 +203,7 @@
                             <th>Customer</th>
                             <th>Tanggal</th>
                             <th>Cabang</th>
-                            <th style="width: 25%;">Item Dibeli</th>
+                            <th style="width: 25%;  max-width:300px; min-width: 250px;">Item Dibeli</th>
                             <th class="text-center">Status</th>
                             <th>Harga Deal</th>
                             <th class="text-center" style="width: 120px;">Aksi</th>

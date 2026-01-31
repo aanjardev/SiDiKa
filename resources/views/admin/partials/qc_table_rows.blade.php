@@ -10,7 +10,7 @@
         </td>
 
         {{-- Nama Item --}}
-        <td>
+        <td style="max-width:300px; min-width: 250px;">
             <span class="text-dark fw-semibold" style="font-size: 0.95rem;">{{ $item->nama_item }}</span>
         </td>
 

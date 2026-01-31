@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <tr>
                             <th class="text-center" style="width: 5%;">No</th>
                             <th style="width: 150px;">Kode</th>
-                            <th style="width: 25%;">Nama Item</th>
+                            <th style="width: 25%; max-width:300px; min-width: 250px;">Nama Item</th>
                             <th>Serial Number</th>
                             <th>SN Lensa</th>
                             <th>Kategori</th>
