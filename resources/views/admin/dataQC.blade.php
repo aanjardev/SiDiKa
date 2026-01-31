@@ -48,6 +48,10 @@
     .qc-table-fixed td {
         white-space: nowrap;
     }
+    .qc-table-fixed td.col-text-wrap {
+        white-space: normal !important;
+        word-break: break-word;
+    }
     .qc-code-chip {
         display: inline-block;
         max-width: 100%;
@@ -296,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <tr>
                             <th class="text-center" style="width: 5%;">No</th>
                             <th style="width: 150px;">Kode</th>
-                            <th style="width: 25%; max-width:300px; min-width: 250px;">Nama Item</th>
+                            <th style="width: 25%; max-width:200px; min-width: 150px;">Nama Item</th>
                             <th>Serial Number</th>
                             <th>SN Lensa</th>
                             <th>Kategori</th>
@@ -320,8 +324,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             </td>
 
                             {{-- Nama Item --}}
-                            <td>
-                                <span class="text-dark fw-semibold" style="font-size: 0.95rem;">
+                            <td class="col-text-wrap" style="max-width: 300px; min-width: 250px;">
+                                    <span class="d-block text-wrap text-break" style="font-size: 0.95rem;">
                                     {{ $item->nama_item }}
                                 </span>
                             </td>

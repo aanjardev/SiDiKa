@@ -49,6 +49,10 @@
     .purchase-table td {
         white-space: nowrap;
     }
+    .purchase-table td.col-text-wrap {
+        white-space: normal !important;
+        word-break: break-word;
+    }
     .purchase-filter-input .form-control {
         min-width: 220px;
     }
@@ -203,7 +207,7 @@
                             <th>Customer</th>
                             <th>Tanggal</th>
                             <th>Cabang</th>
-                            <th style="width: 25%;  max-width:300px; min-width: 250px;">Item Dibeli</th>
+                            <th style="width: 25%; max-width:300px;">Item Dibeli</th>
                             <th class="text-center">Status</th>
                             <th>Harga Deal</th>
                             <th class="text-center" style="width: 120px;">Aksi</th>
@@ -244,8 +248,8 @@
                             </td>
 
                             {{-- Item Dibeli --}}
-                            <td>
-                                <span class="text-secondary small d-block"
+                           <td class="col-text-wrap" style="max-width: 300px; min-width: 250px;">
+                                <span class="text-secondary small d-block text-wrap text-break"
                                       title="{{ $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ') }}"
                                       style="line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                     @php
