@@ -10,8 +10,8 @@
         </td>
 
         {{-- Nama Item --}}
-        <td style="max-width:300px; min-width: 250px;">
-            <span class="text-dark fw-semibold" style="font-size: 0.95rem;">{{ $item->nama_item }}</span>
+        <td class="col text-wrap" style="max-width: 200px; min-width: 150px;">
+            <span class="text-secondary small d-block text-wrap text-break">{{ $item->nama_item }}</span>
         </td>
 
         {{-- Serial Number --}}

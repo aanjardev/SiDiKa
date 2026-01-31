@@ -29,10 +29,9 @@
         </td>
 
         {{-- Item Dibeli --}}
-        <td style="max-width:300px; min-width: 250px;">
-            <span class="text-secondary small d-block text-wrap"
-                title="{{ $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ') }}"
-                style="line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+        <td class="col text-wrap" style="max-width: 300px; min-width: 250px;">
+            <span class="text-secondary small d-block text-wrap text-break"
+                title="{{ $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ') }}">
                 @php
                     $itemNames = $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ');
                     echo $itemNames ?: '-';
