@@ -17,6 +17,86 @@
             word-break: break-word;
         }
     }
+    .sales-table-responsive {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding: 0;
+    }
+    .sales-table {
+        width: 100%;
+        min-width: 100%;
+    }
+    .sales-table th,
+    .sales-table td {
+        white-space: nowrap;
+    }
+    .sales-filter-input .form-control {
+        min-width: 220px;
+    }
+    @media (max-width: 1200px) {
+        .sales-filter-body {
+            gap: 0.5rem;
+        }
+        .sales-filter-input {
+            width: 100%;
+            padding-left: 0.5rem !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 10px;
+            background-color: #fff !important;
+            padding: 0.3rem 0.75rem;
+        }
+        .sales-filter-card .sales-filter-input .form-control {
+            border: 0 !important;
+            background-color: transparent !important;
+            padding: 0.45rem 0;
+            font-size: 0.85rem;
+        }
+        .sales-filter-icon {
+            margin-left: 0 !important;
+        }
+        .sales-filter-controls {
+            width: 100%;
+            padding-right: 0 !important;
+            justify-content: space-between;
+        }
+        .sales-filter-controls .form-select {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+        .sales-filter-card .sales-filter-controls .form-select {
+            border: 1px solid #dee2e6 !important;
+            border-radius: 10px;
+            background-color: #fff !important;
+            padding: 0.55rem 0.75rem;
+            font-size: 0.85rem;
+        }
+    }
+    @media (max-width: 576px) {
+        .sales-filter-body {
+            padding: 0.75rem !important;
+        }
+        .sales-filter-input .form-control {
+            font-size: 0.85rem;
+        }
+        .sales-filter-controls {
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        .sales-filter-controls .form-select {
+            width: 100%;
+        }
+        .sales-table-responsive {
+            padding: 0 0.75rem;
+        }
+        .sales-table {
+            min-width: 900px;
+        }
+        .sales-table th,
+        .sales-table td {
+            white-space: nowrap;
+        }
+    }
 </style>
 @endpush
 
@@ -35,10 +115,10 @@
 
 {{-- Filter dan Pencarian --}}
 <form action="{{ route('admin.sales.index') }}" method="GET" id="filterForm">
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-        <div class="card-body p-2 d-flex align-items-center flex-wrap">
-            <div class="d-flex align-items-center flex-grow-1 ps-2">
-                <span class="text-muted ms-2 me-3">
+    <div class="card shadow-sm border-0 mb-4 sales-filter-card" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap sales-filter-body">
+            <div class="d-flex align-items-center flex-grow-1 ps-2 sales-filter-input">
+                <span class="text-muted ms-2 me-3 sales-filter-icon">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
                 <input type="text"
@@ -51,7 +131,7 @@
                     autofocus>
             </div>
 
-            <div class="d-flex align-items-center gap-2 pe-2">
+            <div class="d-flex align-items-center gap-2 pe-2 sales-filter-controls">
                 <select name="cabang"
                     id="filter-cabang"
                     class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
@@ -81,7 +161,7 @@
     <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
         <div class="card-body p-0">
             <div class="table-responsive sales-table-responsive">
-                <table class="table table-modern mb-0 sales-table-fixed">
+                <table class="table table-modern mb-0 sales-table-fixed sales-table">
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 5%;">No</th>

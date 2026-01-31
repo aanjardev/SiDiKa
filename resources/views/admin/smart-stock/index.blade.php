@@ -23,7 +23,7 @@
         flex-direction: column;
         align-items: flex-start;
         gap: 6px;
-        flex: 0 0 auto;
+        flex: 0 0 200px;
     }
     .smart-inline-filters label {
         margin: 0;
@@ -38,14 +38,15 @@
         padding: 6px 10px;
         border: 1px solid #e5e7eb;
         box-shadow: inset 0 1px 1px rgba(15,23,42,0.04);
-        min-width: 160px;
+        min-width: 0;
+        width: 100%;
+    }
+    .smart-inline-filters #sort {
+        min-width: 230px;
     }
 
     .form-control {
         min-width: 70px !important;
-    }
-    .smart-inline-filters .form-control {
-        width: 90px;
     }
     .smart-inline-filters .input-group-text {
         background: #f8fafc;
@@ -53,6 +54,32 @@
         font-size: 0.85rem;
         color: #475569;
         padding-inline: 8px;
+    }
+    .smart-inline-filters .threshold-group {
+        width: 100%;
+        display: flex;
+        align-items: center;
+    }
+    .smart-inline-filters .threshold-group .form-control {
+        max-width: 110px;
+        flex: 0 0 110px;
+        padding-right: 10px;
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    .smart-inline-filters .threshold-group .input-group-text {
+        min-width: 50px;
+        border: 1px solid #e5e7eb;
+        border-left: 0;
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        background: #f8fafc;
+        padding: 0.45rem 0.65rem;
+        color: #475569;
+        font-weight: 600;
+        pointer-events: none;
     }
     .smart-inline-filters .form-select:focus,
     .smart-inline-filters .form-control:focus {
@@ -62,14 +89,69 @@
     .smart-inline-filters small {
         color: #64748b;
     }
+
+    .smart-table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0;
+    }
+    .smart-table-responsive table {
+        width: 100%;
+        min-width: 100%;
+    }
+    .smart-table-responsive th,
+    .smart-table-responsive td {
+        white-space: nowrap;
+    }
+
+    @media (max-width: 992px) {
+        .smart-inline-filters {
+            width: 100%;
+            gap: 12px;
+        }
+        .smart-inline-filters .filter-field {
+            width: 100%;
+            flex: 1 1 100%;
+        }
+        .smart-inline-filters .form-select,
+        .smart-inline-filters .form-control {
+            width: 100%;
+            min-width: 0;
+        }
+        .smart-inline-filters label {
+            font-size: 0.72rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .smart-inline-filters {
+            gap: 10px;
+        }
+        .smart-table-responsive {
+            padding: 0 0.75rem;
+        }
+        .smart-table-responsive table {
+            min-width: 1100px;
+            table-layout: auto;
+        }
+        .smart-table-responsive th,
+        .smart-table-responsive td {
+            white-space: nowrap;
+        }
+        .smart-inline-filters .form-select,
+        .smart-inline-filters .form-control {
+            padding: 0.5rem 0.65rem;
+            font-size: 0.9rem;
+        }
+    }
 </style>
 @endpush
 
 @section('content')
 
 {{-- Statistics Cards --}}
-<div class="row mb-4">
-    <div class="col-md-3">
+<div class="row g-3 g-lg-4 mb-4">
+    <div class="col-12 col-sm-6 col-lg-3">
         <div class="card shadow-sm border-0" style="border-radius: 10px;">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
@@ -84,7 +166,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-12 col-sm-6 col-lg-3">
         <div class="card shadow-sm border-0" style="border-radius: 10px;">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
@@ -99,7 +181,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-12 col-sm-6 col-lg-3">
         <div class="card shadow-sm border-0" style="border-radius: 10px;">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
@@ -114,7 +196,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3">
+    <div class="col-12 col-sm-6 col-lg-3">
         <div class="card shadow-sm border-0" style="border-radius: 10px;">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between">
@@ -159,7 +241,7 @@
                 <div class="filter-field">
                     <label for="sort">Urutkan</label>
                     <select name="sort" id="sort" class="form-select form-select-sm"
-                            style="cursor: pointer; width:200px;" onchange="submitFilterForm()">
+                            style="cursor: pointer;" onchange="submitFilterForm()">
                         <option value="days_left" {{ $sortBy == 'days_left' ? 'selected' : '' }}>Hari Tersisa (Terendah)</option>
                         <option value="stock" {{ $sortBy == 'stock' ? 'selected' : '' }}>Stok (Tertinggi)</option>
                         <option value="name" {{ $sortBy == 'name' ? 'selected' : '' }}>Nama Produk (A-Z)</option>
@@ -167,7 +249,7 @@
                 </div>
                 <div class="filter-field">
                     <label for="threshold">Threshold</label>
-                    <div class="input-group input-group-sm">
+                    <div class="input-group input-group-sm threshold-group">
                         <input type="number" name="threshold" id="threshold" value="{{ $threshold }}" min="1" max="30" step="1"
                                class="form-control form-control-sm"
                                inputmode="numeric"
@@ -180,7 +262,7 @@
         </div>
     </div>
     <div class="card-body p-0">
-        <div class="table-responsive">
+        <div class="table-responsive smart-table-responsive">
             <table class="table table-modern mb-0">
                 <thead>
                     <tr>

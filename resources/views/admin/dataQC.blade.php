@@ -21,11 +21,13 @@
         text-decoration: underline !important;
     }
 
-    
-    .qc-table-responsive {
-        overflow-x: auto;
-    }
-    @media (min-width: 992px) {
+.qc-table-responsive {
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+}
+@media (min-width: 992px) {
         .qc-table-responsive {
             overflow-x: visible;
         }
@@ -33,21 +35,84 @@
     .qc-table-fixed {
         table-layout: fixed;
         width: 100%;
+        min-width: 100%;
+    }
+.qc-table-fixed th,
+.qc-table-fixed td {
+    white-space: nowrap;
+}
+.qc-code-chip {
+    display: inline-block;
+    max-width: 100%;
+    white-space: nowrap;
+}
+.qc-nowrap {
+    white-space: nowrap;
+}
+.qc-filter-input .form-control {
+    min-width: 220px;
+}
+@media (max-width: 1200px) {
+    .qc-filter-body {
+        gap: 0.5rem;
+    }
+    .qc-filter-input {
+        width: 100%;
+        padding-left: 0.5rem !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 10px;
+        background: #fff !important;
+        padding: 0.3rem 0.75rem;
+    }
+    .qc-filter-card .qc-filter-input .form-control {
+        border: 0 !important;
+        background: transparent !important;
+        padding: 0.45rem 0;
+        font-size: 0.85rem;
+    }
+    .qc-filter-icon {
+        margin-left: 0 !important;
+    }
+    .qc-filter-controls {
+        width: 100%;
+        padding-right: 0 !important;
+        justify-content: space-between;
+    }
+    .qc-filter-controls .form-select {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+    .qc-filter-card .qc-filter-controls .form-select {
+        border: 1px solid #dee2e6 !important;
+        border-radius: 10px;
+        background: #fff !important;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.85rem;
+    }
+}
+@media (max-width: 576px) {
+    .qc-filter-body {
+        padding: 0.75rem !important;
+    }
+    .qc-filter-input .form-control {
+        font-size: 0.85rem;
+    }
+    .qc-filter-controls {
+        flex-direction: column;
+        align-items: stretch !important;
+    }
+    .qc-table-responsive {
+        padding: 0 0.75rem;
+    }
+    .qc-table-fixed {
+        min-width: 1100px;
+        table-layout: auto;
     }
     .qc-table-fixed th,
     .qc-table-fixed td {
-        white-space: normal;
-        word-break: break-word;
-    }
-    .qc-code-chip {
-        display: inline-block;
-        max-width: 100%;
-        white-space: normal;
-        word-break: break-word;
-    }
-    .qc-nowrap {
         white-space: nowrap;
     }
+}
 </style>
 @endpush
 
@@ -159,12 +224,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
 {{-- Filter dan Pencarian (Visual: HEAD, Logic: Main) --}}
 <form action="{{ route('admin.quality-control.index') }}" method="GET" id="filterFormQc">
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+    <div class="card shadow-sm border-0 mb-4 qc-filter-card" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap qc-filter-body">
 
             {{-- Bagian Kiri: Input Search --}}
-            <div class="d-flex align-items-center flex-grow-1 ps-2">
-                <span class="text-muted ms-2 me-3">
+            <div class="d-flex align-items-center flex-grow-1 ps-2 qc-filter-input">
+                <span class="text-muted ms-2 me-3 qc-filter-icon">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
                 <input type="text"
@@ -177,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
 
             {{-- Bagian Kanan: Dropdown --}}
-            <div class="d-flex align-items-center gap-2 pe-2">
+            <div class="d-flex align-items-center gap-2 pe-2 qc-filter-controls">
 
                 {{-- Filter Kategori --}}
                 <select name="kategori" id="filter-kategori"

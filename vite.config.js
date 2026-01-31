@@ -28,8 +28,13 @@ export default defineConfig({
                 "resources/admin_theme/css/dark.min.css",
                 "resources/admin_theme/css/customizer.min.css",
                 "resources/admin_theme/css/rtl.min.css",
-                "resources/css/admin/pages/dashboard.css",
                 "resources/css/admin/admin-layout.css",
+                "resources/css/admin/pages/dashboard.css",
+                "resources/css/admin/pages/dataPelanggan.css",
+                "resources/css/admin/pages/dataPenjualan.css",
+                "resources/css/admin/pages/listProdukJual.css",
+
+
                 "resources/js/admin/pages/dashboard.js",
                 "resources/js/admin/admin-layout.js",
                 "resources/js/utils/customer-search.js",

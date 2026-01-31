@@ -20,44 +20,71 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
 {{-- Custom CSS (Dari HEAD) --}}
 @push('styles')
 <style>
-    
+
     .card-modern { border: 1px solid #f0f0f0; border-radius: 16px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04); transition: all 0.3s ease; }
     .card-header-modern { background-color: #fff; border-bottom: 1px solid #f0f0f0; padding: 20px 24px; border-radius: 16px 16px 0 0 !important; }
 
-    
+
     .input-group-modern .input-group-text { background-color: #fff; border-right: none; color: #6c757d; border-color: #dee2e6; border-radius: 10px 0 0 10px; }
     .input-group-modern .form-control, .input-group-modern .form-select { border-left: none; border-color: #dee2e6; border-radius: 0 10px 10px 0; padding: 10px 15px; }
     .input-group-modern .form-control:focus, .input-group-modern .form-select:focus { box-shadow: none; border-color: #86b7fe; border-left: 1px solid #86b7fe; }
 
-    
+
     .form-label-modern { font-size: 0.85rem; font-weight: 600; color: #344767; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    
+
     .btn-action-icon { width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; transition: all 0.2s; border: 1px solid transparent; background: transparent; color: #dc3545; }
     .btn-action-icon:hover { background-color: #fee2e2; color: #dc2626; border-color: #fecaca; }
 
-    
+
     .accordion-modern .accordion-button { background-color: #f8f9fa; border-radius: 8px !important; color: #495057; font-weight: 600; box-shadow: none; }
     .accordion-modern .accordion-button:not(.collapsed) { background-color: #e7f1ff; color: #0d6efd; }
     .accordion-modern .accordion-item { border: 1px solid #eee; border-radius: 8px !important; margin-bottom: 10px; overflow: hidden; }
 
     .select2-container .select2-selection--single {
-        height: 44px !important; 
+        height: 44px !important;
         border-radius: 0 10px 10px 0 !important;
         padding: 7px 15px !important;
     }
     .select2-container--default .select2-selection--single .select2-selection__arrow {
         height: 42px !important;
     }
-    
 
-        position: absolute;
-        top: calc(100% + 6px);
-        left: 0;
-        z-index: 2050;
-        display: none;
-        max-height: 280px;
-        overflow: auto;
+
+    @media (max-width: 768px) {
+        .purchase-cart-wrap {
+            padding: 0;
+        }
+        .purchase-cart-table {
+            width: 100%;
+            min-width: 100%;
+        }
+    }
+    .action-three-inline .d-flex {
+        flex-wrap: nowrap;
+        gap: 0.5rem;
+    }
+    .action-three-inline button {
+        min-width: 0;
+        font-size: 0.95rem;
+        padding: 0.55rem 0.6rem;
+    }
+    @media (max-width: 576px) {
+        #btnBukaModalItem .btn-label-full { display: none; }
+        #btnBukaModalItem .btn-label-mobile { display: inline; }
+
+        .action-three-inline .d-flex {
+            gap: 0.35rem;
+        }
+        .action-three-inline button {
+            font-size: 0.85rem;
+            padding: 0.45rem 0.5rem;
+        }
+
+        .purchase-cart-table {
+            width: 100%;
+            min-width: 900px; /* biar kolom tetap nyaman, ikut pola tabel penjualan */
+        }
     }
 </style>
 {{-- Select2 CSS --}}
@@ -155,19 +182,20 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                         </div>
                     </div>
                     <button type="button" class="btn btn-primary btn-sm px-3 py-2 rounded-3 fw-medium shadow-sm" id="btnBukaModalItem">
-                        <i class="fa-solid fa-plus me-1"></i> Tambah Item
+                        <i class="fa-solid fa-plus me-1"></i>
+                        <span class="btn-label-full">Tambah Item</span>
+                        <span class="btn-label-mobile">Item</span>
                     </button>
                 </div>
 
-                <div class="card-body p-0">
-                    <div class="table-responsive">
-                        <table class="table table-modern mb-0">
+                <div class="card-body p-4 purchase-cart-body">
+                    <div class="table-responsive border rounded-3 purchase-cart-wrap">
+                        <table class="table table-modern table-hover align-middle mb-0 purchase-cart-table">
                             <thead class="bg-light text-secondary small uppercase">
                                 <tr>
-                                    <th class="ps-4 py-3 fw-bold border-0" style="width: 45%;">NAMA ITEM / KONDISI</th>
-                                    <th class="py-3 fw-bold border-0">KATEGORI</th>
-                                    <th class="py-3 fw-bold border-0">SN (SERIAL)</th>
-                                    <th class="text-center py-3 fw-bold border-0" style="width: 80px;">AKSI</th>
+                                    <th class="ps-4 py-3 fw-bold border-0" style="width: 60%; min-width:200px;">NAMA ITEM</th>
+                                    <th class="py-3 fw-bold border-0" style="max-width: 100px;">KATEGORI</th>
+                                    <th class="text-center py-3 fw-bold border-0" style="max-width: 80px;">AKSI</th>
                                 </tr>
                             </thead>
                             <tbody id="item-list-wrapper" class="border-top-0">
@@ -253,19 +281,15 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                     </div>
 
                     {{-- Action Buttons (Revisi: 3 Kolom) --}}
-                    <div class="row g-2">
-                        <div class="col-4">
-                            <button type="submit" name="status_pembelian" value="draft" id="btnDraft" class="btn btn-light border w-100 py-2 rounded-3 fw-medium">
+                    <div class="row g-2 purchase-action-row action-three-inline">
+                        <div class="col-12 d-flex gap-2">
+                            <button type="submit" name="status_pembelian" value="draft" id="btnDraft" class="btn btn-light border py-2 rounded-3 fw-medium flex-fill">
                                 <i class="fas fa-save"></i> Draft
                             </button>
-                        </div>
-                        <div class="col-4">
-                            <button type="submit" name="status_pembelian" value="tidak_deal" id="btnNoDeal" class="btn btn-danger w-100 py-2 rounded-3 fw-medium">
+                            <button type="submit" name="status_pembelian" value="tidak_deal" id="btnNoDeal" class="btn btn-danger py-2 rounded-3 fw-medium flex-fill">
                                 <i class="fas fa-times"></i> No-Deal
                             </button>
-                        </div>
-                        <div class="col-4">
-                            <button type="submit" name="status_pembelian" value="deal" id="btnDeal" class="btn btn-primary w-100 py-2 rounded-3 fw-bold shadow-sm">
+                            <button type="submit" name="status_pembelian" value="deal" id="btnDeal" class="btn btn-primary py-2 rounded-3 fw-bold shadow-sm flex-fill">
                                 <i class="fas fa-check"></i> DEAL
                             </button>
                         </div>
@@ -568,11 +592,11 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
 <style>
 .accordion-button:not(.collapsed) {
     color: var(--bs-dark);
-    background-color: #fff; 
-    box-shadow: inset 0 -1px 0 rgba(0,0,0,.125); 
+    background-color: #fff;
+    box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
 }
 .accordion-button::after {
-    
+
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230d6efd'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
 }
 

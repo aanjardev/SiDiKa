@@ -2,6 +2,10 @@
 
 @section('title', 'Katalog Penjualan')
 
+@push('styles')
+@vite('resources/css/admin/pages/listProdukJual.css')
+@endpush
+
 @push('page-actions')
     @php
         $backRoute = route('admin.sales.index');
@@ -19,11 +23,11 @@
 
 {{-- ======= Search & Filter ======= --}}
 <form method="GET" action="{{ route('admin.sales.create') }}" id="searchForm">
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+    <div class="card shadow-sm border-0 mb-4 catalog-filter-card" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap catalog-filter-body">
             {{-- Input Search --}}
-            <div class="d-flex align-items-center flex-grow-1 ps-2">
-                <span class="text-muted ms-2 me-3">
+            <div class="d-flex align-items-center flex-grow-1 ps-2 catalog-filter-input">
+                <span class="text-muted ms-2 me-3 catalog-filter-icon">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
                 <input type="text" class="form-control border-0 shadow-none bg-transparent"
@@ -35,7 +39,7 @@
             </div>
 
             {{-- Dropdown Kategori --}}
-            <div class="d-flex align-items-center gap-2 pe-2">
+            <div class="d-flex align-items-center gap-2 pe-2 catalog-filter-controls">
                 <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                     name="kategori"
                     onchange="document.getElementById('searchForm').submit();"
@@ -64,9 +68,9 @@
 
 {{-- ======= Grid Produk + Pagination ======= --}}
 <div id="catalogWrapper" class="position-relative">
-    <div id="gridView" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3 mb-5">
+    <div id="gridView" class="catalog-grid mb-5">
         @forelse ($products as $product)
-            <div class="col">
+            <div class="catalog-grid-item">
                 <div class="card h-100 shadow-sm border-0 product-card"
                      style="border-radius: 12px; overflow: hidden;"
                      data-product-id="{{ $product->id }}"
@@ -116,7 +120,8 @@
                             @if (($product->stok_produk ?? 0) > 0)
                                 {{-- Tombol Tambah --}}
                                 <button class="btn btn-primary btn-sm flex-grow-1 fw-medium btn-add-product py-1" type="button" style="border-radius: 8px; font-size: 0.85rem;">
-                                    <i class="fa-solid fa-plus me-1"></i> Tambah
+                                    <i class="fa-solid fa-plus me-1"></i>
+                                    <span class="btn-label">Tambah</span>
                                 </button>
 
                                 {{-- Kontrol Qty (Hidden Awal) --}}
@@ -165,7 +170,7 @@
     <div class="rounded-circle bg-white text-dark d-flex align-items-center justify-content-center ms-1" style="width: 32px; height: 32px;">
         <i class="fa-solid fa-bag-shopping" style="font-size: 0.9rem;"></i>
     </div>
-    <div class="d-flex flex-column lh-1">
+    <div class="d-flex flex-column lh-1 cart-summary-meta">
         <span class="fw-bold" id="summaryItems" style="font-size: 0.9rem;">0 Item</span>
         {{-- <small class="text-white-50" style="font-size: 0.7rem;">Total Estimasi</small> --}}
         <button type="button" class="btn btn-link btn-sm text-decoration-none text-white-50 p-0 mt-1"
@@ -173,10 +178,11 @@
             Lihat ringkasan
         </button>
     </div>
-    <div class="ms-auto d-flex align-items-center gap-2">
+    <div class="ms-auto d-flex align-items-center gap-2 cart-summary-price">
         <span class="fw-bold me-2" id="summaryPrice">Rp0</span>
         <button id="btnCheckout" class="btn btn-primary btn-sm rounded-pill px-3 fw-medium btn-checkout">
-            Checkout <i class="fa-solid fa-arrow-right ms-1" style="font-size: 0.7rem;"></i>
+            <span class="btn-label">Checkout</span>
+            <i class="fa-solid fa-arrow-right ms-1" style="font-size: 0.7rem;"></i>
         </button>
     </div>
 </div>

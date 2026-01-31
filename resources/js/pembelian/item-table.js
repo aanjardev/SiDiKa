@@ -26,7 +26,7 @@ export default class ItemTable {
         items.forEach(item => {
             const tr = document.createElement("tr");
             const summary = item.kondisi_fisik && item.serial_number
-                ? `${item.kondisi_fisik} (SN: ${item.serial_number})`
+                ? `${item.kondisi_fisik} (SN: ${item.serial_number} - SNL: ${item.serial_lens})`
                 : item.kondisi_fisik || item.serial_number || "-";
 
             const kategoriNama =
@@ -47,8 +47,6 @@ export default class ItemTable {
                 <td class="py-3">
                     <span class="badge rounded-pill bg-white text-dark border border-secondary-subtle fw-normal px-3 py-2">${kategoriNama}</span>
                 </td>
-
-                <td class="py-3 font-monospace small text-secondary">${item.serial_number || "-"}</td>
 
                 <td class="text-center py-3">
                     <div class="d-flex justify-content-center gap-2">

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Detail Penjualan #' . ($penjualan->kode_transaksi ?? $penjualan->id))
+@section('title', 'Detail Penjualan')
 
 @push('page-actions')
     {{-- Tombol Kembali ke Daftar --}}
@@ -154,7 +154,7 @@
             <table class="table table-modern mb-0 align-middle">
                 <thead>
                     <tr>
-                        <th>Produk</th>
+                        <th style="width: 50%; min-width:200px;">Produk</th>
                         <th class="text-center" style="width: 80px;">Qty</th>
                         <th class="text-end" style="width: 120px;">Harga</th>
                         <th class="text-end" style="width: 140px;">Subtotal</th>
@@ -203,17 +203,17 @@
         box-shadow: 0 0 0 0.25rem rgba(78, 107, 255, 0.25);
     }
     .btn-outline-dark-gold {
-        
-        color: #CC9900 !important; 
+
+        color: #CC9900 !important;
         border-color: #CC9900 !important;
     }
 
-    
+
     .btn-outline-dark-gold:hover,
     .btn-outline-dark-gold:focus,
     .btn-outline-dark-gold:active {
-        color: #000 !important; 
-        background-color: #D4A017 !important; 
+        color: #000 !important;
+        background-color: #D4A017 !important;
         border-color: #D4A017 !important;
     }
     .info-transaksi-list dt {

@@ -7,17 +7,30 @@
 
 @endpush
 
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const input = document.querySelector('input[name="search"]');
+    if (input) {
+        input.focus();
+        const length = input.value.length;
+        input.setSelectionRange(length, length);
+    }
+});
+</script>
+@endpush
+
 
 @section('content')
 
 {{-- Search & Filter  --}}
 <form method="GET" action="{{ route('admin.customers.index') }}" id="searchForm">
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+    <div class="card shadow-sm border-0 mb-4 customer-filter-card" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap customer-filter-body">
 
             {{-- Bagian Kiri: Input Search --}}
-            <div class="d-flex align-items-center flex-grow-1 ps-2">
-                <span class="text-muted ms-2 me-3">
+            <div class="d-flex align-items-center flex-grow-1 ps-2 customer-filter-input">
+                <span class="text-muted ms-2 me-3 customer-filter-icon">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
                 <input type="text"
@@ -29,7 +42,7 @@
             </div>
 
             {{-- Bagian Kanan: Dropdown Sort --}}
-            <div class="d-flex align-items-center gap-2 pe-2">
+            <div class="d-flex align-items-center gap-2 pe-2 customer-filter-controls">
                 <select name="sort_by"
                         class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         style="cursor: pointer;"
@@ -46,9 +59,9 @@
 </form>
 
 {{-- Table Card --}}
-<div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
+<div class="card shadow-sm border-0 customer-table-card" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
     <div class="card-body p-0">
-        <div class="table-responsive">
+        <div class="table-responsive customer-table-responsive">
             <table class="table table-modern mb-0">
                 <thead>
                     <tr>
@@ -152,25 +165,5 @@
 @endsection
 
 @push('styles')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const input = document.querySelector('input[name="search"]');
-    if (input) {
-        input.focus();
-        const length = input.value.length;
-        input.setSelectionRange(length, length); // kursor ke akhir
-    }
-});
-</script>
-
-<style>
-    .clickable-code {
-        transition: all 0.2s ease;
-        cursor: pointer;
-    }
-    .clickable-code:hover {
-        text-decoration: underline !important;
-        opacity: 0.8;
-    }
-</style>
+    @vite('resources/css/admin/pages/dataPelanggan.css')
 @endpush

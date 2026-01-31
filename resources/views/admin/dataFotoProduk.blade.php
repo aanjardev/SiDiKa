@@ -34,6 +34,90 @@
     .photo-table td {
         word-break: break-word;
     }
+
+    .photo-table-responsive {
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        padding: 0;
+    }
+    .photo-table {
+        width: 100%;
+        min-width: 100%;
+    }
+    .photo-table th,
+    .photo-table td {
+        white-space: nowrap;
+    }
+    .photo-filter-input .form-control {
+        min-width: 220px;
+    }
+    @media (max-width: 1200px) {
+        .photo-filter-body {
+            gap: 0.5rem;
+        }
+        .photo-filter-input {
+            width: 100%;
+            padding-left: 0.5rem !important;
+            border: 1px solid #dee2e6 !important;
+            border-radius: 10px;
+            background-color: #fff !important;
+            padding: 0.3rem 0.75rem;
+        }
+        .photo-filter-card .photo-filter-input .form-control {
+            border: 0 !important;
+            background-color: transparent !important;
+            padding: 0.45rem 0;
+            font-size: 0.85rem;
+        }
+        .photo-filter-icon {
+            margin-left: 0 !important;
+        }
+        .photo-filter-controls {
+            width: 100%;
+            padding-right: 0 !important;
+            justify-content: space-between;
+        }
+        .photo-filter-controls .form-select {
+            flex: 1 1 0;
+            min-width: 0;
+        }
+        .photo-filter-card .photo-filter-controls .form-select {
+            border: 1px solid #dee2e6 !important;
+            border-radius: 10px;
+            background-color: #fff !important;
+            padding: 0.55rem 0.75rem;
+            font-size: 0.85rem;
+        }
+    }
+    @media (max-width: 576px) {
+        .photo-filter-body {
+            padding: 0.75rem !important;
+        }
+        .photo-filter-input .form-control {
+            font-size: 0.85rem;
+        }
+        .photo-filter-controls {
+            flex-direction: column;
+            align-items: stretch !important;
+        }
+        .photo-filter-controls .form-select {
+            width: 100%;
+        }
+        .photo-table-card {
+            border-radius: 12px;
+        }
+        .photo-table-responsive {
+            padding: 0 0.75rem;
+        }
+        .photo-table {
+            min-width: 900px;
+        }
+        .photo-table th,
+        .photo-table td {
+            white-space: nowrap;
+        }
+    }
 </style>
 @endpush
 
@@ -41,12 +125,12 @@
 
 {{-- FILTER & SEARCH (diseragamkan dengan dataPembelian) --}}
 <form action="{{ route('admin.products.photos') }}" method="GET" id="filterFormPhoto">
-    <div class="card shadow-sm border-0 mb-4" style="border-radius: 10px;">
-        <div class="card-body p-2 d-flex align-items-center flex-wrap">
+    <div class="card shadow-sm border-0 mb-4 photo-filter-card" style="border-radius: 10px;">
+        <div class="card-body p-2 d-flex align-items-center flex-wrap photo-filter-body">
 
             {{-- Search SKU / Nama Produk --}}
-            <div class="d-flex align-items-center flex-grow-1 ps-2">
-                <span class="text-muted ms-2 me-3">
+            <div class="d-flex align-items-center flex-grow-1 ps-2 photo-filter-input">
+                <span class="text-muted ms-2 me-3 photo-filter-icon">
                     <i class="fa-solid fa-search text-muted"></i>
                 </span>
                 <input type="text"
@@ -59,7 +143,7 @@
             </div>
 
             {{-- Filter Kategori --}}
-            <div class="d-flex align-items-center gap-2 pe-2 mt-2 mt-md-0">
+            <div class="d-flex align-items-center gap-2 pe-2 mt-2 mt-md-0 photo-filter-controls">
                 <select class="form-select border-0 shadow-none bg-transparent text-secondary w-auto fw-medium"
                         name="kategori" id="filter-kategori" style="cursor: pointer;">
                     <option value="">Semua Kategori</option>
@@ -76,9 +160,9 @@
 
 {{-- LIST TABEL FOTO PRODUK (dibungkus card seperti dataPembelian) --}}
 <div id="photo-list-container">
-    <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
+    <div class="card shadow-sm border-0 photo-table-card" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
         <div class="card-body p-0 table-wrapper">
-            <div class="table-responsive">
+            <div class="table-responsive photo-table-responsive">
                 <table class="table table-modern mb-0 table-product table-md photo-table">
                 <thead>
                     <tr>
