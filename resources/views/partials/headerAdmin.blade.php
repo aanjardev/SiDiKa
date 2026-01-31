@@ -36,4 +36,4 @@
 </nav>
 
 <!-- Include header styles -->
-<link rel="stylesheet" href="{{ asset('public/css/legacy/header.css') }}">
+<link rel="stylesheet" href="{{ \App\Helpers\CssAssetHelper::css('css/legacy/header.css') }}">

@@ -13,11 +13,11 @@
 {{-- Custom CSS for modern form styling --}}
 @push('styles')
 <style>
-    
+
     .card-modern { border: 1px solid #f0f0f0; border-radius: 16px; box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04); transition: all 0.3s ease; }
     .card-header-modern { background-color: #fff; border-bottom: 1px solid #f0f0f0; padding: 20px 24px; border-radius: 16px 16px 0 0 !important; }
-    
-    
+
+
     .upload-box { width: 160px; height: 160px; border: 2px dashed #dee2e6; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; background: #fafafa; position: relative; }
     .upload-box:hover { border-color: #86b7fe; background: #f8f9ff; }
     .upload-box.has-image { border: 2px solid #86b7fe; background: #fff; }
@@ -26,8 +26,8 @@
     .upload-box .preview img { width: 100%; height: 100%; object-fit: cover; }
     .upload-box .controls { position: absolute; top: 8px; right: 8px; }
     .upload-box .main-choice { position: absolute; bottom: 8px; left: 8px; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; }
-    
-    
+
+
     .upload-status { padding: 10px 15px; border-radius: 8px; margin-top: 15px; font-weight: 500; }
     .upload-status.success { background: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
     .upload-status.error { background: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
@@ -56,28 +56,28 @@
                         </ul>
                     </div>
                 @endif
-                
+
                 <form id="upload-photos-form" action="{{ route('admin.products.photos.uploadStore', $product->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="file" name="images[]" id="hidden-images-input" class="d-none" multiple>
                     <input type="hidden" name="main_image" id="hidden-main-image">
-                    
+
                     <div class="mb-4">
                         <div class="d-flex align-items-center gap-2 mb-3">
                             <i class="fa-solid fa-circle-info text-primary"></i>
                             <span class="small text-muted">Maksimal <strong>10 gambar</strong> (Max 5MB/file). Klik kotak di bawah untuk memilih gambar.</span>
                         </div>
                     </div>
-                    
+
                     <div id="upload-grid" class="d-flex flex-wrap gap-3 mb-4">
                         {{-- Upload boxes akan ditambahkan via JavaScript --}}
                     </div>
-                    
+
                     <div id="upload-status" class="upload-status" style="display: none;"></div>
                 </form>
 
                 {{-- Gambar Saat Ini (Komentar Asli) --}}
-                {{-- 
+                {{--
                 <hr class="my-5 opacity-25">
                 <h6 class="fw-bold text-dark mb-3">Gambar Saat Ini</h6>
                 <div id="current-images" class="d-flex flex-wrap gap-3">
@@ -110,13 +110,13 @@
                         <p class="text-muted small mb-0">Belum ada gambar yang diunggah.</p>
                     </div>
                     @endforelse
-                </div> 
+                </div>
                 --}}
 
             </div>
         </div>
     </div>
-    
+
     <div class="col-lg-4">
         <div class="card card-modern position-sticky" style="top: 20px; z-index: 10;">
             <div class="card-header-modern bg-primary bg-opacity-10 border-primary border-opacity-10">
@@ -128,7 +128,7 @@
                 <div class="mb-3">
                     <p class="small text-muted mb-3">Pilih gambar yang ingin diunggah, lalu tentukan gambar utama (opsional).</p>
                 </div>
-                
+
                 <div class="d-grid gap-2">
                     <button id="save-uploads" type="button" class="btn btn-primary w-100 py-2 rounded-3 fw-medium shadow-sm" disabled>
                         <i class="fas fa-save me-2"></i> Simpan Perubahan
@@ -137,7 +137,7 @@
                         <i class="fas fa-times me-2"></i> Batal
                     </a>
                 </div>
-                
+
                 <div class="mt-3 pt-3 border-top">
                     <div class="small text-muted">
                         <div class="d-flex align-items-center gap-2 mb-2">
@@ -154,7 +154,7 @@
 @endsection
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('public/css/legacy/upload-photo.css') }}">
+    <link rel="stylesheet" href="{{ \App\Helpers\CssAssetHelper::css('css/legacy/upload-photo.css') }}">
 @endpush
 
 @push('scripts')

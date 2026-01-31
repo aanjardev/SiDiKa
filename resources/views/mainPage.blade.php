@@ -4,8 +4,8 @@
 
 @push('styles')
     <link href="https://cdn.jsdelivr.net/npm/typeit@8.7.1/dist/index.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('public/css/legacy/mainPage.css') }}">
-    <link rel="stylesheet" href="{{ asset('public/css/legacy/katalog.css') }}">
+    <link rel="stylesheet" href="{{ \App\Helpers\CssAssetHelper::css('css/legacy/mainPage.css') }}">
+    <link rel="stylesheet" href="{{ \App\Helpers\CssAssetHelper::css('css/legacy/katalog.css') }}">
 @endpush
 
 @section('content')
