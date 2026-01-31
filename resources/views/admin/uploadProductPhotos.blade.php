@@ -154,7 +154,7 @@
 @endsection
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/upload-photo.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/legacy/upload-photo.css') }}">
 @endpush
 
 @push('scripts')
