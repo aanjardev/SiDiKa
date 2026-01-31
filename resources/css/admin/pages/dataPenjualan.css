@@ -19,7 +19,7 @@
     min-width: 220px;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 1900px) {
     .sales-table-responsive {
         overflow-x: visible;
     }

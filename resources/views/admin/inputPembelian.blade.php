@@ -69,6 +69,18 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
         font-size: 0.95rem;
         padding: 0.55rem 0.6rem;
     }
+    @media (max-width: 1420px) and (min-width: 992px) {
+        .action-three-inline .d-flex {
+            flex-direction: column;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .action-three-inline button {
+            width: 100%;
+            font-size: 0.95rem;
+            padding: 0.6rem 1rem;
+        }
+    }
     @media (max-width: 576px) {
         #btnBukaModalItem .btn-label-full { display: none; }
         #btnBukaModalItem .btn-label-mobile { display: inline; }

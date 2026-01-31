@@ -12,7 +12,7 @@
     .purchase-row:hover {
         background-color: #f8f9fa;
     }
-    
+
     .clickable-code {
         transition: all 0.2s ease;
         cursor: pointer;
@@ -22,7 +22,7 @@
         text-decoration: underline !important;
     }
 
-    @media (min-width: 992px) {
+    @media (min-width: 1900px) {
         .purchase-table-responsive {
             overflow-x: visible;
         }
@@ -217,7 +217,7 @@
 
                             {{-- Kode Transaksi --}}
                             <td>
-                                <a href="{{ route('admin.purchases.show', $pembelian->id) }}" 
+                                <a href="{{ route('admin.purchases.show', $pembelian->id) }}"
                                    class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none clickable-code"
                                    onclick="event.stopPropagation();">
                                     {{ $pembelian->kode_transaksi ?? '#' . $pembelian->id }}
@@ -321,8 +321,8 @@
         </div>
     </div>
 </div>
-@endsection
 
+{{-- Export Modal --}}
 <div class="modal fade" id="exportPurchasesModal" tabindex="-1" aria-labelledby="exportPurchasesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -377,6 +377,7 @@
         </div>
     </div>
 </div>
+@endsection
 
 @push('scripts')
 

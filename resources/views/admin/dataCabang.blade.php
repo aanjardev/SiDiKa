@@ -53,7 +53,7 @@
                     <tr>
                         <th class="text-center" style="width: 5%;">No</th>
                         <th style="width: 20%;">Nama Cabang</th>
-                        <th style="width: 25%;">Alamat</th>
+                        <th style="width: 25%; min-width: 300px;">Alamat</th>
                         <th style="width: 15%;">Kontak</th>
                         <th style="width: 15%;">Jam Operasional</th>
                         <th class="text-center" style="width: 10%;">Status</th>

@@ -11,6 +11,19 @@
 
 @push('styles')
 <style>
+    @media (min-width: 1900px) {
+        .qc-archived-table-responsive {
+            overflow-x: visible;
+        }
+        .qc-archived-table {
+            table-layout: fixed;
+        }
+        .qc-archived-table th,
+        .qc-archived-table td {
+            white-space: normal;
+            word-break: break-word;
+        }
+    }
     .qc-archived-table-responsive {
         overflow-x: auto;
         overflow-y: hidden;
@@ -53,9 +66,14 @@
         min-width: 0;
         border: 1px solid #dee2e6 !important;
         border-radius: 10px;
-        background: #fff !important;
+        background-color: #fff !important;
         padding: 0.55rem 0.75rem;
         font-size: 0.85rem;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23495057' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 0.75rem center;
+        background-size: 16px 12px;
+        padding-right: 2.25rem;
     }
     @media (max-width: 576px) {
         .qc-archived-filter-body {
@@ -69,8 +87,7 @@
             padding: 0 0.75rem;
         }
         .qc-archived-table {
-            min-width: 1100px;
-            table-layout: auto;
+            min-width: 900px;
         }
         .qc-archived-table th,
         .qc-archived-table td {
