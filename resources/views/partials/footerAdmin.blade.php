@@ -5,4 +5,4 @@
         <small style="color: var(--footer-muted);">Hanya untuk keperluan pengelolaan data dan inventaris. Bukan untuk akses publik.</small>
     </div>
 </footer>
-<link rel="stylesheet" href="{{ asset('css/footerAdmin.css') }}"> 
+<link rel="stylesheet" href="{{ asset('css/legacy/footerAdmin.css') }}"> 

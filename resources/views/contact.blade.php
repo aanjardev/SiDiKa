@@ -3,7 +3,7 @@
 @section('title', 'Hubungi Kami - ' . ($cat_setting->nama_website ?? 'Dinoyo Kamera'))
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/contactStore.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/legacy/contactStore.css') }}">
 @endpush
 
 @section('content')
