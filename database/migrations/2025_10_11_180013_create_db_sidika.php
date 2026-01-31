@@ -32,9 +32,9 @@ return new class extends Migration
         Schema::create('perusahaan_cabang', function (Blueprint $table) {
             $table->id();
             $table->string('nama', 50);
-            $table->string('alamat', 100);
-            $table->time('jam_buka')->nullable();   
-            $table->time('jam_tutup')->nullable();  
+            $table->string('alamat', 200);
+            $table->time('jam_buka')->nullable();
+            $table->time('jam_tutup')->nullable();
             $table->string('nomor_telepon', 20);
             $table->timestamps();
         });
@@ -187,7 +187,7 @@ return new class extends Migration
         Schema::dropIfExists('pembelian');
         Schema::dropIfExists('gambar_produk');
         Schema::dropIfExists('produk');
-        
+
         Schema::dropIfExists('customer');
         Schema::dropIfExists('perusahaan_cabang');
         Schema::dropIfExists('kategori');

@@ -4,7 +4,7 @@
 
 @push('styles')
 <style>
-    @media (min-width: 992px) {
+    @media (min-width: 1900px) {
         .sales-table-responsive {
             overflow-x: visible;
         }
@@ -191,8 +191,7 @@
     </div>
 </div>
 
-@endsection
-
+{{-- Export Modal --}}
 <div class="modal fade" id="exportSalesModal" tabindex="-1" aria-labelledby="exportSalesModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -328,3 +327,4 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 </script>
 @endpush
+@endsection

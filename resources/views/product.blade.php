@@ -3,8 +3,8 @@
 @section('title', 'Katalog Produk - Dinoyo Kamera')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('public/css/legacy/mainPage.css') }}">
-    <link rel="stylesheet" href="{{ asset('public/css/legacy/katalog.css') }}">
+    <link rel="stylesheet" href="{{ \App\Helpers\CssAssetHelper::css('css/legacy/mainPage.css') }}">
+    <link rel="stylesheet" href="{{ \App\Helpers\CssAssetHelper::css('css/legacy/katalog.css') }}">
 @endpush
 
 @section('content')

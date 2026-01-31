@@ -425,7 +425,7 @@ $backRoute = route('admin.products.index');
 @endsection
 
 @push('styles')
-<link rel="stylesheet" href="{{ asset('public/css/legacy/upload-photo.css') }}">
+<link rel="stylesheet" href="{{ \App\Helpers\CssAssetHelper::css('css/legacy/upload-photo.css') }}">
 <style>
     @media (max-width: 768px) {
         #product-form .form-control,

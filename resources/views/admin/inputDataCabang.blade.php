@@ -81,7 +81,7 @@
                                 class="form-control border-start-0 ps-2 required-field @error('alamat') is-invalid @enderror"
                                 id="Alamat"
                                 name="alamat"
-                                rows="5"
+                                rows="2" maxlength="150"
                                 placeholder="Masukkan alamat lengkap cabang (Jalan, No, RT/RW, Kota)..."
                                 {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
                                 @if(!isset($isShow) || !$isShow)
@@ -297,7 +297,7 @@
                                            {{ isset($isShow) && $isShow ? 'disabled' : '' }}>
                                     <label class="form-check-label small" for="jam_{{ strtolower($hari) }}_buka">
                                         Buka
-                                    </label>    
+                                    </label>
                                 </div>
                             </div>
 
@@ -369,7 +369,7 @@
     document.addEventListener('DOMContentLoaded', function () {
 
         const toggles = document.querySelectorAll('.jam-operasional-toggle');
-        
+
         toggles.forEach(toggle => {
 
             toggle.addEventListener('change', function() {
@@ -462,12 +462,12 @@
                 errorMessages.forEach((msg, index) => {
                     alertMessage += `${index + 1}. ${msg}\n`;
                 });
-                
+
                 alert(alertMessage);
 
-                document.querySelector('.card-header h6 i.fa-clock').scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
+                document.querySelector('.card-header h6 i.fa-clock').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
                 });
             }
         });

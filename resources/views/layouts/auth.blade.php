@@ -11,8 +11,8 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="{{ asset('public/css/legacy/form-validation.css') }}" rel="stylesheet">
-    <link href="{{ asset('public/css/legacy/auth.css') }}" rel="stylesheet">
+    <link href="{{ \App\Helpers\CssAssetHelper::css('css/legacy/form-validation.css') }}" rel="stylesheet">
+    <link href="{{ \App\Helpers\CssAssetHelper::css('css/legacy/auth.css') }}" rel="stylesheet">
     <script src="https://kit.fontawesome.com/8794378048.js" crossorigin="anonymous"></script>
     @stack('styles')
 </head>
