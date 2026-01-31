@@ -81,16 +81,17 @@
                                    target="_blank"
                                    rel="noopener noreferrer"
                                    class="text-decoration-none text-muted small d-flex align-items-start gap-2"
-                                   title="Lihat di Google Maps">
-                                    <i class="fa-solid fa-location-dot text-danger mt-1"></i>
-                                    <span style="line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                   title="Lihat di Google Maps"
+                                   style="max-width: 300px;">
+                                    <i class="fa-solid fa-location-dot text-danger mt-1 flex-shrink-0"></i>
+                                    <span style="word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">
                                         {{ $cabang->alamat }}
                                     </span>
                                 </a>
                             @else
-                                <div class="text-muted small d-flex align-items-start gap-2">
-                                    <i class="fa-solid fa-location-dot text-secondary mt-1"></i>
-                                    <span style="line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                <div class="text-muted small d-flex align-items-start gap-2" style="max-width: 300px;">
+                                    <i class="fa-solid fa-location-dot text-secondary mt-1 flex-shrink-0"></i>
+                                    <span style="word-wrap: break-word; overflow-wrap: break-word; white-space: normal;">
                                         {{ $cabang->alamat }}
                                     </span>
                                 </div>

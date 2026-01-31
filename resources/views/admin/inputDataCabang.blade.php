@@ -81,7 +81,7 @@
                                 class="form-control border-start-0 ps-2 required-field @error('alamat') is-invalid @enderror"
                                 id="Alamat"
                                 name="alamat"
-                                rows="2" maxlength="200"
+                                rows="2" maxlength="150"
                                 placeholder="Masukkan alamat lengkap cabang (Jalan, No, RT/RW, Kota)..."
                                 {{ isset($isShow) && $isShow ? 'readonly' : 'required' }}
                                 @if(!isset($isShow) || !$isShow)
