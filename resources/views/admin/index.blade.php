@@ -450,13 +450,17 @@
 
 @push('scripts')
     <script>
+        @php
+            $seriesPendapatan = [
+                ['name' => 'Pendapatan', 'data' => $dataPendapatanChart],
+                ['name' => 'HPP', 'data' => $dataHppChart],
+            ];
+        @endphp
         window.dashboardData = {
-            seriesPendapatan: @json([$dataPendapatanChart, $dataHppChart]),
+            seriesPendapatan: @json($seriesPendapatan),
             seriesTransaksi: @json($dataTransaksiChart),
             labelBulan: @json($labelBulan)
         };
     </script>
     @vite('resources/js/admin/pages/dashboard.js')
 @endpush
-
-

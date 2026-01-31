@@ -26,10 +26,9 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Admin CSS -->
+    <!-- Admin CSS (fallback assets) -->
     <link href="{{ asset('css/adminsidebar.css') }}" rel="stylesheet">
     <link href="{{ asset('css/adminpage.css') }}" rel="stylesheet">
-    <!-- Form Validation CSS -->
     <link href="{{ asset('css/form-validation.css') }}" rel="stylesheet">
 
     <!-- Font Awesome -->
