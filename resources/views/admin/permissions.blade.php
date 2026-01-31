@@ -199,7 +199,7 @@
                         <th>Jenis Akses</th>
                         <th class="text-center">Status User</th>
                         <th class="text-center">Status Karyawan</th>
-                        <th class="text-center" style="width: 100px;">Aksi</th>
+                        <th class="text-center" style="width: 150px;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>

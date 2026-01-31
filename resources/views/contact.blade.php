@@ -9,7 +9,7 @@
 @section('content')
 
     <!-- Main Content -->
-    <main class="py-5">
+    <main class="contact-page">
         <div class="container">
 
             <!-- Social Media & Marketplace -->
