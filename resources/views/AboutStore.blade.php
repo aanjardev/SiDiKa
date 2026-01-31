@@ -3,7 +3,7 @@
 @section('title', 'Tentang Kami - ' . ($cat_setting->nama_website ?? 'Dinoyo Kamera'))
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/AboutStore.css') }}">
+    <link rel="stylesheet" href="{{ asset('public/css/legacy/AboutStore.css') }}">
     <style>
         .hero-section {
             position: relative;

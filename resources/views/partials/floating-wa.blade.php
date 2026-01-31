@@ -22,4 +22,4 @@
 @endif
 
 <!-- WhatsApp Button Styles -->
-<link rel="stylesheet" href="{{ asset('css/legacy/components/floating-wa.css') }}">
+<link rel="stylesheet" href="{{ asset('public/css/legacy/components/floating-wa.css') }}">

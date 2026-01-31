@@ -33,4 +33,4 @@
 @include('partials.alerts')
 
 <!-- Include header styles -->
-<link rel="stylesheet" href="{{ asset('css/legacy/header.css') }}">
+<link rel="stylesheet" href="{{ asset('public/css/legacy/header.css') }}">

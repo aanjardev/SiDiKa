@@ -30,8 +30,8 @@
 @section('title', $produk->nama_produk . ' - Detail Produk - ' . ($setting?->nama_website ?? 'Katalog'))
 
 @push('styles')
-    <link rel=\"stylesheet\" href=\"{{ asset('css/legacy/mainPage.css') }}\">
-    <link rel=\"stylesheet\" href=\"{{ asset('css/legacy/detail-produk.css') }}\">
+    <link rel="stylesheet" href="{{ asset('public/css/legacy/mainPage.css') }}">
+    <link rel="stylesheet" href="{{ asset('public/css/legacy/detail-produk.css') }}">
 <style>
 
 </style>
