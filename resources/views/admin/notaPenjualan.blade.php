@@ -3,11 +3,11 @@
 <head>
     <title>Nota Penjualan #{{ $penjualan->kode_transaksi }}</title>
     <style>
-        
+
         body { font-family: sans-serif; font-size: 10px; margin: 0; padding: 0; }
         .container { width: 90%; margin: 0 auto; }
 
-        
+
         .header {
             text-align: left;
             padding: 10px 0;
@@ -33,13 +33,13 @@
             margin: 0 0 3px 0 !important;
         }
 
-        
+
         .footer { border-top: 1px solid #ccc; border-bottom: none; position: fixed; bottom: 0; width: 90%; }
 
         .content { margin-top: 10px; }
         table { width: 100%; border-collapse: collapse; margin-top: 5px; }
 
-        
+
         .item-table th, .item-table td {
             border: 1px solid #ccc;
             padding: 6px 8px;
@@ -47,7 +47,7 @@
         }
         .item-table th { background-color: #f0f0f0; }
 
-        
+
         .price-table { border: none; }
         .price-table td { border: none; padding: 4px 8px; }
 
@@ -63,7 +63,7 @@
             font-weight: bold;
         }
 
-        
+
         .signature-box { width: 100%; margin-top: 30px; }
         .signature-col { width: 50%; text-align: center; float: left; }
     </style>
@@ -105,9 +105,10 @@
             <thead>
                 <tr>
                     <th style="width: 5%;">No.</th>
-                    <th style="width: 40%;">Nama Produk</th>
-                    <th style="width: 15%;" class="text-right">Qty</th>
-                    <th style="width: 20%;" class="text-right">Harga Satuan</th>
+                    <th style="width: 35%;">Nama Produk</th>
+                    <th style="width: 15%;">SKU</th>
+                    <th style="width: 10%;" class="text-right">Qty</th>
+                    <th style="width: 15%;" class="text-right">Harga Satuan</th>
                     <th style="width: 20%;" class="text-right">Subtotal</th>
                 </tr>
             </thead>
@@ -122,6 +123,7 @@
                 <tr>
                     <td>{{ $index + 1 }}</td>
                     <td>{{ $product->nama_produk ?? '-' }}</td>
+                    <td>{{ $product->kode_sku ?? '-' }}</td>
                     <td class="text-right">{{ $qty }}</td>
                     <td class="text-right">Rp {{ number_format($price, 0, ',', '.') }}</td>
                     <td class="text-right">Rp {{ number_format($lineTotal, 0, ',', '.') }}</td>
@@ -131,16 +133,10 @@
         </table>
 
         {{-- HARGA DEPRESIASI (Per Transaksi) --}}
-        @if(($penjualan->harga_depresiasi_final ?? 0) > 0)
-        <div class="section-title" style="margin-top: 12px;">HARGA DEPRESIASI</div>
-        <table class="price-table" style="width: 50%; float: right; border: 1px solid #000; margin-top: 5px;">
-            <tr>
-                <td style="padding: 6px 8px; width: 60%;">Harga Depresiasi</td>
-                <td class="text-right fw-bold" style="padding: 6px 8px; width: 40%;">Rp {{ number_format((int) $penjualan->harga_depresiasi_final, 0, ',', '.') }}</td>
-            </tr>
-        </table>
-        <div style="clear: both;"></div>
-        @endif
+        @php
+            $hargaDepresiasiNota = (int) ($penjualan->detail_penjualan->first()->harga_depresiasi ?? 0);
+        @endphp
+
 
 
         {{-- RINGKASAN HARGA (Menampilkan detail diskon & biaya tambahan) --}}
@@ -157,7 +153,8 @@
             }
             $totalBayar = $penjualan->harga_total ?? max(0, $subtotal - $diskon + $biayaTambahan);
 
-            $hargaBeliKembaliMaksimal = $penjualan->harga_depresiasi_final ?? 0;
+            // Samakan dengan halaman show: pakai harga depresiasi dari detail pertama
+            $hargaBeliKembaliMaksimal = (int) ($penjualan->detail_penjualan->first()->harga_depresiasi ?? 0);
         @endphp
         <table class="price-table" style="width: 50%; float: right; border: 1px solid #000;">
             {{-- Subtotal Produk --}}
@@ -187,18 +184,6 @@
         </table>
         <div style="clear: both;"></div>
 
-        {{-- HARGA BELI KEMBALI MAKSIMAL (Satu per Transaksi) --}}
-        @if ($hargaBeliKembaliMaksimal > 0)
-        <div class="section-title" style="margin-top: 30px; font-size: 12px; color: #a94442;">HARGA BELI KEMBALI MAKSIMAL</div>
-        <table class="price-table" style="width: 50%; float: right; border: 1px solid #000; margin-top: 5px;">
-            <tr>
-                <td class="fw-bold" style="background-color: #f9f9f9; padding: 8px 10px; width: 60%; border: none; font-size: 12px; border-right: 1px solid #000;">HARGA BELI KEMBALI MAKSIMAL (REFERENSI)</td>
-                <td class="fw-bold text-right" style="background-color: #f9f9f9; padding: 8px 10px; width: 40%; border: none; font-size: 12px;">Rp {{ number_format($hargaBeliKembaliMaksimal, 0, ',', '.') }}</td>
-            </tr>
-        </table>
-        <div style="clear: both;"></div>
-        @endif
-
         {{-- TANDA TANGAN --}}
         <div class="signature-box">
             <div class="signature-col">
@@ -212,13 +197,19 @@
         </div>
         <div style="clear: both;"></div>
 
+        {{-- CATATAN TRANSAKSI --}}
+        @if(!empty($penjualan->keterangan))
+        <div class="section-title" style="margin-top: 20px;">CATATAN</div>
+        <p style="font-size: 10px; margin: 4px 0 0 0; line-height: 1.4;">{{ $penjualan->keterangan }}</p>
+        @endif
+
         {{-- CATATAN & KETENTUAN (Diperbarui dengan keterangan depresiasi Transaksi) --}}
-        <div class="section-title" style="margin-top: 30px;">CATATAN & KETENTUAN</div>
+        <div class="section-title" style="margin-top: 30px;">KETENTUAN</div>
         <ul style="font-size: 9px; padding-left: 15px; margin-top: 5px; list-style-type: disc;">
             <li style="margin-bottom: 5px;">Barang yang sudah dibeli tidak dapat dikembalikan kecuali ada perjanjian tertulis.</li>
             <li style="margin-bottom: 5px;">Kerusakan setelah barang diterima bukan tanggung jawab toko kecuali tercantum dalam garansi.</li>
             @if ($hargaBeliKembaliMaksimal > 0)
-            <li style="margin-bottom: 5px;">*Harga Beli Kembali Maksimal* (Rp {{ number_format($hargaBeliKembaliMaksimal, 0, ',', '.') }}) dicantumkan sebagai referensi harga maksimal yang mungkin ditawarkan Dinoyo Kamera jika barang ini dijual kembali oleh customer di masa depan. Harga ini dapat berubah sewaktu-waktu tergantung kondisi fisik barang saat dijual kembali.</li>
+            <li style="margin-bottom: 5px;">*Harga Depresiasi* (Rp {{ number_format($hargaBeliKembaliMaksimal, 0, ',', '.') }})</li>
             @endif
             <li style="margin-bottom: 5px;">Nota ini berlaku sebagai bukti transaksi penjualan.</li>
         </ul>

@@ -181,7 +181,6 @@ class QCController extends Controller
                     'grade' => $data['grade'] ?? $item->grade,
                     'serial_number' => $data['serial_number'] ?? $item->serial_number,
                     'serial_lens' => $data['serial_lens'] ?? $item->serial_lens,
-                    'kelengkapan' => $data['kelengkapan'] ?? $item->kelengkapan,
                 ];
 
                 $existing = Produk::where('kode_sku', $kodeSku)->first();
@@ -195,7 +194,6 @@ class QCController extends Controller
                     $existing->grade = $productPayload['grade'];
                     $existing->serial_number = $productPayload['serial_number'];
                     $existing->serial_lens = $productPayload['serial_lens'];
-                    $existing->kelengkapan = $productPayload['kelengkapan'];
                     $existing->stok_produk = ($existing->stok_produk ?? 0) + ($productPayload['stok_produk'] ?? 0);
                     $existing->deskripsi_produk = $productPayload['deskripsi_produk'];
                     $existing->save();

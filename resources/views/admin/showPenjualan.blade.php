@@ -154,7 +154,7 @@
             <table class="table table-modern mb-0 align-middle">
                 <thead>
                     <tr>
-                        <th>Produk</th>
+                        <th style="width: 50%; min-width:200px;">Produk</th>
                         <th class="text-center" style="width: 80px;">Qty</th>
                         <th class="text-end" style="width: 120px;">Harga</th>
                         <th class="text-end" style="width: 140px;">Subtotal</th>

@@ -160,25 +160,18 @@
             @forelse ($pembelian->item_pembelian_draft as $item)
                 <div class="accordion-item">
                     <h2 class="accordion-header">
-                        <button class="accordion-button collapsed position-relative" type="button"
+                        <button class="accordion-button collapsed item-head" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#collapse-{{ $item->id }}">
 
-                            <div class="d-flex align-items-center">
-                                <span class="fw-bold">{{ $item->nama_item }}</span>
-                                <span class="ms-2 badge bg-secondary">{{ $item->kategori->nama_kategori ?? '-' }}</span>
+                            <div class="item-head-main d-flex align-items-center flex-wrap gap-2">
+                                <span class="fw-bold item-name">{{ $item->nama_item }}</span>
+                                <span class="badge bg-secondary">{{ $item->kategori->nama_kategori ?? '-' }}</span>
                             </div>
-
-                            <div class="position-absolute d-flex justify-content-end"
-                                style="right: 50px; top: 50%; transform: translateY(-50%); width: 300px;">
-
-                                <span class="text-muted small text-start" style="width: 150px; font-size: 13px;">
-                                    <b>SN: </b> {{ $item->serial_number ?? '-' }}
-                                </span>
-
-                                <span class="text-muted small text-start ms-2" style="width: 150px; font-size: 13px;">
-                                    <b>SNL: </b> {{ $item->serial_lens ?? '-' }}
-                                </span>
+                            <div class="item-sn-wrap text-muted small">
+                                <div><b>SN:</b> {{ $item->serial_number ?? '-' }}</div>
+                                <div class="ms-lg-2"><b>SNL:</b> {{ $item->serial_lens ?? '-' }}</div>
                             </div>
+                            {{-- <span class="item-toggle-label ms-auto">Lihat Detail</span> --}}
 
                         </button>
                     </h2>
@@ -258,6 +251,45 @@
         color: #000 !important;
         background-color: #D4A017 !important;
         border-color: #D4A017 !important;
+    }
+
+    /* Item accordion head responsive */
+    .item-head {
+        align-items: center !important;
+        gap: 12px;
+    }
+    .item-head-main { flex: 1 1 auto; min-width: 0; }
+    .item-name { white-space: nowrap; }
+    .item-sn-wrap {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-left: auto;
+        white-space: nowrap;
+        flex-wrap: wrap;
+    }
+    .item-toggle-label {
+        display: none;
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-right: 0.35rem; /* tepat sebelum arrow */
+    }
+
+    @media (max-width: 900px) {
+        .item-head {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 6px;
+        }
+        .item-sn-wrap {
+            width: 100%;
+            flex-direction: row;
+            align-items: flex-start;
+            gap: 6px 12px;
+            margin-left: 0;
+        }
+        .item-name { white-space: normal; }
+        .item-toggle-label { display: inline; order: 2; align-self: flex-end; }
     }
 </style>
 @endpush

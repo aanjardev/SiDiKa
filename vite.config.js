@@ -31,6 +31,8 @@ export default defineConfig({
                 "resources/css/admin/admin-layout.css",
                 "resources/css/admin/pages/dashboard.css",
                 "resources/css/admin/pages/dataPelanggan.css",
+                "resources/css/admin/pages/dataPenjualan.css",
+                "resources/css/admin/pages/listProdukJual.css",
 
 
                 "resources/js/admin/pages/dashboard.js",

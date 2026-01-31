@@ -2,6 +2,24 @@
 
 @section('title', 'Transaksi Penjualan')
 
+@push('styles')
+<style>
+    #btnTambahItem .btn-label-mobile { display: none; }
+    @media (max-width: 576px) {
+        #btnTambahItem .btn-label-full { display: none; }
+        #btnTambahItem .btn-label-mobile { display: inline; }
+    }
+    .product-name-cell { max-width: 520px; width: 50%; }
+    .product-name-clamp {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        white-space: normal !important;
+    }
+</style>
+@endpush
+
 @push('page-actions')
 @php
 $backRoute = route('admin.sales.create');
@@ -136,7 +154,9 @@ return [
                     <a href="{{ route('admin.sales.create') }}"
                         class="btn btn-primary btn-sm fw-medium d-flex align-items-center gap-2"
                         id="btnTambahItem">
-                        <i class="fa-solid fa-plus fa-fw"></i> Tambah Item
+                        <i class="fa-solid fa-plus fa-fw"></i>
+                        <span class="btn-label-full">Tambah Item</span>
+                        <span class="btn-label-mobile">Item</span>
                     </a>
 
                 </div>
@@ -146,7 +166,7 @@ return [
                         <table class="table table-hover align-middle mb-0">
                             <thead class="bg-light text-secondary small">
                                 <tr>
-                                    <th class="ps-3 py-3">Nama Produk</th>
+                                    <th class="ps-3 py-3" style="width: 50%; min-width:250px">Nama Produk</th>
                                     <th class="text-center py-3" style="width: 120px;">Qty</th>
                                     <th class="text-end py-3" style="width: 140px;">Harga Satuan</th>
                                     <th class="text-end pe-3 py-3" style="width: 160px;">Subtotal</th>
@@ -160,16 +180,13 @@ return [
                                 ?? $product?->gambar?->first()?->url;
                                 @endphp
                                 <tr data-product-id="{{ $item['product']->id ?? '' }}">
-                                    <td>
-
-                                    </td>
-                                    <td class="ps-3">
+                                    <td class="ps-3 product-name-cell">
                                         @if($productImage)
                                         <img src="{{ $productImage }}" loading="lazy" alt="Img"
                                             class="rounded-3 shadow-sm me-2"
                                             style="width: 45px; height: 45px; object-fit: cover;">
                                         @endif
-                                        <div class="fw-semibold text-dark">{{ $product->nama_produk ?? 'Produk tidak tersedia' }}</div>
+                                        <div class="fw-semibold text-dark product-name-clamp">{{ $product->nama_produk ?? 'Produk tidak tersedia' }}</div>
                                         <small class="text-muted font-monospace">{{ $product->kode_sku ?? '-' }}</small>
                                     </td>
                                     <td class="text-center">
