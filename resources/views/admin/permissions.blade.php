@@ -17,7 +17,8 @@
     -webkit-overflow-scrolling: touch;
     padding: 0;
 }
-@media (min-width: 992px) {
+/* Biarkan scroll aktif di layar <1400px agar kolom tidak saling tumpuk */
+@media (min-width: 1400px) {
     .permission-table-responsive {
         overflow-x: visible;
     }
@@ -30,6 +31,14 @@
 .permission-table-fixed th,
 .permission-table-fixed td {
     white-space: nowrap;
+}
+
+/* Aktifkan lebar minimum & scroll di layar <1400px supaya kolom tidak dipaksa menyempit */
+@media (max-width: 1399.98px) {
+    .permission-table-fixed {
+        min-width: 1100px;
+        table-layout: auto;
+    }
 }
 
 .permission-filter-input .form-control {
@@ -194,8 +203,8 @@
                 <thead>
                     <tr>
                         <th class="text-center" style="width: 5%;">No</th>
-                        <th style="width: 30%;">Nama Lengkap</th>
-                        <th>Email</th>
+                        <th style="width: 25%;">Nama Lengkap</th>
+                        <th style="width: 20%;">Email</th>
                         <th>Jenis Akses</th>
                         <th class="text-center">Status User</th>
                         <th class="text-center">Status Karyawan</th>
