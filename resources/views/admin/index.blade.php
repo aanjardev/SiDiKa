@@ -369,7 +369,7 @@
                                     <th>Kode Transaksi</th>
                                     <th>Customer</th>
                                     <th>Cabang</th>
-                                    <th style="width: 25%;">Item Dibeli</th>
+                                    <th style="width: 25%; min-width:200px; max-width: 300px;">Item Dibeli</th>
                                     <th class="text-end">Harga Deal</th>
                                     <th class="text-center">Status</th>
                                     <th class="pe-4">Waktu</th>
@@ -398,8 +398,8 @@
                                                 {{ $purchase['cabang'] }}
                                             </span>
                                         </td>
-                                        <td class="align-middle">
-                                            <div class="d-flex flex-column gap-1">
+                                        <td class="align-middle" style="min-width:200px; max-width: 300px;">
+                                            <div class="d-flex flex-column gap-1 text-wrap">
                                                 @foreach($purchase['items'] as $item)
                                                     <div class="rounded px-2 py-1">
                                                         <span class="text-dark">{{ $item['nama_produk'] }}</span>
