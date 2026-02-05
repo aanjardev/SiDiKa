@@ -1,9 +1,14 @@
 @extends('layouts.admin')
 
-@section('title', 'Proses QC - ' . ($item->nama_item ?? 'Item'))
+@php
+    $isCreate = $isCreate ?? false;
+    $isReadOnly = $isReadOnly ?? false;
+@endphp
+
+@section('title', $isCreate ? 'Tambah QC Manual' : ('Proses QC - ' . ($item->nama_item ?? 'Item')))
 
 @push('page-actions')
-    <a href="{{ route('admin.quality-control.index') }}" class="btn btn-light border btn-sm d-flex align-items-center gap-2 text-secondary fw-medium">
+    <a href="{{ $isReadOnly ? route('admin.quality-control.history') : route('admin.quality-control.index') }}" class="btn btn-light border btn-sm d-flex align-items-center gap-2 text-secondary fw-medium">
         <i class="fas fa-arrow-left"></i>
         <span>Kembali</span>
     </a>
@@ -27,11 +32,31 @@
     </div>
 @endif
 
-<form action="{{ route('admin.quality-control.update', $item->id) }}" method="POST" id="qcForm" data-validate-form>
+<form action="{{ $isCreate ? route('admin.quality-control.store') : route('admin.quality-control.update', $item->id) }}"
+      method="POST"
+      id="qcForm"
+      data-validate-form>
     @csrf
+    @if(!$isCreate)
     @method('PUT')
+    @endif
+    @if($isReadOnly)
+        @php $readonlyAttr = 'readonly'; $disabledAttr = 'disabled'; @endphp
+    @else
+        @php $readonlyAttr = ''; $disabledAttr = ''; @endphp
+    @endif
 
     <div class="row">
+        @if($isReadOnly)
+        <div class="col-12 mb-3">
+            <div class="alert alert-light border d-flex align-items-center gap-2 mb-0">
+                <i class="fa-solid fa-circle-info text-secondary"></i>
+                <span class="small text-secondary">
+                    Riwayat QC (read-only). Finalisasi: {{ $item->updated_at?->format('d M Y, H:i') ?? '-' }}
+                </span>
+            </div>
+        </div>
+        @endif
 
         {{-- KOLOM KIRI: Detail & Kondisi (Style HEAD) --}}
         <div class="col-lg-8 mb-4">
@@ -55,6 +80,7 @@
                    class="form-control border-start-0 ps-2 dynamic-field"
                    data-field="nama_item"
                    data-lolos-qc-required="true"
+                   {{ $readonlyAttr }}
                    value="{{ old('nama_item', $item->nama_item) }}"
                    autofocus>
         </div>
@@ -73,7 +99,8 @@
                 <select name="kategori_id"
                         class="form-select border-start-0 ps-2 dynamic-field"
                         data-field="kategori_id"
-                        data-lolos-qc-required="true">
+                        data-lolos-qc-required="true"
+                        {{ $disabledAttr }}>
                     <option value="">Pilih Kategori</option>
                     @foreach($semua_kategori as $kat)
                         <option value="{{ $kat->id }}" {{ (old('kategori_id', $item->kategori_id) == $kat->id) ? 'selected' : '' }}>
@@ -96,6 +123,7 @@
                        class="form-control border-start-0 ps-2 dynamic-field"
                        data-field="kode_sku"
                        data-lolos-qc-required="true"
+                       {{ $readonlyAttr }}
                        value="{{ old('kode_sku', $item->kode_sku) }}">
             </div>
             <div class="invalid-feedback dynamic-error" data-field="kode_sku" style="display: none;">
@@ -111,6 +139,7 @@
                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-fingerprint"></i></span>
                 <input type="text" name="serial_number"
                        class="form-control border-start-0 ps-2 font-monospace"
+                       {{ $readonlyAttr }}
                        value="{{ old('serial_number', $item->serial_number) }}">
             </div>
         </div>
@@ -120,6 +149,7 @@
                 <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-fingerprint"></i></span>
                 <input type="text" name="serial_lens"
                        class="form-control border-start-0 ps-2 font-monospace"
+                       {{ $readonlyAttr }}
                        value="{{ old('serial_lens', $item->serial_lens) }}">
             </div>
         </div>
@@ -145,21 +175,21 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Kondisi Fisik</label>
-                            <input type="text" name="kondisi_fisik" class="form-control form-control-sm" value="{{ old('kondisi_fisik', $item->kondisi_fisik) }}">
+                            <input type="text" name="kondisi_fisik" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_fisik', $item->kondisi_fisik) }}">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Kondisi Baut</label>
-                            <input type="text" name="kondisi_baut" class="form-control form-control-sm" value="{{ old('kondisi_baut', $item->kondisi_baut) }}">
+                            <input type="text" name="kondisi_baut" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_baut', $item->kondisi_baut) }}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Tutup USB</label>
-                            <input type="text" name="kondisi_tutup_usb" class="form-control form-control-sm" value="{{ old('kondisi_tutup_usb', $item->kondisi_tutup_usb) }}">
+                            <input type="text" name="kondisi_tutup_usb" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_tutup_usb', $item->kondisi_tutup_usb) }}">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Karet Grip</label>
-                            <input type="text" name="kondisi_grip" class="form-control form-control-sm" value="{{ old('kondisi_grip', $item->kondisi_grip) }}">
+                            <input type="text" name="kondisi_grip" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_grip', $item->kondisi_grip) }}">
                         </div>
                     </div>
                 </div>
@@ -178,31 +208,31 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Jamur Lensa</label>
-                            <input type="text" name="kondisi_jamur_lensa" class="form-control form-control-sm" value="{{ old('kondisi_jamur_lensa', $item->kondisi_jamur_lensa) }}">
+                            <input type="text" name="kondisi_jamur_lensa" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_jamur_lensa', $item->kondisi_jamur_lensa) }}">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Jamur Sensor</label>
-                            <input type="text" name="kondisi_jamur_sensor" class="form-control form-control-sm" value="{{ old('kondisi_jamur_sensor', $item->kondisi_jamur_sensor) }}">
+                            <input type="text" name="kondisi_jamur_sensor" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_jamur_sensor', $item->kondisi_jamur_sensor) }}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Auto Fokus (AF)</label>
-                            <input type="text" name="kondisi_af_lensa" class="form-control form-control-sm" value="{{ old('kondisi_af_lensa', $item->kondisi_af_lensa) }}">
+                            <input type="text" name="kondisi_af_lensa" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_af_lensa', $item->kondisi_af_lensa) }}">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Diafragma (Aperture)</label>
-                            <input type="text" name="kondisi_diafragma_lensa" class="form-control form-control-sm" value="{{ old('kondisi_diafragma_lensa', $item->kondisi_diafragma_lensa) }}">
+                            <input type="text" name="kondisi_diafragma_lensa" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_diafragma_lensa', $item->kondisi_diafragma_lensa) }}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Zooming</label>
-                            <input type="text" name="kondisi_zoom_lensa" class="form-control form-control-sm" value="{{ old('kondisi_zoom_lensa', $item->kondisi_zoom_lensa) }}">
+                            <input type="text" name="kondisi_zoom_lensa" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_zoom_lensa', $item->kondisi_zoom_lensa) }}">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">View Finder</label>
-                            <input type="text" name="kondisi_view_finder" class="form-control form-control-sm" value="{{ old('kondisi_view_finder', $item->kondisi_view_finder) }}">
+                            <input type="text" name="kondisi_view_finder" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_view_finder', $item->kondisi_view_finder) }}">
                         </div>
                     </div>
                 </div>
@@ -221,40 +251,40 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Mounting</label>
-                            <input type="text" name="kondisi_mounting" class="form-control form-control-sm" value="{{ old('kondisi_mounting', $item->kondisi_mounting) }}">
+                            <input type="text" name="kondisi_mounting" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_mounting', $item->kondisi_mounting) }}">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Slot Memori</label>
-                            <input type="text" name="kondisi_slot_memori" class="form-control form-control-sm" value="{{ old('kondisi_slot_memori', $item->kondisi_slot_memori) }}">
+                            <input type="text" name="kondisi_slot_memori" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_slot_memori', $item->kondisi_slot_memori) }}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">LCD</label>
-                            <input type="text" name="kondisi_lcd" class="form-control form-control-sm" value="{{ old('kondisi_lcd', $item->kondisi_lcd) }}">
+                            <input type="text" name="kondisi_lcd" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_lcd', $item->kondisi_lcd) }}">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Tombol</label>
-                            <input type="text" name="kondisi_tombol" class="form-control form-control-sm" value="{{ old('kondisi_tombol', $item->kondisi_tombol) }}">
+                            <input type="text" name="kondisi_tombol" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_tombol', $item->kondisi_tombol) }}">
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Flash</label>
-                            <input type="text" name="kondisi_flash" class="form-control form-control-sm" value="{{ old('kondisi_flash', $item->kondisi_flash) }}">
+                            <input type="text" name="kondisi_flash" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_flash', $item->kondisi_flash) }}">
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label small text-muted">Sound / Mic</label>
-                            <input type="text" name="kondisi_sound_mic" class="form-control form-control-sm" value="{{ old('kondisi_sound_mic', $item->kondisi_sound_mic) }}">
+                            <input type="text" name="kondisi_sound_mic" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_sound_mic', $item->kondisi_sound_mic) }}">
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label small text-muted">Kondisi Lain-lain</label>
-                        <input type="text" name="kondisi_lain_lain" class="form-control form-control-sm" value="{{ old('kondisi_lain_lain', $item->kondisi_lain_lain) }}">
+                        <input type="text" name="kondisi_lain_lain" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kondisi_lain_lain', $item->kondisi_lain_lain) }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label small text-muted fw-bold">Kelengkapan</label>
-                        <input type="text" name="kelengkapan" class="form-control form-control-sm" value="{{ old('kelengkapan', $item->kelengkapan) }}" placeholder="Box, Charger, dll">
+                        <input type="text" name="kelengkapan" class="form-control form-control-sm" {{ $readonlyAttr }} value="{{ old('kelengkapan', $item->kelengkapan) }}" placeholder="Box, Charger, dll">
                     </div>
                 </div>
             </div>
@@ -269,6 +299,7 @@
                   class="form-control dynamic-field"
                   data-field="deskripsi_produk"
                   data-lolos-qc-required="true"
+                  {{ $readonlyAttr }}
                   rows="4">{{ old('deskripsi_produk', $item->deskripsi_produk) }}</textarea>
         <div class="invalid-feedback dynamic-error" data-field="deskripsi_produk" style="display: none;">
             Deskripsi Produk wajib diisi
@@ -294,7 +325,7 @@
                         <label class="form-label fw-medium text-secondary small">Harga Modal</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">Rp</span>
-                            <input type="text" name="harga_beli" id="harga_beli" class="form-control border-start-0 ps-2 rupiah-mask" value="{{ old('harga_beli', $item->harga_beli) }}">
+                            <input type="text" name="harga_beli" id="harga_beli" class="form-control border-start-0 ps-2 rupiah-mask" {{ $readonlyAttr }} value="{{ old('harga_beli', $item->harga_beli) }}">
                         </div>
                     </div>
 
@@ -303,7 +334,7 @@
                         <label class="form-label fw-medium text-secondary small">Biaya Servis</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3">Rp</span>
-                            <input type="text" name="harga_servis" id="harga_servis" class="form-control border-start-0 ps-2 rupiah-mask" value="{{ old('harga_servis', $item->harga_servis) }}">
+                            <input type="text" name="harga_servis" id="harga_servis" class="form-control border-start-0 ps-2 rupiah-mask" {{ $readonlyAttr }} value="{{ old('harga_servis', $item->harga_servis) }}">
                         </div>
                     </div>
 
@@ -318,6 +349,7 @@
                                 class="form-control border-start-0 ps-2 rupiah-mask dynamic-field"
                                 data-field="harga_jual"
                                 data-lolos-qc-required="true"
+                                {{ $readonlyAttr }}
                                 value="{{ old('harga_jual', $item->harga_jual) }}">
                         </div>
                         <div class="invalid-feedback dynamic-error" data-field="harga_jual" style="display: none;">
@@ -330,7 +362,7 @@
                         <label class="form-label fw-medium text-secondary small">Qty</label>
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-muted ps-3"><i class="fa-solid fa-cubes"></i></span>
-                            <input type="number" name="qty" class="form-control border-start-0 ps-2" value="{{ old('qty', $item->qty) }}">
+                            <input type="number" name="qty" class="form-control border-start-0 ps-2" {{ $readonlyAttr }} value="{{ old('qty', $item->qty) }}">
                         </div>
                     </div>
 
@@ -338,7 +370,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium text-secondary small">Grade</label>
-                            <select name="grade" class="form-select">
+                            <select name="grade" class="form-select" {{ $disabledAttr }}>
                                 <option value="Unggulan" {{ (old('grade', $item->grade) == 'Unggulan') ? 'selected' : '' }}>Unggulan</option>
                                 <option value="Standar" {{ (old('grade', $item->grade) == 'Standar') ? 'selected' : '' }}>Standar</option>
                                 <option value="Minus" {{ (old('grade', $item->grade) == 'Minus') ? 'selected' : '' }}>Minus</option>
@@ -346,7 +378,7 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label fw-medium text-secondary small">Status Barang</label>
-                            <select name="status" class="form-select">
+                            <select name="status" class="form-select" {{ $disabledAttr }}>
                                 <option value="Second" {{ (old('status', $item->status) == 'Second') ? 'selected' : '' }}>Second</option>
                                 <option value="Baru" {{ (old('status', $item->status) == 'Baru') ? 'selected' : '' }}>Baru</option>
                             </select>
@@ -358,7 +390,7 @@
                     {{-- Status QC --}}
                     <div class="mb-3">
                         <label class="form-label fw-bold text-dark small">STATUS AKHIR QC</label>
-                        <select name="status_qc" class="form-select form-select-lg fw-bold {{ $item->status_qc == 'lolos_qc' ? 'text-success border-success' : 'text-secondary' }}">
+                        <select name="status_qc" class="form-select form-select-lg fw-bold {{ $item->status_qc == 'lolos_qc' ? 'text-success border-success' : 'text-secondary' }}" {{ $disabledAttr }}>
                             <option value="menunggu_qc" {{ (old('status_qc', $item->status_qc) == 'menunggu_qc') ? 'selected' : '' }}>Menunggu QC</option>
                             <option value="lolos_qc" {{ (old('status_qc', $item->status_qc) == 'lolos_qc') ? 'selected' : '' }}>Lolos QC</option>
                             <option value="gagal_qc" {{ (old('status_qc', $item->status_qc) == 'gagal_qc') ? 'selected' : '' }}>Gagal QC</option>
@@ -368,10 +400,11 @@
 
                     <div class="mb-4">
                         <label class="form-label fw-medium text-secondary small">Catatan QC Internal</label>
-                        <textarea name="catatan_qc" class="form-control" rows="2" placeholder="Catatan untuk tim internal...">{{ old('catatan_qc', $item->catatan_qc) }}</textarea>
+                        <textarea name="catatan_qc" class="form-control" rows="2" placeholder="Catatan untuk tim internal..." {{ $readonlyAttr }}>{{ old('catatan_qc', $item->catatan_qc) }}</textarea>
                     </div>
 
                     {{-- Action Button (Smart - Auto maps status to action) --}}
+                    @if(!$isReadOnly)
                     <div class="d-grid gap-2">
                         <button type="submit" id="smartActionBtn" class="btn fw-medium py-2" data-status="{{ $item->status_qc }}">
                             <i id="smartActionIcon" class="fa-solid fa-save me-2"></i>
@@ -381,6 +414,7 @@
                     <small class="d-block text-muted mt-2 text-center" id="smartActionHint">
                         Tombol akan menyesuaikan dengan status QC yang dipilih
                     </small>
+                    @endif
 
                 </div>
             </div>
@@ -436,6 +470,7 @@
 @endpush
 
 @push('scripts')
+@if(!$isReadOnly)
 <script>
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -464,7 +499,10 @@
         }
     });
 </script>
+@endif
 
 
+@if(!$isReadOnly)
 @vite('resources/js/qualityControl/data-qc.js')
+@endif
 @endpush

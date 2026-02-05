@@ -4,9 +4,15 @@
 
         {{-- ID Pembelian --}}
         <td>
-            <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small qc-code-chip">
-
-            </span>
+            @if($item->pembelian)
+                <a href="{{ route('admin.purchases.show', $item->pembelian->id) }}"
+                   class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none clickable-code qc-code-chip"
+                   onclick="event.stopPropagation();">
+                    {{ $item->pembelian->kode_transaksi ?? ('#' . $item->pembelian->id) }}
+                </a>
+            @else
+                <span class="fw-bold text-secondary font-monospace bg-light px-2 py-1 rounded small qc-code-chip">QC Manual</span>
+            @endif
         </td>
 
         {{-- Nama Item --}}

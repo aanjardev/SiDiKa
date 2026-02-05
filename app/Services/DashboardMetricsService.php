@@ -29,7 +29,8 @@ class DashboardMetricsService
     *   recentPurchases:Collection,
     *   dataCabang:Collection,
     *   namaCabangTerbaik:string,
-    *   labaCabangTerbaik:int,
+    *   bestBranchGrowthPercent:float,
+    *   bestBranchGrowthPeriod:array{from:array{year:int,month:int},to:array{year:int,month:int}},
     *   showBestBranch:bool,
     * }
     */
@@ -85,7 +86,7 @@ class DashboardMetricsService
         $recentSales = $this->recentSales($year, $branchId);
         $recentPurchases = $this->recentPurchases($year, $branchId);
 
-        [$dataCabang, $namaCabangTerbaik, $labaCabangTerbaik, $showBestBranch] = $this->branchPerformance(
+        [$dataCabang, $namaCabangTerbaik, $bestBranchGrowthPercent, $bestBranchGrowthPeriod, $showBestBranch] = $this->branchPerformance(
             $year,
             $month,
             $branchId
@@ -105,7 +106,8 @@ class DashboardMetricsService
             'recentPurchases' => $recentPurchases,
             'dataCabang' => $dataCabang,
             'namaCabangTerbaik' => $namaCabangTerbaik,
-            'labaCabangTerbaik' => $labaCabangTerbaik,
+            'bestBranchGrowthPercent' => round($bestBranchGrowthPercent, 2),
+            'bestBranchGrowthPeriod' => $bestBranchGrowthPeriod,
             'showBestBranch' => $showBestBranch,
         ];
     }
@@ -324,7 +326,7 @@ class DashboardMetricsService
     }
 
     /**
-     * @return array{0:Collection,1:string,2:int,3:bool}
+     * @return array{0:Collection,1:string,2:float,3:array{from:array{year:int,month:int},to:array{year:int,month:int}},4:bool}
      */
     private function branchPerformance(int $year, ?int $month, ?int $branchId): array
     {
@@ -379,12 +381,88 @@ class DashboardMetricsService
             ];
         })->values();
 
-        $cabangTerbaik = $dataCabang->sortByDesc('labaBersihCabang')->first();
+        $referenceYear = $year;
+        $referenceMonth = $month;
+        if (!$referenceMonth) {
+            if ($year === (int) now()->year) {
+                $referenceYear = (int) now()->year;
+                $referenceMonth = (int) now()->month;
+            } else {
+                $referenceYear = $year;
+                $referenceMonth = 12;
+            }
+        }
 
-        $labaTertinggi = $cabangTerbaik ? $cabangTerbaik['labaBersihCabang'] : 0;
-        $namaCabangTerbaik = ($cabangTerbaik && $labaTertinggi > 0) ? $cabangTerbaik['namaCabang'] : '-';
-        $labaCabangTerbaik = $labaTertinggi;
+        [$prev1Year, $prev1Month] = $this->shiftMonth($referenceYear, $referenceMonth, -1);
+        [$prev2Year, $prev2Month] = $this->shiftMonth($referenceYear, $referenceMonth, -2);
 
-        return [$dataCabang, $namaCabangTerbaik, $labaCabangTerbaik, $showBestBranch];
+        $omsetPrev1 = Penjualan::query()
+            ->selectRaw('perusahaan_cabang_id, SUM(harga_total) as total')
+            ->whereYear('created_at', $prev1Year)
+            ->whereMonth('created_at', $prev1Month)
+            ->when($branchId, fn ($q) => $q->where('perusahaan_cabang_id', $branchId))
+            ->groupBy('perusahaan_cabang_id')
+            ->pluck('total', 'perusahaan_cabang_id');
+
+        $omsetPrev2 = Penjualan::query()
+            ->selectRaw('perusahaan_cabang_id, SUM(harga_total) as total')
+            ->whereYear('created_at', $prev2Year)
+            ->whereMonth('created_at', $prev2Month)
+            ->when($branchId, fn ($q) => $q->where('perusahaan_cabang_id', $branchId))
+            ->groupBy('perusahaan_cabang_id')
+            ->pluck('total', 'perusahaan_cabang_id');
+
+        $bestBranch = null;
+        $bestGrowth = 0.0;
+        $bestPrev1 = 0;
+        $bestPrev2 = 0;
+
+        foreach ($dataCabang as $branch) {
+            $prev1 = (int) ($omsetPrev1[$branch['id']] ?? 0);
+            $prev2 = (int) ($omsetPrev2[$branch['id']] ?? 0);
+
+            if ($prev2 > 0) {
+                $growth = (($prev1 - $prev2) / $prev2) * 100;
+            } else {
+                $growth = $prev1 > 0 ? 100.0 : 0.0;
+            }
+
+            if ($bestBranch === null || $growth > $bestGrowth) {
+                $bestBranch = $branch;
+                $bestGrowth = $growth;
+                $bestPrev1 = $prev1;
+                $bestPrev2 = $prev2;
+            }
+        }
+
+        $namaCabangTerbaik = '-';
+        if ($bestBranch && ($bestGrowth != 0.0 || $bestPrev1 > 0 || $bestPrev2 > 0)) {
+            $namaCabangTerbaik = $bestBranch['namaCabang'] ?? '-';
+        }
+
+        $bestBranchGrowthPeriod = [
+            'from' => ['year' => $prev2Year, 'month' => $prev2Month],
+            'to' => ['year' => $prev1Year, 'month' => $prev1Month],
+        ];
+
+        return [$dataCabang, $namaCabangTerbaik, $bestGrowth, $bestBranchGrowthPeriod, $showBestBranch];
+    }
+
+    /**
+     * @return array{0:int,1:int} year, month
+     */
+    private function shiftMonth(int $year, int $month, int $delta): array
+    {
+        $month += $delta;
+        while ($month <= 0) {
+            $month += 12;
+            $year -= 1;
+        }
+        while ($month > 12) {
+            $month -= 12;
+            $year += 1;
+        }
+
+        return [$year, $month];
     }
 }

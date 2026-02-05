@@ -60,7 +60,8 @@ class DashboardController extends Controller
             'recentPurchases' => $metrics['recentPurchases'],
             'dataCabang' => $metrics['dataCabang'],
             'namaCabangTerbaik' => $metrics['namaCabangTerbaik'],
-            'labaCabangTerbaik' => $metrics['labaCabangTerbaik'],
+            'bestBranchGrowthPercent' => $metrics['bestBranchGrowthPercent'],
+            'bestBranchGrowthPeriod' => $metrics['bestBranchGrowthPeriod'],
             'showBestBranch' => $metrics['showBestBranch'],
         ]);
     }}

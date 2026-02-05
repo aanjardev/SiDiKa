@@ -8,6 +8,14 @@
         <i class="fas fa-archive fa-fw"></i>
         <span>Arsip Produk</span>
     </a>
+    <a href="{{ route('admin.quality-control.history') }}" class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+        <i class="fas fa-clock-rotate-left fa-fw"></i>
+        <span>Riwayat QC</span>
+    </a>
+    <a href="{{ route('admin.quality-control.create') }}" class="btn btn-success btn-sm d-flex align-items-center gap-2">
+        <i class="fas fa-plus fa-fw"></i>
+        <span>Tambah QC</span>
+    </a>
 @endpush
 
 @push('styles')
@@ -316,11 +324,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
                             {{-- ID Pembelian --}}
                             <td>
-                                <a href="{{ route('admin.purchases.show', $item->pembelian->id) }}"
-                                   class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none clickable-code qc-code-chip"
-                                   onclick="event.stopPropagation();">
-
-                                </a>
+                                @if($item->pembelian)
+                                    <a href="{{ route('admin.purchases.show', $item->pembelian->id) }}"
+                                       class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none clickable-code qc-code-chip"
+                                       onclick="event.stopPropagation();">
+                                        {{ $item->pembelian->kode_transaksi ?? ('#' . $item->pembelian->id) }}
+                                    </a>
+                                @else
+                                    <span class="fw-bold text-secondary font-monospace bg-light px-2 py-1 rounded small qc-code-chip">QC Manual</span>
+                                @endif
                             </td>
 
                             {{-- Nama Item --}}

@@ -174,9 +174,13 @@
 
                         {{-- Kode Transaksi Pembelian --}}
                         <td>
-                            <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
-                                {{ $item->pembelian->kode_transaksi ?? ('#' . $item->pembelian_id) }}
-                            </span>
+                            @if($item->pembelian)
+                                <span class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small">
+                                    {{ $item->pembelian->kode_transaksi ?? ('#' . $item->pembelian_id) }}
+                                </span>
+                            @else
+                                <span class="fw-bold text-secondary font-monospace bg-light px-2 py-1 rounded small">QC Manual</span>
+                            @endif
                         </td>
 
                         {{-- Nama Item --}}
