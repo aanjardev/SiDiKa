@@ -122,6 +122,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::patch('/branches/{branch}/status', [BranchController::class, 'updateStatus'])->name('branches.update-status');
     Route::resource('/branches', BranchController::class)->names('branches');
 
+    Route::post('/sales/cart-sync', [PenjualanController::class, 'syncCart'])->name('sales.cart-sync');
     Route::resource('/sales', PenjualanController::class)->names('sales');
     Route::resource('/purchases', PembelianController::class)->names('purchases');
     Route::get('/sales/export/pdf', [PenjualanController::class, 'exportMonthlyPdf'])->name('sales.export.pdf');

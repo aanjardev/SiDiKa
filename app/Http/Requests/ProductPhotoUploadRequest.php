@@ -15,7 +15,7 @@ class ProductPhotoUploadRequest extends FormRequest
     {
         return [
             'images'     => ['sometimes', 'array', 'min:1'],
-            'images.*'   => ['image', 'max:5120'],
+            'images.*'   => ['image', 'max:10240'],
             'main_image' => ['nullable', 'string'],
         ];
     }

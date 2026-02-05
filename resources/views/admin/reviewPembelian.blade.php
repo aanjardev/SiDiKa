@@ -259,7 +259,17 @@
         gap: 12px;
     }
     .item-head-main { flex: 1 1 auto; min-width: 0; }
-    .item-name { white-space: nowrap; }
+    .item-name {
+        display: inline-block;
+        max-width: 360px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        vertical-align: middle;
+    }
     .item-sn-wrap {
         display: flex;
         gap: 12px;
@@ -288,7 +298,10 @@
             gap: 6px 12px;
             margin-left: 0;
         }
-        .item-name { white-space: normal; }
+        .item-name {
+            max-width: 100%;
+            white-space: normal;
+        }
         .item-toggle-label { display: inline; order: 2; align-self: flex-end; }
     }
 </style>

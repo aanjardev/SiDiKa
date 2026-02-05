@@ -41,7 +41,8 @@ class ProcessProductImage implements ShouldQueue
         public int $productId,
         public array $temporaryFilePaths,
         public ?int $mainImageIndex = null,
-        public ?int $userId = null
+        public ?int $userId = null,
+        public bool $autoEnableVisibility = false
     ) {
 
     }
@@ -54,6 +55,11 @@ class ProcessProductImage implements ShouldQueue
         DB::beginTransaction();
         try {
             $product = Produk::findOrFail($this->productId);
+            Log::info('ProcessProductImage starting', [
+                'product_id' => $this->productId,
+                'autoEnableVisibility' => $this->autoEnableVisibility,
+                'temporary_files_count' => count($this->temporaryFilePaths)
+            ]);
             $hasMain = $product->gambarUtama()->exists();
             $createdIds = [];
 
@@ -68,13 +74,49 @@ class ProcessProductImage implements ShouldQueue
                 
                 try {
 
-
                     // ImageUpload will automatically increase memory limit and use Imagick if available
                     $prefix = 'product/' . $product->id;
-                    $paths = \App\Helpers\ImageUpload::upload(
-                        $tempFilePath,
-                        $prefix
-                    );
+                    
+                    // Try a lightweight move first (no re-encode) to avoid heavy memory usage.
+                    try {
+                        $paths = \App\Helpers\SimpleImageMover::move(
+                            $tempFilePath,
+                            $prefix
+                        );
+                        Log::info("Simple mover used for image", ['file' => $tempPath, 'product_id' => $product->id, 'path' => $paths['path']]);
+                    } catch (\Throwable $moverError) {
+                        // If simple mover fails, fall back to optimized (may use more memory)
+                        Log::warning("Simple mover failed, attempting optimized upload", [
+                            'file' => $tempPath,
+                            'error' => $moverError->getMessage(),
+                        ]);
+
+                        try {
+                            $paths = \App\Helpers\ImageUploadOptimized::upload(
+                                $tempFilePath,
+                                $prefix
+                            );
+                            Log::info("Optimized upload used for image", ['file' => $tempPath, 'product_id' => $product->id, 'path' => $paths['path']]);
+                        } catch (\Throwable $imageError) {
+                            // Log detailed error untuk debugging, but continue to next image
+                            Log::error("ImageUpload failed: " . $imageError->getMessage(), [
+                                'file' => $tempPath,
+                                'product_id' => $product->id,
+                                'error' => $imageError->getMessage(),
+                            ]);
+                            // try delete temp and continue
+                            try {
+                                if (Storage::disk('local')->exists($tempPath)) {
+                                    Storage::disk('local')->delete($tempPath);
+                                }
+                            } catch (\Throwable $deleteError) {
+                                Log::warning("Failed to delete temporary file after image error: {$tempPath}", ['error' => $deleteError->getMessage()]);
+                            }
+
+                            continue;
+                        }
+                    }
+                    
                     $permanentPath = $paths['path'];
 
                     Storage::disk('local')->delete($tempPath);
@@ -129,6 +171,15 @@ class ProcessProductImage implements ShouldQueue
             }
 
             DB::commit();
+            
+            // PERBAIKAN: Auto-enable visibility setelah berhasil upload gambar
+            if ($this->autoEnableVisibility) {
+                $product->update(['is_visible' => true]);
+                Log::info("Auto-enabled product visibility after image upload", [
+                    'product_id' => $this->productId,
+                    'product_name' => $product->nama_produk
+                ]);
+            }
 
             if ($this->userId) {
                 $user = User::find($this->userId);

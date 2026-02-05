@@ -206,7 +206,7 @@
     }
     .product-table-responsive .table {
         min-width: 860px;
-        width: max-content;
+        width: 100%;
     }
     .product-filter-input .form-control {
         min-width: 220px;

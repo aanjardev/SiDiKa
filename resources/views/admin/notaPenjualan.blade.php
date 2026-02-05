@@ -4,7 +4,7 @@
     <title>Nota Penjualan #{{ $penjualan->kode_transaksi }}</title>
     <style>
 
-        body { font-family: sans-serif; font-size: 10px; margin: 0; padding: 0; }
+        body { font-family: sans-serif; font-size: 13px; margin: 0; padding: 0; }
         .container { width: 90%; margin: 0 auto; }
 
 
@@ -25,11 +25,11 @@
             overflow: hidden;
         }
         .text-details h3 {
-            font-size: 20px;
+            font-size: 24px;
             margin: 0 0 5px 0 !important;
         }
         .text-details p {
-            font-size: 12px;
+            font-size: 14px;
             margin: 0 0 3px 0 !important;
         }
 
@@ -42,7 +42,7 @@
 
         .item-table th, .item-table td {
             border: 1px solid #ccc;
-            padding: 6px 8px;
+            padding: 8px 10px;
             text-align: left;
         }
         .item-table th { background-color: #f0f0f0; }
@@ -55,7 +55,7 @@
         .fw-bold { font-weight: bold; }
 
         .section-title {
-            font-size: 11px;
+            font-size: 13px;
             margin-top: 15px;
             margin-bottom: 5px;
             border-bottom: 1px solid #000;
@@ -136,6 +136,9 @@
         @php
             $hargaDepresiasiNota = (int) ($penjualan->detail_penjualan->first()->harga_depresiasi ?? 0);
         @endphp
+        @if ($hargaDepresiasiNota > 0)
+        <p style="margin: 8px 0 0 0;"><strong>Harga Depresiasi:</strong> Rp {{ number_format($hargaDepresiasiNota, 0, ',', '.') }}</p>
+        @endif
 
 
 
@@ -200,24 +203,21 @@
         {{-- CATATAN TRANSAKSI --}}
         @if(!empty($penjualan->keterangan))
         <div class="section-title" style="margin-top: 20px;">CATATAN</div>
-        <p style="font-size: 10px; margin: 4px 0 0 0; line-height: 1.4;">{{ $penjualan->keterangan }}</p>
+        <p style="font-size: 12px; margin: 4px 0 0 0; line-height: 1.4;">{{ $penjualan->keterangan }}</p>
         @endif
 
         {{-- CATATAN & KETENTUAN (Diperbarui dengan keterangan depresiasi Transaksi) --}}
         <div class="section-title" style="margin-top: 30px;">KETENTUAN</div>
-        <ul style="font-size: 9px; padding-left: 15px; margin-top: 5px; list-style-type: disc;">
+        <ul style="font-size: 11px; padding-left: 15px; margin-top: 5px; list-style-type: disc;">
             <li style="margin-bottom: 5px;">Barang yang sudah dibeli tidak dapat dikembalikan kecuali ada perjanjian tertulis.</li>
             <li style="margin-bottom: 5px;">Kerusakan setelah barang diterima bukan tanggung jawab toko kecuali tercantum dalam garansi.</li>
-            @if ($hargaBeliKembaliMaksimal > 0)
-            <li style="margin-bottom: 5px;">*Harga Depresiasi* (Rp {{ number_format($hargaBeliKembaliMaksimal, 0, ',', '.') }})</li>
-            @endif
             <li style="margin-bottom: 5px;">Nota ini berlaku sebagai bukti transaksi penjualan.</li>
         </ul>
     </div>
 
     {{-- FOOTER --}}
     <div class="footer">
-        <p style="margin: 0; font-size: 8px;">Terima kasih telah bertransaksi di {{ $penjualan->perusahaan_cabang->nama ?? 'Toko Kami' }}.</p>
+        <p style="margin: 0; font-size: 10px;">Terima kasih telah bertransaksi di {{ $penjualan->perusahaan_cabang->nama ?? 'Toko Kami' }}.</p>
     </div>
 </div>
 

@@ -99,8 +99,8 @@
                     <div class="card-body p-3 d-flex flex-column">
                         {{-- Meta: SKU & Kategori --}}
                         <div class="d-flex justify-content-between align-items-center mb-1">
-                            <small class="text-muted font-monospace" style="font-size: 0.75rem;">{{ $product->kode_sku }}</small>
-                            <span class="badge bg-light text-secondary border border-light-subtle text-warp text-end" style="font-size: 0.7rem;">
+                            <small class="text-muted font-monospace meta-sku" style="font-size: 0.75rem;">{{ $product->kode_sku }}</small>
+                            <span class="badge bg-light text-secondary border border-light-subtle text-warp text-end meta-category" style="font-size: 0.7rem;">
                                 {{ $product->kategori->nama_kategori ?? 'Umum' }}
                             </span>
                         </div>
@@ -316,21 +316,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.querySelector('input[name="search"]');
     const searchForm = document.getElementById('searchForm');
     let searchTimeout;
+    let lastValue = searchInput ? searchInput.value : '';
 
     if (searchInput && searchForm) {
+        // Pastikan caret tetap di akhir teks ketika halaman reload
+        const len = searchInput.value.length;
+        searchInput.focus({ preventScroll: true });
+        searchInput.setSelectionRange(len, len);
+
         searchInput.addEventListener('input', function() {
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(function() {
-                searchForm.submit();
-            }, 500); // Submit setelah 500ms idle
+                if (searchInput.value !== lastValue) {
+                    lastValue = searchInput.value;
+                    searchForm.submit();
+                }
+            }, 1200); // debounce utama
         });
 
         searchInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 e.preventDefault();
                 clearTimeout(searchTimeout);
-                searchForm.submit();
+                if (searchInput.value !== lastValue) {
+                    lastValue = searchInput.value;
+                    searchForm.submit();
+                }
             }
+        });
+
+        // Tambahkan debounce khusus saat penghapusan cepat agar tidak auto-submit saat masih menghapus
+        ['keydown', 'keyup'].forEach(evt => {
+            searchInput.addEventListener(evt, (e) => {
+                const isDelete =
+                    e.key === 'Backspace' ||
+                    e.key === 'Delete' ||
+                    (e.ctrlKey && e.key?.toLowerCase() === 'z');
+                if (isDelete) {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(() => {
+                        if (searchInput.value !== lastValue) {
+                            lastValue = searchInput.value;
+                            searchForm.submit();
+                        }
+                    }, 1500); // jeda lebih lama khusus hapus
+                }
+            });
         });
     }
 });
@@ -342,6 +373,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const initialSelectionsEl = document.getElementById('cart-selections-json');
     const initialSelections = initialSelectionsEl ? JSON.parse(initialSelectionsEl.textContent || '[]') : [];
 
+    const syncUrl = "{{ route('admin.sales.cart-sync') }}";
+    const csrfToken = document.querySelector('meta[name=\"csrf-token\"]')?.getAttribute('content') || '';
+    let syncTimeout = null;
+
+    const sendCart = (immediate = false) => {
+        if (!syncUrl) return;
+
+        const payload = Object.entries(selections).map(([id, data]) => ({
+            id,
+            qty: data.qty || 0,
+            price: data.price || 0,
+        }));
+        const body = JSON.stringify({ items: payload, _token: csrfToken });
+
+        if (navigator.sendBeacon && immediate) {
+            const blob = new Blob([body], { type: 'application/json' });
+            navigator.sendBeacon(syncUrl, blob);
+            return;
+        }
+
+        fetch(syncUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': csrfToken,
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        credentials: 'same-origin',
+        keepalive: true,
+        body,
+        }).catch(() => {});
+    };
+
+    const scheduleSync = () => {
+        clearTimeout(syncTimeout);
+        syncTimeout = setTimeout(() => sendCart(false), 300);
+    };
+
     const summaryEl = document.getElementById('cartSummary');
     const summaryItemsEl = document.getElementById('summaryItems');
     const summaryPriceEl = document.getElementById('summaryPrice');
@@ -352,6 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnToggleCartDetail = document.getElementById('btnToggleCartDetail');
     const btnCloseCartDetail = document.getElementById('btnCloseCartDetail');
     const cartOverlayEl = document.getElementById('cartOverlay');
+    const searchFormEl = document.getElementById('searchForm');
 
     const productMeta = {};
     const selections = initialSelections.reduce((acc, item) => {
@@ -363,6 +433,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         return acc;
     }, {});
+
+    if (searchFormEl) {
+        searchFormEl.addEventListener('submit', () => sendCart(true));
+    }
 
     function adjustQtyFromDetail(productId, delta) {
         if (!productId) return;
@@ -506,6 +580,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 cartDetailEl.classList.add('d-none');
             }
         }
+
+        scheduleSync();
     };
 
     document.querySelectorAll('.product-card').forEach(card => {

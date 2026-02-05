@@ -158,6 +158,44 @@ class PenjualanController extends Controller
         ]);
     }
 
+    public function syncCart(Request $request)
+    {
+        $items = $request->input('items');
+
+        if (!is_array($items)) {
+            return response()->json([
+                'message' => 'Format data tidak valid.'
+            ], 422);
+        }
+
+        $normalized = collect($items)
+            ->map(function ($item) {
+                $id = isset($item['id']) ? (string) $item['id'] : null;
+                $qty = max(0, (int) ($item['qty'] ?? 0));
+                $price = (int) ($item['price'] ?? 0);
+
+                return $id ? [
+                    'id' => $id,
+                    'qty' => $qty,
+                    'price' => $price,
+                ] : null;
+            })
+            ->filter(fn($row) => $row && $row['qty'] > 0)
+            ->values()
+            ->all();
+
+        if (empty($normalized)) {
+            session()->forget('cart_penjualan');
+        } else {
+            session(['cart_penjualan' => $normalized]);
+        }
+
+        return response()->json([
+            'status' => 'ok',
+            'count' => count($normalized),
+        ]);
+    }
+
     public function checkout(Request $request)
     {
         $request->validate([

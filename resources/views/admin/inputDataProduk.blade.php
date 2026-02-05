@@ -108,6 +108,25 @@ $backRoute = route('admin.products.index');
                             rows="5" style="min-height:200px; font-size: 13px;"
                             placeholder="Tuliskan spesifikasi, kelengkapan, dan kondisi detail produk...">{{ old('deskripsi_produk', $isEdit ? $product->deskripsi_produk : '') }}</textarea>
                     </div>
+
+                    {{-- Instagram Link --}}
+                    <div class="mt-4">
+                        <label class="form-label text-secondary small fw-medium">Link Instagram (opsional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted">
+                                <i class="fa-brands fa-instagram"></i>
+                            </span>
+                            <input
+                                type="url"
+                                class="form-control border-start-0 ps-2 py-2 @error('instagram_link') is-invalid @enderror"
+                                name="instagram_link"
+                                value="{{ old('instagram_link', $isEdit ? $product->instagram_link : '') }}"
+                                placeholder="https://www.instagram.com/username">
+                        </div>
+                        @error('instagram_link')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
             </div>
 
@@ -139,7 +158,7 @@ $backRoute = route('admin.products.index');
                         <div class="mb-4">
                             <div class="d-flex align-items-center gap-2 mb-3">
                                 <i class="fa-solid fa-circle-info text-primary"></i>
-                                <span class="small text-muted">Maksimal <strong>10 gambar</strong> (Max 5MB/file). Klik kotak di bawah untuk memilih gambar.</span>
+                                <span class="small text-muted">Maksimal <strong>10 gambar</strong> (Max 10MB/file). Klik kotak di bawah untuk memilih gambar.</span>
                             </div>
                         </div>
 
@@ -466,10 +485,10 @@ $existingPhotosData = ($isEdit && isset($product) && $product->photos)
         hiddenInputId: 'product-hidden-images-input',
         statusId: 'product-upload-status',
         maxBoxes: 10,
-        maxFileSize: {{ 5 * 1024 * 1024 }},
+        maxFileSize: {{ 10 * 1024 * 1024 }},
         allowMainChoice: true,
         requireFilesOnSubmit: false,
-        requireAtLeastOne: {{ $isEdit ? 'true' : 'false' }},
+        requireAtLeastOne: false,
         existingImages: {!! $existingPhotosData->toJson() !!},
         removalInputContainerId: 'removed-images-container',
         removalInputName: 'remove_images[]',

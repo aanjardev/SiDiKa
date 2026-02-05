@@ -22,11 +22,12 @@ class ProductStoreRequest extends FormRequest
             'harga_servis'     => ['nullable', 'integer', 'min:0'],
             'stok_produk'      => ['nullable', 'integer', 'min:0'],
             'deskripsi_produk' => ['nullable', 'string'],
+            'instagram_link'   => ['nullable', 'url', 'max:255'],
             'status'           => ['required', 'in:Second,Baru'],
             'grade'            => ['required', 'in:Unggulan,Standar,Minus'],
             'is_visible'       => ['required', 'boolean'],
-            'images'           => ['nullable', 'array', 'min:1'],
-            'images.*'         => ['image', 'max:5120'],
+            'images'           => ['nullable', 'array'],
+            'images.*'         => ['image', 'max:10240'],
             'main_image'       => ['nullable', 'string'],
         ];
     }
