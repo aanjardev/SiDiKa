@@ -8,6 +8,8 @@
     overflow: hidden;
     transition: all 0.2s ease-in-out;
     position: relative;
+    flex-shrink: 0;
+    flex-grow: 0;
 }
 
 .upload-box:hover {
