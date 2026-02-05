@@ -71,12 +71,12 @@ class ProcessProductImage implements ShouldQueue
                 }
 
                 $tempFilePath = Storage::disk('local')->path($tempPath);
-                
+
                 try {
 
                     // ImageUpload will automatically increase memory limit and use Imagick if available
                     $prefix = 'product/' . $product->id;
-                    
+
                     // Try a lightweight move first (no re-encode) to avoid heavy memory usage.
                     try {
                         $paths = \App\Helpers\SimpleImageMover::move(
@@ -116,7 +116,7 @@ class ProcessProductImage implements ShouldQueue
                             continue;
                         }
                     }
-                    
+
                     $permanentPath = $paths['path'];
 
                     Storage::disk('local')->delete($tempPath);
@@ -171,7 +171,7 @@ class ProcessProductImage implements ShouldQueue
             }
 
             DB::commit();
-            
+
             // PERBAIKAN: Auto-enable visibility setelah berhasil upload gambar
             if ($this->autoEnableVisibility) {
                 $product->update(['is_visible' => true]);
@@ -198,12 +198,12 @@ class ProcessProductImage implements ShouldQueue
             DB::rollBack();
 
             $this->cleanupTemporaryFiles();
-            
+
             Log::error("Failed to process product images: " . $th->getMessage(), [
                 'product_id' => $this->productId,
                 'trace' => $th->getTraceAsString()
             ]);
-            
+
             throw $th;
         }
     }
@@ -257,7 +257,7 @@ class ProcessProductImage implements ShouldQueue
 
     /**
      * Convert memory limit string to bytes
-     * 
+     *
      * @param string $value Memory limit string (e.g., "128M", "512M", "1G")
      * @return int Memory limit in bytes
      */
