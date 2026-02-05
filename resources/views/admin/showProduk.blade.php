@@ -147,6 +147,16 @@ $formatCurrency = fn ($value) => 'Rp' . number_format($value ?? 0, 0, ',', '.');
                         <p class="text-muted small mb-1">Biaya Servis</p>
                         <div class="fw-semibold">{{ $formatCurrency($product->harga_servis) }}</div>
                     </div>
+                    <div class="col-12">
+                        <p class="text-muted small mb-1">Instagram</p>
+                        @if (!empty($product->instagram_link))
+                        <a href="{{ $product->instagram_link }}" target="_blank" rel="noopener noreferrer" class="fw-semibold text-primary text-decoration-none">
+                            {{ $product->instagram_link }}
+                        </a>
+                        @else
+                        <div class="text-muted">-</div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

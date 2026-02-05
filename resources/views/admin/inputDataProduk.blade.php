@@ -108,6 +108,25 @@ $backRoute = route('admin.products.index');
                             rows="5" style="min-height:200px; font-size: 13px;"
                             placeholder="Tuliskan spesifikasi, kelengkapan, dan kondisi detail produk...">{{ old('deskripsi_produk', $isEdit ? $product->deskripsi_produk : '') }}</textarea>
                     </div>
+
+                    {{-- Instagram Link --}}
+                    <div class="mt-4">
+                        <label class="form-label text-secondary small fw-medium">Link Instagram (opsional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-muted">
+                                <i class="fa-brands fa-instagram"></i>
+                            </span>
+                            <input
+                                type="url"
+                                class="form-control border-start-0 ps-2 py-2 @error('instagram_link') is-invalid @enderror"
+                                name="instagram_link"
+                                value="{{ old('instagram_link', $isEdit ? $product->instagram_link : '') }}"
+                                placeholder="https://www.instagram.com/username">
+                        </div>
+                        @error('instagram_link')
+                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
             </div>
 

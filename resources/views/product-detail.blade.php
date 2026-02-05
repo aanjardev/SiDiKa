@@ -119,6 +119,16 @@
                         <span class="text-danger">Stok habis</span>
                     @endif
                 </p>
+                @if (!empty($produk->instagram_link))
+                <div class="mb-2">
+                    <a href="{{ $produk->instagram_link }}"
+                       class="btn btn-outline-dark btn-sm d-inline-flex align-items-center gap-2"
+                       target="_blank" rel="noopener noreferrer">
+                        <i class="bi bi-instagram"></i>
+                        Lihat video kondisi fisik
+                    </a>
+                </div>
+                @endif
                 <p class="text-muted mb-2"><strong>Deskripsi Produk:</strong></p>
                 <p id="descriptionText" class="description collapsed">
                     {!! nl2br(e($produk->deskripsi_produk)) !!}

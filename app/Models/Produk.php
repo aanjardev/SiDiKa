@@ -18,6 +18,7 @@ class Produk extends Model
         'harga_jual',
         'stok_produk',
         'deskripsi_produk',
+        'instagram_link',
         'status',
         'grade',
         'harga_beli',
