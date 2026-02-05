@@ -139,7 +139,7 @@ $backRoute = route('admin.products.index');
                         <div class="mb-4">
                             <div class="d-flex align-items-center gap-2 mb-3">
                                 <i class="fa-solid fa-circle-info text-primary"></i>
-                                <span class="small text-muted">Maksimal <strong>10 gambar</strong> (Max 5MB/file). Klik kotak di bawah untuk memilih gambar.</span>
+                                <span class="small text-muted">Maksimal <strong>10 gambar</strong> (Max 10MB/file). Klik kotak di bawah untuk memilih gambar.</span>
                             </div>
                         </div>
 
@@ -466,10 +466,10 @@ $existingPhotosData = ($isEdit && isset($product) && $product->photos)
         hiddenInputId: 'product-hidden-images-input',
         statusId: 'product-upload-status',
         maxBoxes: 10,
-        maxFileSize: {{ 5 * 1024 * 1024 }},
+        maxFileSize: {{ 10 * 1024 * 1024 }},
         allowMainChoice: true,
         requireFilesOnSubmit: false,
-        requireAtLeastOne: {{ $isEdit ? 'true' : 'false' }},
+        requireAtLeastOne: false,
         existingImages: {!! $existingPhotosData->toJson() !!},
         removalInputContainerId: 'removed-images-container',
         removalInputName: 'remove_images[]',

@@ -142,7 +142,24 @@ class AdminProductController extends Controller
         $product = Produk::findOrFail($id);
 
         try {
-            $images = $request->file('images', []);
+            $images = collect($request->file('images', []))
+                ->flatten()
+                ->filter()
+                ->all();
+            
+            // DEBUG: Log berapa file yang diterima
+            \Log::info('photosUploadStore - Files received', [
+                'product_id' => $product->id,
+                'product_name' => $product->nama_produk,
+                'file_count' => count($images),
+                'files' => array_map(fn($f) => [
+                    'name' => $f->getClientOriginalName(),
+                    'size' => $f->getSize(),
+                    'type' => $f->getMimeType(),
+                ], $images),
+                'main_image' => $request->input('main_image'),
+            ]);
+            
             $this->productService->uploadAdditionalPhotos(
                 $product,
                 $images,
@@ -157,6 +174,10 @@ class AdminProductController extends Controller
                 ->with('success', 'Foto berhasil diunggah.');
 
         } catch (\Throwable $th) {
+            \Log::error('photosUploadStore failed', [
+                'error' => $th->getMessage(),
+                'product_id' => $id,
+            ]);
             return back()->withInput()->withErrors(['error' => 'Gagal mengunggah gambar: ' . $th->getMessage()]);
         }
     }
@@ -263,9 +284,14 @@ class AdminProductController extends Controller
     {
         try {
 
+            $images = collect($request->file('images', []))
+                ->flatten()
+                ->filter()
+                ->all();
+
             $product = $this->productService->createProduct(
                 $request->validated(),
-                $request->file('images', []),
+                $images,
                 $request->input('main_image'),
                 Auth::id()
             );
@@ -308,10 +334,15 @@ class AdminProductController extends Controller
             return back()->withErrors(['error' => 'Produk diarsipkan. Kembalikan terlebih dahulu untuk mengedit.']);
         }
         try {
+            $images = collect($request->file('images', []))
+                ->flatten()
+                ->filter()
+                ->all();
+
             $this->productService->updateProduct(
                 $product,
                 $request->validated(),
-                $request->file('images', []),
+                $images,
                 $request->input('main_image'),
                 $request->input('remove_images', []),
                 Auth::id()

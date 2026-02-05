@@ -29,7 +29,7 @@ class ProductUpdateRequest extends FormRequest
             'grade'            => ['required', 'in:Unggulan,Standar,Minus'],
             'is_visible'       => ['required', 'boolean'],
             'images'           => ['nullable', 'array'],
-            'images.*'         => ['image', 'max:5120'],
+            'images.*'         => ['image', 'max:10240'],
             'main_image'       => ['nullable', 'string'],
             'remove_images'    => ['nullable', 'array'],
             'remove_images.*'  => ['nullable', 'integer'],

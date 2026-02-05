@@ -42,12 +42,23 @@ class ProductService
         }
 
         if (!empty($tempPaths)) {
-            ProcessProductImage::dispatch(
-                $product->id,
-                $tempPaths,
-                $selectedMainIndex ?? 0,
-                $userId
-            );
+            // PERBAIKAN: Process langsung untuk development, queue untuk production
+            if (config('app.env') === 'production' && config('queue.default') !== 'sync') {
+                ProcessProductImage::dispatch(
+                    $product->id,
+                    $tempPaths,
+                    $selectedMainIndex ?? 0,
+                    $userId
+                );
+            } else {
+                $processor = new ProcessProductImage(
+                    $product->id,
+                    $tempPaths,
+                    $selectedMainIndex ?? 0,
+                    $userId
+                );
+                $processor->handle();
+            }
         }
 
         return $product;
@@ -119,12 +130,23 @@ class ProductService
             $product->refresh();
             $productHasMain = $product->gambarUtama()->exists();
 
-            ProcessProductImage::dispatch(
-                $product->id,
-                $tempPaths,
-                $selectedMainNewIndex !== null ? $selectedMainNewIndex : ($productHasMain ? null : 0),
-                $userId
-            );
+            // PERBAIKAN: Process langsung untuk development, queue untuk production
+            if (config('app.env') === 'production' && config('queue.default') !== 'sync') {
+                ProcessProductImage::dispatch(
+                    $product->id,
+                    $tempPaths,
+                    $selectedMainNewIndex !== null ? $selectedMainNewIndex : ($productHasMain ? null : 0),
+                    $userId
+                );
+            } else {
+                $processor = new ProcessProductImage(
+                    $product->id,
+                    $tempPaths,
+                    $selectedMainNewIndex !== null ? $selectedMainNewIndex : ($productHasMain ? null : 0),
+                    $userId
+                );
+                $processor->handle();
+            }
         }
     }
 
@@ -145,12 +167,28 @@ class ProductService
         $tempPaths = $this->storeTemporaryImages($images, 'temp/product-uploads');
         $mainImageIndex = $this->extractNewMainIndex($mainImageInput);
 
-        ProcessProductImage::dispatch(
-            $product->id,
-            $tempPaths,
-            $mainImageIndex,
-            $userId
-        );
+        // PERBAIKAN: Check apakah env production atau development
+        // Development: proses langsung (synchronous) - PALING RELIABLE
+        // Production: bisa pakai queue tapi dengan fallback
+        if (config('app.env') === 'production' && config('queue.default') !== 'sync') {
+            // Queue untuk production (opsional)
+            ProcessProductImage::dispatch(
+                $product->id,
+                $tempPaths,
+                $mainImageIndex,
+                $userId
+            );
+        } else {
+            // Proses langsung untuk development & testing
+            // Ini memastikan gambar tersimpan langsung sebelum redirect
+            $processor = new ProcessProductImage(
+                $product->id,
+                $tempPaths,
+                $mainImageIndex,
+                $userId
+            );
+            $processor->handle();
+        }
     }
 
     private function storeTemporaryImages(array $images, string $folder): array
