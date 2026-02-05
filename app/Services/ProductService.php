@@ -94,7 +94,7 @@ class ProductService
 
             // Calculate remaining images after deletion
             $remainingImagesCount = $product->gambar()->count() - count($removeIds);
-            
+
             // Calculate visibility:
             // - Jika user upload gambar baru → tetap pakai nilai dari input (is_visible dari form)
             // - Jika user hanya remove (tidak upload baru) → check remaining images
@@ -192,7 +192,7 @@ class ProductService
 
         $tempPaths = $this->storeTemporaryImages($images, 'temp/product-uploads');
         $mainImageIndex = $this->extractNewMainIndex($mainImageInput);
-        
+
         // PERBAIKAN: Check jika produk awal tidak punya gambar - flag untuk auto-enable visibility nanti
         $shouldAutoEnableVisibility = !$product->gambar()->exists();
 

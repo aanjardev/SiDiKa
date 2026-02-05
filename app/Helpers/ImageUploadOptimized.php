@@ -22,7 +22,7 @@ class ImageUploadOptimized
 
     /**
      * Upload single optimized image (WebP)
-     * 
+     *
      * @param mixed $file
      * @param string $prefix
      * @return array {
@@ -34,7 +34,7 @@ class ImageUploadOptimized
         // CRITICAL: Memory management
         $originalMemoryLimit = ini_get('memory_limit');
         $originalTimeout = ini_get('max_execution_time');
-        
+
         ini_set('memory_limit', self::$MEMORY_LIMIT . 'M');
         set_time_limit(300); // 5 minutes untuk processing
 
@@ -104,7 +104,7 @@ class ImageUploadOptimized
                     'from' => "{$w}x{$h}",
                     'to' => "1920x1920"
                 ]);
-                
+
                 $img->resize(1920, 1920, function ($constraint) {
                     $constraint->aspectRatio();
                     $constraint->upsize();
@@ -163,7 +163,7 @@ class ImageUploadOptimized
                 'error' => $r2Error->getMessage(),
                 'path' => $path
             ]);
-            
+
             return self::uploadToLocal($buffer, $path);
         }
     }

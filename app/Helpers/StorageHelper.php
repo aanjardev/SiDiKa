@@ -32,7 +32,7 @@ class StorageHelper
     /**
      * Get preferred storage disk
      * Returns 'r2' jika available, otherwise 'public'
-     * 
+     *
      * @return string
      */
     public static function getPreferredDisk(): string
@@ -40,7 +40,7 @@ class StorageHelper
         if (self::isR2Available()) {
             return 'r2';
         }
-        
+
         Log::info("Using local storage instead of R2");
         return 'public';
     }

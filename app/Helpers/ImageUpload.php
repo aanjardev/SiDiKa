@@ -16,7 +16,7 @@ class ImageUpload
     /**
      * Upload single optimized image (WebP)
      * Fallback to local storage jika R2 gagal
-     * 
+     *
      * @param mixed $file
      * @param string $prefix
      * @return array {
@@ -57,7 +57,7 @@ class ImageUpload
 
             // Try upload to R2
             self::uploadToR2($encoded, $path);
-            
+
             return [
                 'path'          => $path,
                 'original_hash' => $hash,
@@ -68,7 +68,7 @@ class ImageUpload
                 'error' => $e->getMessage(),
                 'path' => $path
             ]);
-            
+
             return self::uploadToLocal($encoded, $path);
         }
     }
@@ -107,7 +107,7 @@ class ImageUpload
 
         try {
             $localDisk = Storage::disk('public');
-            
+
             // Ensure directory exists
             $dir = dirname($path);
             if (!$localDisk->exists($dir)) {

@@ -30,22 +30,22 @@ class DebugImageUpload extends Command
     {
         $this->info('🔍 Image Upload Debugger');
         $this->line('─────────────────────────────────────────');
-        
+
         // 1. Storage Health
         $this->checkStorageHealth();
-        
+
         // 2. File System Status
         $this->checkFileSystem();
-        
+
         // 3. Database Status
         $this->checkDatabase();
-        
+
         // 4. Product specific check (if provided)
         $productId = $this->argument('product_id');
         if ($productId) {
             $this->checkProduct($productId);
         }
-        
+
         $this->line('─────────────────────────────────────────');
         $this->info('✅ Debug complete');
     }
@@ -55,9 +55,9 @@ class DebugImageUpload extends Command
         $this->line('');
         $this->info('📦 Storage Health Check');
         $this->line('');
-        
+
         $health = StorageHelper::getStorageHealth();
-        
+
         $this->table(
             ['Storage', 'Status'],
             [
@@ -73,7 +73,7 @@ class DebugImageUpload extends Command
         $this->line('');
         $this->info('📂 File System Status');
         $this->line('');
-        
+
         $paths = [
             'storage/app/public/product' => 'Product images',
             'storage/app/temp/product-uploads' => 'Temp uploads',
@@ -81,19 +81,19 @@ class DebugImageUpload extends Command
             'storage/app/temp/product-creates' => 'Temp creates',
             'storage/logs' => 'Logs directory',
         ];
-        
+
         foreach ($paths as $path => $label) {
             $fullPath = base_path($path);
             $exists = is_dir($fullPath);
             $readable = is_readable($fullPath);
             $writable = is_writable($fullPath);
-            
+
             $status = '';
             if (!$exists) $status = '❌ Not exists';
             elseif (!$readable) $status = '⚠️  Not readable';
             elseif (!$writable) $status = '⚠️  Not writable';
             else $status = '✅ OK';
-            
+
             $this->line("$label: $status");
         }
     }
@@ -103,13 +103,13 @@ class DebugImageUpload extends Command
         $this->line('');
         $this->info('🗄️  Database Status');
         $this->line('');
-        
+
         $totalImages = DB::table('gambar_produk')->count();
         $imagesWithoutPath = DB::table('gambar_produk')
             ->whereNull('path_gambar')
             ->orWhere('path_gambar', '')
             ->count();
-        
+
         $this->table(
             ['Metric', 'Value'],
             [
@@ -117,7 +117,7 @@ class DebugImageUpload extends Command
                 ['Images without path', $imagesWithoutPath],
             ]
         );
-        
+
         if ($imagesWithoutPath > 0) {
             $this->warn("⚠️  Found {$imagesWithoutPath} images without valid path!");
             $this->warn("These images should be deleted.");
@@ -129,20 +129,20 @@ class DebugImageUpload extends Command
         $this->line('');
         $this->info("📷 Product #{$productId} Details");
         $this->line('');
-        
+
         $product = DB::table('produk')->where('id_produk', $productId)->first();
-        
+
         if (!$product) {
             $this->error("Product not found: {$productId}");
             return;
         }
-        
+
         $this->line("Product: {$product->nama_produk}");
-        
+
         $images = DB::table('gambar_produk')
             ->where('id_produk', $productId)
             ->get();
-        
+
         $this->table(
             ['ID', 'Path', 'Main', 'Created'],
             $images->map(fn ($img) => [
@@ -152,7 +152,7 @@ class DebugImageUpload extends Command
                 \Carbon\Carbon::parse($img->created_at)->format('Y-m-d H:i'),
             ])->toArray()
         );
-        
+
         if (count($images) === 0) {
             $this->warn("⚠️  No images found for this product!");
         }
