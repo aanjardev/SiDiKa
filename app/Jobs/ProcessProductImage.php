@@ -41,7 +41,8 @@ class ProcessProductImage implements ShouldQueue
         public int $productId,
         public array $temporaryFilePaths,
         public ?int $mainImageIndex = null,
-        public ?int $userId = null
+        public ?int $userId = null,
+        public bool $autoEnableVisibility = false
     ) {
 
     }
@@ -54,6 +55,11 @@ class ProcessProductImage implements ShouldQueue
         DB::beginTransaction();
         try {
             $product = Produk::findOrFail($this->productId);
+            Log::info('ProcessProductImage starting', [
+                'product_id' => $this->productId,
+                'autoEnableVisibility' => $this->autoEnableVisibility,
+                'temporary_files_count' => count($this->temporaryFilePaths)
+            ]);
             $hasMain = $product->gambarUtama()->exists();
             $createdIds = [];
 
@@ -165,6 +171,15 @@ class ProcessProductImage implements ShouldQueue
             }
 
             DB::commit();
+            
+            // PERBAIKAN: Auto-enable visibility setelah berhasil upload gambar
+            if ($this->autoEnableVisibility) {
+                $product->update(['is_visible' => true]);
+                Log::info("Auto-enabled product visibility after image upload", [
+                    'product_id' => $this->productId,
+                    'product_name' => $product->nama_produk
+                ]);
+            }
 
             if ($this->userId) {
                 $user = User::find($this->userId);

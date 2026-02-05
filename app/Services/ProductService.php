@@ -19,6 +19,11 @@ class ProductService
 
         DB::beginTransaction();
         try {
+            // PERBAIKAN: Auto-set visibility based on whether images will be uploaded
+            // Jika ada gambar akan di-upload → visibility bisa ON (user choice)
+            // Jika tidak ada gambar → visibility HARUS OFF (auto)
+            $visibilityValue = !empty($tempPaths) ? ($data['is_visible'] ?? true) : false;
+
             $product = Produk::create([
                 'nama_produk'      => $data['nama_produk'],
                 'kode_sku'         => $data['kode_sku'],
@@ -30,7 +35,7 @@ class ProductService
                 'deskripsi_produk' => $data['deskripsi_produk'] ?? null,
                 'status'           => $data['status'],
                 'grade'            => $data['grade'],
-                'is_visible'       => $data['is_visible'] ?? true,
+                'is_visible'       => $visibilityValue,
                 'is_archived'      => false,
             ]);
 
@@ -73,20 +78,7 @@ class ProductService
 
         DB::beginTransaction();
         try {
-            $product->update([
-                'nama_produk'      => $data['nama_produk'],
-                'kode_sku'         => $data['kode_sku'],
-                'id_kategori'      => $data['id_kategori'],
-                'harga_jual'       => $data['harga_jual'] ?? null,
-                'harga_beli'       => $data['harga_beli'] ?? null,
-                'harga_servis'     => $data['harga_servis'] ?? null,
-                'stok_produk'      => $data['stok_produk'] ?? null,
-                'deskripsi_produk' => $data['deskripsi_produk'] ?? null,
-                'status'           => $data['status'],
-                'grade'            => $data['grade'],
-                'is_visible'       => $data['is_visible'] ?? true,
-            ]);
-
+            // PERBAIKAN: Handle image removal and auto-visibility
             $removeIds = array_filter($removeImages, fn ($v) => !empty($v));
             if (!empty($removeIds)) {
                 $imagesToDelete = GambarProduk::whereIn('id', $removeIds)
@@ -98,6 +90,34 @@ class ProductService
                     $img->delete();
                 }
             }
+
+            // Calculate remaining images after deletion
+            $remainingImagesCount = $product->gambar()->count() - count($removeIds);
+            
+            // Calculate visibility:
+            // - Jika user upload gambar baru → tetap pakai nilai dari input (is_visible dari form)
+            // - Jika user hanya remove (tidak upload baru) → check remaining images
+            //   - Jika tidak ada gambar tersisa → force is_visible = false
+            //   - Jika ada gambar tersisa → tetap pakai nilai dari input
+            $visibilityValue = $data['is_visible'] ?? true;
+            if (empty($tempPaths) && $remainingImagesCount <= 0) {
+                // Tidak ada gambar baru dan tidak ada gambar tersisa → force OFF
+                $visibilityValue = false;
+            }
+
+            $product->update([
+                'nama_produk'      => $data['nama_produk'],
+                'kode_sku'         => $data['kode_sku'],
+                'id_kategori'      => $data['id_kategori'],
+                'harga_jual'       => $data['harga_jual'] ?? null,
+                'harga_beli'       => $data['harga_beli'] ?? null,
+                'harga_servis'     => $data['harga_servis'] ?? null,
+                'stok_produk'      => $data['stok_produk'] ?? null,
+                'deskripsi_produk' => $data['deskripsi_produk'] ?? null,
+                'status'           => $data['status'],
+                'grade'            => $data['grade'],
+                'is_visible'       => $visibilityValue,
+            ]);
 
             if ($selectedMainExistingId !== null) {
                 $targetImage = $product->gambar()->where('id', $selectedMainExistingId)->first();
@@ -129,6 +149,8 @@ class ProductService
         if (!empty($tempPaths)) {
             $product->refresh();
             $productHasMain = $product->gambarUtama()->exists();
+            // Determine if we should auto-enable visibility (product had no images before)
+            $shouldAutoEnableVisibility = !$product->gambar()->exists();
 
             // PERBAIKAN: Process langsung untuk development, queue untuk production
             if (config('app.env') === 'production' && config('queue.default') !== 'sync') {
@@ -136,14 +158,16 @@ class ProductService
                     $product->id,
                     $tempPaths,
                     $selectedMainNewIndex !== null ? $selectedMainNewIndex : ($productHasMain ? null : 0),
-                    $userId
+                    $userId,
+                    $shouldAutoEnableVisibility
                 );
             } else {
                 $processor = new ProcessProductImage(
                     $product->id,
                     $tempPaths,
                     $selectedMainNewIndex !== null ? $selectedMainNewIndex : ($productHasMain ? null : 0),
-                    $userId
+                    $userId,
+                    $shouldAutoEnableVisibility
                 );
                 $processor->handle();
             }
@@ -166,17 +190,27 @@ class ProductService
 
         $tempPaths = $this->storeTemporaryImages($images, 'temp/product-uploads');
         $mainImageIndex = $this->extractNewMainIndex($mainImageInput);
+        
+        // PERBAIKAN: Check jika produk awal tidak punya gambar - flag untuk auto-enable visibility nanti
+        $shouldAutoEnableVisibility = !$product->gambar()->exists();
 
         // PERBAIKAN: Check apakah env production atau development
         // Development: proses langsung (synchronous) - PALING RELIABLE
         // Production: bisa pakai queue tapi dengan fallback
+        \Log::info('uploadAdditionalPhotos - shouldAutoEnableVisibility', [
+            'product_id' => $product->id,
+            'has_images_before' => !$shouldAutoEnableVisibility ? true : false,
+            'should_auto_enable' => $shouldAutoEnableVisibility,
+            'temp_paths_count' => count($tempPaths),
+        ]);
         if (config('app.env') === 'production' && config('queue.default') !== 'sync') {
             // Queue untuk production (opsional)
             ProcessProductImage::dispatch(
                 $product->id,
                 $tempPaths,
                 $mainImageIndex,
-                $userId
+                $userId,
+                $shouldAutoEnableVisibility  // Pass flag ke job
             );
         } else {
             // Proses langsung untuk development & testing
@@ -185,9 +219,17 @@ class ProductService
                 $product->id,
                 $tempPaths,
                 $mainImageIndex,
-                $userId
+                $userId,
+                $shouldAutoEnableVisibility  // Pass flag ke processor
             );
             $processor->handle();
+
+            // SETELAH berhasil diproses - auto-enable visibility
+            if ($shouldAutoEnableVisibility) {
+                \Log::info('uploadAdditionalPhotos - enabling visibility (sync path)', ['product_id' => $product->id]);
+                $product->update(['is_visible' => true]);
+                \Log::info('uploadAdditionalPhotos - visibility updated', ['product_id' => $product->id, 'is_visible' => $product->is_visible]);
+            }
         }
     }
 
