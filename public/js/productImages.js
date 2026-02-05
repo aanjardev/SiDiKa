@@ -258,7 +258,35 @@
                 return;
             }
 
-            const validFiles = files.filter((f) => {
+            // VALIDATION: Check if total will exceed maxBoxes
+            const currentQueuedCount = Object.keys(this.queuedFiles).length;
+            const currentExistingCount = this.getRemainingExistingCount();
+            const totalCurrentCount = currentQueuedCount + currentExistingCount;
+            const remainingSlots = this.maxBoxes - totalCurrentCount;
+
+            console.log('[ProductImageUploader] Slot check:', {
+                currentQueued: currentQueuedCount,
+                currentExisting: currentExistingCount,
+                totalCurrent: totalCurrentCount,
+                maxBoxes: this.maxBoxes,
+                remainingSlots: remainingSlots,
+                filesSelected: files.length,
+            });
+
+            if (remainingSlots <= 0) {
+                this.showStatus(`Maksimal ${this.maxBoxes} gambar sudah tercapai. Hapus gambar terlebih dahulu untuk menambah.`, 'error');
+                this.hiddenInput.value = '';
+                return;
+            }
+
+            // LIMIT: Only accept up to remainingSlots files
+            const acceptableFiles = files.slice(0, remainingSlots);
+            if (acceptableFiles.length < files.length) {
+                const excessCount = files.length - acceptableFiles.length;
+                this.showStatus(`Hanya dapat menambah ${remainingSlots} gambar lagi (${excessCount} gambar diabaikan karena sudah mencapai maksimal).`, 'warning');
+            }
+
+            const validFiles = acceptableFiles.filter((f) => {
                 if (!f.type.startsWith('image/')) {
                     this.showStatus('File harus berupa gambar', 'error');
                     return false;
