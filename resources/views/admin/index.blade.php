@@ -178,8 +178,8 @@
                             <h5 class="mb-1 fw-bold text-truncate" title="{{ $namaCabangTerbaik }}">
                                 {{ $namaCabangTerbaik }}
                             </h5>
-                            @if($labaCabangTerbaik > 0)
-                                <h6 class="mb-0 text-muted">Rp {{ number_format($labaCabangTerbaik, 0, ',', '.') }}</h6>
+                            @if($bestBranchGrowthPercent != 0)
+                                <h6 class="mb-0 text-muted">{{ $bestBranchGrowthPercent }}%</h6>
                             @else
                                 <h6 class="mb-0 text-muted">-</h6>
                             @endif
@@ -188,8 +188,18 @@
                             <i class="fas fa-trophy text-warning fa-lg"></i>
                         </div>
                     </div>
+                    @php
+                        $periodFrom = $bestBranchGrowthPeriod['from'] ?? null;
+                        $periodTo = $bestBranchGrowthPeriod['to'] ?? null;
+                        $periodLabel = null;
+                        if ($periodFrom && $periodTo) {
+                            $fromLabel = $labelBulan[($periodFrom['month'] ?? 1) - 1] ?? '';
+                            $toLabel = $labelBulan[($periodTo['month'] ?? 1) - 1] ?? '';
+                            $periodLabel = trim($fromLabel . ' → ' . $toLabel);
+                        }
+                    @endphp
                     <div class="d-flex align-items-center gap-2">
-                        <span class="text-muted small">Gross Profit tertinggi</span>
+                        <span class="text-muted small">Pertumbuhan omset tertinggi{{ $periodLabel ? ' (' . $periodLabel . ')' : '' }}</span>
                     </div>
                 </div>
             </div>

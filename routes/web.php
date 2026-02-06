@@ -136,6 +136,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
 
     Route::get('/quality-control/archived', [QCController::class, 'archived'])->name('quality-control.archived');
+    Route::get('/quality-control/history', [QCController::class, 'history'])->name('quality-control.history');
 
     Route::post('/quality-control/{id}/restore', [QCController::class, 'restore'])->name('quality-control.restore');
     Route::resource('/quality-control', QCController::class)->names('quality-control');
