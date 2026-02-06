@@ -117,6 +117,13 @@ return [
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#modalTambahCustomer" class="small text-decoration-none fw-bold text-primary">
                                     <i class="fa-solid fa-plus-circle me-1"></i>Customer Baru
                                 </a>
+                                <button type="button"
+                                    class="small text-decoration-none fw-bold text-warning border-0 bg-transparent ms-3 d-none"
+                                    id="btnEditCustomer"
+                                    data-fetch-url-template="{{ url('/admin/customers') }}/__ID__/json"
+                                    data-update-url-template="{{ url('/admin/customers') }}/__ID__">
+                                    <i class="fa-solid fa-pen-to-square me-1"></i>Edit Customer
+                                </button>
                             </div>
                         </div>
 
@@ -432,6 +439,89 @@ return [
                     <button type="button" class="btn btn-light bg-white border rounded-3 px-4 fw-semibold text-secondary shadow-sm" data-bs-dismiss="modal">Batal</button>
                     <button type="submit" class="btn btn-primary rounded-3 px-4 fw-semibold shadow-sm" id="btnSimpanCustomer">
                         <i class="fa-solid fa-save me-2"></i> Simpan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Modal Edit Customer --}}
+<div class="modal fade" id="modalEditCustomer" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content border-0 rounded-4 shadow-lg">
+            <div class="modal-header border-bottom-0 pb-0 px-4 pt-4">
+                <h5 class="modal-title fw-bold text-dark d-flex align-items-center">
+                    <i class="fa-solid fa-user-pen text-warning me-3 fs-4"></i>
+                    Edit Data Customer
+                </h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formEditCustomer" data-validate-form>
+                <div class="modal-body p-4">
+                    @csrf
+                    <input type="hidden" name="customer_id" value="">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-secondary small">Nama Customer <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control required-field" maxlength="50" id="edit_customer_nama_modal" name="nama" required data-error-message="Nama customer wajib diisi">
+                            <div class="invalid-feedback">
+                                Nama customer wajib diisi.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">No. Telepon <span class="text-danger">*</span></label>
+                            <input type="text"
+                                   class="form-control required-field"
+                                   id="edit_customer_no_telp_modal"
+                                   name="no_telp"
+                                   required
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   data-phone-validation
+                                   data-max-digits="20">
+                            <div class="invalid-feedback">
+                                Nomor telepon wajib diisi.
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Jenis Kelamin <span class="text-danger">*</span></label>
+                            <select class="form-select required-field" id="edit_customer_jenis_kelamin_modal" name="jenis_kelamin" required style="height:calc(2.5rem + 10px);" data-error-message="Jenis kelamin wajib dipilih">
+                                <option value="" selected disabled>Pilih</option>
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Jenis kelamin wajib dipilih.
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-secondary small">Alamat</label>
+                            <input type="text" class="form-control" name="alamat">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">No. Identitas (KTP/SIM)</label>
+                            <input type="text"
+                                   class="form-control"
+                                   name="identitas"
+                                   inputmode="numeric"
+                                   pattern="[0-9]*"
+                                   data-max-digits="20">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-secondary small">Referensi</label>
+                            <input type="text" class="form-control" name="referensi">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold text-secondary small">Keterangan</label>
+                            <textarea class="form-control" name="keterangan" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 px-4 pb-4 pt-2">
+                    <button type="button" class="btn btn-light bg-white border rounded-3 px-4 fw-semibold text-secondary shadow-sm" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-warning rounded-3 px-4 fw-semibold shadow-sm text-white" id="btnUpdateCustomer">
+                        <i class="fa-solid fa-save me-2"></i> Update
                     </button>
                 </div>
             </form>

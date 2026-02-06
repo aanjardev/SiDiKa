@@ -159,7 +159,7 @@ class CustomerController extends Controller
     {
         $pelanggan = Customer::findOrFail($id);
 
-        $validated = $request->validate([
+        $validator = Validator::make($request->all(), [
             'nama' => 'required|string|max:50',
             'no_telp' => ['required', 'string', 'max:20', 'regex:/^\d+$/'],
             'email' => 'nullable|email|max:100',
@@ -178,7 +178,23 @@ class CustomerController extends Controller
             'jenis_kelamin.in' => 'Jenis kelamin harus L atau P.',
         ]);
 
+        if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+            }
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $validated = $validator->validated();
         $pelanggan->update($validated);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Data pelanggan berhasil diperbarui.',
+                'customer' => $pelanggan
+            ]);
+        }
 
         return redirect()->route('admin.customers.index')
                          ->with('success', 'Data pelanggan berhasil diperbarui.');
@@ -241,5 +257,19 @@ class CustomerController extends Controller
 
 
         return response()->json($formattedCustomers);
+    }
+
+    public function showJson(Customer $customer)
+    {
+        return response()->json([
+            'id' => $customer->id,
+            'nama' => $customer->nama,
+            'no_telp' => $customer->no_telp,
+            'jenis_kelamin' => $customer->jenis_kelamin,
+            'alamat' => $customer->alamat,
+            'identitas' => $customer->identitas,
+            'referensi' => $customer->referensi,
+            'keterangan' => $customer->keterangan,
+        ]);
     }
 }

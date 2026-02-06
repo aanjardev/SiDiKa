@@ -3,6 +3,7 @@ import Totals from "./totals.js";
 import ProductSelector from "./product-selector.js";
 import CustomerSearch from "../utils/customer-search.js";
 import CustomerModal from "../utils/modal-customer.js";
+import CustomerEditModal from "../utils/modal-customer-edit.js";
 import { maskRupiah } from "../utils/rupiah.js";
 import { syncHiddenRaw } from "../utils/form.js";
 
@@ -57,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const customerSearchError = document.getElementById(
         "customer_search_error"
     );
+    const customerEditBtn = document.getElementById("btnEditCustomer");
 
     const clearCustomerError = () => {
         if (customerSearchInput) {
@@ -70,13 +72,31 @@ document.addEventListener("DOMContentLoaded", () => {
             customerSearchError.classList.remove("d-block");
     };
 
+    const updateEditButtonState = () => {
+        if (!customerEditBtn) return;
+        const hasCustomer = Boolean(customerIdInput?.value);
+        customerEditBtn.classList.toggle("d-none", !hasCustomer);
+        customerEditBtn.disabled = !hasCustomer;
+        if (hasCustomer) {
+            customerEditBtn.dataset.customerId = customerIdInput.value;
+        } else {
+            customerEditBtn.removeAttribute("data-customer-id");
+        }
+    };
+
     new CustomerSearch({
         input: customerSearchInput,
         hiddenInput: customerIdInput,
         suggestions: customerSuggestions,
         searchUrl: customerSearchInput?.dataset.searchUrl,
-        onSelect: clearCustomerError,
-        onInput: clearCustomerError,
+        onSelect: () => {
+            clearCustomerError();
+            updateEditButtonState();
+        },
+        onInput: () => {
+            clearCustomerError();
+            updateEditButtonState();
+        },
     });
 
     new CustomerModal({
@@ -87,6 +107,21 @@ document.addEventListener("DOMContentLoaded", () => {
                 clearCustomerError();
             }
             if (customerSuggestions) customerSuggestions.style.display = "none";
+            updateEditButtonState();
+        },
+    });
+
+    new CustomerEditModal({
+        button: customerEditBtn,
+        customerIdInput,
+        onSuccess: (customer) => {
+            if (customerSearchInput && customerIdInput) {
+                customerSearchInput.value = `${customer.nama} (${customer.no_telp})`;
+                customerIdInput.value = customer.id;
+                clearCustomerError();
+            }
+            if (customerSuggestions) customerSuggestions.style.display = "none";
+            updateEditButtonState();
         },
     });
 
@@ -174,6 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     loadDraft();
+    updateEditButtonState();
 
     btnTambahItem?.addEventListener("click", () => {
         saveDraft();
