@@ -31,25 +31,32 @@
         return digits.slice(0, max);
     }
 
+    function getMaxDigits(input) {
+        const max = parseInt(input?.dataset?.maxDigits || '', 10);
+        return Number.isFinite(max) && max > 0 ? max : MAX_DIGITS;
+    }
+
     
     function initBasicSanitizer() {
         const selectors =
-            'input[data-phone-validation], input[name*="telepon"], input[name*="telp"], input[name="no_telp"], input[name="identitas"]';
+            'input[data-phone-validation], input[data-numeric-only], input[name*="telepon"], input[name*="telp"], input[name="no_telp"], input[name="identitas"]';
 
         document.querySelectorAll(selectors).forEach(input => {
+            const maxDigits = getMaxDigits(input);
+
             input.addEventListener('input', function () {
-                this.value = cleanDigits(this.value, MAX_DIGITS);
+                this.value = cleanDigits(this.value, maxDigits);
             });
 
             input.addEventListener('paste', function (e) {
                 e.preventDefault();
                 const paste = (e.clipboardData || window.clipboardData).getData('text');
-                this.value = cleanDigits(paste, MAX_DIGITS);
+                this.value = cleanDigits(paste, maxDigits);
             });
 
             input.addEventListener('keypress', function (e) {
                 const char = String.fromCharCode(e.which);
-                const digits = cleanDigits(this.value, MAX_DIGITS);
+                const digits = cleanDigits(this.value, maxDigits);
                 const selectionLength = Math.abs(this.selectionEnd - this.selectionStart);
 
                 if (!/[0-9]/.test(char) && !e.ctrlKey && !e.metaKey) {
@@ -57,7 +64,7 @@
                     return;
                 }
 
-                if (digits.length >= MAX_DIGITS && selectionLength === 0 && !e.ctrlKey && !e.metaKey) {
+                if (digits.length >= maxDigits && selectionLength === 0 && !e.ctrlKey && !e.metaKey) {
                     e.preventDefault();
                 }
             });

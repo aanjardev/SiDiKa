@@ -117,6 +117,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('/products', AdminProductController::class)->names('products');
 
     Route::get('/customers/search', [CustomerController::class, 'search'])->name('customers.search');
+    Route::get('/customers/{customer}/json', [CustomerController::class, 'showJson'])->name('customers.show-json');
     Route::resource('/customers', CustomerController::class)->names('customers');
     Route::resource('/categories'   , CategoryController::class)->names('categories');
     Route::patch('/branches/{branch}/status', [BranchController::class, 'updateStatus'])->name('branches.update-status');

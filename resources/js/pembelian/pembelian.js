@@ -1,6 +1,7 @@
 import { maskRupiah } from "../utils/rupiah.js";
 import CustomerSearch from "../utils/customer-search.js";
 import CustomerModal from "../utils/modal-customer.js";
+import CustomerEditModal from "../utils/modal-customer-edit.js";
 import ItemForm from "./item-form.js";
 import ItemTable from "./item-table.js";
 import ItemAPI from "./item-api.js";
@@ -352,6 +353,8 @@ document.addEventListener("DOMContentLoaded", () => {
         deleteItemDraft: data.routes?.deleteItemDraftPrefix,
         customerSearch: data.routes?.customerSearch,
         customerStore: data.routes?.customerStore,
+        customerShow: data.routes?.customerShow,
+        customerUpdate: data.routes?.customerUpdate,
         csrf,
     };
 
@@ -367,8 +370,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const customerSearchError = document.getElementById(
         "customer_search_error"
     );
+    const customerEditBtn = document.getElementById("btnEditCustomer");
 
     let controller;
+
+    const updateEditButtonState = () => {
+        if (!customerEditBtn) return;
+        const hasCustomer = Boolean(customerIdInput?.value);
+        customerEditBtn.classList.toggle("d-none", !hasCustomer);
+        customerEditBtn.disabled = !hasCustomer;
+        if (hasCustomer) {
+            customerEditBtn.dataset.customerId = customerIdInput.value;
+        } else {
+            customerEditBtn.removeAttribute("data-customer-id");
+        }
+    };
 
     new CustomerSearch({
         input: customerSearchInput,
@@ -382,6 +398,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (customerSearchError) {
                 customerSearchError.style.display = "none";
             }
+            updateEditButtonState();
             controller?.markDirty();
         },
         onInput: () => {
@@ -391,6 +408,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (customerSearchError) {
                 customerSearchError.style.display = "none";
             }
+            updateEditButtonState();
             controller?.markDirty();
         },
     });
@@ -451,7 +469,31 @@ document.addEventListener("DOMContentLoaded", () => {
                 customerIdInput.value = customer.id;
             }
             if (customerSuggestions) customerSuggestions.style.display = "none";
+            updateEditButtonState();
             controller.markDirty();
         },
     });
+
+    if (customerEditBtn) {
+        customerEditBtn.dataset.fetchUrlTemplate =
+            routes.customerShow || "";
+        customerEditBtn.dataset.updateUrlTemplate =
+            routes.customerUpdate || "";
+    }
+
+    new CustomerEditModal({
+        button: customerEditBtn,
+        customerIdInput,
+        onSuccess: (customer) => {
+            if (customerSearchInput && customerIdInput) {
+                customerSearchInput.value = `${customer.nama} (${customer.no_telp})`;
+                customerIdInput.value = customer.id;
+            }
+            if (customerSuggestions) customerSuggestions.style.display = "none";
+            updateEditButtonState();
+            controller.markDirty();
+        },
+    });
+
+    updateEditButtonState();
 });
