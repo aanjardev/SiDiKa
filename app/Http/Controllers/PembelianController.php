@@ -562,7 +562,8 @@ class PembelianController extends Controller
         $end = Carbon::createFromFormat('Y-m', $validated['month'])->endOfMonth();
 
         $query = Pembelian::with(['customer', 'perusahaan_cabang', 'item_pembelian_draft'])
-            ->whereBetween('created_at', [$start, $end]);
+            ->whereBetween('created_at', [$start, $end])
+            ->whereIn('status_pembelian', ['deal', 'tidak_deal']);
 
         $branchLabel = 'Semua Cabang';
         $branchSlug = 'semua-cabang';
@@ -621,7 +622,8 @@ class PembelianController extends Controller
         $end = Carbon::createFromFormat('Y-m', $validated['month'])->endOfMonth();
 
         $query = Pembelian::with(['customer', 'perusahaan_cabang', 'item_pembelian_draft'])
-            ->whereBetween('created_at', [$start, $end]);
+            ->whereBetween('created_at', [$start, $end])
+            ->whereIn('status_pembelian', ['deal', 'tidak_deal']);
 
         $branchSlug = 'semua-cabang';
         if (!empty($validated['cabang'])) {
