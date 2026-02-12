@@ -105,10 +105,9 @@
             <thead>
                 <tr>
                     <th style="width: 5%;">No.</th>
-                    <th style="width: 35%;">Nama Produk</th>
-                    <th style="width: 15%;">SKU</th>
-                    <th style="width: 10%;" class="text-right">Qty</th>
-                    <th style="width: 15%;" class="text-right">Harga Satuan</th>
+                    <th style="width: 47%;">Nama Produk</th>
+                    <th style="width: 8%;" class="text-right">Qty</th>
+                    <th style="width: 20%;" class="text-right">Harga Satuan</th>
                     <th style="width: 20%;" class="text-right">Subtotal</th>
                 </tr>
             </thead>
@@ -122,8 +121,25 @@
                 @endphp
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $product->nama_produk ?? '-' }}</td>
-                    <td>{{ $product->kode_sku ?? '-' }}</td>
+                    <td>
+                        <div>{{ $product->nama_produk ?? '-' }}</div>
+                        @if (!empty($product?->kode_sku))
+                            <div>SKU: {{ $product->kode_sku }}</div>
+                        @endif
+                        @if (!empty($product?->serial_number) || !empty($product?->serial_lens))
+                            <div>
+                                @if (!empty($product?->serial_number))
+                                    SN: {{ $product->serial_number }}
+                                @endif
+                                @if (!empty($product?->serial_lens))
+                                    @if (!empty($product?->serial_number))
+                                        &nbsp;
+                                    @endif
+                                    SNL: {{ $product->serial_lens }}
+                                @endif
+                            </div>
+                        @endif
+                    </td>
                     <td class="text-right">{{ $qty }}</td>
                     <td class="text-right">Rp {{ number_format($price, 0, ',', '.') }}</td>
                     <td class="text-right">Rp {{ number_format($lineTotal, 0, ',', '.') }}</td>

@@ -46,6 +46,7 @@
             border: 1px solid #ccc;
             padding: 8px 10px;
             text-align: left;
+            vertical-align: top;
         }
         .item-table th { background-color: #f0f0f0; }
 
@@ -101,26 +102,66 @@
         </div>
         <div style="clear: both;"></div>
 
-        {{-- DAFTAR ITEM (STRUKTUR DIPERBAIKI) --}}
+        {{-- DAFTAR ITEM (DETAIL + KONDISI) --}}
         <div class="section-title">DAFTAR ITEM</div>
         <table class="item-table">
             <thead>
                 <tr>
                     <th style="width: 5%;">No.</th>
-                    <th style="width: 35%;">Nama Item</th>
-                    <th style="width: 15%;">Kategori</th>
-                    <th style="width: 22.5%;" class="text-right">SN Body</th>
-                    <th style="width: 22.5%;" class="text-right">SN Lensa</th>
+                    <th style="width: 45%;">Detail Item</th>
+                    <th style="width: 50%;">Kondisi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach ($pembelian->item_pembelian_draft as $index => $item)
                 <tr>
                     <td>{{ $index + 1 }}</td>
-                    <td>{{ $item->nama_item }}</td>
-                    <td>{{ $item->kategori->nama_kategori ?? '-' }}</td>
-                    <td class="text-right">{{ $item->serial_number ?? '-' }}</td>
-                    <td class="text-right">{{ $item->serial_lens ?? '-' }}</td>
+                    <td>
+                        <div><strong>Nama:</strong> {{ $item->nama_item ?? '-' }}</div>
+                        <div><strong>SN:</strong> {{ $item->serial_number ?? '-' }}</div>
+                        <div><strong>SNL:</strong> {{ $item->serial_lens ?? '-' }}</div>
+                        <div><strong>Kategori:</strong> {{ $item->kategori->nama_kategori ?? '-' }}</div>
+                    </td>
+                    <td>
+                        @php
+                            $conditions = [
+                                'Fisik' => $item->kondisi_fisik ?? '-',
+                                'Baut' => $item->kondisi_baut ?? '-',
+                                'Tutup USB' => $item->kondisi_tutup_usb ?? '-',
+                                'Grip' => $item->kondisi_grip ?? '-',
+                                'Jamur Lensa' => $item->kondisi_jamur_lensa ?? '-',
+                                'View Finder' => $item->kondisi_view_finder ?? '-',
+                                'Mounting' => $item->kondisi_mounting ?? '-',
+                                'Slot Memori' => $item->kondisi_slot_memori ?? '-',
+                                'Jamur Sensor' => $item->kondisi_jamur_sensor ?? '-',
+                                'LCD' => $item->kondisi_lcd ?? '-',
+                                'Tombol' => $item->kondisi_tombol ?? '-',
+                                'Zoom Lensa' => $item->kondisi_zoom_lensa ?? '-',
+                                'AF Lensa' => $item->kondisi_af_lensa ?? '-',
+                                'Diafragma' => $item->kondisi_diafragma_lensa ?? '-',
+                                'Kalibrasi Fokus' => $item->kondisi_kalibrasi_fokus ?? '-',
+                                'Flash' => $item->kondisi_flash ?? '-',
+                                'Sound Mic' => $item->kondisi_sound_mic ?? '-',
+                                'Lain-lain' => $item->kondisi_lain_lain ?? '-',
+                                'Kelengkapan' => $item->kelengkapan ?? '-',
+                            ];
+                            $conditionChunks = array_chunk($conditions, (int) ceil(count($conditions) / 2), true);
+                        @endphp
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 50%; vertical-align: top; padding: 0; border: none;">
+                                    @foreach ($conditionChunks[0] ?? [] as $label => $value)
+                                        <div><strong>{{ $label }}:</strong> {{ $value }}</div>
+                                    @endforeach
+                                </td>
+                                <td style="width: 50%; vertical-align: top; padding: 0; border: none;">
+                                    @foreach ($conditionChunks[1] ?? [] as $label => $value)
+                                        <div><strong>{{ $label }}:</strong> {{ $value }}</div>
+                                    @endforeach
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>

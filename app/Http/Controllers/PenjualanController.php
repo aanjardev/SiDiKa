@@ -704,7 +704,7 @@ class PenjualanController extends Controller
         $start = Carbon::createFromFormat('Y-m', $validated['month'])->startOfMonth();
         $end = Carbon::createFromFormat('Y-m', $validated['month'])->endOfMonth();
 
-        $query = Penjualan::with(['customer', 'perusahaan_cabang', 'detail_penjualan'])
+        $query = Penjualan::with(['customer', 'perusahaan_cabang', 'detail_penjualan.produk'])
             ->whereBetween('created_at', [$start, $end]);
 
         $branchSlug = 'semua-cabang';
