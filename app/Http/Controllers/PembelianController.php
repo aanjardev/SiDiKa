@@ -184,10 +184,10 @@ class PembelianController extends Controller
                 return redirect()->route('admin.purchases.show', $pembelian->id)
                     ->with('success', 'Draft berhasil disimpan')
                     ->with('auto_copy_link', true);
-            } else {
-                return redirect()->route('admin.purchases.index')
-                    ->with('success', 'Transaksi pembelian telah difinalisasi.');
             }
+
+            return redirect()->route('admin.purchases.show', $pembelian->id)
+                ->with('success', 'Transaksi pembelian telah difinalisasi.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal menyimpan transaksi: ' . $e->getMessage())->withInput();
@@ -502,10 +502,10 @@ class PembelianController extends Controller
                 return redirect()->route('admin.purchases.show', $pembelian->id)
                     ->with('success', 'Draft berhasil diupdate')
                     ->with('auto_copy_link', true);
-            } else {
-                return redirect()->route('admin.purchases.index')
-                    ->with('success', 'Transaksi pembelian telah diupdate dan difinalisasi.');
             }
+
+            return redirect()->route('admin.purchases.show', $pembelian->id)
+                ->with('success', 'Transaksi pembelian telah diupdate dan difinalisasi.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->with('error', 'Gagal mengupdate transaksi: ' . $e->getMessage())->withInput();
