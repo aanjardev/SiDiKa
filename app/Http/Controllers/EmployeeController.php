@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Employee;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
@@ -178,6 +179,16 @@ class EmployeeController extends Controller
             'alamat' => $validated['alamat'] ?? null,
             'tanggal_keluar' => $validated['tanggal_keluar'] ?? null,
         ]);
+
+        if ($employee->user) {
+            $employee->user->update([
+                'name' => $validated['nama_lengkap'],
+            ]);
+
+            if (Auth::id() === $employee->user->id) {
+                Auth::setUser($employee->user->fresh());
+            }
+        }
 
         if ($oldStatus !== 'non-aktif' && $newStatus === 'non-aktif') {
             if ($employee->user) {
