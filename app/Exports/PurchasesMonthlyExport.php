@@ -35,8 +35,9 @@ class PurchasesMonthlyExport implements FromCollection, WithHeadings
                 $qty = max(1, (int) ($item->qty ?? 1));
                 $kodeItem = $item->kode ?? $item->kode_item ?? '-';
                 $namaItem = $item->nama_item ?? $item->nama ?? '-';
-                $hargaCustomer = (int) ($item->harga_customer ?? $item->harga_jual ?? 0);
-                $hargaToko = (int) ($item->harga_toko ?? $item->harga_beli ?? 0);
+                // Use purchase-level offered prices if present, otherwise fallback to item-level
+                $hargaCustomer = (int) ($purchase->harga_tawaran_customer ?? $item->harga_customer ?? $item->harga_jual ?? 0);
+                $hargaToko = (int) ($purchase->harga_tawaran_toko ?? $item->harga_toko ?? $item->harga_beli ?? 0);
 
                 // Detailed kondisi fields from ItemPembelian
                 $kondisi_fisik = $item->kondisi_fisik ?? '-';
