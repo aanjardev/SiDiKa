@@ -7,7 +7,7 @@
             ->get();
     @endphp
     <div class="container">
-        <div class="footer-row">
+        <div class="footer-row g-3">
             <!-- Company Description -->
             <div class="footer-col footer-col-company">
                 <div class="footer-widget">
@@ -155,7 +155,7 @@
 }
 
 .footer-col-branch {
-    flex: 0 0 calc(20% - 1rem);
+    flex: 0 0 calc(18% - 1rem);
 }
 
 .footer-widget {
