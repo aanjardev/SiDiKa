@@ -47,14 +47,14 @@
             </div>
 
             <!-- Store Locations -->
-            <div class="row g-4" data-aos="fade-up" data-aos-delay="100">
+            <div class="row g-3 justify-content-center" data-aos="fade-up" data-aos-delay="100">
                 @foreach($branches as $branch)
-                <div class="col-lg-4 col-md-6">
+                <div class="col-xl-3 col-lg-4 col-md-6">
                     <div class="location-card h-100 d-flex flex-column">
                         <div class="map-container">
                             <iframe src="{{ $branch['embed'] }}" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                         </div>
-                        <div class="card-body d-flex flex-column">
+                        <div class="card-body d-flex flex-column" style="padding-left: 13px; padding-right: 13px;">
                             <h3 class="store-name">{{ $branch['nama'] }}</h3>
                             <div class="info-item">
                                 <i class="bi bi-clock"></i>
@@ -64,7 +64,7 @@
                                         data-bs-target="#jamLengkap{{ $loop->index }}"
                                         aria-expanded="false"
                                         aria-controls="jamLengkap{{ $loop->index }}">
-                                        <span class="fw-semibold text-dark">Hari ini ({{ $branch['jam']['hari_ini']['hari'] }}): {{ $branch['jam']['hari_ini']['slot'] }}</span>
+                                        <span class="fw-semibold text-dark" style="font-size: 14px !important;">Hari ini ({{ $branch['jam']['hari_ini']['hari'] }}): {{ $branch['jam']['hari_ini']['slot'] }}</span>
                                         <i class="fas fa-chevron-down small toggle-icon text-secondary" style="margin-left:10px; margin-top:-2px;"></i>
                                     </button>
                                     @if($branch['jam']['catatan'])
