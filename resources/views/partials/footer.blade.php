@@ -265,11 +265,11 @@
     .footer-col {
         flex: 0 0 calc(25% - 1rem);
     }
-    
+
     .footer-col-company {
         flex: 0 0 calc(25% - 1rem);
     }
-    
+
     .footer-col-branch {
         flex: 0 0 calc(25% - 1rem);
     }
@@ -287,21 +287,21 @@
     .footer-area {
         padding: 4rem 0 2rem;
     }
-    
+
     .footer-row {
         gap: 1.5rem;
         margin: 0 -0.25rem;
     }
-    
+
     .footer-col {
         flex: 0 0 calc(50% - 0.75rem);
         padding: 0 0.25rem;
     }
-    
+
     .footer-col-company {
         flex: 0 0 calc(50% - 0.75rem);
     }
-    
+
     .footer-col-branch {
         flex: 0 0 calc(50% - 0.75rem);
     }
@@ -315,21 +315,21 @@
     .widget-title {
         margin-bottom: 1rem;
     }
-    
+
     .footer-row {
         gap: 1rem;
         margin: 0;
     }
-    
+
     .footer-col {
         flex: 0 0 100%;
         padding: 0;
     }
-    
+
     .footer-col-company {
         flex: 0 0 100%;
     }
-    
+
     .footer-col-branch {
         flex: 0 0 100%;
     }
