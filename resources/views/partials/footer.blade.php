@@ -7,9 +7,9 @@
             ->get();
     @endphp
     <div class="container">
-        <div class="row">
+        <div class="footer-row">
             <!-- Company Description -->
-            <div class="col-lg-3 col-md-6 col-12 mb-4 mb-lg-0">
+            <div class="footer-col footer-col-company">
                 <div class="footer-widget">
                     <h4 class="widget-title">{{$setting->nama_website}}</h4>
                     <p class="company-desc">{{$setting->description}}</p>
@@ -42,7 +42,7 @@
                 }
                 $mapLink = $branch->link_maps ?: 'https://www.google.com/maps?q=' . urlencode($branch->nama . ' ' . $branch->alamat);
             @endphp
-            <div class="col-lg-3 col-sm-6 col-12 mb-4 mb-lg-0">
+            <div class="footer-col footer-col-branch">
                 <div class="footer-widget">
                     <h4 class="widget-title">{{ $branch->nama }}</h4>
                     <ul class="contact-info">
@@ -137,6 +137,26 @@
     position: relative;
 }
 
+/* Flexible Footer Row Layout */
+.footer-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    margin: 0 -0.5rem;
+}
+
+.footer-col {
+    flex: 0 0 calc(20% - 1rem);
+    padding: 0 0.5rem;
+}
+
+.footer-col-company {
+    flex: 0 0 calc(20% - 1rem);
+}
+
+.footer-col-branch {
+    flex: 0 0 calc(20% - 1rem);
+}
 
 .footer-widget {
     margin-bottom: 2rem;
@@ -240,10 +260,50 @@
     font-size: 0.9rem;
 }
 
+/* Responsive Design */
+@media (max-width: 1399px) {
+    .footer-col {
+        flex: 0 0 calc(25% - 1rem);
+    }
+    
+    .footer-col-company {
+        flex: 0 0 calc(25% - 1rem);
+    }
+    
+    .footer-col-branch {
+        flex: 0 0 calc(25% - 1rem);
+    }
+}
+
+@media (min-width: 1200px) {
+    .footer-area .container {
+        max-width: 100%;
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
 
 @media (max-width: 991px) {
     .footer-area {
         padding: 4rem 0 2rem;
+    }
+    
+    .footer-row {
+        gap: 1.5rem;
+        margin: 0 -0.25rem;
+    }
+    
+    .footer-col {
+        flex: 0 0 calc(50% - 0.75rem);
+        padding: 0 0.25rem;
+    }
+    
+    .footer-col-company {
+        flex: 0 0 calc(50% - 0.75rem);
+    }
+    
+    .footer-col-branch {
+        flex: 0 0 calc(50% - 0.75rem);
     }
 }
 
@@ -254,6 +314,24 @@
 
     .widget-title {
         margin-bottom: 1rem;
+    }
+    
+    .footer-row {
+        gap: 1rem;
+        margin: 0;
+    }
+    
+    .footer-col {
+        flex: 0 0 100%;
+        padding: 0;
+    }
+    
+    .footer-col-company {
+        flex: 0 0 100%;
+    }
+    
+    .footer-col-branch {
+        flex: 0 0 100%;
     }
 
     .footer-bottom {
