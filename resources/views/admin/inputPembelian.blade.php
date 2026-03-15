@@ -390,7 +390,7 @@ $backRoute = route('admin.purchases.show', $pembelian->id);
                                         <div class="row">
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label small text-muted">Kondisi Fisik Overall</label>
-                                                <input type="text" id="item_kondisi_fisik" class="form-control form-control-sm" placeholder="Contoh: 95% Mulus">
+                                                <input type="text" id="item_kondisi_fisik" class="form-control form-control-sm" placeholder="Contoh: Oke/Paintloss">
                                             </div>
                                             <div class="col-md-6 mb-3">
                                                 <label class="form-label small text-muted">Kondisi Baut</label>
