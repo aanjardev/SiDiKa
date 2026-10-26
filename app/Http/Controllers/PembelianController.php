@@ -76,7 +76,7 @@ class PembelianController extends Controller
 
             return response()->json([
                 'table_html' => $tableHtml,
-                'pagination_html' => $data_pembelian->links()->render(),
+                'pagination_html' => $data_pembelian->links('pagination::bootstrap-5')->render(),
             ]);
         }
 

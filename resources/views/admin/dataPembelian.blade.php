@@ -3,6 +3,7 @@
 @section('title', 'Data Pembelian')
 
 @push('styles')
+@vite('resources/css/admin/pages/transaction-tables.css')
 <style>
     .purchase-row {
         cursor: pointer;
@@ -20,38 +21,6 @@
     .clickable-code:hover {
         opacity: 0.8;
         text-decoration: underline !important;
-    }
-
-    @media (min-width: 1900px) {
-        .purchase-table-responsive {
-            overflow-x: visible;
-        }
-        .purchase-table-fixed {
-            table-layout: fixed;
-        }
-        .purchase-table-fixed th,
-        .purchase-table-fixed td {
-            white-space: normal;
-            word-break: break-word;
-        }
-    }
-    .purchase-table-responsive {
-        overflow-x: auto;
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch;
-        padding: 0;
-    }
-    .purchase-table {
-        width: 100%;
-        min-width: 100%;
-    }
-    .purchase-table th,
-    .purchase-table td {
-        white-space: nowrap;
-    }
-    .purchase-table td.col-text-wrap {
-        white-space: normal !important;
-        word-break: break-word;
     }
     .purchase-filter-input .form-control {
         min-width: 220px;
@@ -110,16 +79,6 @@
         }
         .purchase-table-card {
             border-radius: 12px;
-        }
-        .purchase-table-responsive {
-            padding: 0 0.75rem;
-        }
-        .purchase-table {
-            min-width: 900px;
-        }
-        .purchase-table th,
-        .purchase-table td {
-            white-space: nowrap;
         }
     }
 </style>
@@ -198,118 +157,35 @@
 <div id="purchase-list-container">
     <div class="card shadow-sm border-0 purchase-table-card" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
         <div class="card-body p-0">
-            <div class="table-responsive purchase-table-responsive">
-                <table class="table table-modern mb-0 purchase-table-fixed purchase-table">
+            <div class="table-responsive transaction-table-scroll" tabindex="0" role="region" aria-label="Tabel pembelian; geser horizontal untuk melihat kolom lainnya">
+                <table class="table table-modern mb-0 transaction-table transaction-table--purchases">
+                    <colgroup>
+                        <col class="transaction-col-number">
+                        <col class="transaction-col-code">
+                        <col class="transaction-col-customer">
+                        <col class="transaction-col-date">
+                        <col class="transaction-col-branch">
+                        <col class="transaction-col-items">
+                        <col class="transaction-col-status">
+                        <col class="transaction-col-amount">
+                        <col class="transaction-col-actions">
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th class="text-center" style="width: 5%;">No</th>
+                            <th class="text-center">No</th>
                             <th>Kode</th>
                             <th>Customer</th>
                             <th>Tanggal</th>
                             <th>Cabang</th>
-                            <th style="width: 25%; max-width:300px;">Item Dibeli</th>
+                            <th>Item Dibeli</th>
                             <th class="text-center">Status</th>
-                            <th>Harga Deal</th>
-                            <th class="text-center" style="width: 120px;">Aksi</th>
+                            <th class="text-end">Harga Deal</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     {{-- ID Body dari Main untuk AJAX Replacement --}}
                     <tbody id="purchase-table-body">
-                        @forelse ($data_pembelian as $index => $pembelian)
-                        <tr class="purchase-row" data-detail-url="{{ route('admin.purchases.show', $pembelian->id) }}">
-                            <td class="text-center text-muted fw-bold">{{ ($data_pembelian->firstItem() ?? 0) + $index }}</td>
-
-                            {{-- Kode Transaksi --}}
-                            <td>
-                                <a href="{{ route('admin.purchases.show', $pembelian->id) }}"
-                                   class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none clickable-code"
-                                   onclick="event.stopPropagation();">
-                                    {{ $pembelian->kode_transaksi ?? '#' . $pembelian->id }}
-                                </a>
-                            </td>
-
-                            {{-- Customer --}}
-                            <td>
-                                <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
-                                    {{ $pembelian->customer->nama ?? '-' }}
-                                </span>
-                            </td>
-
-                            {{-- Tanggal --}}
-                            <td class="text-muted small opacity-90">
-                                <span class="fw-medium text-dark">{{ $pembelian->created_at->format('d M Y') }}</span>
-                                {{-- <br> --}}
-                                <span class="opacity-75">{{ $pembelian->created_at->format('H:i') }} WIB</span>
-                            </td>
-
-                            {{-- Cabang --}}
-                            <td class="text-dark small">
-                                {{ $pembelian->perusahaan_cabang->nama ?? '-' }}
-                            </td>
-
-                            {{-- Item Dibeli --}}
-                           <td class="col-text-wrap" style="max-width: 300px; min-width: 250px;">
-                                <span class="text-secondary small d-block text-wrap text-break"
-                                      title="{{ $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ') }}"
-                                      style="line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                    @php
-                                        $itemNames = $pembelian->item_pembelian_draft->pluck('nama_item')->implode(', ');
-                                        echo $itemNames ?: '-';
-                                    @endphp
-                                </span>
-                            </td>
-
-                            {{-- Status --}}
-                            <td class="text-center">
-                                @if($pembelian->status_pembelian == 'deal')
-                                    <span class="badge rounded-pill bg-success bg-opacity-10 text-success">Deal</span>
-                                @elseif($pembelian->status_pembelian == 'tidak_deal')
-                                    <span class="badge rounded-pill bg-danger bg-opacity-10 text-danger">No-Deal</span>
-                                @else
-                                    <span class="badge rounded-pill bg-secondary bg-opacity-10 text-secondary">Draft</span>
-                                @endif
-                            </td>
-
-                            {{-- Harga Deal --}}
-                            <td class="fw-bold text-dark">
-                                Rp{{ number_format($pembelian->harga_deal, 0, ',', '.') }}
-                            </td>
-
-                            {{-- Aksi --}}
-                            <td class="text-center" style="width:120px">
-                                <div class="d-flex justify-content-center gap-2">
-                                    {{-- Edit --}}
-                                    <a href="{{ route('admin.purchases.edit', $pembelian->id) }}"
-                                        class="btn-action btn-action-edit no-row-navigation"
-                                        title="Edit">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </a>
-
-                                    {{-- Hapus --}}
-                                    <form action="{{ route('admin.purchases.destroy', $pembelian->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="button"
-                                                class="btn-action btn-action-delete no-row-navigation"
-                                                title="Hapus"
-                                                data-message="Apakah Anda yakin ingin menghapus data pembelian ini?">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr class="tr-empty">
-                            <td colspan="9" class="text-center py-5">
-                                <div class="d-flex flex-column align-items-center opacity-50">
-                                    <i class="fa-solid fa-cart-shopping fa-3x mb-3 text-muted"></i>
-                                    <h6 class="text-muted">Belum ada data pembelian</h6>
-                                    <p class="text-muted small mb-0">Silakan lakukan <a href="{{ route('admin.purchases.create') }}">transaksi pembelian</a> baru.</p>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
+                        @include('admin.partials.purchase_table_content', ['data_pembelian' => $data_pembelian])
                     </tbody>
                 </table>
             </div>

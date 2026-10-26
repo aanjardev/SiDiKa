@@ -235,6 +235,13 @@ body {
 }
 
 
+/* Equal slots keep the pagination width stable at the start, middle and end. */
+.catalog-pagination .page-link {
+    display: block;
+    width: max(3rem, calc(var(--pagination-digits, 1) * 0.65rem + 2rem));
+    text-align: center;
+}
+
 .pagination {
     margin-top: 3rem;
 }

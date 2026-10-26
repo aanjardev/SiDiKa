@@ -108,7 +108,7 @@ class ProductController extends Controller
                 break;
         }
 
-        $products = $query->paginate(16);
+        $products = $query->paginate(16)->withQueryString();
 
         return view('product', compact('products', 'kategoris', 'search', 'kategoriFilter', 'sort'));
         }

@@ -119,6 +119,15 @@
       "listProdukJual.css"
     ]
   },
+  "resources/css/admin/pages/transaction-tables.css": {
+    "file": "assets/transaction-tables-C8KTq3tx.css",
+    "src": "resources/css/admin/pages/transaction-tables.css",
+    "isEntry": true,
+    "name": "transaction-tables",
+    "names": [
+      "transaction-tables.css"
+    ]
+  },
   "resources/css/app.css": {
     "file": "assets/app-ChCFPO0w.css",
     "src": "resources/css/app.css",

@@ -3,34 +3,8 @@
 @section('title', 'Data Penjualan')
 
 @push('styles')
+@vite('resources/css/admin/pages/transaction-tables.css')
 <style>
-    @media (min-width: 1900px) {
-        .sales-table-responsive {
-            overflow-x: visible;
-        }
-        .sales-table-fixed {
-            table-layout: fixed;
-        }
-        .sales-table-fixed th,
-        .sales-table-fixed td {
-            white-space: normal;
-            word-break: break-word;
-        }
-    }
-    .sales-table-responsive {
-        overflow-x: auto;
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch;
-        padding: 0;
-    }
-    .sales-table {
-        width: 100%;
-        min-width: 100%;
-    }
-    .sales-table th,
-    .sales-table td {
-        white-space: nowrap;
-    }
     .sales-filter-input .form-control {
         min-width: 220px;
     }
@@ -85,16 +59,6 @@
         }
         .sales-filter-controls .form-select {
             width: 100%;
-        }
-        .sales-table-responsive {
-            padding: 0 0.75rem;
-        }
-        .sales-table {
-            min-width: 900px;
-        }
-        .sales-table th,
-        .sales-table td {
-            white-space: nowrap;
         }
     }
 </style>
@@ -160,18 +124,28 @@
 <div id="sales-list-container">
     <div class="card shadow-sm border-0" style="border-radius: 15px; overflow: hidden; min-height: 700px;">
         <div class="card-body p-0">
-            <div class="table-responsive sales-table-responsive">
-                <table class="table table-modern mb-0 sales-table-fixed sales-table">
+            <div class="table-responsive transaction-table-scroll" tabindex="0" role="region" aria-label="Tabel penjualan; geser horizontal untuk melihat kolom lainnya">
+                <table class="table table-modern mb-0 transaction-table">
+                    <colgroup>
+                        <col class="transaction-col-number">
+                        <col class="transaction-col-code">
+                        <col class="transaction-col-customer">
+                        <col class="transaction-col-date">
+                        <col class="transaction-col-items">
+                        <col class="transaction-col-branch">
+                        <col class="transaction-col-amount">
+                        <col class="transaction-col-actions">
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th class="text-center" style="width: 5%;">No</th>
+                            <th class="text-center">No</th>
                             <th>Kode</th>
                             <th>Customer</th>
                             <th>Tanggal</th>
-                            <th style="width: 25%; max-width:300px; min-width: 250px;">Item Terjual</th>
+                            <th>Item Terjual</th>
                             <th>Cabang</th>
-                            <th>Total</th>
-                            <th class="text-center" style="width: 120px;">Aksi</th>
+                            <th class="text-end">Total</th>
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="sales-table-body">

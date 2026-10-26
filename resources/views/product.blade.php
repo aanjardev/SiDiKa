@@ -123,43 +123,7 @@
                 </div>
 
                 <!-- Pagination -->
-                <nav aria-label="Page navigation" class="mt-5">
-                    <ul class="pagination justify-content-center">
-                        @if ($products->onFirstPage())
-                            <li class="page-item disabled">
-                                <span class="page-link">
-                                    <i class="bi bi-chevron-left"></i>
-                                </span>
-                            </li>
-                        @else
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $products->previousPageUrl() . '&kategori=' . $kategoriFilter . '&sort=' . $sort }}">
-                                    <i class="bi bi-chevron-left"></i>
-                                </a>
-                            </li>
-                        @endif
-
-                        @foreach ($products->getUrlRange(1, $products->lastPage()) as $page => $url)
-                            <li class="page-item {{ $products->currentPage() == $page ? 'active' : '' }}">
-                                <a class="page-link" href="{{ $url . '&kategori=' . $kategoriFilter . '&sort=' . $sort }}">{{ $page }}</a>
-                            </li>
-                        @endforeach
-
-                        @if ($products->hasMorePages())
-                            <li class="page-item">
-                                <a class="page-link" href="{{ $products->nextPageUrl() . '&kategori=' . $kategoriFilter . '&sort=' . $sort }}">
-                                    <i class="bi bi-chevron-right"></i>
-                                </a>
-                            </li>
-                        @else
-                            <li class="page-item disabled">
-                                <span class="page-link">
-                                    <i class="bi bi-chevron-right"></i>
-                                </span>
-                            </li>
-                        @endif
-                    </ul>
-                </nav>
+                @include('partials.catalog-pagination')
             @endif
         </div>
     </section>

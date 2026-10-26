@@ -4,43 +4,33 @@
 
     <td>
         <a href="{{ route('admin.sales.show', $penjualan->id) }}"
-            class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none">
+            class="fw-bold text-primary font-monospace bg-primary bg-opacity-10 px-2 py-1 rounded small text-decoration-none transaction-code no-row-navigation">
             {{ $penjualan->kode_transaksi }}
         </a>
 
     </td>
 
     <td>
-        <div class="d-flex align-items-center gap-3">
-            <div class="flex-grow-1">
-                <span class="text-dark fw-semibold d-block" style="font-size: 0.95rem;">
-                    {{ $penjualan->customer->nama ?? '-' }}
-                </span>
-            </div>
-        </div>
+        <span class="text-dark fw-semibold transaction-text" style="font-size: 0.95rem;">{{ $penjualan->customer->nama ?? '-' }}</span>
     </td>
 
-    <td class="text-muted small">
+    <td class="text-muted small transaction-date">
         <span class="fw-medium text-dark opacity-90">{{ $penjualan->created_at->format('d M Y') }}</span>
-        {{-- <br> --}}
         <span class="opacity-75">{{ $penjualan->created_at->format('H:i') }} WIB</span>
     </td>
 
-    <td class="col-text-wrap" style="max-width: 300px; min-width: 250px;">
-        <span class="text-secondary small d-block text-wrap"
-            title="{{ $penjualan->detail_penjualan->pluck('produk.nama_produk')->implode(', ') }}">
-            @php
+    <td>
+        @php
             $itemNames = $penjualan->detail_penjualan->pluck('produk.nama_produk')->implode(', ');
-            echo $itemNames ?: '-';
-            @endphp
-        </span>
+        @endphp
+        <span class="text-secondary small transaction-text" title="{{ $itemNames }}">{{ $itemNames ?: '-' }}</span>
     </td>
 
     <td class="text-dark small">
-        {{ $penjualan->perusahaan_cabang->nama ?? '-' }}
+        <span class="transaction-text">{{ $penjualan->perusahaan_cabang->nama ?? '-' }}</span>
     </td>
 
-    <td class="fw-bold text-dark">
+    <td class="fw-bold text-dark transaction-amount">
         @php
         $fallbackTotal = $penjualan->detail_penjualan->sum(function($d){
         return ($d->qty ?? 0) * ($d->harga_jual_satuan ?? 0);
@@ -51,7 +41,7 @@
     </td>
 
     <td class="text-center">
-        <div class="d-flex justify-content-center gap-2">
+        <div class="transaction-actions">
             <a href="{{ route('admin.sales.edit', $penjualan->id) }}" class="btn-action btn-action-edit no-row-navigation" title="Edit">
                 <i class="fa-solid fa-pen-to-square"></i>
             </a>
