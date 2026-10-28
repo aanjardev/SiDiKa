@@ -88,10 +88,13 @@ class DinoyoWayContent
 
     public function editable(array $content): array
     {
-        unset($content['hero']['image']);
+        unset($content['hero']['image'], $content['navigation'], $content['navigation_label'], $content['navigation_aria_label']);
         foreach (self::IMAGE_FIELDS as $path) Arr::forget($content, $path);
-        foreach ($content['navigation'] as &$item) {
-            unset($item['id']);
+        foreach (Arr::dot($content) as $path => $value) {
+            $key = Arr::last(explode('.', $path));
+            if (in_array($key, ['action', 'secondary_action', 'image_alt'], true) || str_ends_with($key, '_url')) {
+                Arr::forget($content, $path);
+            }
         }
 
         return $content;

@@ -558,3 +558,9 @@ Sembilan foto dapat diganti/reset secara independen: hero, filosofi, standar ker
 Tujuan CTA hero/penutup dapat diedit: http/https, path lokal, atau anchor bagian yang tersedia. Skema skrip/data, path protokol relatif, backslash dan karakter kontrol ditolak. Anchor navigasi bagian tetap dikelola sistem. Nilai lama yang belum memiliki field baru mendapat fallback default; tidak perlu migrasi baru untuk perluasan editor ini.
 
 Verifikasi: 49 test / 754 assertion lulus. Browser dengan database dan storage sementara di drive D membuktikan perubahan paragraf, pilar, foto, judul penutup dan tujuan CTA sampai ke publik; reset satu foto tidak mengubah foto atau teks lain. Terdapat sembilan input foto, tanpa error JavaScript. Database operasional tidak diubah oleh audit.
+
+
+Editor admin menyembunyikan dan mengunci field Teks tombol (action) serta Tujuan tombol utama (action_url) pada hero dan penutup. Simpan konten tetap mempertahankan nilai tombol utama yang sudah tersimpan atau fallback default. Whitelist validasi menolak pengubahan field tersebut melalui request. Pengaturan tautan tambahan tetap tersedia.
+
+
+Penyederhanaan editor untuk pengguna nonteknis: seluruh pengaturan tautan (teks/tujuan CTA dan navigasi) serta teks alternatif foto dikeluarkan dari form dan whitelist input. Pengaturan tersimpan atau default tetap dipakai di publik, termasuk alt untuk aksesibilitas. Section navigasi tidak muncul sebagai kelompok kosong; upload/reset foto dan isi utama tetap dapat diedit.

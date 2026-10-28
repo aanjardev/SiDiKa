@@ -18,7 +18,7 @@ class DinoyoWayController extends Controller
             'content' => $page->editable($content),
             'heroImageUrl' => $page->heroImageUrl($content),
             'imageSlots' => $page->imageSlots($content),
-            'sections' => DinoyoWayContent::SECTIONS,
+            'sections' => array_intersect_key(DinoyoWayContent::SECTIONS, $page->editable($content)),
             'labels' => DinoyoWayContent::LABELS,
         ]);
     }

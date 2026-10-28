@@ -138,14 +138,14 @@ class DinoyoWayTest extends TestCase
         $this->assertNull(DB::table('catalog_settings')->value('dinoyo_way_content'));
     }
 
-    public function test_staff_can_edit_and_publish_copy_including_both_navigation_labels(): void
+    public function test_staff_can_edit_copy_while_preserving_navigation_labels(): void
     {
         $this->actingAs(new User(['id' => 1, 'name' => 'Editor', 'role' => 'staff', 'status' => 'active']));
         $this->get('/admin/dinoyo-kamera-way')->assertOk()->assertSee('Simpan Perubahan');
 
         $content = $this->editableContent();
         $content['hero']['title'] = 'BERTUMBUH DENGAN AMANAH';
-        $content['navigation_label'] = 'Budaya Dinoyo';
+        DB::table('catalog_settings')->update(['dinoyo_way_content' => json_encode(['navigation_label' => 'Budaya Dinoyo'])]);
         $content['values']['items'][2]['behavior'] = 'Jelaskan kondisi setiap unit secara terbuka.';
 
         $this->post('/admin/dinoyo-kamera-way', ['content' => $content])
@@ -173,7 +173,7 @@ class DinoyoWayTest extends TestCase
         $content = $this->editableContent();
         $content['navigation'][0]['id'] = 'broken-anchor';
         $this->post('/admin/dinoyo-kamera-way', ['content' => $content])
-            ->assertSessionHasErrors('content.navigation.0');
+            ->assertSessionHasErrors('content');
         $this->assertNull(DB::table('catalog_settings')->value('dinoyo_way_content'));
     }
 
@@ -290,12 +290,9 @@ class DinoyoWayTest extends TestCase
             $markers[] = $marker;
             \Illuminate\Support\Arr::set($content, $path, $marker);
         }
-        $content['closing']['action_url'] = 'https://example.com/hubungi';
-        $content['closing']['secondary_action_url'] = '/katalog?jenis=second';
         $this->post('/admin/dinoyo-kamera-way', ['content' => $content])->assertSessionHasNoErrors();
         $response = $this->get('/dinoyo-kamera-way')->assertOk();
         foreach ($markers as $marker) $response->assertSee($marker);
-        $response->assertSee('https://example.com/hubungi')->assertSee('/katalog?jenis=second');
     }
 
     public function test_old_philosophy_copy_is_normalized_without_reviving_removed_fields(): void
@@ -337,7 +334,7 @@ class DinoyoWayTest extends TestCase
         $this->assertSame($saved['values']['items'][1]['image'], $after['values']['items'][1]['image']);
     }
 
-    public function test_editor_rejects_bad_photos_paths_and_unsafe_cta_links_without_saving(): void
+    public function test_editor_rejects_bad_photos_paths_and_locked_cta_changes_without_saving(): void
     {
         $this->actingAs(new User(['id' => 1, 'name' => 'Editor', 'role' => 'staff', 'status' => 'active']));
         $this->post('/admin/dinoyo-kamera-way', ['content' => $this->editableContent(), 'page_images' => ['pillar_0' => UploadedFile::fake()->create('fake.pdf', 10, 'application/pdf')]])->assertSessionHasErrors('page_images.pillar_0');
@@ -345,8 +342,8 @@ class DinoyoWayTest extends TestCase
         $this->post('/admin/dinoyo-kamera-way', ['content' => $this->editableContent(), 'page_images' => ['philosophy' => UploadedFile::fake()->image('photo.jpg')], 'reset_page_images' => ['philosophy' => 1]])->assertSessionHasErrors('page_images.philosophy');
         foreach (['javascript:alert(1)', '//example.com', '/\\example.com', 'data:text/html,test', ['invalid-array']] as $link) {
             $content = $this->editableContent();
-            $content['closing']['action_url'] = $link;
-            $this->post('/admin/dinoyo-kamera-way', ['content' => $content])->assertSessionHasErrors('content.closing.action_url');
+            $content['closing']['secondary_action_url'] = $link;
+            $this->post('/admin/dinoyo-kamera-way', ['content' => $content])->assertSessionHasErrors('content.closing');
         }
         $content = $this->editableContent();
         $content['values']['items'][0]['image'] = 'https://example.com/untrusted.jpg';
@@ -371,6 +368,57 @@ class DinoyoWayTest extends TestCase
         ])->assertRedirect('/admin/dinoyo-kamera-way')->assertSessionHasErrors('page_images.pillar_0')
             ->assertSessionHasInput('content.closing.title', 'Judul baru yang belum disimpan');
         $this->assertNull(DB::table('catalog_settings')->value('dinoyo_way_content'));
+    }
+
+    public function test_primary_button_settings_are_hidden_locked_and_preserved_by_content_edits(): void
+    {
+        $this->actingAs(new User(['id' => 1, 'name' => 'Editor', 'role' => 'staff', 'status' => 'active']));
+        DB::table('catalog_settings')->update(['dinoyo_way_content' => json_encode([
+            'hero' => ['action' => 'Nilai bersama', 'action_url' => '#nilai'],
+            'closing' => ['action' => 'Mari berbincang', 'action_url' => '/contact?source=way'],
+        ])]);
+        $editor = $this->get('/admin/dinoyo-kamera-way')->assertOk();
+        foreach (['hero', 'closing'] as $section) {
+            foreach (['action', 'action_url'] as $field) {
+                $editor->assertDontSee('name="content['.$section.']['.$field.']"', false);
+            }
+        }
+        $content = $this->editableContent();
+        $content['closing']['title'] = 'Judul penutup diperbarui';
+        $this->post('/admin/dinoyo-kamera-way', ['content' => $content])->assertSessionHasNoErrors();
+        $saved = json_decode(DB::table('catalog_settings')->value('dinoyo_way_content'), true);
+        $this->assertSame('Nilai bersama', $saved['hero']['action']);
+        $this->assertSame('#nilai', $saved['hero']['action_url']);
+        $this->assertSame('Mari berbincang', $saved['closing']['action']);
+        $this->assertSame('/contact?source=way', $saved['closing']['action_url']);
+        $this->get('/dinoyo-kamera-way')->assertOk()->assertSee('Judul penutup diperbarui')
+            ->assertSee('Mari berbincang')->assertSee('/contact?source=way');
+        $content['closing']['action_url'] = '/tautan-tidak-diizinkan';
+        $this->post('/admin/dinoyo-kamera-way', ['content' => $content])->assertSessionHasErrors('content.closing');
+        $this->assertSame($saved, json_decode(DB::table('catalog_settings')->value('dinoyo_way_content'), true));
+    }
+
+    public function test_link_and_image_alt_settings_are_not_editable_but_keep_their_saved_values(): void
+    {
+        $this->actingAs(new User(['id' => 1, 'name' => 'Editor', 'role' => 'staff', 'status' => 'active']));
+        $content = $this->editableContent();
+        $locked = ['navigation_label', 'navigation_aria_label', 'navigation', 'hero.secondary_action', 'hero.secondary_action_url', 'closing.secondary_action', 'closing.secondary_action_url', 'hero.image_alt', 'philosophy.image_alt', 'standards.image_alt'];
+        for ($i = 0; $i < 6; $i++) $locked[] = 'values.items.'.$i.'.image_alt';
+        foreach ($locked as $path) $this->assertFalse(\Illuminate\Support\Arr::has($content, $path), $path.' should not be editable');
+        DB::table('catalog_settings')->update(['dinoyo_way_content' => json_encode([
+            'hero' => ['secondary_action' => 'Tautan tersimpan', 'secondary_action_url' => '#cara-kerja', 'image_alt' => 'Deskripsi hero tersimpan'],
+            'closing' => ['secondary_action' => 'Katalog tersimpan', 'secondary_action_url' => '/katalog?source=way'],
+            'values' => ['items' => [['image_alt' => 'Deskripsi foto pilar tersimpan']]],
+        ])]);
+        $content['hero']['title'] = 'Judul tetap dapat diubah';
+        $this->post('/admin/dinoyo-kamera-way', ['content' => $content])->assertSessionHasNoErrors();
+        $this->get('/dinoyo-kamera-way')->assertOk()->assertSee('Judul tetap dapat diubah')
+            ->assertSee('Tautan tersimpan')->assertSee('Katalog tersimpan')->assertSee('/katalog?source=way')
+            ->assertSee('Deskripsi hero tersimpan')->assertSee('Deskripsi foto pilar tersimpan');
+        $editor = $this->get('/admin/dinoyo-kamera-way')->assertOk();
+        $editor->assertDontSee('Teks alternatif foto')->assertDontSee('Tujuan tautan tambahan')->assertDontSee('Teks tautan tambahan');
+        $content['hero']['image_alt'] = 'Tidak boleh diubah';
+        $this->post('/admin/dinoyo-kamera-way', ['content' => $content])->assertSessionHasErrors('content.hero');
     }
 
 }
