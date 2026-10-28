@@ -260,6 +260,7 @@
             </div>
         </section>
 
+        {{-- Benefit sementara dinonaktifkan
         <!-- Benefits -->
         <section id="Benefit" class="pt-4" data-aos="fade-up" data-aos-delay="400">
             <div class="container">
@@ -296,6 +297,7 @@
                 </div>
             </div>
         </section>
+        --}}
 
 @endsection
 
