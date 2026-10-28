@@ -564,3 +564,10 @@ Editor admin menyembunyikan dan mengunci field Teks tombol (action) serta Tujuan
 
 
 Penyederhanaan editor untuk pengguna nonteknis: seluruh pengaturan tautan (teks/tujuan CTA dan navigasi) serta teks alternatif foto dikeluarkan dari form dan whitelist input. Pengaturan tersimpan atau default tetap dipakai di publik, termasuk alt untuk aksesibilitas. Section navigasi tidak muncul sebagai kelompok kosong; upload/reset foto dan isi utama tetap dapat diedit.
+
+
+### Foto Way disimpan lokal
+
+Semua upload dari editor Way (hero, filosofi, standar kerja dan enam pilar) kini langsung memakai disk public lokal. File dioptimalkan menjadi WebP dan disimpan pada storage/app/public/catalog/dinoyo-way/, dengan URL /storage/catalog/dinoyo-way/. Sembilan foto bawaan tetap merupakan aset lokal repository. Link public/storage pada workspace tujuan sudah tersedia. Tidak ada akses R2 saat upload Way; perilaku default helper untuk upload fitur lain tetap dipertahankan. Resolver URL lama tetap mengenali referensi R2 untuk kompatibilitas konten dari instalasi lama; audit database lokal menemukan nol referensi R2.
+
+Pengujian otomatis: 53 test / 820 assertion lulus. Uji browser mengisi 147 field teks dan sembilan foto unik melalui form admin, menyimpan, lalu memeriksa seluruh teks dan memastikan sembilan file gambar lokal benar-benar dapat didekode. Penggantian foto menghasilkan src baru; reset satu foto tidak mengubah foto lain. Uji backend melarang pemanggilan R2 saat upload Way, memeriksa mapping src tiap foto serta format WebP, validasi, dan kegagalan storage. Seluruh audit memakai database/storage sementara pada drive D tanpa menulis konten operasional.

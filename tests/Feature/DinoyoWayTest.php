@@ -196,7 +196,7 @@ class DinoyoWayTest extends TestCase
 
     public function test_uploaded_hero_is_preserved_by_text_edits_and_can_be_reset(): void
     {
-        Storage::fake('r2');
+        Storage::fake('public');
         $this->actingAs(new User(['id' => 1, 'name' => 'Editor', 'role' => 'staff', 'status' => 'active']));
         $this->post('/admin/dinoyo-kamera-way', [
             'content' => $this->editableContent(),
@@ -205,9 +205,9 @@ class DinoyoWayTest extends TestCase
 
         $saved = json_decode(DB::table('catalog_settings')->value('dinoyo_way_content'), true);
         $image = $saved['hero']['image'];
-        $this->assertStringStartsWith('catalog/dinoyo-way/', $image);
-        Storage::disk('r2')->assertExists($image);
-        $this->get('/dinoyo-kamera-way')->assertOk()->assertSee($image);
+        $this->assertStringStartsWith('public/catalog/dinoyo-way/', $image);
+        Storage::disk('public')->assertExists(substr($image, 7));
+        $this->get('/dinoyo-kamera-way')->assertOk()->assertSee(Storage::disk('public')->url(substr($image, 7)));
 
         $this->post('/admin/dinoyo-kamera-way', ['content' => $this->editableContent()])->assertSessionHasNoErrors();
         $this->assertSame($image, json_decode(DB::table('catalog_settings')->value('dinoyo_way_content'), true)['hero']['image']);
@@ -240,11 +240,12 @@ class DinoyoWayTest extends TestCase
         $this->assertFalse(Schema::hasColumn('catalog_settings', 'dinoyo_way_content'));
     }
 
-    public function test_silent_r2_write_failure_uses_a_working_local_hero_url(): void
+    public function test_hero_upload_uses_local_storage_without_accessing_r2(): void
     {
         $r2 = \Mockery::mock(\Illuminate\Filesystem\FilesystemAdapter::class);
-        $r2->allows('exists')->andReturn(false);
-        $r2->allows('putFileAs')->andReturn(false);
+        $r2->shouldNotReceive('exists');
+        $r2->shouldNotReceive('putFileAs');
+        $r2->shouldNotReceive('url');
         Storage::set('r2', $r2);
         Storage::fake('public');
         $this->actingAs(new User(['id' => 1, 'name' => 'Editor', 'role' => 'staff', 'status' => 'active']));
@@ -260,7 +261,7 @@ class DinoyoWayTest extends TestCase
         $this->get('/dinoyo-kamera-way')->assertOk()->assertSee('/storage/'.substr($image, 7));
     }
 
-    public function test_failed_local_fallback_does_not_publish_a_missing_image(): void
+    public function test_failed_local_upload_does_not_publish_a_missing_image(): void
     {
         foreach (['r2', 'public'] as $disk) {
             $adapter = \Mockery::mock(\Illuminate\Filesystem\FilesystemAdapter::class);
@@ -309,7 +310,12 @@ class DinoyoWayTest extends TestCase
 
     public function test_all_editorial_photos_can_be_uploaded_preserved_and_reset_independently(): void
     {
-        Storage::fake('r2');
+        Storage::fake('public');
+        $r2 = \Mockery::mock(\Illuminate\Filesystem\FilesystemAdapter::class);
+        $r2->shouldNotReceive('exists');
+        $r2->shouldNotReceive('putFileAs');
+        $r2->shouldNotReceive('url');
+        Storage::set('r2', $r2);
         $this->actingAs(new User(['id' => 1, 'name' => 'Editor', 'role' => 'staff', 'status' => 'active']));
         $fields = ['philosophy' => 'philosophy.image', 'standards' => 'standards.image'];
         for ($i = 0; $i < 6; $i++) $fields['pillar_'.$i] = 'values.items.'.$i.'.image';
@@ -319,12 +325,24 @@ class DinoyoWayTest extends TestCase
         $saved = json_decode(DB::table('catalog_settings')->value('dinoyo_way_content'), true);
         $public = $this->get('/dinoyo-kamera-way')->assertOk();
         $editor = $this->get('/admin/dinoyo-kamera-way')->assertOk();
+        $document = new \DOMDocument;
+        @$document->loadHTML(mb_convert_encoding($public->getContent(), 'HTML-ENTITIES', 'UTF-8'));
+        $xpath = new \DOMXPath($document);
         foreach ($fields as $key => $path) {
             $image = \Illuminate\Support\Arr::get($saved, $path);
-            $this->assertStringStartsWith('catalog/dinoyo-way/', $image);
-            Storage::disk('r2')->assertExists($image);
-            $public->assertSee($image);
+            $this->assertStringStartsWith('public/catalog/dinoyo-way/', $image);
+            Storage::disk('public')->assertExists(substr($image, 7));
+            $public->assertSee(Storage::disk('public')->url(substr($image, 7)));
             $editor->assertSee('page_images['.$key.']', false);
+            $selector = match ($key) {
+                'philosophy' => '//*[@id="filosofi"]//figure/img',
+                'standards' => '//*[@id="cara-kerja"]//figure/img',
+                default => '//*[@id="way-value-panel-'.substr($key, 7).'"]//img',
+            };
+            $nodes = $xpath->query($selector);
+            $this->assertCount(1, $nodes);
+            $this->assertSame(Storage::disk('public')->url(substr($image, 7)), $nodes->item(0)->getAttribute('src'));
+            $this->assertSame('image/webp', getimagesize(Storage::disk('public')->path(substr($image, 7)))['mime']);
         }
         $this->post('/admin/dinoyo-kamera-way', ['content' => $this->editableContent()])->assertSessionHasNoErrors();
         $this->assertSame($saved, json_decode(DB::table('catalog_settings')->value('dinoyo_way_content'), true));
@@ -419,6 +437,41 @@ class DinoyoWayTest extends TestCase
         $editor->assertDontSee('Teks alternatif foto')->assertDontSee('Tujuan tautan tambahan')->assertDontSee('Teks tautan tambahan');
         $content['hero']['image_alt'] = 'Tidak boleh diubah';
         $this->post('/admin/dinoyo-kamera-way', ['content' => $content])->assertSessionHasErrors('content.hero');
+    }
+
+    public function test_replacing_a_photo_and_text_changes_the_public_image_src_and_keeps_other_photos(): void
+    {
+        Storage::fake('public');
+        $this->actingAs(new User(['id' => 1, 'name' => 'Editor', 'role' => 'staff', 'status' => 'active']));
+        $content = $this->editableContent();
+        $this->post('/admin/dinoyo-kamera-way', ['content' => $content, 'page_images' => [
+            'pillar_0' => UploadedFile::fake()->image('before.jpg', 320, 240),
+            'pillar_1' => UploadedFile::fake()->image('retained.jpg', 400, 300),
+        ]])->assertSessionHasNoErrors();
+        $before = json_decode(DB::table('catalog_settings')->value('dinoyo_way_content'), true);
+        $content['closing']['title'] = 'Teks dan foto versi kedua';
+        $this->post('/admin/dinoyo-kamera-way', ['content' => $content, 'page_images' => [
+            'pillar_0' => UploadedFile::fake()->image('after.jpg', 420, 280),
+        ]])->assertSessionHasNoErrors();
+        $after = json_decode(DB::table('catalog_settings')->value('dinoyo_way_content'), true);
+        $this->assertNotSame($before['values']['items'][0]['image'], $after['values']['items'][0]['image']);
+        $this->assertSame($before['values']['items'][1]['image'], $after['values']['items'][1]['image']);
+        $response = $this->get('/dinoyo-kamera-way')->assertOk()->assertSee('Teks dan foto versi kedua');
+        $document = new \DOMDocument;
+        @$document->loadHTML(mb_convert_encoding($response->getContent(), 'HTML-ENTITIES', 'UTF-8'));
+        $photo = (new \DOMXPath($document))->query('//*[@id="way-value-panel-0"]//img')->item(0);
+        $this->assertSame(Storage::disk('public')->url(substr($after['values']['items'][0]['image'], 7)), $photo->getAttribute('src'));
+        $this->assertStringNotContainsString(basename($before['values']['items'][0]['image']), $photo->getAttribute('src'));
+    }
+
+    public function test_other_uploads_keep_the_existing_default_r2_behavior(): void
+    {
+        Storage::fake('public');
+        Storage::fake('r2');
+        $result = \App\Helpers\ImageUpload::upload(UploadedFile::fake()->image('product.jpg', 320, 240), 'catalog/products');
+        $this->assertStringStartsWith('catalog/products/', $result['path']);
+        Storage::disk('r2')->assertExists($result['path']);
+        Storage::disk('public')->assertMissing($result['path']);
     }
 
 }

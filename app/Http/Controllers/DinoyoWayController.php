@@ -37,7 +37,7 @@ class DinoyoWayController extends Controller
                 Arr::set($content, $path, config('dinoyo-way.'.$path));
             } elseif ($request->hasFile($fileField)) {
                 try {
-                    Arr::set($content, $path, ImageUpload::upload($request->file($fileField), 'catalog/dinoyo-way')['path']);
+                    Arr::set($content, $path, ImageUpload::upload($request->file($fileField), 'catalog/dinoyo-way', 'public')['path']);
                 } catch (\Throwable $exception) {
                     report($exception);
                     return back()->withInput($request->except('hero_image', 'page_images'))

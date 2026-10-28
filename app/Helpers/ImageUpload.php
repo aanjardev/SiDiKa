@@ -15,16 +15,20 @@ class ImageUpload
 
     /**
      * Upload single optimized image (WebP)
-     * Fallback to local storage jika R2 gagal
+     * R2 falls back to local storage; disk public stores locally without accessing R2.
      *
      * @param mixed $file
      * @param string $prefix
+     * @param string $disk r2 or public
      * @return array {
      *   path, original_hash
      * }
      */
-    public static function upload($file, string $prefix = 'uploads'): array
+    public static function upload($file, string $prefix = 'uploads', string $disk = 'r2'): array
     {
+        if (!in_array($disk, ['r2', 'public'], true)) {
+            throw new \InvalidArgumentException('Disk upload gambar tidak didukung.');
+        }
 
         $info = @getimagesize($file);
         if (!$info) {
@@ -45,6 +49,10 @@ class ImageUpload
 
         $baseName = $hash . '.webp';
         $path = "$prefix/$baseName";
+
+        if ($disk === 'public') {
+            return self::uploadToLocal($encoded, $path);
+        }
 
         // PERBAIKAN: Try R2 first, fallback to local
         try {
