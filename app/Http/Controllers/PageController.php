@@ -45,6 +45,12 @@ class PageController extends Controller
         return view("AboutStore", compact('cat_setting', 'gallery'));
     }
 
+    public function dinoyoWay(\App\Services\DinoyoWayContent $page)
+    {
+        $content = $page->get();
+        return view('dinoyo-way', ['content' => $content, 'heroImageUrl' => $page->heroImageUrl($content), 'imageSlots' => $page->imageSlots($content)]);
+    }
+
     public function contact(){
         $cat_setting = CatalogSettings::first();
         $branches = Branch::with('jamOperasional')

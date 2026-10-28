@@ -13,6 +13,9 @@
                 <div class="footer-widget">
                     <h4 class="widget-title">{{$setting->nama_website}}</h4>
                     <p class="company-desc">{{$setting->description}}</p>
+                    <a href="{{ route('dinoyo-way') }}" class="footer-way-link" @if(Request::routeIs('dinoyo-way')) aria-current="page" @endif>
+                        {{ $wayNavigationLabel }} <i class="fas fa-arrow-up-right-from-square ms-1" aria-hidden="true"></i>
+                    </a>
                     <div class="social-links mt-3">
                         <a href="{{$setting->facebook_link}}" class="social-link"><i class="fab fa-facebook-f"></i></a>
                         <a href="{{$setting->instagram_link}}" class="social-link"><i class="fab fa-instagram"></i></a>
@@ -185,6 +188,21 @@
     color: var(--footer-muted);
     line-height: 1.8;
     margin-bottom: 1.5rem;
+}
+
+.footer-way-link {
+    display: inline-block;
+    color: var(--footer-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    line-height: 1.6;
+}
+
+.footer-way-link:hover,
+.footer-way-link:focus-visible {
+    color: var(--footer-link-hover);
 }
 
 

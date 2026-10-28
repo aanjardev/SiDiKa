@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\View;
+use App\Services\DinoyoWayContent;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        View::composer(['partials.header', 'partials.footer'], function ($view) {
+            $view->with('wayNavigationLabel', app(DinoyoWayContent::class)->get()['navigation_label']);
+        });
+
         if (env('FORCE_HTTPS', false)) {
             URL::forceScheme('https');
         }

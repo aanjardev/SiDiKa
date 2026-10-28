@@ -21,7 +21,8 @@
     gap: 0.5rem;
     box-shadow: var(--wa-shadow-md);
     transition: var(--wa-transition);
-    z-index: 1000;
+    /* Keep the contact shortcut above the fixed header (z-index: 2000). */
+    z-index: 2010;
 }
 
 .floating-wa:hover {

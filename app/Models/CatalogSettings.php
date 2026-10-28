@@ -21,7 +21,10 @@ class CatalogSettings extends Model
         'youtube_link',
         'tokopedia_link',
         'shopee_link',
+        'dinoyo_way_content',
     ];
+
+    protected $casts = ['dinoyo_way_content' => 'array'];
     public function getLogoUrlAttribute()
     {
         if (!$this->logo_path) {

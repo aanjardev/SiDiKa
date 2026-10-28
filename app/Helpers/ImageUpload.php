@@ -82,7 +82,7 @@ class ImageUpload
         $buffer->save($temp);
 
         try {
-            Storage::disk("r2")->putFileAs(
+            $stored = Storage::disk("r2")->putFileAs(
                 dirname($path),
                 new File($temp),
                 basename($path),
@@ -92,6 +92,9 @@ class ImageUpload
                     'CacheControl' => 'public, max-age=31536000, immutable'
                 ]
             );
+            if ($stored === false) {
+                throw new \RuntimeException('Upload gambar ke R2 gagal.');
+            }
         } finally {
             @unlink($temp);
         }
@@ -115,7 +118,7 @@ class ImageUpload
             }
 
             // Upload to public storage
-            $localDisk->putFileAs(
+            $stored = $localDisk->putFileAs(
                 $dir,
                 new File($temp),
                 basename($path),
@@ -123,6 +126,9 @@ class ImageUpload
                     'visibility' => 'public',
                 ]
             );
+            if ($stored === false) {
+                throw new \RuntimeException('Upload gambar ke penyimpanan lokal gagal.');
+            }
 
             // Return public accessible path
             return [

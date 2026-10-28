@@ -199,6 +199,12 @@
                         </a>
                     </div>
                     @endif
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.dinoyo-way.edit') }}" class="submenu-link">
+                            <i class="fas fa-book-open submenu-icon"></i>
+                            <span>Dinoyo Kamera Way</span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

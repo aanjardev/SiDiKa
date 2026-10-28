@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\DinoyoWayController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\DashboardController;
@@ -35,6 +36,7 @@ use Symfony\Component\HttpKernel\Profiler\Profile;
 
 Route::get("/", [PageController::class,"index"]);
 Route::get("/about", [PageController::class,"about"]);
+Route::get('/dinoyo-kamera-way', [PageController::class, 'dinoyoWay'])->name('dinoyo-way');
 Route::get("/contact", [PageController::class,"contact"]);
 Route::get("/admin", [PageController::class,"admin"]);
 
@@ -143,6 +145,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::resource('/quality-control', QCController::class)->names('quality-control');
 
     Route::get('/catalog-settings', [CatalogSettingsController::class, 'edit'])->name('catalog-settings.index');
+    Route::get('/dinoyo-kamera-way', [DinoyoWayController::class, 'edit'])->name('dinoyo-way.edit');
+    Route::post('/dinoyo-kamera-way', [DinoyoWayController::class, 'update'])->name('dinoyo-way.update');
     Route::post('/catalog-settings', [CatalogSettingsController::class, 'update'])->name('catalog-settings.update');
     Route::delete('/catalog-settings/banner/{id}', [CatalogSettingsController::class, 'destroyBanner'])->name('catalog-settings.banner.destroy');
     Route::delete('/catalog-settings/partner/{id}', [CatalogSettingsController::class, 'destroyPartner'])->name('catalog-settings.partner.destroy');

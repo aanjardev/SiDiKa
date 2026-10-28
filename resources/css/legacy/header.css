@@ -84,6 +84,18 @@
 }
 
 /* Responsive styles */
+@media (min-width: 992px) and (max-width: 1199px) {
+    #main-header .nav-item {
+        margin: 0 0.125rem;
+    }
+
+    #main-header .nav-link {
+        padding: 0.5rem 0.65rem !important;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+}
+
 @media (max-width: 991px) {
     #main-header .navbar-collapse {
         background-color: var(--header-primary);

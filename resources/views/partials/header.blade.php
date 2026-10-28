@@ -25,6 +25,9 @@
                 <li class="nav-item">
                     <a class="nav-link {{ Request::is('about') ? 'active' : '' }}" href="/about">Tentang Kami</a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ Request::routeIs('dinoyo-way') ? 'active' : '' }}" href="{{ route('dinoyo-way') }}" @if(Request::routeIs('dinoyo-way')) aria-current="page" @endif>{{ $wayNavigationLabel }}</a>
+                </li>
             </ul>
         </div>
     </div>

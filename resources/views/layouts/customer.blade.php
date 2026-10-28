@@ -2,7 +2,7 @@
     $setting = \App\Models\CatalogSettings::first();
 @endphp
 <!DOCTYPE html>
-<html lang="en">
+<html lang="@yield('lang', 'en')">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,7 @@
             : asset('mainIMG/logoDK.png');
     @endphp
     <title>@yield('title', $setting?->nama_website ?? 'Dinoyo Kamera')</title>
+    @stack('meta')
     <link rel="icon" href="{{ $faviconUrl }}" type="image/png">
     <link rel="shortcut icon" href="{{ $faviconUrl }}" type="image/png">
 
@@ -26,7 +27,7 @@
 
     @stack('styles')
 </head>
-<body>
+<body class="@yield('body-class')">
     @include('partials.header')
 
     @yield('content')
