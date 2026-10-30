@@ -179,7 +179,7 @@
             </div>
             <div class="way-principles way-reveal">
                 <figure class="way-principles-art" aria-hidden="true">
-                    <img src="{{ asset('mainIMG/way-balanced-culture.svg') }}" alt="" width="360" height="320" loading="lazy">
+                    <img src="{{ \App\Helpers\PublicAssetHelper::url('mainIMG/way-balanced-culture.svg') }}" alt="" width="360" height="320" loading="lazy">
                 </figure>
                 <blockquote class="way-principles-copy">
                     @foreach($content['performance']['principles'] as $principle)
@@ -302,5 +302,5 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ asset('js/dinoyo-way.js') }}" defer></script>
+    <script src="{{ \App\Helpers\PublicAssetHelper::url('js/dinoyo-way.js') }}" defer></script>
 @endpush

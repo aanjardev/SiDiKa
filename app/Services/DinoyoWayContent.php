@@ -49,7 +49,7 @@ class DinoyoWayContent
         'lines' => 'Isi janji', 'closing' => 'Penutup', 'salutation' => 'Salam',
         'secondary_action' => 'Teks tautan tambahan',
         'action_url' => 'Tujuan tombol utama', 'secondary_action_url' => 'Tujuan tautan tambahan',
-        'read_more' => 'Teks pembuka detail', 'image_caption' => 'Keterangan visual',
+        'read_more' => 'Teks pembuka detail', 'image_caption' => 'teks dalam gambar',
         'center_label' => 'Identitas diagram misi', 'areas' => 'Lingkup manfaat',
         'chart_label' => 'Label grafik penilaian',
         'read_less' => 'Teks tutup detail', 'emblem_label' => 'Teks emblem janji bersama',
@@ -88,7 +88,7 @@ class DinoyoWayContent
 
     public function editable(array $content): array
     {
-        unset($content['hero']['image'], $content['navigation'], $content['navigation_label'], $content['navigation_aria_label']);
+        unset($content['description'], $content['hero']['image'], $content['navigation'], $content['navigation_label'], $content['navigation_aria_label']);
         foreach (self::IMAGE_FIELDS as $path) Arr::forget($content, $path);
         foreach (Arr::dot($content) as $path => $value) {
             $key = Arr::last(explode('.', $path));
@@ -143,6 +143,6 @@ class DinoyoWayContent
             $base = rtrim(config('filesystems.disks.r2.url') ?: env('CDN_BASE_URL', ''), '/');
             return $base ? $base.'/'.$path : Storage::disk('r2')->url($path);
         }
-        return asset($default);
+        return \App\Helpers\PublicAssetHelper::url($default);
     }
 }

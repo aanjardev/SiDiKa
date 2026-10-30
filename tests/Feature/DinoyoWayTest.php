@@ -61,6 +61,36 @@ class DinoyoWayTest extends TestCase
         }
     }
 
+    public function test_local_way_script_keeps_the_public_web_root_and_a_content_version(): void
+    {
+        $response = $this->get('/dinoyo-kamera-way')->assertOk();
+        $document = new \DOMDocument;
+        @$document->loadHTML(mb_convert_encoding($response->getContent(), 'HTML-ENTITIES', 'UTF-8'));
+        $script = (new \DOMXPath($document))->query('//script[contains(@src,"dinoyo-way.js")]')->item(0);
+        $url = $script->getAttribute('src');
+        self::assertSame('/js/dinoyo-way.js', parse_url($url, PHP_URL_PATH));
+        parse_str(parse_url($url, PHP_URL_QUERY), $query);
+        self::assertSame(substr(hash_file('sha256', public_path('js/dinoyo-way.js')), 0, 12), $query['v']);
+    }
+
+    public function test_production_way_assets_use_the_same_public_directory_as_its_stylesheets(): void
+    {
+        $this->app->instance('env', 'production');
+        $response = $this->get('/dinoyo-kamera-way')->assertOk();
+        $document = new \DOMDocument;
+        @$document->loadHTML(mb_convert_encoding($response->getContent(), 'HTML-ENTITIES', 'UTF-8'));
+        $xpath = new \DOMXPath($document);
+        $script = $xpath->query('//script[contains(@src,"dinoyo-way.js")]')->item(0);
+        self::assertSame('/public/js/dinoyo-way.js', parse_url($script->getAttribute('src'), PHP_URL_PATH));
+        foreach ($xpath->query('//main//img') as $image) {
+            self::assertStringStartsWith('/public/', parse_url($image->getAttribute('src'), PHP_URL_PATH));
+        }
+        foreach ($xpath->query('//link[contains(@href,"css/legacy/")]') as $stylesheet) {
+            self::assertStringStartsWith('/public/css/', parse_url($stylesheet->getAttribute('href'), PHP_URL_PATH));
+            self::assertNotEmpty(parse_url($stylesheet->getAttribute('href'), PHP_URL_QUERY));
+        }
+    }
+
     public function test_draft_policies_remain_identified_as_proposals(): void
     {
         $this->get('/dinoyo-kamera-way')->assertOk()
@@ -159,6 +189,29 @@ class DinoyoWayTest extends TestCase
             ->assertSee('BERTUMBUH DENGAN AMANAH')
             ->assertSee('Jelaskan kondisi setiap unit secara terbuka.');
         $this->assertSame(2, substr_count($this->get('/dinoyo-kamera-way')->getContent(), 'Budaya Dinoyo'));
+    }
+
+    public function test_page_identity_description_is_hidden_locked_and_preserved_when_other_copy_changes(): void
+    {
+        $description = 'Deskripsi metadata tersimpan.';
+        DB::table('catalog_settings')->update(['dinoyo_way_content' => json_encode(['description' => $description])]);
+        $this->actingAs(new User(['id' => 1, 'name' => 'Editor', 'role' => 'staff', 'status' => 'active']));
+        $response = $this->get('/admin/dinoyo-kamera-way')->assertOk();
+        $document = new \DOMDocument;
+        @$document->loadHTML(mb_convert_encoding($response->getContent(), 'HTML-ENTITIES', 'UTF-8'));
+        $xpath = new \DOMXPath($document);
+        self::assertCount(0, $xpath->query('//*[@name="content[description]"]'));
+        self::assertCount(1, $xpath->query('//*[@name="content[hero][description]"]'));
+        $content = $this->editableContent();
+        self::assertArrayNotHasKey('description', $content);
+        $content['hero']['title'] = 'Judul tetap bisa diubah';
+        $this->post('/admin/dinoyo-kamera-way', ['content' => $content])->assertSessionHasNoErrors();
+        $saved = json_decode(DB::table('catalog_settings')->value('dinoyo_way_content'), true);
+        self::assertSame($description, $saved['description']);
+        $this->get('/dinoyo-kamera-way')->assertOk()->assertSee($description)->assertSee('Judul tetap bisa diubah');
+        $content['description'] = 'Input tersembunyi yang disisipkan';
+        $this->post('/admin/dinoyo-kamera-way', ['content' => $content])->assertSessionHasErrors('content');
+        self::assertSame($saved, json_decode(DB::table('catalog_settings')->value('dinoyo_way_content'), true));
     }
 
     public function test_invalid_weights_or_injected_anchor_ids_do_not_change_saved_content(): void
@@ -462,6 +515,31 @@ class DinoyoWayTest extends TestCase
         $photo = (new \DOMXPath($document))->query('//*[@id="way-value-panel-0"]//img')->item(0);
         $this->assertSame(Storage::disk('public')->url(substr($after['values']['items'][0]['image'], 7)), $photo->getAttribute('src'));
         $this->assertStringNotContainsString(basename($before['values']['items'][0]['image']), $photo->getAttribute('src'));
+    }
+
+    public function test_public_storage_url_can_match_a_shared_hosting_public_directory(): void
+    {
+        $previous = $_ENV['PUBLIC_STORAGE_URL'] ?? null;
+        $_ENV['PUBLIC_STORAGE_URL'] = 'https://dinoyokamera.com/public/storage';
+        try {
+            $filesystems = require config_path('filesystems.php');
+            self::assertSame('https://dinoyokamera.com/public/storage', $filesystems['disks']['public']['url']);
+            Storage::fake('public', ['url' => $filesystems['disks']['public']['url']]);
+            $this->actingAs(new User(['id' => 1, 'name' => 'Editor', 'role' => 'staff', 'status' => 'active']));
+            $this->post('/admin/dinoyo-kamera-way', [
+                'content' => $this->editableContent(),
+                'page_images' => ['pillar_0' => UploadedFile::fake()->image('hosting.jpg', 320, 240)],
+            ])->assertSessionHasNoErrors();
+            $saved = json_decode(DB::table('catalog_settings')->value('dinoyo_way_content'), true);
+            $path = substr($saved['values']['items'][0]['image'], 7);
+            Storage::disk('public')->assertExists($path);
+            $url = 'https://dinoyokamera.com/public/storage/'.$path;
+            $this->get('/dinoyo-kamera-way')->assertOk()->assertSee($url);
+            $this->get('/admin/dinoyo-kamera-way')->assertOk()->assertSee($url);
+        } finally {
+            if ($previous === null) unset($_ENV['PUBLIC_STORAGE_URL']);
+            else $_ENV['PUBLIC_STORAGE_URL'] = $previous;
+        }
     }
 
     public function test_other_uploads_keep_the_existing_default_r2_behavior(): void

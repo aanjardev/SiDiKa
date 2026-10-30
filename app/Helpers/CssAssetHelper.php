@@ -15,12 +15,6 @@ class CssAssetHelper
      */
     public static function css($path)
     {
-        // For production/Hostinger - add 'public/' prefix
-        if (app()->environment('production')) {
-            return asset('public/' . $path);
-        }
-
-        // For local development - use path as-is
-        return asset($path);
+        return PublicAssetHelper::url($path);
     }
 }

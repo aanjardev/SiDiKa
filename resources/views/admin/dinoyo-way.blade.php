@@ -58,7 +58,7 @@
             <summary>Identitas halaman <i class="fas fa-chevron-down" aria-hidden="true"></i></summary>
             <div class="way-editor-body">
                 @include('admin.partials.dinoyo_way_fields', [
-                    'fields' => \Illuminate\Support\Arr::only($content, ['title', 'navigation_label', 'description', 'navigation_aria_label']),
+                    'fields' => \Illuminate\Support\Arr::only($content, ['title']),
                     'prefix' => 'content',
                 ])
             </div>
