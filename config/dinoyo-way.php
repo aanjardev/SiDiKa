@@ -21,7 +21,7 @@ return [
         ['id' => 'budaya-organisasi', 'label' => 'Budaya organisasi'],
         ['id' => 'disiplin-sukses', 'label' => 'Disiplin sukses'],
         ['id' => 'dk-way', 'label' => 'DK Way'],
-        ['id' => 'psikotes-tim', 'label' => 'Psikotes tim'],
+        ['id' => 'psikotes-tim', 'label' => 'Tes Psikotes'],
         ['id' => 'secret-potion', 'label' => 'Secret potion'],
     ],
     'philosophy' => [
@@ -121,7 +121,7 @@ return [
         'jihad_description' => 'Menyisihkan waktu untuk menata niat, menguatkan syukur, dan memohon keberkahan sebelum melanjutkan ikhtiar terbaik.',
     ],
     'psychotest' => [
-        'eyebrow' => '07 / Psikotes tim',
+        'eyebrow' => '07 / Tes Psikotes',
         'title' => 'Kenali potensi. Tumbuh bersama.',
         'description' => 'Gunakan psikotes tim untuk membantu memahami potensi dan pola kerja setiap anggota tim.',
         'action' => 'Buka psikotes tim',

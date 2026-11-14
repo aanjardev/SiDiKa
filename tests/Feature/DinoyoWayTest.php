@@ -44,7 +44,7 @@ class DinoyoWayTest extends TestCase
             ->assertSee('Budaya organisasi')
             ->assertSee('Disiplin sukses')
             ->assertSee('DK Way')
-            ->assertSee('Psikotes tim')
+            ->assertSee('Tes Psikotes')
             ->assertSee('Secret potion')
             ->assertSee('Menjadi jaringan toko jual beli kamera second terbesar')
             ->assertSee('Go Best Forecast')
