@@ -193,13 +193,13 @@
                                 <circle cx="310" cy="194" r="138" fill="url(#gratitude-sun)" filter="url(#gratitude-glow)" opacity=".65"/>
                                 <circle cx="310" cy="194" r="58" fill="url(#gratitude-sun)"/>
                             </g>
-                            <path d="M0 280 C120 238 195 260 290 238 S478 236 640 270 V420 H0Z" fill="url(#gratitude-ground)"/>
-                            <path d="M0 284 C120 242 195 264 290 242 S478 240 640 274" fill="none" stroke="#f38b6c" stroke-opacity=".7" stroke-width="2"/>
                             <g fill="none" stroke="#ffd8a1" stroke-linecap="round">
                                 <path d="M160 194 A150 150 0 0 1 460 194" stroke-opacity=".18" stroke-width="2"/>
                                 <path d="M190 194 A120 120 0 0 1 430 194" stroke-opacity=".32" stroke-width="2" stroke-dasharray="1 12"/>
                                 <path d="M222 194 A88 88 0 0 1 398 194" stroke-opacity=".58" stroke-width="2"/>
                             </g>
+                            <path d="M0 280 C120 238 195 260 290 238 S478 236 640 270 V420 H0Z" fill="url(#gratitude-ground)"/>
+                            <path d="M0 284 C120 242 195 264 290 242 S478 240 640 274" fill="none" stroke="#f38b6c" stroke-opacity=".7" stroke-width="2"/>
                             <g transform="translate(44 42)">
                                 <circle cx="28" cy="28" r="27" fill="#ea4e2d"/>
                                 <path d="M28 13v16l10 7" fill="none" stroke="#fff5ea" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
