@@ -302,7 +302,7 @@ gsap.registerPlugin(ScrollTrigger);
             ScrollTrigger.create({ trigger: art, start: 'top 78%', once: true, onEnter: () => artTimeline.play() });
         }
 
-        page.querySelectorAll('.way-mission-card, .way-discipline-panel, .way-gratitude-art').forEach((item) => {
+        page.querySelectorAll('.way-mission-card, .way-discipline-panel').forEach((item) => {
             item.addEventListener('pointerenter', () => gsap.to(item, { y: -6, duration: .3, ease, overwrite: true }));
             item.addEventListener('pointerleave', () => gsap.to(item, { y: 0, duration: .45, ease, overwrite: true }));
         });

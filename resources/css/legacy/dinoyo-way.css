@@ -662,12 +662,10 @@
 /* Cinematic motion layer: reserved for focal text and scene anchors. */
 .way-verse-arabic, .way-vision-statement > p:last-child { background: linear-gradient(110deg, currentColor 18%, #fff6df 46%, #f28c6e 52%, currentColor 78%); background-size: 260% 100%; background-position: 100% 0; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: currentColor; }
 .way-verse-arabic.way-shimmer-active, .way-vision-statement > p:last-child.way-shimmer-active { -webkit-text-fill-color: transparent; animation: way-text-shimmer 4.8s cubic-bezier(.2,.8,.2,1) both; }
-.way-gratitude-art { transition: filter .45s ease, transform .45s cubic-bezier(.2,.8,.2,1); }
-.way-gratitude-art:hover { filter: drop-shadow(0 18px 26px rgba(0,0,0,.2)); }
+.way-gratitude-art { transition: none; }
 .way-gratitude-art svg { transform-origin: 50% 50%; }
 .way-mission-card, .way-discipline-panel { will-change: transform; }
 @keyframes way-text-shimmer { from { background-position: 100% 0; } to { background-position: 0 0; } }
 @media (prefers-reduced-motion: reduce) {
     .way-verse-arabic, .way-vision-statement > p:last-child { background: none; -webkit-text-fill-color: currentColor; }
-    .way-gratitude-art { transition: none; }
 }
