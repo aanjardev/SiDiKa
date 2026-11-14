@@ -570,4 +570,10 @@ Penyederhanaan editor untuk pengguna nonteknis: seluruh pengaturan tautan (teks/
 
 Semua upload dari editor Way (hero, filosofi, standar kerja dan enam pilar) kini langsung memakai disk public lokal. File dioptimalkan menjadi WebP dan disimpan pada storage/app/public/catalog/dinoyo-way/, dengan URL /storage/catalog/dinoyo-way/. Sembilan foto bawaan tetap merupakan aset lokal repository. Link public/storage pada workspace tujuan sudah tersedia. Tidak ada akses R2 saat upload Way; perilaku default helper untuk upload fitur lain tetap dipertahankan. Resolver URL lama tetap mengenali referensi R2 untuk kompatibilitas konten dari instalasi lama; audit database lokal menemukan nol referensi R2.
 
+## 14. Revisi struktur Dinoyo Kamera Way
+
+Pada November 2026, halaman publik Way disederhanakan menjadi delapan bagian: Filosofi, Landasan Spiritual, Visi Misi, Budaya Organisasi, Disiplin Sukses, DK Way, Psikotes Tim, dan Secret Potion. Konten visi/misi bersumber dari dokumen Visi Misi Dinoyo Kamera 2030; budaya SIAPPP bersumber dari dokumen Budaya Organisasi Dinoyo Kamera; definisi DK Way diringkas dari dokumen The Dinoyo Kamera Way.
+
+Struktur lama seperti Misi Besar, Enam Pilar, Cara Kerja, Pertumbuhan Karier, Janji Bersama, Evaluasi, dan Rekomendasi Implementasi tidak lagi dirender. Editor admin Way dinonaktifkan sementara agar field lama tidak mengubah struktur baru. Kolom JSON `catalog_settings.dinoyo_way_content` tetap dipertahankan, tetapi pembacaan publik menggunakan `config/dinoyo-way.php` sampai editor baru dirancang.
+
 Pengujian otomatis: 53 test / 820 assertion lulus. Uji browser mengisi 147 field teks dan sembilan foto unik melalui form admin, menyimpan, lalu memeriksa seluruh teks dan memastikan sembilan file gambar lokal benar-benar dapat didekode. Penggantian foto menghasilkan src baru; reset satu foto tidak mengubah foto lain. Uji backend melarang pemanggilan R2 saat upload Way, memeriksa mapping src tiap foto serta format WebP, validasi, dan kegagalan storage. Seluruh audit memakai database/storage sementara pada drive D tanpa menulis konten operasional.

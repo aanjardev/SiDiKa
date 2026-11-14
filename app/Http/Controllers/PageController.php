@@ -48,7 +48,11 @@ class PageController extends Controller
     public function dinoyoWay(\App\Services\DinoyoWayContent $page)
     {
         $content = $page->get();
-        return view('dinoyo-way', ['content' => $content, 'heroImageUrl' => $page->heroImageUrl($content), 'imageSlots' => $page->imageSlots($content)]);
+        return view('dinoyo-way', [
+            'content' => $content,
+            'heroImageUrl' => $page->heroImageUrl($content),
+            'philosophyImageUrl' => $page->philosophyImageUrl($content),
+        ]);
     }
 
     public function contact(){

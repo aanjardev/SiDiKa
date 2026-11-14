@@ -511,3 +511,90 @@
  .way-closing-link, .way-closing-link i { transition: none; }
  .way-closing-link:hover i, .way-closing-link:active { transform: none; }
 }
+
+/* 2026 Way refresh */
+.way-spiritual { background: #f1ebe3; }
+.way-spiritual-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(2rem, 7vw, 7rem); align-items: center; }
+.way-verse { padding: clamp(2rem, 5vw, 4.5rem); border: 1px solid #d9cfc4; background: #fffaf5; box-shadow: 18px 18px 0 #d8c9bb; }
+.way-verse-arabic { margin-bottom: 2rem; color: #26333b; font-family: serif; font-size: clamp(1.8rem, 3vw, 3rem); line-height: 2; text-align: right; }
+.way-verse-translation { margin-bottom: 1.4rem; color: #4d5861; font-size: clamp(1rem, 1.5vw, 1.3rem); line-height: 1.8; }
+.way-verse-reference { margin: 0; color: #b7371c; font-size: .7rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+.way-vision { background: #10191e; color: #fff; }
+.way-vision h2, .way-vision .way-section-description { color: #fff; }
+.way-vision .way-eyebrow, .way-vision .way-proposal-label { color: #ff9c83; }
+.way-vision-statement { max-width: 900px; margin-bottom: 3rem; padding: 2rem 0 2rem 1.5rem; border-left: 3px solid #ea4e2d; }
+.way-vision-statement > p:last-child { margin: .6rem 0 0; color: #e5eaec; font-size: clamp(1.25rem, 2.2vw, 2rem); font-weight: 650; line-height: 1.45; letter-spacing: -.035em; }
+.way-mission-label { margin-bottom: 1.25rem; }
+.way-mission-grid-new { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; background: #435057; }
+.way-mission-card { position: relative; min-width: 0; padding: 2rem; background: #17272f; transition: background .3s, transform .3s; }
+.way-mission-card:hover { z-index: 1; background: #20343d; transform: translateY(-5px); }
+.way-card-index { display: block; margin-bottom: 1.7rem; color: #ff9c83; font-size: .7rem; font-weight: 750; letter-spacing: .1em; }
+.way-mission-card h3 { margin-bottom: .7rem; color: #fff; font-size: 1.05rem; }
+.way-mission-card p { margin: 0; color: #b9c3c9; font-size: .85rem; line-height: 1.8; }
+.way-culture { background: #f6f7f8; }
+.way-culture-list { border-top: 1px solid var(--way-border); }
+.way-culture-item { border-bottom: 1px solid var(--way-border); }
+.way-culture-item summary { display: grid; grid-template-columns: 56px 1fr auto; align-items: center; gap: 1rem; min-height: 88px; cursor: pointer; list-style: none; font-size: clamp(1.05rem, 2vw, 1.4rem); font-weight: 700; }
+.way-culture-item summary::-webkit-details-marker { display: none; }
+.way-culture-item summary > i { color: #b7371c; transition: transform .25s; }
+.way-culture-item[open] summary > i { transform: rotate(45deg); }
+.way-culture-letter { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: #26333b; color: #fff; font-size: 1rem; }
+.way-culture-detail { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; padding: 0 3rem 2rem 56px; color: var(--way-muted); font-size: .87rem; line-height: 1.8; }
+.way-culture-detail p { margin: 0; }
+.way-culture-detail strong { display: block; margin-bottom: .35rem; color: #b7371c; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+.way-culture-footer { display: grid; grid-template-columns: .9fr 1.1fr; gap: 4rem; margin-top: 4rem; padding-top: 3rem; border-top: 1px solid var(--way-border); }
+.way-culture-footer blockquote { margin: 0; color: #32444c; font-size: clamp(1.25rem, 2.4vw, 2rem); font-weight: 650; line-height: 1.45; letter-spacing: -.04em; }
+.way-indicator-table > .way-proposal-label { margin-bottom: .8rem; }
+.way-indicator-table > div { display: grid; grid-template-columns: .7fr 1fr; gap: 1rem; padding: .8rem 0; border-top: 1px solid var(--way-border); font-size: .8rem; }
+.way-indicator-table strong { color: #58646c; font-weight: 500; }
+.way-discipline { background: #fff; }
+.way-discipline-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.way-discipline-panel { position: relative; min-width: 0; padding: 2.2rem; border: 1px solid #e4e7e9; background: #fff; overflow: hidden; }
+.way-discipline-panel::after { content: ''; position: absolute; right: -30px; bottom: -42px; width: 150px; height: 150px; border: 1px solid #f0d4ca; border-radius: 50%; }
+.way-discipline-number { display: block; margin-bottom: 1rem; color: #b7371c; font-size: .7rem; font-weight: 750; letter-spacing: .12em; }
+.way-discipline-panel h3 { margin-bottom: 1.3rem; font-size: 1.25rem; }
+.way-discipline-panel ul { position: relative; z-index: 1; margin: 0; padding: 0; list-style: none; }
+.way-discipline-panel li { display: flex; gap: .65rem; padding: .55rem 0; border-top: 1px solid #edf0f1; color: var(--way-muted); font-size: .85rem; line-height: 1.65; }
+.way-discipline-panel li i { flex-shrink: 0; color: #b7371c; }
+.way-dk { background: #17272f; color: #fff; }
+.way-dk h2, .way-dk h3 { color: #fff; }
+.way-dk .way-eyebrow, .way-dk .way-proposal-label { color: #ff9c83; }
+.way-dk-definition { max-width: 850px; margin-bottom: 3.5rem; padding: 1.7rem 2rem; border-left: 3px solid #ea4e2d; background: rgba(255,255,255,.04); }
+.way-dk-definition > p:last-child { margin: .5rem 0 0; color: #d5dde1; font-size: 1.05rem; line-height: 1.8; }
+.way-dk-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(2rem, 6vw, 6rem); }
+.way-dk-how ol { margin: 1rem 0 0; padding: 0; list-style: none; }
+.way-dk-how li { display: grid; grid-template-columns: 42px 1fr; gap: 1rem; padding: 1rem 0; border-top: 1px solid rgba(255,255,255,.16); }
+.way-dk-how li > span { color: #ff9c83; font-size: .75rem; font-weight: 750; }
+.way-dk-how h3 { margin-bottom: .35rem; font-size: 1rem; }
+.way-dk-how p { margin: 0; color: #b9c3c9; font-size: .82rem; line-height: 1.75; }
+.way-gratitude { padding: 2.5rem; border: 1px solid rgba(255,255,255,.2); background: #263b45; }
+.way-gratitude > h3 { margin: .8rem 0 2rem; font-size: clamp(1.5rem, 2.5vw, 2.2rem); line-height: 1.25; }
+.way-jihad { padding-top: 1.3rem; border-top: 1px solid rgba(255,255,255,.2); }
+.way-jihad span { display: block; color: #ff9c83; font-size: .7rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+.way-jihad strong { display: block; margin: .35rem 0 .8rem; color: #fff; font-size: 2.5rem; letter-spacing: -.05em; }
+.way-jihad p { margin: 0; color: #c5d0d4; font-size: .83rem; line-height: 1.8; }
+.way-external { background: #f1ebe3; }
+.way-external-inner, .way-secret-inner { display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+.way-external-inner h2, .way-secret-inner h2 { margin-bottom: .7rem; }
+.way-external-inner p:last-child, .way-secret-inner p:last-child { max-width: 560px; margin: 0; color: var(--way-muted); }
+.way-secret { background: #a6311c; color: #fff; }
+.way-secret h2 { color: #fff; }
+.way-secret .way-eyebrow { color: #ffe0d6; }
+.way-secret-inner p:last-child { color: #ffe0d6; }
+.way-secret-link { display: inline-flex; align-items: center; gap: .8rem; min-height: 52px; padding: .8rem 1.25rem; border: 1px solid rgba(255,255,255,.45); color: #fff; font-size: .8rem; font-weight: 700; text-decoration: none; transition: background .25s, transform .25s; }
+.way-secret-link:hover { background: #fff; color: #a6311c; transform: translateY(-3px); }
+@media (max-width: 767px) {
+    .way-spiritual-grid, .way-dk-grid, .way-culture-footer { grid-template-columns: 1fr; }
+    .way-verse { box-shadow: 10px 10px 0 #d8c9bb; }
+    .way-mission-grid-new, .way-discipline-grid { grid-template-columns: 1fr; }
+    .way-culture-detail { grid-template-columns: 1fr; gap: 1rem; padding-left: 0; }
+    .way-culture-item summary { grid-template-columns: 44px 1fr auto; min-height: 76px; }
+    .way-culture-letter { width: 38px; height: 38px; }
+    .way-external-inner, .way-secret-inner { align-items: flex-start; flex-direction: column; }
+    .way-gratitude { padding: 1.5rem; }
+}
+@media (max-width: 575px) {
+    .way-verse { padding: 1.5rem; }
+    .way-verse-arabic { font-size: 1.5rem; }
+    .way-mission-card, .way-discipline-panel { padding: 1.5rem; }
+}
