@@ -123,14 +123,6 @@
                     </article>
                 @endforeach
             </div>
-            <div class="way-manifesto way-reveal">
-                <p class="way-proposal-label">Filosofi SIAPPP</p>
-                <blockquote>
-                    @foreach($content['culture']['manifesto'] as $line)
-                        <span class="way-manifesto-line"><strong>{{ $line['name'] }}</strong> {{ $line['text'] }}</span>
-                    @endforeach
-                </blockquote>
-            </div>
             <div class="way-indicator-table way-reveal">
                 <p class="way-proposal-label">Indikator evaluasi budaya</p>
                 <div class="way-indicator-grid">

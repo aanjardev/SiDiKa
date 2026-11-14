@@ -110,7 +110,7 @@ class DinoyoWayTest extends TestCase
         $this->assertSame(0, $xpath->query('//*[@id="visi-misi"]//article[contains(@class,"way-reveal")]')->length);
         $this->assertSame(6, $xpath->query('//*[@id="budaya-organisasi"]//*[@role="tab"]')->length);
         $this->assertSame(6, $xpath->query('//*[@id="budaya-organisasi"]//*[@role="tabpanel"]')->length);
-        $this->assertSame(1, $xpath->query('//*[@id="budaya-organisasi"]//*[contains(@class,"way-manifesto ")]')->length);
+        $this->assertSame(0, $xpath->query('//*[@id="budaya-organisasi"]//*[contains(@class,"way-manifesto")]')->length);
         $this->assertSame(1, $xpath->query('//*[@id="budaya-organisasi"]//*[contains(@class,"way-indicator-table")]')->length);
     }
 
