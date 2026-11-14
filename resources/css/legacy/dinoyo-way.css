@@ -670,6 +670,7 @@
 .way-mission-card, .way-discipline-panel { will-change: transform; }
 @keyframes way-text-shimmer { from { background-position: 100% 0; -webkit-text-fill-color: transparent; } to { background-position: 0 0; -webkit-text-fill-color: currentColor; } }
 @keyframes way-letter-shimmer { from { background-position: 100% 0; -webkit-text-fill-color: transparent; } to { background-position: 0 0; -webkit-text-fill-color: currentColor; } }
+.way-philosophy .way-reveal, .way-discipline .way-reveal { transition-duration: .35s; }
 @media (prefers-reduced-motion: reduce) {
     .way-verse-arabic, .way-shimmer-letter { background: none; -webkit-text-fill-color: currentColor; }
 }

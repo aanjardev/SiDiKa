@@ -278,17 +278,17 @@ gsap.registerPlugin(ScrollTrigger);
         if (reducedMotion.matches) return;
         const ease = 'power3.out';
         const revealGroups = [
-            ['.way-philosophy .way-story-copy > *', .08],
+            ['.way-philosophy .way-story-copy > *', .035, .42],
             ['.way-vision .way-mission-card', .06],
             ['.way-culture .way-culture-tab', .06],
-            ['.way-discipline .way-discipline-panel', .1],
+            ['.way-discipline .way-discipline-panel', .035, .38],
             ['.way-dk .way-dk-how li', .08],
         ];
-        revealGroups.forEach(([selector, stagger]) => {
+        revealGroups.forEach(([selector, stagger, duration = .72]) => {
             const items = page.querySelectorAll(selector);
             if (!items.length) return;
             gsap.fromTo(items, { autoAlpha: 0, y: 28 }, {
-                autoAlpha: 1, y: 0, duration: .72, stagger,
+                autoAlpha: 1, y: 0, duration, stagger,
                 ease, clearProps: 'transform,opacity,visibility',
                 scrollTrigger: { trigger: items[0].closest('.way-section'), start: 'top 76%', once: true },
             });
