@@ -315,7 +315,7 @@ gsap.registerPlugin(ScrollTrigger);
                     const letter = document.createElement('span');
                     letter.className = 'way-shimmer-letter';
                     letter.textContent = segment;
-                    letter.style.setProperty('--letter-delay', `${Math.min(letterIndex++, 110) * 32}ms`);
+                    letter.style.setProperty('--letter-delay', `${letterIndex++ * 26}ms`);
                     word.append(letter);
                 });
                 visionStatement.append(word);
