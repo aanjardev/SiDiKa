@@ -50,7 +50,7 @@ return [
     'vision_mission' => [
         'eyebrow' => '03 / Visi misi',
         'title' => 'Menuju 2030 dengan arah yang jelas.',
-        'vision_label' => 'Visi 2030',
+        'vision_label' => 'visi dinoyo kamera',
         'vision' => 'Menjadi jaringan toko jual beli kamera second terbesar, terlengkap, dan terpercaya di Indonesia dengan pengelolaan profesional serta fundamental bisnis yang kuat pada tahun 2030.',
         'mission_label' => '7 misi Dinoyo Kamera',
         'missions' => [

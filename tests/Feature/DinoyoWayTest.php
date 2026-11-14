@@ -49,7 +49,7 @@ class DinoyoWayTest extends TestCase
             ->assertSee('Menjadi jaringan toko jual beli kamera second terbesar')
             ->assertSee('Go Best Forecast')
             ->assertSee('Jihad Dhuha')
-            ->assertSee('09.00â€“10.00');
+            ->assertSee(config('dinoyo-way.dk_way.jihad_time'));
 
         $document = new \DOMDocument;
         @$document->loadHTML(mb_convert_encoding($response->getContent(), 'HTML-ENTITIES', 'UTF-8'));

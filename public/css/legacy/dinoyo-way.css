@@ -514,7 +514,10 @@
 
 /* 2026 Way refresh */
 .way-spiritual { background: #f1ebe3; }
-.way-spiritual-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: clamp(2rem, 7vw, 7rem); align-items: center; }
+.way-spiritual-grid { display: grid; grid-template-columns: 1fr; gap: clamp(2rem, 4vw, 3.5rem); align-items: start; }
+.way-spiritual-grid > .way-reveal { max-width: 760px; margin: 0 auto; text-align: center; }
+.way-spiritual-grid .way-section-description { margin-right: auto; margin-left: auto; }
+.way-spiritual-grid .way-verse { max-width: 1040px; margin: 0 auto; }
 .way-verse { padding: clamp(2rem, 5vw, 4.5rem); border: 1px solid #d9cfc4; background: #fffaf5; box-shadow: 18px 18px 0 #d8c9bb; }
 .way-verse-arabic { margin-bottom: 2rem; color: #26333b; font-family: serif; font-size: clamp(1.8rem, 3vw, 3rem); line-height: 2; text-align: right; }
 .way-verse-translation { margin-bottom: 1.4rem; color: #4d5861; font-size: clamp(1rem, 1.5vw, 1.3rem); line-height: 1.8; }
