@@ -297,7 +297,7 @@ gsap.registerPlugin(ScrollTrigger);
             const artTimeline = gsap.timeline({ paused: true });
             artTimeline.fromTo(art, { autoAlpha: 0, y: 24, scale: .96 }, { autoAlpha: 1, y: 0, scale: 1, duration: 1, ease })
                 .fromTo(sun, { scale: .82, transformOrigin: '50% 50%', opacity: .45 }, { scale: 1.08, opacity: .82, duration: 2.2, ease: 'sine.inOut', repeat: -1, yoyo: true }, '<')
-                .to(orbit, { rotation: 360, transformOrigin: '50% 50%', duration: 28, ease: 'none', repeat: -1 }, '<')
+                .to(orbit, { rotation: 360, svgOrigin: '310 194', duration: 28, ease: 'none', repeat: -1 }, '<')
                 .fromTo(horizon, { strokeDasharray: 0, strokeDashoffset: 0 }, { strokeDasharray: 20, strokeDashoffset: -100, duration: 5, ease: 'none', repeat: -1 }, '<');
             ScrollTrigger.create({ trigger: art, start: 'top 78%', once: true, onEnter: () => artTimeline.play() });
         }
