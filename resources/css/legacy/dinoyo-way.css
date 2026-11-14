@@ -613,7 +613,7 @@
 .way-verse { width: 100%; }
 .way-verse-arabic { display: flex; justify-content: center; gap: .8em; white-space: nowrap; text-align: center; }
 .way-verse-arabic span { display: inline-block; }
-.way-vision-statement { position: relative; max-width: 980px; margin-right: auto; margin-left: auto; padding: clamp(2.5rem, 6vw, 5rem) clamp(1.5rem, 6vw, 6rem); border: 1px solid rgba(255,156,131,.42); border-radius: 24px; background: radial-gradient(circle at 50% 40%, rgba(234,78,45,.24), rgba(23,39,47,.9) 58%); box-shadow: 0 0 0 1px rgba(255,156,131,.08), 0 0 70px rgba(234,78,45,.17), inset 0 0 50px rgba(255,255,255,.03); text-align: center; }
+.way-vision-statement { position: relative; max-width: 980px; margin-right: auto; margin-left: auto; padding: clamp(2.5rem, 6vw, 5rem) clamp(1.5rem, 6vw, 6rem); border: 1px solid rgba(255,156,131,.42); border-radius: 24px; background: #17272f; box-shadow: 0 0 0 1px rgba(255,156,131,.08), inset 0 0 50px rgba(255,255,255,.03); text-align: center; }
 .way-vision-statement::before { content: ''; position: absolute; inset: 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 17px; pointer-events: none; }
 .way-vision-statement > p { position: relative; z-index: 1; }
 .way-vision-statement > p:last-child { max-width: 780px; margin: .8rem auto 0; }
