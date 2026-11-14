@@ -660,11 +660,11 @@
 }
 
 /* Cinematic motion layer: reserved for focal text and scene anchors. */
-.way-verse-arabic { background: linear-gradient(110deg, currentColor 18%, #fff6df 46%, #f28c6e 52%, currentColor 78%); background-size: 260% 100%; background-position: 100% 0; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: currentColor; }
-.way-verse-arabic.way-shimmer-active { animation: way-text-shimmer 4.8s cubic-bezier(.2,.8,.2,1) both; }
+.way-verse-arabic { color: #26333b; -webkit-text-fill-color: currentColor; }
+.way-verse-arabic.way-shimmer-active { background: linear-gradient(110deg, currentColor 18%, #fff6df 46%, #f28c6e 52%, currentColor 78%); background-size: 260% 100%; background-position: 100% 0; background-clip: text; -webkit-background-clip: text; animation: way-text-shimmer 4.8s cubic-bezier(.2,.8,.2,1) both; }
 .way-shimmer-word { display: inline-block; white-space: nowrap; }
 .way-shimmer-letter { display: inline-block; color: inherit; -webkit-text-fill-color: currentColor; }
-.way-shimmer-letter.is-shimmering { background: linear-gradient(110deg, currentColor 15%, #fff6df 46%, #f28c6e 53%, currentColor 82%); background-size: 260% 100%; background-position: 100% 0; background-clip: text; -webkit-background-clip: text; animation: way-letter-shimmer .68s cubic-bezier(.2,.8,.2,1) var(--letter-delay, 0ms) both; }
+.way-shimmer-letter.is-shimmering { background: linear-gradient(110deg, currentColor 15%, #fff6df 46%, #f28c6e 53%, currentColor 82%); background-size: 260% 100%; background-position: 100% 0; background-clip: text; -webkit-background-clip: text; animation: way-letter-shimmer .68s cubic-bezier(.2,.8,.2,1) var(--letter-delay, 0ms); }
 .way-gratitude-art { transition: none; }
 .way-gratitude-art svg { transform-origin: 50% 50%; }
 .way-mission-card, .way-discipline-panel { will-change: transform; }
