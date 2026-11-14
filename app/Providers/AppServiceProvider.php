@@ -24,7 +24,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if (app()->environment('production')) {
-            Vite::useBuildDirectory('public/build');
+            Vite::createAssetPathsUsing(fn ($path, $secure = null) => asset('public/'.$path, $secure));
         }
 
         View::composer(['partials.header', 'partials.footer'], function ($view) {
