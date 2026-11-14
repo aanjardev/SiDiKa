@@ -8,7 +8,7 @@ class PublicAssetHelper
     public static function url(string $path): string
     {
         $path = ltrim($path, '/');
-        $url = asset((app()->environment('production') ? 'public/' : '').$path);
+        $url = asset($path);
         $file = public_path($path);
 
         // A content version prevents the CDN/browser from reusing an older deployment.
