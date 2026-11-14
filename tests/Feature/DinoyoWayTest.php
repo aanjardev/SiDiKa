@@ -88,15 +88,27 @@ class DinoyoWayTest extends TestCase
     public function test_legacy_database_content_does_not_override_new_public_copy(): void
     {
         DB::table('catalog_settings')->update(['dinoyo_way_content' => json_encode([
-            'title' => 'Judul lama',
             'mission' => ['center_label' => 'Misi lama'],
             'values' => ['items' => [['name' => 'SIAPPPP lama']]],
+            'culture' => ['manifesto' => [['name' => 'legacy']]],
         ])]);
 
         $this->get('/dinoyo-kamera-way')->assertOk()
             ->assertSee('THE DINOYO KAMERA WAY')
-            ->assertDontSee('Judul lama')
-            ->assertDontSee('Misi lama');
+            ->assertDontSee('Misi lama')
+            ->assertDontSee('SIAPPPP lama');
+    }
+
+    public function test_allowed_database_copy_overrides_config_defaults(): void
+    {
+        DB::table('catalog_settings')->update(['dinoyo_way_content' => json_encode([
+            'title' => 'Way custom',
+            'vision_mission' => ['vision' => 'Visi custom untuk pengujian.'],
+        ])]);
+
+        $this->get('/dinoyo-kamera-way')->assertOk()
+            ->assertSee('Way custom')
+            ->assertSee('Visi custom untuk pengujian.');
     }
 
     public function test_vision_and_culture_redesign_has_no_mission_reveal_and_uses_accessible_tabs(): void
@@ -114,9 +126,9 @@ class DinoyoWayTest extends TestCase
         $this->assertSame(1, $xpath->query('//*[@id="budaya-organisasi"]//*[contains(@class,"way-indicator-table")]')->length);
     }
 
-    public function test_admin_way_editor_is_temporarily_unavailable(): void
+    public function test_admin_way_editor_requires_authentication(): void
     {
-        $this->get('/admin/dinoyo-kamera-way')->assertNotFound();
-        $this->post('/admin/dinoyo-kamera-way')->assertNotFound();
+        $this->get('/admin/dinoyo-kamera-way')->assertForbidden();
+        $this->post('/admin/dinoyo-kamera-way')->assertForbidden();
     }
 }

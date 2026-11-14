@@ -16,6 +16,7 @@ use App\Http\Controllers\PembelianController;
 use App\Http\Controllers\QCController;
 use App\Http\Controllers\CatalogSettingsController;
 use App\Http\Controllers\SmartStockController;
+use App\Http\Controllers\DinoyoWayController;
 use App\Http\Controllers\AccountActivationController;
 use App\Http\Controllers\TimeoutController;
 use Illuminate\Support\Facades\Route;
@@ -145,6 +146,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::get('/catalog-settings', [CatalogSettingsController::class, 'edit'])->name('catalog-settings.index');
     Route::post('/catalog-settings', [CatalogSettingsController::class, 'update'])->name('catalog-settings.update');
+    Route::get('/dinoyo-kamera-way', [DinoyoWayController::class, 'edit'])->name('dinoyo-way.edit');
+    Route::post('/dinoyo-kamera-way', [DinoyoWayController::class, 'update'])->name('dinoyo-way.update');
     Route::delete('/catalog-settings/banner/{id}', [CatalogSettingsController::class, 'destroyBanner'])->name('catalog-settings.banner.destroy');
     Route::delete('/catalog-settings/partner/{id}', [CatalogSettingsController::class, 'destroyPartner'])->name('catalog-settings.partner.destroy');
     Route::delete('/catalog-settings/gallery/{id}', [CatalogSettingsController::class, 'destroyGallery'])->name('catalog-settings.gallery.destroy');
