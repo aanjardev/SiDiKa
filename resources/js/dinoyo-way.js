@@ -207,6 +207,13 @@ gsap.registerPlugin(ScrollTrigger);
     const cultureTabs = Array.from(page.querySelectorAll('[data-culture-tab]'));
     const culturePanels = Array.from(page.querySelectorAll('[data-culture-panel]'));
     if (cultureTabs.length && cultureTabs.length === culturePanels.length) {
+        const alignCultureTab = (tab) => {
+            window.requestAnimationFrame(() => {
+                const offset = (header?.offsetHeight || 0) + (sectionNav?.offsetHeight || 0) + 12;
+                const top = window.scrollY + tab.getBoundingClientRect().top - offset;
+                window.scrollTo({ top: Math.max(0, top), behavior: reducedMotion.matches ? 'auto' : 'smooth' });
+            });
+        };
         const selectCulture = (index, focus = false) => {
             cultureTabs.forEach((tab, position) => {
                 const active = position === index;
@@ -217,7 +224,10 @@ gsap.registerPlugin(ScrollTrigger);
             if (focus) cultureTabs[index].focus({ preventScroll: true });
         };
         cultureTabs.forEach((tab, index) => {
-            tab.addEventListener('click', () => selectCulture(index));
+            tab.addEventListener('click', () => {
+                selectCulture(index);
+                alignCultureTab(tab);
+            });
             tab.addEventListener('keydown', (event) => {
                 let next;
                 if (event.key === 'ArrowRight') next = (index + 1) % cultureTabs.length;
@@ -227,6 +237,7 @@ gsap.registerPlugin(ScrollTrigger);
                 else return;
                 event.preventDefault();
                 selectCulture(next, true);
+                alignCultureTab(cultureTabs[next]);
             });
         });
         selectCulture(0);
