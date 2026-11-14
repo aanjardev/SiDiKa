@@ -190,6 +190,12 @@
                             <span>Setting Web Katalog</span>
                         </a>
                     </div>
+                    <div class="submenu-item">
+                        <a href="{{ route('admin.dinoyo-way.edit') }}" class="submenu-link">
+                            <i class="fas fa-compass submenu-icon"></i>
+                            <span>Dinoyo Kamera Way</span>
+                        </a>
+                    </div>
 
                     @if (Auth::user()->role == 'manager')
                     <div class="submenu-item">
