@@ -199,6 +199,34 @@
         page.classList.add('way-tabs-ready');
     }
 
+    const cultureTabs = Array.from(page.querySelectorAll('[data-culture-tab]'));
+    const culturePanels = Array.from(page.querySelectorAll('[data-culture-panel]'));
+    if (cultureTabs.length && cultureTabs.length === culturePanels.length) {
+        const selectCulture = (index, focus = false) => {
+            cultureTabs.forEach((tab, position) => {
+                const active = position === index;
+                tab.setAttribute('aria-selected', String(active));
+                tab.tabIndex = active ? 0 : -1;
+                culturePanels[position].hidden = !active;
+            });
+            if (focus) cultureTabs[index].focus({ preventScroll: true });
+        };
+        cultureTabs.forEach((tab, index) => {
+            tab.addEventListener('click', () => selectCulture(index));
+            tab.addEventListener('keydown', (event) => {
+                let next;
+                if (event.key === 'ArrowRight') next = (index + 1) % cultureTabs.length;
+                else if (event.key === 'ArrowLeft') next = (index - 1 + cultureTabs.length) % cultureTabs.length;
+                else if (event.key === 'Home') next = 0;
+                else if (event.key === 'End') next = cultureTabs.length - 1;
+                else return;
+                event.preventDefault();
+                selectCulture(next, true);
+            });
+        });
+        selectCulture(0);
+    }
+
     const principles = page.querySelector('.way-principles');
     if (principles) {
         const hoverPointer = window.matchMedia('(hover: hover) and (pointer: fine)');

@@ -39,7 +39,10 @@ return [
     'spiritual' => [
         'eyebrow' => '02 / Landasan spiritual',
         'title' => 'Menegakkan ibadah, menumbuhkan manfaat.',
-        'arabic' => 'وَأَقِيمُوا الصَّلَاةَ وَآتُوا الزَّكَاةَ وَارْكَعُوا مَعَ الرَّاكِعِينَ',
+        'arabic_segments' => [
+            'وَأَقِيمُوا الصَّلَاةَ وَآتُوا الزَّكَاةَ',
+            'وَارْكَعُوا مَعَ الرَّاكِعِينَ',
+        ],
         'translation' => 'Dan laksanakanlah salat, tunaikanlah zakat, dan rukuklah beserta orang yang rukuk.',
         'reference' => 'QS. Al-Baqarah: 43',
         'note' => 'Nilai kerja kami berangkat dari niat yang benar, tanggung jawab, dan manfaat yang dibangun bersama.',
@@ -72,7 +75,14 @@ return [
             ['letter' => 'P', 'name' => 'Progress', 'meaning' => 'Berkomitmen untuk terus bertumbuh, belajar, memperbaiki diri, dan menghasilkan kemajuan yang terukur.', 'application' => 'Memiliki target harian dan bulanan, mengevaluasi hasil kerja, memperbaiki kekurangan, dan meningkatkan kemampuan.'],
             ['letter' => 'P', 'name' => 'Profesional', 'meaning' => 'Bekerja dengan kompetensi, disiplin, standar pelayanan, dan kualitas yang dapat dipertanggungjawabkan.', 'application' => 'Tepat waktu, menjaga penampilan dan komunikasi, menguasai produk, memberikan pelayanan berkualitas, serta mengambil keputusan berdasarkan data.'],
         ],
-        'philosophy' => 'Semangat adalah energi untuk bergerak. Ibadah adalah landasan niat. Amanah adalah karakter yang menjaga kepercayaan. Proses adalah jalan menuju keberhasilan. Progress adalah bukti pertumbuhan. Profesional adalah standar kualitas kerja.',
+        'manifesto' => [
+            ['name' => 'Semangat', 'text' => 'adalah energi untuk bergerak.'],
+            ['name' => 'Ibadah', 'text' => 'adalah landasan niat.'],
+            ['name' => 'Amanah', 'text' => 'adalah karakter yang menjaga kepercayaan.'],
+            ['name' => 'Proses', 'text' => 'adalah jalan menuju keberhasilan.'],
+            ['name' => 'Progress', 'text' => 'adalah bukti pertumbuhan.'],
+            ['name' => 'Profesional', 'text' => 'adalah standar kualitas kerja.'],
+        ],
         'indicators' => [
             ['name' => 'Semangat', 'indicator' => 'Inisiatif dan daya juang'],
             ['name' => 'Ibadah', 'indicator' => 'Kedisiplinan ibadah dan etika'],

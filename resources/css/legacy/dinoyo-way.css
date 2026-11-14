@@ -598,3 +598,53 @@
     .way-verse-arabic { font-size: 1.5rem; }
     .way-mission-card, .way-discipline-panel { padding: 1.5rem; }
 }
+
+/* Focused section refresh */
+.way-verse { width: 100%; }
+.way-verse-arabic { display: flex; justify-content: center; gap: .8em; white-space: nowrap; text-align: center; }
+.way-verse-arabic span { display: inline-block; }
+.way-vision-statement { position: relative; max-width: 980px; margin-right: auto; margin-left: auto; padding: clamp(2.5rem, 6vw, 5rem) clamp(1.5rem, 6vw, 6rem); border: 1px solid rgba(255,156,131,.42); border-radius: 24px; background: radial-gradient(circle at 50% 40%, rgba(234,78,45,.24), rgba(23,39,47,.9) 58%); box-shadow: 0 0 0 1px rgba(255,156,131,.08), 0 0 70px rgba(234,78,45,.17), inset 0 0 50px rgba(255,255,255,.03); text-align: center; }
+.way-vision-statement::before { content: ''; position: absolute; inset: 14px; border: 1px solid rgba(255,255,255,.1); border-radius: 17px; pointer-events: none; }
+.way-vision-statement > p { position: relative; z-index: 1; }
+.way-vision-statement > p:last-child { max-width: 780px; margin: .8rem auto 0; }
+.way-mission-grid-new { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1px; background: #435057; }
+.way-mission-card { grid-column: span 3; min-height: 100%; }
+.way-mission-card:nth-child(n+5) { grid-column: span 4; }
+.way-culture-tabs { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .6rem; margin-bottom: 1.25rem; }
+.way-culture-tab { display: flex; min-width: 0; align-items: center; gap: .7rem; padding: .75rem .8rem; border: 1px solid #dce2e5; border-radius: 12px; background: #fff; color: #45545d; text-align: left; cursor: pointer; transition: background .25s, color .25s, border-color .25s, transform .25s; }
+.way-culture-tab:hover, .way-culture-tab:focus-visible { border-color: #b7371c; transform: translateY(-3px); }
+.way-culture-tab[aria-selected="true"] { border-color: #26333b; background: #26333b; color: #fff; box-shadow: 0 10px 22px rgba(20,38,47,.12); }
+.way-culture-tab .way-culture-letter { width: 34px; height: 34px; flex: 0 0 34px; background: #f1e6df; color: #b7371c; font-size: .8rem; }
+.way-culture-tab[aria-selected="true"] .way-culture-letter { background: #b7371c; color: #fff; }
+.way-culture-panel { min-height: 220px; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid #dce2e5; background: #fff; animation: way-culture-panel-in .35s ease both; }
+.way-culture-panel[hidden] { display: none; }
+.way-culture-panel h3 { max-width: 760px; margin: .7rem 0 1.6rem; font-size: clamp(1.4rem, 2.5vw, 2.2rem); line-height: 1.35; }
+.way-culture-panel > p:last-child { max-width: 760px; margin: 0; color: var(--way-muted); line-height: 1.85; }
+.way-culture-panel > p:last-child strong { display: block; margin-bottom: .35rem; color: #b7371c; font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+.way-manifesto { max-width: 920px; margin: 4rem auto 0; padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 7vw, 6rem); border: 1px solid #ead9cc; border-radius: 20px; background: radial-gradient(circle at 50% 0%, #fffdfb, #f5eee8); text-align: center; box-shadow: 0 18px 50px rgba(40,47,53,.06); }
+.way-manifesto > .way-proposal-label { color: #b7371c; }
+.way-manifesto blockquote { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem .65rem; margin: 1rem 0 0; color: #32444c; font-size: clamp(1.15rem, 2.1vw, 1.8rem); font-weight: 600; line-height: 1.65; letter-spacing: -.025em; }
+.way-manifesto-line { white-space: nowrap; }
+.way-manifesto-line strong { color: #b7371c; font-weight: 800; }
+.way-indicator-table { margin-top: 3rem; }
+.way-indicator-table > .way-proposal-label { margin-bottom: .8rem; text-align: center; }
+.way-indicator-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 2rem; }
+.way-indicator-grid > div { display: grid; grid-template-columns: .7fr 1fr; gap: 1rem; padding: .8rem 0; border-top: 1px solid var(--way-border); font-size: .8rem; }
+.way-indicator-grid strong { color: #58646c; font-weight: 500; }
+@keyframes way-culture-panel-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 991px) {
+    .way-mission-card, .way-mission-card:nth-child(n+5) { grid-column: span 6; }
+    .way-culture-tabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 767px) {
+    .way-verse-arabic { flex-direction: column; gap: .1em; white-space: normal; font-size: clamp(1.55rem, 7vw, 2.1rem); }
+    .way-verse-arabic span { display: block; }
+    .way-mission-card, .way-mission-card:nth-child(n+5) { grid-column: 1 / -1; }
+    .way-culture-tabs { display: flex; overflow-x: auto; padding: .25rem .15rem .65rem; scrollbar-width: thin; }
+    .way-culture-tab { flex: 0 0 145px; }
+    .way-manifesto-line { white-space: normal; }
+    .way-indicator-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .way-culture-tab, .way-culture-panel { transition: none; animation: none; }
+}

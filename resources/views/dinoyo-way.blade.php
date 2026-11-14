@@ -65,7 +65,11 @@
                 <p class="way-section-description">{{ $content['spiritual']['note'] }}</p>
             </div>
             <div class="way-verse way-reveal">
-                <p class="way-verse-arabic" lang="ar" dir="rtl">{{ $content['spiritual']['arabic'] }}</p>
+                <p class="way-verse-arabic" lang="ar" dir="rtl">
+                    @foreach($content['spiritual']['arabic_segments'] as $segment)
+                        <span>{{ $segment }}</span>
+                    @endforeach
+                </p>
                 <p class="way-verse-translation">“{{ $content['spiritual']['translation'] }}”</p>
                 <p class="way-verse-reference">{{ $content['spiritual']['reference'] }}</p>
             </div>
@@ -85,7 +89,7 @@
             <p class="way-proposal-label way-mission-label">{{ $content['vision_mission']['mission_label'] }}</p>
             <div class="way-mission-grid-new">
                 @foreach($content['vision_mission']['missions'] as $mission)
-                    <article class="way-mission-card way-reveal">
+                    <article class="way-mission-card">
                         <span class="way-card-index">{{ sprintf('%02d', $loop->iteration) }}</span>
                         <h3>{{ $mission['name'] }}</h3>
                         <p>{{ $mission['description'] }}</p>
@@ -102,21 +106,34 @@
                 <h2 id="culture-title">{{ $content['culture']['title'] }}</h2>
                 <p>{{ $content['culture']['description'] }}</p>
             </header>
-            <div class="way-culture-list">
+            <div class="way-culture-tabs" role="tablist" aria-label="Nilai budaya SIAPPP">
                 @foreach($content['culture']['items'] as $item)
-                    <details class="way-culture-item way-reveal" @if($loop->first) open @endif>
-                        <summary><span class="way-culture-letter">{{ $item['letter'] }}</span><span>{{ $item['name'] }}</span><i class="bi bi-plus-lg" aria-hidden="true"></i></summary>
-                        <div class="way-culture-detail">
-                            <p><strong>Makna</strong>{{ $item['meaning'] }}</p>
-                            <p><strong>Penerapan</strong>{{ $item['application'] }}</p>
-                        </div>
-                    </details>
+                    <button type="button" class="way-culture-tab" role="tab" id="culture-tab-{{ $loop->index }}" aria-controls="culture-panel-{{ $loop->index }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}" tabindex="{{ $loop->first ? '0' : '-1' }}" data-culture-tab="{{ $loop->index }}">
+                        <span class="way-culture-letter">{{ $item['letter'] }}</span>
+                        <span>{{ $item['name'] }}</span>
+                    </button>
                 @endforeach
             </div>
-            <div class="way-culture-footer way-reveal">
-                <blockquote>{{ $content['culture']['philosophy'] }}</blockquote>
-                <div class="way-indicator-table">
-                    <p class="way-proposal-label">Indikator evaluasi budaya</p>
+            <div class="way-culture-panels">
+                @foreach($content['culture']['items'] as $item)
+                    <article class="way-culture-panel" role="tabpanel" id="culture-panel-{{ $loop->index }}" aria-labelledby="culture-tab-{{ $loop->index }}" tabindex="0" data-culture-panel="{{ $loop->index }}" @if(!$loop->first) hidden @endif>
+                        <p class="way-proposal-label">{{ $item['name'] }}</p>
+                        <h3>{{ $item['meaning'] }}</h3>
+                        <p><strong>Penerapan</strong>{{ $item['application'] }}</p>
+                    </article>
+                @endforeach
+            </div>
+            <div class="way-manifesto way-reveal">
+                <p class="way-proposal-label">Filosofi SIAPPP</p>
+                <blockquote>
+                    @foreach($content['culture']['manifesto'] as $line)
+                        <span class="way-manifesto-line"><strong>{{ $line['name'] }}</strong> {{ $line['text'] }}</span>
+                    @endforeach
+                </blockquote>
+            </div>
+            <div class="way-indicator-table way-reveal">
+                <p class="way-proposal-label">Indikator evaluasi budaya</p>
+                <div class="way-indicator-grid">
                     @foreach($content['culture']['indicators'] as $indicator)
                         <div><span>{{ $indicator['name'] }}</span><strong>{{ $indicator['indicator'] }}</strong></div>
                     @endforeach

@@ -49,7 +49,7 @@ class DinoyoWayTest extends TestCase
             ->assertSee('Menjadi jaringan toko jual beli kamera second terbesar')
             ->assertSee('Go Best Forecast')
             ->assertSee('Jihad Dhuha')
-            ->assertSee('09.00–10.00');
+            ->assertSee('09.00â€“10.00');
 
         $document = new \DOMDocument;
         @$document->loadHTML(mb_convert_encoding($response->getContent(), 'HTML-ENTITIES', 'UTF-8'));
@@ -77,7 +77,8 @@ class DinoyoWayTest extends TestCase
     public function test_spiritual_verse_and_complete_discipline_content_are_present(): void
     {
         $this->get('/dinoyo-kamera-way')->assertOk()
-            ->assertSee('وَأَقِيمُوا الصَّلَاةَ وَآتُوا الزَّكَاةَ وَارْكَعُوا مَعَ الرَّاكِعِينَ')
+            ->assertSee(config('dinoyo-way.spiritual.arabic_segments.0'))
+            ->assertSee(config('dinoyo-way.spiritual.arabic_segments.1'))
             ->assertSee('Dan laksanakanlah salat, tunaikanlah zakat, dan rukuklah beserta orang yang rukuk.')
             ->assertSee('Meningkatkan ketaqwaan dari waktu ke waktu')
             ->assertSee('Sedekah minimal 10% dari penghasilan')
@@ -96,6 +97,21 @@ class DinoyoWayTest extends TestCase
             ->assertSee('THE DINOYO KAMERA WAY')
             ->assertDontSee('Judul lama')
             ->assertDontSee('Misi lama');
+    }
+
+    public function test_vision_and_culture_redesign_has_no_mission_reveal_and_uses_accessible_tabs(): void
+    {
+        $response = $this->get('/dinoyo-kamera-way')->assertOk();
+        $document = new \DOMDocument;
+        @$document->loadHTML(mb_convert_encoding($response->getContent(), 'HTML-ENTITIES', 'UTF-8'));
+        $xpath = new \DOMXPath($document);
+
+        $this->assertSame(7, $xpath->query('//*[@id="visi-misi"]//article[contains(@class,"way-mission-card")]')->length);
+        $this->assertSame(0, $xpath->query('//*[@id="visi-misi"]//article[contains(@class,"way-reveal")]')->length);
+        $this->assertSame(6, $xpath->query('//*[@id="budaya-organisasi"]//*[@role="tab"]')->length);
+        $this->assertSame(6, $xpath->query('//*[@id="budaya-organisasi"]//*[@role="tabpanel"]')->length);
+        $this->assertSame(1, $xpath->query('//*[@id="budaya-organisasi"]//*[contains(@class,"way-manifesto ")]')->length);
+        $this->assertSame(1, $xpath->query('//*[@id="budaya-organisasi"]//*[contains(@class,"way-indicator-table")]')->length);
     }
 
     public function test_admin_way_editor_is_temporarily_unavailable(): void
