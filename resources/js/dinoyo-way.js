@@ -284,10 +284,15 @@ gsap.registerPlugin(ScrollTrigger);
         });
 
         const shimmerTargets = page.querySelectorAll('.way-verse-arabic, .way-vision-statement > p:last-child');
-        shimmerTargets.forEach((target) => ScrollTrigger.create({
-            trigger: target, start: 'top 72%', once: true,
-            onEnter: () => target.classList.add('way-shimmer-active'),
-        }));
+        shimmerTargets.forEach((target) => {
+            target.addEventListener('animationend', (event) => {
+                if (event.animationName === 'way-text-shimmer') target.classList.remove('way-shimmer-active');
+            });
+            ScrollTrigger.create({
+                trigger: target, start: 'top 72%', once: true,
+                onEnter: () => target.classList.add('way-shimmer-active'),
+            });
+        });
 
         const art = page.querySelector('.way-gratitude-art svg');
         if (art) {
