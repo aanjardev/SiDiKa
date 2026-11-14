@@ -550,15 +550,18 @@
 .way-indicator-table > .way-proposal-label { margin-bottom: .8rem; }
 .way-indicator-table > div { display: grid; grid-template-columns: .7fr 1fr; gap: 1rem; padding: .8rem 0; border-top: 1px solid var(--way-border); font-size: .8rem; }
 .way-indicator-table strong { color: #58646c; font-weight: 500; }
-.way-discipline { background: #fff; }
+.way-discipline { background: #f1ebe3; }
 .way-discipline-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-.way-discipline-panel { position: relative; min-width: 0; padding: 2.2rem; border: 1px solid #e4e7e9; background: #fff; overflow: hidden; }
-.way-discipline-panel::after { content: ''; position: absolute; right: -30px; bottom: -42px; width: 150px; height: 150px; border: 1px solid #f0d4ca; border-radius: 50%; }
-.way-discipline-number { display: block; margin-bottom: 1rem; color: #b7371c; font-size: .7rem; font-weight: 750; letter-spacing: .12em; }
+.way-discipline-panel { --discipline-accent: #c74d2f; position: relative; min-width: 0; padding: 2.2rem; border: 1px solid rgba(38,51,59,.1); border-top: 4px solid var(--discipline-accent); background: #fffaf6; box-shadow: 0 16px 35px rgba(38,51,59,.07); overflow: hidden; }
+.way-discipline-panel:nth-child(2) { --discipline-accent: #c18b37; background: #fff8ea; }
+.way-discipline-panel:nth-child(3) { --discipline-accent: #477b7b; background: #f1f8f6; }
+.way-discipline-panel:nth-child(4) { --discipline-accent: #465b78; background: #f1f4f8; }
+.way-discipline-panel::after { content: ''; position: absolute; right: -30px; bottom: -42px; width: 150px; height: 150px; border: 1px solid color-mix(in srgb, var(--discipline-accent) 34%, transparent); border-radius: 50%; }
+.way-discipline-number { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; margin-bottom: 1rem; border-radius: 50%; background: var(--discipline-accent); color: #fff; font-size: .7rem; font-weight: 750; letter-spacing: .08em; }
 .way-discipline-panel h3 { margin-bottom: 1.3rem; font-size: 1.25rem; }
 .way-discipline-panel ul { position: relative; z-index: 1; margin: 0; padding: 0; list-style: none; }
-.way-discipline-panel li { display: flex; gap: .65rem; padding: .55rem 0; border-top: 1px solid #edf0f1; color: var(--way-muted); font-size: .85rem; line-height: 1.65; }
-.way-discipline-panel li i { flex-shrink: 0; color: #b7371c; }
+.way-discipline-panel li { display: flex; gap: .65rem; padding: .55rem 0; border-top: 1px solid color-mix(in srgb, var(--discipline-accent) 15%, transparent); color: #56636b; font-size: .85rem; line-height: 1.65; }
+.way-discipline-panel li i { flex-shrink: 0; color: var(--discipline-accent); }
 .way-dk { background: #17272f; color: #fff; }
 .way-dk h2, .way-dk h3 { color: #fff; }
 .way-dk .way-eyebrow, .way-dk .way-proposal-label { color: #ff9c83; }
