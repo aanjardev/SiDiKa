@@ -564,17 +564,18 @@
 .way-dk .way-eyebrow, .way-dk .way-proposal-label { color: #ff9c83; }
 .way-dk-definition { max-width: 850px; margin-bottom: 3.5rem; padding: 1.7rem 2rem; border-left: 3px solid #ea4e2d; background: rgba(255,255,255,.04); }
 .way-dk-definition > p:last-child { margin: .5rem 0 0; color: #d5dde1; font-size: 1.05rem; line-height: 1.8; }
-.way-dk-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: clamp(2rem, 6vw, 6rem); }
-.way-dk-how ol { margin: 1rem 0 0; padding: 0; list-style: none; }
+.way-dk-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; align-items: stretch; }
+.way-dk-how { display: flex; min-width: 0; flex-direction: column; padding: 2.5rem; border: 1px solid rgba(255,255,255,.2); background: #263b45; }
+.way-dk-how ol { display: flex; flex: 1; flex-direction: column; justify-content: space-between; margin: 1rem 0 0; padding: 0; list-style: none; }
 .way-dk-how li { display: grid; grid-template-columns: 42px 1fr; gap: 1rem; padding: 1rem 0; border-top: 1px solid rgba(255,255,255,.16); }
 .way-dk-how li > span { color: #ff9c83; font-size: .75rem; font-weight: 750; }
 .way-dk-how h3 { margin-bottom: .35rem; font-size: 1rem; }
 .way-dk-how p { margin: 0; color: #b9c3c9; font-size: .82rem; line-height: 1.75; }
-.way-gratitude { padding: 2.5rem; border: 1px solid rgba(255,255,255,.2); background: #263b45; }
+.way-gratitude { display: flex; min-width: 0; flex-direction: column; padding: 2.5rem; border: 1px solid rgba(255,255,255,.2); background: #263b45; }
 .way-gratitude-art { margin: .8rem 0 2rem; }
 .way-gratitude-art svg { display: block; width: 100%; height: auto; border-radius: 18px; box-shadow: 0 16px 35px rgba(0,0,0,.2); }
 .way-gratitude-art figcaption { margin-top: .8rem; color: #c5d0d4; font-size: .75rem; font-style: italic; line-height: 1.6; text-align: center; }
-.way-jihad { padding-top: 1.3rem; border-top: 1px solid rgba(255,255,255,.2); }
+.way-jihad { margin-top: auto; padding-top: 1.3rem; border-top: 1px solid rgba(255,255,255,.2); }
 .way-jihad span { display: block; color: #ff9c83; font-size: .7rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
 .way-jihad strong { display: block; margin: .35rem 0 .8rem; color: #fff; font-size: 2.5rem; letter-spacing: -.05em; }
 .way-jihad p { margin: 0; color: #c5d0d4; font-size: .83rem; line-height: 1.8; }
@@ -596,7 +597,7 @@
     .way-culture-item summary { grid-template-columns: 44px 1fr auto; min-height: 76px; }
     .way-culture-letter { width: 38px; height: 38px; }
     .way-external-inner, .way-secret-inner { align-items: flex-start; flex-direction: column; }
-    .way-gratitude { padding: 1.5rem; }
+    .way-dk-how, .way-gratitude { padding: 1.5rem; }
 }
 @media (max-width: 575px) {
     .way-spiritual { padding: 3.25rem 0; }
