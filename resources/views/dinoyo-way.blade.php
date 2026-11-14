@@ -186,12 +186,15 @@
                                 <radialGradient id="gratitude-sun"><stop stop-color="#fff1ce"/><stop offset=".24" stop-color="#ffc989"/><stop offset=".62" stop-color="#ef795f" stop-opacity=".72"/><stop offset="1" stop-color="#ef795f" stop-opacity="0"/></radialGradient>
                                 <linearGradient id="gratitude-ground" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#172b33"/><stop offset="1" stop-color="#091419"/></linearGradient>
                                 <filter id="gratitude-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="14"/></filter>
+                                <clipPath id="gratitude-sky-clip"><rect width="640" height="282"/></clipPath>
                             </defs>
                             <rect width="640" height="420" rx="24" fill="url(#gratitude-sky)"/>
+                            <g clip-path="url(#gratitude-sky-clip)">
+                                <circle cx="310" cy="194" r="138" fill="url(#gratitude-sun)" filter="url(#gratitude-glow)" opacity=".65"/>
+                                <circle cx="310" cy="194" r="58" fill="url(#gratitude-sun)"/>
+                            </g>
                             <path d="M0 280 C120 238 195 260 290 238 S478 236 640 270 V420 H0Z" fill="url(#gratitude-ground)"/>
                             <path d="M0 284 C120 242 195 264 290 242 S478 240 640 274" fill="none" stroke="#f38b6c" stroke-opacity=".7" stroke-width="2"/>
-                            <circle cx="310" cy="194" r="138" fill="url(#gratitude-sun)" filter="url(#gratitude-glow)" opacity=".65"/>
-                            <circle cx="310" cy="194" r="58" fill="url(#gratitude-sun)"/>
                             <g fill="none" stroke="#ffd8a1" stroke-linecap="round">
                                 <path d="M160 194 A150 150 0 0 1 460 194" stroke-opacity=".18" stroke-width="2"/>
                                 <path d="M190 194 A120 120 0 0 1 430 194" stroke-opacity=".32" stroke-width="2" stroke-dasharray="1 12"/>
