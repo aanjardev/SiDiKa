@@ -283,14 +283,52 @@ gsap.registerPlugin(ScrollTrigger);
             });
         });
 
+        const visionStatement = page.querySelector('.way-vision-statement > p:last-child');
+        if (visionStatement && !visionStatement.dataset.lettersReady) {
+            const text = visionStatement.textContent.trim();
+            const segments = typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function'
+                ? [...new Intl.Segmenter('id', { granularity: 'grapheme' }).segment(text)].map(({ segment }) => segment)
+                : Array.from(text);
+            visionStatement.textContent = '';
+            visionStatement.setAttribute('aria-label', text);
+            let letterIndex = 0;
+            segments.join('').split(/(\s+)/).forEach((token) => {
+                if (/^\s+$/.test(token)) {
+                    visionStatement.append(document.createTextNode(token));
+                    return;
+                }
+                const word = document.createElement('span');
+                word.className = 'way-shimmer-word';
+                word.setAttribute('aria-hidden', 'true');
+                Array.from(token).forEach((segment) => {
+                    const letter = document.createElement('span');
+                    letter.className = 'way-shimmer-letter';
+                    letter.textContent = segment;
+                    letter.style.setProperty('--letter-delay', `${Math.min(letterIndex++, 110) * 32}ms`);
+                    word.append(letter);
+                });
+                visionStatement.append(word);
+            });
+            visionStatement.dataset.lettersReady = 'true';
+        }
+
         const shimmerTargets = page.querySelectorAll('.way-verse-arabic, .way-vision-statement > p:last-child');
         shimmerTargets.forEach((target) => {
             target.addEventListener('animationend', (event) => {
                 if (event.animationName === 'way-text-shimmer') target.classList.remove('way-shimmer-active');
             });
+            target.querySelectorAll('.way-shimmer-letter').forEach((letter) => {
+                letter.addEventListener('animationend', () => letter.classList.remove('is-shimmering'));
+            });
             ScrollTrigger.create({
                 trigger: target, start: 'top 72%', once: true,
-                onEnter: () => target.classList.add('way-shimmer-active'),
+                onEnter: () => {
+                    if (target.matches('.way-vision-statement > p:last-child')) {
+                        target.querySelectorAll('.way-shimmer-letter').forEach((letter) => letter.classList.add('is-shimmering'));
+                    } else {
+                        target.classList.add('way-shimmer-active');
+                    }
+                },
             });
         });
 
