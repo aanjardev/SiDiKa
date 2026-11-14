@@ -178,30 +178,43 @@
                 <div class="way-gratitude way-reveal">
                     <p class="way-proposal-label">{{ $content['dk_way']['winning_label'] }}</p>
                     <figure class="way-gratitude-art" aria-label="Winning the day with gratitude dan Jihad Dhuha">
-                        <svg viewBox="0 0 520 300" role="img" aria-labelledby="gratitude-art-title gratitude-art-desc">
+                        <svg viewBox="0 0 640 420" role="img" aria-labelledby="gratitude-art-title gratitude-art-desc">
                             <title id="gratitude-art-title">Winning the day with gratitude</title>
-                            <desc id="gratitude-art-desc">Matahari pagi terbit di atas horizon dengan lingkaran syukur dan penanda Jihad Dhuha.</desc>
+                            <desc id="gratitude-art-desc">Ilustrasi editorial matahari pagi, garis horizon, orbit kebiasaan, dan penanda waktu Jihad Dhuha.</desc>
                             <defs>
-                                <linearGradient id="gratitude-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#263b45"/><stop offset="1" stop-color="#17272f"/></linearGradient>
-                                <radialGradient id="gratitude-sun"><stop stop-color="#ffd6a3"/><stop offset=".45" stop-color="#ff9c83"/><stop offset="1" stop-color="#ea4e2d" stop-opacity="0"/></radialGradient>
+                                <linearGradient id="gratitude-sky" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#11242d"/><stop offset=".55" stop-color="#203b46"/><stop offset="1" stop-color="#304e58"/></linearGradient>
+                                <radialGradient id="gratitude-sun"><stop stop-color="#fff1ce"/><stop offset=".24" stop-color="#ffc989"/><stop offset=".62" stop-color="#ef795f" stop-opacity=".72"/><stop offset="1" stop-color="#ef795f" stop-opacity="0"/></radialGradient>
+                                <linearGradient id="gratitude-ground" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#172b33"/><stop offset="1" stop-color="#091419"/></linearGradient>
+                                <filter id="gratitude-glow" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="14"/></filter>
                             </defs>
-                            <rect width="520" height="300" rx="18" fill="url(#gratitude-sky)"/>
-                            <circle cx="260" cy="126" r="96" fill="url(#gratitude-sun)" opacity=".85"/>
-                            <circle cx="260" cy="126" r="31" fill="#ffd6a3"/>
-                            <path d="M50 230 Q140 172 220 220 T390 205 T500 224 V300 H50Z" fill="#10191e"/>
-                            <path d="M60 239 Q150 186 230 229 T390 215 T490 235" fill="none" stroke="#ff9c83" stroke-opacity=".55" stroke-width="2"/>
-                            <circle cx="260" cy="126" r="72" fill="none" stroke="#ffe0c7" stroke-opacity=".6" stroke-dasharray="2 10" stroke-width="2"/>
-                            <g fill="#fff5ea" font-family="Montserrat, sans-serif" text-anchor="middle">
-                                <text x="260" y="117" font-size="14" font-weight="700" letter-spacing="2">WINNING THE DAY</text>
-                                <text x="260" y="139" font-size="11" letter-spacing="1.5">WITH GRATITUDE</text>
+                            <rect width="640" height="420" rx="24" fill="url(#gratitude-sky)"/>
+                            <path d="M0 280 C120 238 195 260 290 238 S478 236 640 270 V420 H0Z" fill="url(#gratitude-ground)"/>
+                            <path d="M0 284 C120 242 195 264 290 242 S478 240 640 274" fill="none" stroke="#f38b6c" stroke-opacity=".7" stroke-width="2"/>
+                            <circle cx="310" cy="194" r="138" fill="url(#gratitude-sun)" filter="url(#gratitude-glow)" opacity=".65"/>
+                            <circle cx="310" cy="194" r="58" fill="url(#gratitude-sun)"/>
+                            <g fill="none" stroke="#ffd8a1" stroke-linecap="round">
+                                <path d="M160 194 A150 150 0 0 1 460 194" stroke-opacity=".18" stroke-width="2"/>
+                                <path d="M190 194 A120 120 0 0 1 430 194" stroke-opacity=".32" stroke-width="2" stroke-dasharray="1 12"/>
+                                <path d="M222 194 A88 88 0 0 1 398 194" stroke-opacity=".58" stroke-width="2"/>
                             </g>
-                            <g transform="translate(34 34)">
-                                <rect width="132" height="42" rx="21" fill="#ea4e2d"/>
-                                <text x="66" y="26" fill="#fff" font-family="Montserrat, sans-serif" font-size="11" font-weight="700" text-anchor="middle">JIHAD DHUHA</text>
+                            <g transform="translate(44 42)">
+                                <circle cx="28" cy="28" r="27" fill="#ea4e2d"/>
+                                <path d="M28 13v16l10 7" fill="none" stroke="#fff5ea" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="28" cy="28" r="19" fill="none" stroke="#fff5ea" stroke-opacity=".75" stroke-width="1.5"/>
+                                <text x="72" y="22" fill="#ffd9c9" font-family="Montserrat, sans-serif" font-size="13" font-weight="700" letter-spacing="1.5">JIHAD DHUHA</text>
+                                <text x="72" y="47" fill="#fff" font-family="Montserrat, sans-serif" font-size="25" font-weight="800" letter-spacing="-.8">09.00–10.00</text>
                             </g>
-                            <text x="486" y="275" fill="#ffcfb9" font-family="Montserrat, sans-serif" font-size="12" font-weight="700" text-anchor="end">09.00–10.00</text>
+                            <g fill="#fff5ea" font-family="Montserrat, sans-serif">
+                                <text x="310" y="188" font-size="22" font-weight="800" letter-spacing="3" text-anchor="middle">GRATITUDE</text>
+                                <text x="310" y="216" fill="#ffe0c7" font-size="11" font-weight="600" letter-spacing="2.6" text-anchor="middle">A QUIET START. A CLEAR DAY.</text>
+                            </g>
+                            <g transform="translate(44 346)">
+                                <path d="M0 0h552" stroke="#fff5ea" stroke-opacity=".2"/>
+                                <text x="0" y="30" fill="#ffb39b" font-family="Montserrat, sans-serif" font-size="13" font-weight="700" letter-spacing="1.8">WINNING THE DAY</text>
+                                <text x="552" y="30" fill="#fff5ea" font-family="Montserrat, sans-serif" font-size="13" font-weight="600" text-anchor="end" letter-spacing="1.2">WITH GRATITUDE</text>
+                            </g>
                         </svg>
-                        <figcaption>Syukur membuka langkah. Ikhtiar menjaga arah.</figcaption>
+                        <figcaption>Ritme pagi untuk menata niat sebelum ikhtiar.</figcaption>
                     </figure>
                     <div class="way-jihad"><span>{{ $content['dk_way']['jihad_label'] }}</span><strong>{{ $content['dk_way']['jihad_time'] }}</strong><p>{{ $content['dk_way']['jihad_description'] }}</p></div>
                 </div>
