@@ -104,11 +104,17 @@ class DinoyoWayTest extends TestCase
         DB::table('catalog_settings')->update(['dinoyo_way_content' => json_encode([
             'title' => 'Way custom',
             'vision_mission' => ['vision' => 'Visi custom untuk pengujian.'],
+            'hero' => ['image' => 'public/catalog/dinoyo-way/fake.jpg'],
+            'psychotest' => ['url' => 'https://malicious.example/'],
         ])]);
 
         $this->get('/dinoyo-kamera-way')->assertOk()
             ->assertSee('Way custom')
             ->assertSee('Visi custom untuk pengujian.');
+
+        $content = app(\App\Services\DinoyoWayContent::class)->get();
+        $this->assertSame(config('dinoyo-way.hero.image'), $content['hero']['image']);
+        $this->assertSame(config('dinoyo-way.psychotest.url'), $content['psychotest']['url']);
     }
 
     public function test_vision_and_culture_redesign_has_no_mission_reveal_and_uses_accessible_tabs(): void

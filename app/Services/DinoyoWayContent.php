@@ -14,7 +14,20 @@ class DinoyoWayContent
     {
         $defaults = config('dinoyo-way');
         $stored = CatalogSettings::first()?->dinoyo_way_content;
-        return array_replace_recursive($defaults, is_array($stored) ? $stored : []);
+        $stored = is_array($stored) ? $this->filterEditable($stored, $this->editable($defaults)) : [];
+        return array_replace_recursive($defaults, $stored);
+    }
+
+    private function filterEditable(array $value, array $schema): array
+    {
+        $filtered = [];
+        foreach ($schema as $key => $shape) {
+            if (!array_key_exists($key, $value)) continue;
+            $filtered[$key] = is_array($shape) && is_array($value[$key])
+                ? $this->filterEditable($value[$key], $shape)
+                : $value[$key];
+        }
+        return $filtered;
     }
 
     public function editable(array $content): array
