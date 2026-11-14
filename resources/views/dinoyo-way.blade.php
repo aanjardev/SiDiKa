@@ -239,5 +239,5 @@
 @endsection
 
 @push('scripts')
-    <script src="{{ \App\Helpers\PublicAssetHelper::url('js/dinoyo-way.js') }}" defer></script>
+    @vite('resources/js/dinoyo-way.js')
 @endpush

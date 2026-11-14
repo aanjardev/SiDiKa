@@ -20,6 +20,7 @@ export default defineConfig({
                 "resources/js/utils/search.js",
                 "resources/js/utils/phone-input-validation.js",
                 "resources/js/admin/catalog-settings.js",
+                "resources/js/dinoyo-way.js",
 
                 "resources/admin_theme/css/core/libs.min.css",
                 "resources/admin_theme/vendor/aos/dist/aos.css",
