@@ -90,11 +90,12 @@
                 <h2>{{ $produk->nama_produk }}</h2>
                 <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
                     <p class="text-danger fw-bold fs-4 mb-2">Rp {{ number_format($produk->harga_jual, 0, ',', '.') }}</p>
-                    {{-- TOMBOL PESAN SEKARANG DI SINI --}}
+                    {{-- Tombol WhatsApp --}}
                     @if ($produk->stok_produk > 0)
                         @if ($linkWA)
                             <a href="{{ $linkWA }}" class="btn btn-lg flex-shrink-0 btn-custom-whatsapp" target="_blank" rel="noopener noreferrer">
-                                 Pesan Sekarang
+                                <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+                                <span>Tanya / Order via WhatsApp</span>
                             </a>
                         @else
                             <button class="btn btn-secondary btn-lg flex-shrink-0" disabled>

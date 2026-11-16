@@ -325,28 +325,39 @@
 
 
 .btn-custom-whatsapp {
-    background-color: var(--secondary-color);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .55rem;
+    min-height: 52px;
+    background-color: #25d366;
     color: #fff;
-    border-color: var(--secondary-color);
+    border-color: #25d366;
     border-radius: 10px;
-    padding: 0.55rem 1.4rem;
+    padding: .65rem 1.35rem;
     font-weight: 600;
-    box-shadow: 0 3px 10px rgba(234, 78, 45, 0.25);
+    line-height: 1.25;
+    white-space: nowrap;
+    box-shadow: 0 3px 10px rgba(37, 211, 102, .22);
     transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
 
 .btn-custom-whatsapp:hover,
 .btn-custom-whatsapp:focus {
-    background-color: #c53e24;
-    border-color: #c53e24;
+    background-color: #1fbd5b;
+    border-color: #1fbd5b;
     transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(234, 78, 45, 0.3);
+    box-shadow: 0 6px 14px rgba(37, 211, 102, .3);
     color: #fff;
 }
 
 .btn-custom-whatsapp:active {
     transform: translateY(0);
-    box-shadow: 0 2px 8px rgba(234, 78, 45, 0.25);
+    box-shadow: 0 2px 8px rgba(37, 211, 102, .25);
+}
+
+@media (max-width: 575px) {
+    .btn-custom-whatsapp { width: 100%; }
 }
 
 
