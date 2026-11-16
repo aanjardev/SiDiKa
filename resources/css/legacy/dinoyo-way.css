@@ -520,7 +520,8 @@
 .way-spiritual-grid .way-verse { max-width: 1040px; margin: 0 auto; }
 .way-verse { padding: clamp(1.5rem, 3.5vw, 3rem); border: 1px solid #d9cfc4; background: #fffaf5; box-shadow: 18px 18px 0 #d8c9bb; }
 .way-verse-arabic { margin-bottom: 1.2rem; color: #26333b; font-family: serif; font-size: clamp(1.8rem, 3vw, 3rem); line-height: 1.45; text-align: right; }
-.way-verse-translation { margin-bottom: .9rem; color: #4d5861; font-size: clamp(1rem, 1.5vw, 1.3rem); line-height: 1.65; }
+.way-verse-latin { max-width: 820px; margin: 0 auto 1rem; color: #b7371c; font-family: "Montserrat", sans-serif; font-size: clamp(.78rem, 1.25vw, .98rem); font-style: italic; font-weight: 650; letter-spacing: .02em; line-height: 1.7; text-align: center; }
+.way-verse-translation { max-width: 780px; margin: 0 auto .9rem; color: #4d5861; font-size: clamp(1rem, 1.5vw, 1.3rem); line-height: 1.65; text-align: center; }
 .way-verse-reference { margin: 0; color: #b7371c; font-size: .7rem; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
 .way-vision { background: #10191e; color: #fff; }
 .way-vision h2, .way-vision .way-section-description { color: #fff; }

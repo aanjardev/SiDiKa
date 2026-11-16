@@ -37,7 +37,7 @@ class DinoyoWayContent
             'navigation' => array_map(fn ($item) => ['label' => $item['label']], $content['navigation']),
             'hero' => Arr::only($content['hero'], ['eyebrow', 'title', 'statement', 'description', 'image_alt', 'caption']),
             'philosophy' => Arr::only($content['philosophy'], ['eyebrow', 'title', 'lead', 'paragraphs', 'image_alt', 'image_caption']),
-            'spiritual' => Arr::only($content['spiritual'], ['eyebrow', 'title', 'arabic_segments', 'translation', 'reference', 'note']),
+            'spiritual' => Arr::only($content['spiritual'], ['eyebrow', 'title', 'arabic_segments', 'latin', 'translation', 'reference', 'note']),
             'vision_mission' => Arr::only($content['vision_mission'], ['eyebrow', 'title', 'vision_label', 'vision', 'mission_label', 'missions']),
             'culture' => Arr::only($content['culture'], ['eyebrow', 'title', 'description', 'items', 'indicators']),
             'discipline' => Arr::only($content['discipline'], ['eyebrow', 'title', 'groups']),

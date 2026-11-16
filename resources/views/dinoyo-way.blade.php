@@ -70,7 +70,8 @@
                         <span>{{ $segment }}</span>
                     @endforeach
                 </p>
-                <p class="way-verse-translation">“{{ $content['spiritual']['translation'] }}”</p>
+                <p class="way-verse-latin" lang="id-Latn">{{ $content['spiritual']['latin'] }}</p>
+                <p class="way-verse-translation">&ldquo;{{ $content['spiritual']['translation'] }}&rdquo;</p>
                 <p class="way-verse-reference">{{ $content['spiritual']['reference'] }}</p>
             </div>
         </div>

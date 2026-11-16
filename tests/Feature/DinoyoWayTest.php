@@ -79,7 +79,8 @@ class DinoyoWayTest extends TestCase
         $this->get('/dinoyo-kamera-way')->assertOk()
             ->assertSee(config('dinoyo-way.spiritual.arabic_segments.0'))
             ->assertSee(config('dinoyo-way.spiritual.arabic_segments.1'))
-            ->assertSee('Dan laksanakanlah salat, tunaikanlah zakat, dan rukuklah beserta orang yang rukuk.')
+            ->assertSee('Wa aqīmūṣ-ṣalāta wa ātūz-zakāta warkaʿū maʿar-rākiʿīn.')
+            ->assertSee('Dan dirikanlah salat, tunaikanlah zakat, dan rukuklah beserta orang yang rukuk.')
             ->assertSee('Meningkatkan ketaqwaan dari waktu ke waktu')
             ->assertSee('Sedekah minimal 10% dari penghasilan')
             ->assertSee('Menciptakan lingkungan kerja terbaik');
